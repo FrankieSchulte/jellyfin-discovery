@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 const original=await readFile(new URL('../native/install.sh',import.meta.url),'utf8');
 async function fixture(health){
   const root=await mkdtemp(path.join(tmpdir(),'faz-installer-'));
-  const bin=path.join(root,'bin'), plugins=path.join(root,'plugins'), staging=path.join(root,'stage'),target=path.join(plugins,'FazFort.Discovery_0.3.2.0');
+  const bin=path.join(root,'bin'), plugins=path.join(root,'plugins'), staging=path.join(root,'stage'),target=path.join(plugins,'FazFort.Discovery_0.3.3.0');
   await Promise.all([mkdir(bin),mkdir(target,{recursive:true}),mkdir(path.join(staging,'plugin'),{recursive:true})]);
   await writeFile(path.join(target,'FazFort.Discovery.dll'),'old-plugin');
   await mkdir(path.join(plugins,'FazFort.Shelves_1.0.2.0'));await writeFile(path.join(plugins,'FazFort.Shelves_1.0.2.0','keep'),'unchanged');
@@ -35,7 +35,7 @@ test('installer preflight preserves files and service state',{skip:process.platf
   const f=await fixture('healthy');try{const r=f.run('--check');assert.equal(r.status,0,r.stderr);assert.equal(await readFile(path.join(f.target,'FazFort.Discovery.dll'),'utf8'),'old-plugin');assert.equal(await f.read('active'),'');}finally{await f.close();}
 });
 test('installer flow applies ownership and preserves other plugins',{skip:process.platform==='win32'},async()=>{
-  const f=await fixture('healthy');try{const r=f.run('--install');assert.equal(r.status,0,r.stderr);assert.equal(await readFile(path.join(f.target,'FazFort.Discovery.dll'),'utf8'),'new-FazFort.Discovery.dll');assert.equal(await f.read('plugins/FazFort.Shelves_1.0.2.0/keep'),'unchanged');assert.match(await f.read('owner'),/FazFort.Discovery_0.3.2.0/);assert.equal(await f.read('active'),'');}finally{await f.close();}
+  const f=await fixture('healthy');try{const r=f.run('--install');assert.equal(r.status,0,r.stderr);assert.equal(await readFile(path.join(f.target,'FazFort.Discovery.dll'),'utf8'),'new-FazFort.Discovery.dll');assert.equal(await f.read('plugins/FazFort.Shelves_1.0.2.0/keep'),'unchanged');assert.match(await f.read('owner'),/FazFort.Discovery_0.3.3.0/);assert.equal(await f.read('active'),'');}finally{await f.close();}
 });
 test('failed readiness rolls companion back and restores the running service',{skip:process.platform==='win32'},async()=>{
   const f=await fixture('unhealthy');try{const r=f.run('--install');assert.equal(r.status,1);assert.equal(await readFile(path.join(f.target,'FazFort.Discovery.dll'),'utf8'),'old-plugin');assert.equal(await f.read('active'),'');assert.match(r.stderr,/previous companion was restored/);}finally{await f.close();}

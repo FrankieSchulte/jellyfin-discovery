@@ -1,8 +1,8 @@
-# Validation for 0.3.2 preview
+# Validation for 0.3.3 preview
 
 Target: Jellyfin 12.4 / HSS 3.0.4, SleekFin and the legacy Jellyfin Web pages. Mobile web wrappers and TV browser shells are intended targets; independent native client interfaces and Modern React mounts are not supported.
 
-Completed locally for 0.3.2: **47 JavaScript/DOM/installer tests, 25 native ledger/config/HTML checks, 36 merged shelf-engine checks and 4 catalog packaging tests passed.** The native build completed with zero warnings/errors. Installer duplicate-assembly guards were exercised with command fixtures.
+Completed locally for 0.3.3: **52 JavaScript/DOM/installer tests, 28 native ledger/config/HTML checks, 36 merged shelf-engine checks and 4 catalog packaging tests passed.** The native build completed with zero warnings/errors. Installer duplicate-assembly guards were exercised with command fixtures.
 
 - Browser build downleveled to Chrome 69/Safari 13 syntax, with source/bundle syntax checks.
 - Node tests for matching, filtering, scopes, arrival-badge truthfulness, explained recommendations, 200-row feed diversity, finite results, hydration, pagination and profile request versioning.
@@ -39,3 +39,7 @@ The native plugin now embeds the HSS engine and configuration page. Stable secti
 ## Catalog and browser delivery
 
 New checks exercise flat ZIP layout, exact manifest checksum/download URLs, version mismatch and missing-asset rejection, deterministic ZIP bytes, idempotent HTML injection, disabling injection, version replacement and relative asset paths. Live GitHub publication, catalog download/install, File Transformation reflection registration, proxied HTTP asset serving and native-device behavior still require acceptance testing. No release or live install has been performed by the local checks.
+
+## 0.3.3 presentation and editor
+
+New fixtures verify that the native section host remains visible and adjacent to a simulated SleekFin hero, late native rows are hidden individually, and cleanup restores those rows. They cover explicit opening order with a rotating director, portrait Discover artwork selection, visual category creation and versioned server saves, separate page profiles, and the compact closed utility disclosure. Server validation covers new opening/layout fields and invalid references. Real browser launch remains blocked by workspace socket permissions, so pixel-level visual verification and actual theme timing must be checked on the live installation.

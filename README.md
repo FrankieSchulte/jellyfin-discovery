@@ -49,7 +49,7 @@ The catalog URL becomes available only after the first successful **Release plug
 
 ### Manual fallback
 
-Manual installation is optional. The Linux package `server/fazfort-discovery-companion-0.3.2.tar.gz` supports Debian/Ubuntu systemd installations; its installer validates checksums and backs up replaced files. Review its paths and health-check configuration before use. An optional Proxmox helper is included.
+Manual installation is optional. The Linux package `server/fazfort-discovery-companion-0.3.3.tar.gz` supports Debian/Ubuntu systemd installations; its installer validates checksums and backs up replaced files. Review its paths and health-check configuration before use. An optional Proxmox helper is included.
 
 If automatic browser delivery is unavailable, disable **Automatically load Discovery in Jellyfin Web** in plugin settings, restart, then add `dist/fazfort-discovery.js` as one enabled, non-module JavaScript Injector script. Without the server plugin, browsing still works but arrival tracking and synchronized preferences are unavailable.
 
@@ -61,8 +61,8 @@ The HSS settings and browser profiles serve different interfaces. Use **Customiz
 
 ## Controls and configuration
 
-- **Customize:** edit, import or export a discovery profile. Authenticated users save their own rules to the server when available; version checks prevent stale edits overwriting newer saves. Local fallback settings can be exported.
-- **Filters:** combine criteria or change sorting. Filtered results are finite and paginated; clear filters to resume mixed discovery browsing.
+- **Browse options → Customize:** use the visual editor to add/edit categories, move opening rows up/down, choose artwork layouts and select rotating category types separately for Home, Movies and Shows. JSON is available under Advanced for import/export. Authenticated users save their own rules to the server when available; version checks prevent stale edits overwriting newer saves. Local fallback settings can be exported.
+- **Browse options → Filters:** combine criteria or change sorting. Filtered results are finite and paginated; clear filters to resume mixed discovery browsing.
 - **⋯ on a local title:** open explained recommendations. Recommendations stay within the accessible inventory and active filters.
 - **Full library / Normal home:** restore native browsing. **Discover shelves** switches back.
 - **Controls: auto / tv / touch:** select a device-specific navigation mode. In TV mode, arrows move between cards/shelves, Select opens a title, and holding Select opens recommendations. Back closes the extension's dialogs first.
@@ -121,3 +121,11 @@ Disable the browser script and refresh to restore the previous interface. The se
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Opening row layout
+
+In Customize, mix default sections with specific categories or rotating slots such as Directed by…, Starring…, genre and decade. Move Up/Down sets the opening order. Removed default sections are disabled for that profile; remaining unlisted default sections follow the opening. Afterward, the existing varied feed continues. A scheduled category outside its months, a disabled category, or a row below the minimum match count is skipped.
+
+Automatic artwork uses portrait cards for Discover sections and poster-only pools, and landscape cards for other rows. Explicit artwork overrides are available for category definitions and opening-row types. Repeated occurrences of a row type share its artwork setting.
+
+SleekFin's hero remains owned by SleekFin. Discovery preserves its visible mount anchor and does not require changes to the theme. Ensure the hero is enabled in SleekFin settings.

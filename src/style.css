@@ -36,3 +36,26 @@
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
 @media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
+/* Keep SleekFin's mount anchor visible; hide its native rows individually. */
+[data-fx-hero-anchor="true"]{min-height:1px}
+.fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
+.fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
+.fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:#181818;border:1px solid #555;border-radius:12px;box-shadow:0 12px 40px #000a;min-width:190px;z-index:10}
+.fx-feed-menu:not([open])>.fx-feed-menu-actions{display:none}
+.fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
+.fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
+.fx-card-portrait .fx-card-visual img{object-fit:contain}
+.fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
+.fx-editor-tabs,.fx-editor-fields,.fx-order-row,.fx-category-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.fx-editor-tabs{position:sticky;top:-22px;background:#151515;padding:10px 0;z-index:2}.fx-editor-tabs [aria-pressed="true"]{background:#eee;color:#111}
+.fx-editor-field{display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:120px;flex:1}
+.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:44px;background:#252525;color:#fff;border:1px solid #666;border-radius:6px;padding:9px;font:inherit}
+.fx-editor-field input[type="checkbox"]{width:22px;min-height:22px}
+.fx-order-list{padding-left:24px}.fx-order-row{padding:12px 0;border-bottom:1px solid #444;flex-wrap:wrap}.fx-order-row>span{flex:1;min-width:170px}
+.fx-category-row{padding:10px 0;border-bottom:1px solid #333}.fx-category-row .fx-editor-field{flex-direction:row;align-items:center;justify-content:space-between}.fx-category-row input{flex:0 0 22px}
+.fx-rule-form{margin-top:18px;padding:16px;border:1px solid #555;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fx-rule-form p{grid-column:1/-1}
+.fx-advanced{margin-top:24px}.fx-advanced>summary{padding:12px;cursor:pointer}.fx-advanced textarea{margin-top:12px}
+@supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
+@media(hover:none){.fx-card-more{opacity:1}}
+@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-rule-form{grid-template-columns:minmax(0,1fr)}.fx-editor-tabs{top:-15px}}

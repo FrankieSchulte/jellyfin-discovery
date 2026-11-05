@@ -21,12 +21,20 @@ public static class ConfigPolicy
                 if (!Strings(p.GetProperty("anchors"),new HashSet<string>{"ContinueWatchingNextUp","RecentlyAddedMovies","RecentlyAddedShows","DiscoverMovies","DiscoverTV","MyJellyseerrRequests","MyMedia"}) ||
                     !Strings(p.GetProperty("families"),new HashSet<string>{"theme","genre","director","actor","decade","studio","rating","rewatch","runtime"})) return false;
                 var rules=p.GetProperty("rules"); if(rules.ValueKind!=JsonValueKind.Array || rules.GetArrayLength()>100)return false;
+                var ruleKeys=rules.EnumerateArray().Select(r=>r.GetProperty("Key").GetString()).ToHashSet();
+                bool Token(string? token) => token is not null && (
+                    token.StartsWith("rule:",StringComparison.Ordinal)&&ruleKeys.Contains(token[5..]) ||
+                    token.StartsWith("anchor:",StringComparison.Ordinal)&&new[]{"ContinueWatchingNextUp","RecentlyAddedMovies","RecentlyAddedShows","DiscoverMovies","DiscoverTV","MyJellyseerrRequests","MyMedia"}.Contains(token[7..]) ||
+                    token.StartsWith("family:",StringComparison.Ordinal)&&new[]{"theme","genre","director","actor","decade","studio","rating","rewatch","runtime"}.Contains(token[7..]));
+                if(p.TryGetProperty("opening",out var opening)&&opening.ValueKind!=JsonValueKind.Null&&(opening.ValueKind!=JsonValueKind.Array||opening.GetArrayLength()>100||opening.EnumerateArray().Any(t=>t.ValueKind!=JsonValueKind.String||!Token(t.GetString()))))return false;
+                if(p.TryGetProperty("layouts",out var layouts)&&layouts.ValueKind!=JsonValueKind.Null&&(layouts.ValueKind!=JsonValueKind.Object||layouts.EnumerateObject().Count()>200||layouts.EnumerateObject().Any(l=>!Token(l.Name)||l.Value.ValueKind!=JsonValueKind.String||!new[]{"auto","landscape","portrait"}.Contains(l.Value.GetString()))))return false;
                 var keys=new HashSet<string>();
                 foreach(var rule in rules.EnumerateArray())
                 {
                     var key=rule.GetProperty("Key").GetString();var title=rule.GetProperty("Title").GetString();
                     if(string.IsNullOrWhiteSpace(key)||key.Length>60||key.Any(ch=>!char.IsAsciiLetterOrDigit(ch)&&ch!='-')||!keys.Add(key)||string.IsNullOrWhiteSpace(title)||title.Length>120)return false;
                     if(!Strings(rule.GetProperty("Types"),new HashSet<string>{"Movie","Series"})||rule.GetProperty("Types").GetArrayLength()==0)return false;
+                    if(rule.TryGetProperty("Layout",out var layout)&&layout.ValueKind!=JsonValueKind.Null&&(layout.ValueKind!=JsonValueKind.String||!new[]{"auto","landscape","portrait"}.Contains(layout.GetString())))return false;
                     if(rule.TryGetProperty("Enabled",out var enabled)&&enabled.ValueKind!=JsonValueKind.Null&&!Boolean(enabled))return false;
                     foreach(var filter in new[]{"GenresAny","TagsAny","DirectorsAny","ActorsAny","StudiosAny"})if(rule.TryGetProperty(filter,out var value)&&value.ValueKind!=JsonValueKind.Null&&!Strings(value))return false;
                     if(rule.TryGetProperty("MinRating",out var rating)&&rating.ValueKind!=JsonValueKind.Null&&(rating.ValueKind!=JsonValueKind.Number||!rating.TryGetDouble(out double d)||!double.IsFinite(d)||d<0||d>10))return false;

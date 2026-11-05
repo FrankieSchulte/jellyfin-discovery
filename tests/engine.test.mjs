@@ -95,3 +95,11 @@ test('route detection preserves library scope and avoids favorites/details', () 
   assert.equal(routeInfo('#/details?id=a'),null);
   assert.equal(routeInfo('#/dashboard'),null);
 });
+test('opening rows and artwork validate and missing category references fail',()=>{
+  const c=JSON.parse(JSON.stringify(config));
+  c.pages.home.opening=['anchor:MyMedia','rule:popcorn','family:director'];
+  c.pages.home.layouts={'anchor:DiscoverMovies':'portrait'};
+  assert.doesNotThrow(()=>validateConfig(c));
+  c.pages.home.opening=['rule:missing'];assert.throws(()=>validateConfig(c),/opening/);
+  c.pages.home.opening=['family:director'];c.pages.home.layouts={'anchor:DiscoverMovies':'stretch'};assert.throws(()=>validateConfig(c),/layout/);
+});

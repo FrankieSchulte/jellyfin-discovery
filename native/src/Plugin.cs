@@ -41,7 +41,7 @@ public sealed class Plugin : BasePlugin<Configuration>, IHasWebPages
         ((Configuration)configuration).Validate();
         base.UpdateConfiguration(configuration);
     }
-    public IEnumerable<PluginPageInfo> GetPages() => [new() { Name="DiscoveryShelves", EmbeddedResourcePath="FazFort.Discovery.config.html" }];
+    public IEnumerable<PluginPageInfo> GetPages() => [new() { Name="DiscoveryShelves", EmbeddedResourcePath="FazFort.Discovery.config.html", EnableInMainMenu=true, DisplayName="Jellyfin Discovery", MenuIcon="explore" }];
 }
 public sealed class Registrator : IPluginServiceRegistrator
 {

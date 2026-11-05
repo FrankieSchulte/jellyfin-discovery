@@ -6,7 +6,8 @@ import { parseHTML } from 'linkedom';
 const source = await readFile(new URL('../dist/fazfort-discovery.js', import.meta.url), 'utf8');
 const id=n=>n.toString(16).padStart(32,'0');
 const fixtureItems=Array.from({length:45},(_,n)=>({Id:id(n+1),Name:`Movie ${n}`,Type:n%3?'Movie':'Series',DateCreated:new Date().toISOString(),ProductionYear:2000+n%20,Genres:['Action','Adventure','Comedy'],Tags:['space','superhero','anime','based on video game'],CommunityRating:8,ImageTags:{Primary:'primary'},BackdropImageTags:['bg'],People:[{Name:'Director '+n%3,Type:'Director'},{Name:'Actor '+n%4,Type:'Actor'}],UserData:{}}));
-function fixture({hash='#/home',failure=false,delay=false}={}){
+function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
+  const saves=[];
   const {window,document}=parseHTML('<html><head></head><body><div id="indexPage" class="page"><div class="hero">Keep hero</div><div class="homeSectionsContainer"><div class="card" data-id="'+id(1)+'"><div class="cardScalable"></div></div></div></div><div id="moviesPage" class="page hide"><div class="pageTabContent" data-index="0"><p>Original movie list</p></div></div><div id="tvshowsPage" class="page hide"><div class="pageTabContent" data-index="0">Original shows</div></div></body></html>');
   let timeouts=[],frames=[],mutation,intersect,requests=0,resolver,focused=document.body;
   const listeners=new Map();
@@ -14,8 +15,8 @@ function fixture({hash='#/home',failure=false,delay=false}={}){
   window.HTMLElement.prototype.focus=function(){focused=this;};
   window.HTMLElement.prototype.scrollIntoView=function(){};
   const storage=new Map();
-  const api={getCurrentUserId:()=> 'u',serverId:()=> 's',getImageUrl:(i,o)=>`https://example.test/Items/${i}/Images/${o.type}`,getUrl:(p,q)=>({p,q}),getJSON:async ({p})=>{
-    if(p==='FazFortDiscovery/Preferences')return {Version:0,Config:null};
+  const api={ajax:async options=>{const body=JSON.parse(options.data);saves.push(body);config=body.Config;return {Version:saves.length};},getCurrentUserId:()=> 'u',serverId:()=> 's',getImageUrl:(i,o)=>`https://example.test/Items/${i}/Images/${o.type}`,getUrl:(p,q)=>({p,q}),getJSON:async ({p})=>{
+    if(p==='FazFortDiscovery/Preferences')return {Version:saves.length,Config:config};
     if(p==='FazFortDiscovery/Tracking')return {Ready:true,Records:Object.fromEntries(fixtureItems.map(i=>[i.Id,{AddedAt:new Date().toISOString()}]))};
     if(p.endsWith('/Views'))return {Items:[{Id:'m',Name:'Movies',CollectionType:'movies'},{Id:'t',Name:'Shows',CollectionType:'tvshows'}]};
     return {Items:fixtureItems.slice(0,3)};
@@ -40,7 +41,7 @@ function fixture({hash='#/home',failure=false,delay=false}={}){
   const ctx=vm.createContext(context);
   vm.runInContext(source,ctx);
   const settle=async()=>{for(let n=0;n<80;n++)await Promise.resolve();};
-  return {ctx,document,api,location,storage,settle,runAgain:()=>vm.runInContext(source,ctx),intersection:()=>intersect([{isIntersecting:true}]),resolve:()=>resolver?.(),requests:()=>requests,frames:()=>{const f=frames;frames=[];f.forEach(fn=>fn());},notify:()=>mutation([{target:document.body,type:'childList'}]),navigate:hash=>{location.hash=hash;listeners.get('hashchange')?.();const queued=timeouts.filter(t=>t.ms===120);timeouts=timeouts.filter(t=>t.ms!==120);queued.forEach(t=>t.fn());},key:(node,key,keyCode)=>{const event=new window.Event('keydown',{bubbles:true,cancelable:true});Object.defineProperties(event,{key:{value:key},keyCode:{value:keyCode}});node.dispatchEvent(event);return event;},select:(label,value)=>{const select=document.querySelector(`select[aria-label="${label}"]`);for(const option of select.querySelectorAll('option'))option.toggleAttribute('selected',option.value===value);select.dispatchEvent(new window.Event('change',{bubbles:true}));}};
+  return {ctx,document,api,location,storage,settle,saves,runAgain:()=>vm.runInContext(source,ctx),intersection:()=>intersect([{isIntersecting:true}]),resolve:()=>resolver?.(),requests:()=>requests,frames:()=>{const f=frames;frames=[];f.forEach(fn=>fn());},notify:()=>mutation([{target:document.body,type:'childList'}]),navigate:hash=>{location.hash=hash;listeners.get('hashchange')?.();const queued=timeouts.filter(t=>t.ms===120);timeouts=timeouts.filter(t=>t.ms!==120);queued.forEach(t=>t.fn());},key:(node,key,keyCode)=>{const event=new window.Event('keydown',{bubbles:true,cancelable:true});Object.defineProperties(event,{key:{value:key},keyCode:{value:keyCode}});node.dispatchEvent(event);return event;},select:(label,value)=>{const select=document.querySelector(`select[aria-label="${label}"]`);for(const option of select.querySelectorAll('option'))option.toggleAttribute('selected',option.value===value);select.dispatchEvent(new window.Event('change',{bubbles:true}));}};
 }
 test('home mounts, alternates core/theme, preserves hero and restores native on stop',async()=>{
   const f=fixture();await f.settle();
@@ -48,7 +49,8 @@ test('home mounts, alternates core/theme, preserves hero and restores native on 
   const rows=[...f.document.querySelectorAll('.fx-shelf')].map(x=>x.dataset.shelfKey);
   assert.equal(rows[0],'ContinueWatchingNextUp');assert.ok(rows[1].startsWith('rule:'));assert.equal(rows[2],'RecentlyAddedMovies');assert.ok(rows[3].startsWith('rule:'));
   assert.equal(f.document.querySelector('.hero').textContent,'Keep hero');
-  assert.equal(f.document.querySelector('.homeSectionsContainer').getAttribute('data-fx-native-hidden'),'true');
+  assert.equal(f.document.querySelector('.homeSectionsContainer').getAttribute('data-fx-native-hidden'),null);
+  assert.equal(f.document.querySelector('.homeSectionsContainer .card').getAttribute('data-fx-native-hidden'),'true');
   f.ctx.window.FazFortDiscovery.stop();
   assert.equal(f.document.querySelector('.fx-discovery'),null);assert.equal(f.document.querySelector('[data-fx-native-hidden]'),null);
 });
@@ -156,4 +158,51 @@ test('Customize works without structuredClone or native dialog.showModal',async(
   const f=fixture();delete f.ctx.structuredClone;await f.settle();
   [...f.document.querySelectorAll('.fx-toolbar button')].find(b=>b.textContent==='Customize').click();
   assert.ok(f.document.querySelector('.fx-dialog-fallback[open]'));f.ctx.window.FazFortDiscovery.stop();
+});
+test('native section anchor stays visible and adjacent to SleekFin hero, including late rows',async()=>{
+  const f=fixture();await f.settle();
+  const native=f.document.querySelector('.homeSectionsContainer');native.classList.add('sections');
+  const hero=f.document.createElement('div');hero.className='sleekfin-hero';hero.textContent='Featured title';native.before(hero);
+  const late=f.document.createElement('section');late.textContent='late HSS row';native.append(late);
+  f.navigate('#/home');await f.settle();
+  assert.equal(hero.nextElementSibling,native);assert.equal(native.nextElementSibling.className.includes('fx-discovery'),true);
+  assert.equal(native.getAttribute('data-fx-native-hidden'),null);assert.equal(hero.closest('[data-fx-native-hidden]'),null);
+  assert.equal(late.getAttribute('data-fx-native-hidden'),'true');
+  f.ctx.window.FazFortDiscovery.stop();assert.equal(late.getAttribute('data-fx-native-hidden'),null);
+});
+test('opening rows pin a theme and rotate a director between defaults; Discover stays portrait',async()=>{
+  const config=JSON.parse(await readFile(new URL('../config/default.json',import.meta.url),'utf8'));
+  config.pages.home.anchors=[];
+  config.pages.home.opening=['anchor:MyMedia','rule:popcorn','family:director','anchor:DiscoverMovies'];
+  config.pages.home.layouts={'rule:popcorn':'portrait'};
+  const f=fixture({config});await f.settle();
+  const rows=[...f.document.querySelectorAll('.fx-shelf')];
+  assert.deepEqual(rows.map(r=>r.dataset.shelfKey).slice(0,2),['MyMedia','rule:popcorn']);
+  assert.ok(rows[2].dataset.shelfKey.startsWith('director:'));assert.equal(rows[3].dataset.shelfKey,'DiscoverMovies');
+  assert.equal(rows[1].dataset.layout,'portrait');assert.equal(rows[3].dataset.layout,'portrait');
+  assert.ok(rows[3].querySelector('.fx-card-portrait img').src.endsWith('/Images/Primary'));
+  f.intersection();await f.settle();assert.ok(f.document.querySelectorAll('.fx-shelf').length>4);
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('visual editor creates and saves a category and ordering without JSON edits',async()=>{
+  const f=fixture();await f.settle();
+  [...f.document.querySelectorAll('.fx-toolbar button')].find(b=>b.textContent==='Customize').click();
+  const dialog=f.document.querySelector('#fx-customize');
+  const click=text=>[...dialog.querySelectorAll('button')].find(b=>b.textContent===text).click();
+  const change=(label,value)=>{const field=dialog.querySelector(`input[aria-label="${label}"]`);field.value=value;field.dispatchEvent(new f.ctx.document.defaultView.Event('change',{bubbles:true}));};
+  click('Add category');change('Category title','Space favorites');change('Tags','space');f.select('Category artwork','portrait');click('Done editing');
+  const draft=JSON.parse(dialog.querySelector('textarea').value),rule=draft.pages.home.rules.find(r=>r.Title==='Space favorites');
+  assert.ok(rule);assert.deepEqual(rule.TagsAny,['space']);assert.equal(rule.Layout,'portrait');
+  f.select('Add opening row',`rule:${rule.Key}`);click('Add row');
+  const rows=dialog.querySelectorAll('.fx-order-row');rows[rows.length-1].querySelector('button[aria-label$=" up"]').click();
+  click('Apply');await f.settle();
+  assert.equal(f.saves.length,1);assert.equal(f.saves[0].Config.pages.home.opening.at(-2),`rule:${rule.Key}`);
+  assert.equal(f.saves[0].Config.pages.movies.rules.some(r=>r.Key===rule.Key),false);
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('feed utilities are inside one closed disclosure without a second page heading',async()=>{
+  const f=fixture();await f.settle();
+  const toolbar=f.document.querySelector('.fx-toolbar');assert.equal(toolbar.querySelector('h2'),null);
+  const menu=toolbar.querySelector('details');assert.ok(menu);assert.equal(menu.hasAttribute('open'),false);
+  assert.equal(menu.querySelector('summary').textContent,'Browse options');f.ctx.window.FazFortDiscovery.stop();
 });

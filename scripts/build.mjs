@@ -3,7 +3,7 @@ import { validateConfig } from '../src/engine.js';
 import { transform } from 'esbuild';
 const manifest=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));
 const config = validateConfig(JSON.parse(await readFile(new URL('../config/default.json', import.meta.url), 'utf8')));
-const pieces = await Promise.all(['engine.js', 'client.js', 'ui.js'].map(name => readFile(new URL('../src/' + name, import.meta.url), 'utf8')));
+const pieces = await Promise.all(['engine.js', 'client.js', 'editor.js', 'ui.js'].map(name => readFile(new URL('../src/' + name, import.meta.url), 'utf8')));
 const css = await readFile(new URL('../src/style.css', import.meta.url), 'utf8');
 const source = `(() => {\n'use strict';\nif(!Element.prototype.replaceChildren)Element.prototype.replaceChildren=function(...nodes){while(this.firstChild)this.removeChild(this.firstChild);this.append(...nodes);};\nconst DEFAULT_CONFIG = ${JSON.stringify(config, null, 2)};\nconst DISCOVERY_CSS = ${JSON.stringify(css)};\n${pieces.map(s => s.replace(/^export /gm, '')).join('\n')}\nbootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS);\n})();\n`;
 const built=await transform(source,{target:['chrome69','safari13'],format:'iife',minify:false,legalComments:'none'});

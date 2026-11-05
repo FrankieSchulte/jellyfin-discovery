@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.3.2';
+const VERSION = '0.3.3';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -72,7 +72,7 @@ function moreLikeThis(item, s) {
 function safeUrl(value, base = location.href) {
   try { const url = new URL(value, base); return ['http:', 'https:'].includes(url.protocol) ? url.href : ''; } catch { return ''; }
 }
-function imageChoices(item, api) {
+function imageChoices(item, api, layout = 'landscape') {
   const results = [];
   const add = (id, type, tag, poster = false) => {
     if (!id || !tag) return;
@@ -89,7 +89,7 @@ function imageChoices(item, api) {
     const url = safeUrl(/^https?:/i.test(raw) ? raw : api.getUrl(raw));
     if (url) results.push({ url, poster: true });
   }
-  return results;
+  return layout === 'portrait' ? results.filter(c => c.poster) : results;
 }
 function itemHref(item, api) {
   if (item.ProviderIds?.JellyseerrRoot && item.ProviderIds?.Jellyseerr && ['movie', 'tv'].includes(item.SourceType)) {
@@ -102,7 +102,7 @@ function itemHref(item, api) {
   }
   return item.Id ? `#/details?${q}` : '';
 }
-function renderCard(item, s, withSimilar = true) {
+function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   const card = element('a', 'fx-card'); card.href = itemHref(item, s.api) || '#';
   card.dataset.itemId = item.Id || '';
   card.addEventListener('click', () => { s.lastFocus = { row: s.slots.findIndex(slot => slot.node.contains(card)), id: item.Id }; saveFeed(s); if (activeDialog) closeDialog(); });
@@ -111,7 +111,7 @@ function renderCard(item, s, withSimilar = true) {
   const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
   const visual = element('div', 'fx-card-visual');
   const placeholder = element('span', 'fx-placeholder', name); visual.append(placeholder);
-  const choices = imageChoices(item, s.api);
+  const choices = imageChoices(item, s.api, layout);
   if (choices.length) {
     const img = element('img'); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
     let index = 0;
@@ -125,7 +125,7 @@ function renderCard(item, s, withSimilar = true) {
   const badge = badgeFor(item, s.badges, s.now, s.tracking);
   if (badge) visual.append(element('span', 'fx-badge', badge));
   card.append(visual, element('span', 'fx-name', name)); card.title = name;
-  const entry = element('div', 'fx-card-entry'); entry.append(card);
+  const entry = element('div', `fx-card-entry fx-card-${layout}`); entry.append(card);
   if (withSimilar && ['Movie', 'Series'].includes(item.Type) && s.inventory.items.some(i => i.Id === item.Id)) {
     const more = button('⋯', () => moreLikeThis(item, s)); more.className = 'fx-card-more'; more.title='More like this';more.setAttribute('aria-label', `More like ${name}`); entry.append(more);
     card.addEventListener('contextmenu', event => { event.preventDefault(); moreLikeThis(item, s); });
@@ -139,7 +139,12 @@ function fillSlot(slot, s) {
   const scroll = direction => track.scrollBy({ left: direction * Math.max(250, track.clientWidth * .85), behavior: 'smooth' });
   const back = button('‹', () => scroll(-1)), forward = button('›', () => scroll(1));
   back.setAttribute('aria-label', `Previous ${row.title}`); forward.setAttribute('aria-label', `More ${row.title}`);
-  head.append(title, back, forward); row.items.forEach(item => track.append(renderCard(item, s)));
+  const token = row.family === 'anchor' ? `anchor:${row.key}` : row.family === 'theme' ? row.key : `family:${row.family}`;
+  const requested = s.profile.layouts?.[token] || row.layout || 'auto';
+  const portraitOnly=row.key!=='MyMedia'&&row.items.filter(i=>!i.ImageTags?.Thumb&&!i.BackdropImageTags?.length&&!i.ParentBackdropImageTags?.length&&(i.ImageTags?.Primary||i.ProviderIds?.JellyseerrPoster)&&(!i.PrimaryImageAspectRatio||i.PrimaryImageAspectRatio<1)).length>row.items.length/2;
+  const layout = requested === 'auto' ? (row.external || row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || portraitOnly ? 'portrait' : 'landscape') : requested;
+  slot.node.dataset.layout = layout;
+  head.append(title, back, forward); row.items.forEach(item => track.append(renderCard(item, s, true, layout)));
   slot.node.append(head, track); slot.live = true;
 }
 function virtualize(s) {
@@ -193,7 +198,7 @@ function preparePlanner(s) {
 }
 function applyFilters(s) {
   if (state!==s || s.loading) { s.filterPending=true; return; }
-  s.filterPending=false; s.finished=false; s.pending=null; s.pauseAutomatic=false; s.anchorIndex=0; s.anchorTurn=true; s.slots=[]; s.list.replaceChildren(); s.more.hidden=false;
+  s.filterPending=false; s.finished=false; s.pending=null; s.pauseAutomatic=false; s.anchorIndex=0; s.openingIndex=0; s.anchorTurn=true; s.slots=[]; s.list.replaceChildren(); s.more.hidden=false;
   preparePlanner(s); loadMore(s);
 }
 function findScrollRoot(node) {
@@ -206,11 +211,11 @@ function findScrollRoot(node) {
 function saveFeed(s) {
   if (!s.inventory || !s.config || !s.planner) return;
   const root=findScrollRoot(s.root);
-  savedFeeds.set(s.key,{config:JSON.stringify(s.config),inventory:s.inventory,tracking:s.tracking,filters:cloneJson(s.filters),planner:s.planner,pending:s.pending,filteredQueue:s.filteredQueue?.slice()||null,rows:s.slots.map(slot=>slot.data),anchorIndex:s.anchorIndex,anchorTurn:s.anchorTurn,finished:s.finished,shuffle:s.shuffle,focus:s.lastFocus,scrollTop:root.scrollTop||0,tracks:s.slots.map(slot=>slot.node.querySelector('.fx-track')?.scrollLeft||0),at:Date.now()});
+  savedFeeds.set(s.key,{config:JSON.stringify(s.config),inventory:s.inventory,tracking:s.tracking,filters:cloneJson(s.filters),planner:s.planner,pending:s.pending,filteredQueue:s.filteredQueue?.slice()||null,rows:s.slots.map(slot=>slot.data),openingIndex:s.openingIndex||0,anchorIndex:s.anchorIndex,anchorTurn:s.anchorTurn,finished:s.finished,shuffle:s.shuffle,focus:s.lastFocus,scrollTop:root.scrollTop||0,tracks:s.slots.map(slot=>slot.node.querySelector('.fx-track')?.scrollLeft||0),at:Date.now()});
   if(savedFeeds.size>6)savedFeeds.delete(savedFeeds.keys().next().value);
 }
 function restoreFeed(s, saved) {
-  s.filters=cloneJson(saved.filters);s.planner=saved.planner;s.pending=saved.pending;s.filteredQueue=saved.filteredQueue?.slice()||null;s.anchorIndex=saved.anchorIndex;s.anchorTurn=saved.anchorTurn;s.finished=saved.finished;s.shuffle=saved.shuffle;s.lastFocus=saved.focus;
+  s.filters=cloneJson(saved.filters);s.planner=saved.planner;s.pending=saved.pending;s.filteredQueue=saved.filteredQueue?.slice()||null;s.openingIndex=saved.openingIndex||0;s.anchorIndex=saved.anchorIndex;s.anchorTurn=saved.anchorTurn;s.finished=saved.finished;s.shuffle=saved.shuffle;s.lastFocus=saved.focus;
   saved.rows.forEach(row=>appendRow(row,s));
   s.more.hidden=s.finished; s.more.disabled=false;
   s.matchCount.textContent=s.filteredQueue?`${filterItems(s.inventory.items,s.filters,s.tracking).length} matching titles`:'';
@@ -225,12 +230,26 @@ function restoreFeed(s, saved) {
     virtualize(s);
   });
 }
+function syncNative(s, hide) {
+  s.native.removeAttribute('data-fx-native-hidden');
+  s.native.querySelectorAll('[data-fx-native-hidden]').forEach(n => n.removeAttribute('data-fx-native-hidden'));
+  s.native.removeAttribute('data-fx-hero-anchor');
+  if (!hide) return;
+  if (s.route.page !== 'home') { s.native.setAttribute('data-fx-native-hidden','true'); return; }
+  s.native.dataset.fxHeroAnchor = 'true';
+  const protect = '.sleekfin-hero,.hero,#slides-container';
+  const walk = parent => [...parent.children].forEach(node => {
+    if (node.matches(protect) || node.closest('.fx-discovery')) return;
+    if (node.matches('.sections') || node.querySelector(`${protect},.sections`)) walk(node);
+    else node.setAttribute('data-fx-native-hidden','true');
+  });
+  walk(s.native);
+}
 function setMode(s, full, remember = true) {
   s.full = full; s.list.hidden = full; s.footer.hidden = full;
   s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
-  if (full || (!s.slots.length && !s.filteredQueue)) s.native.removeAttribute('data-fx-native-hidden');
-  else s.native.setAttribute('data-fx-native-hidden', 'true');
+  syncNative(s, !(full || (!s.slots.length && !s.filteredQueue)));
   if (remember) { try { localStorage.setItem(prefKey(s.api, s.route.page), full ? 'native' : 'discover'); } catch { s.status.textContent = 'View preference could not be saved in this browser.'; } }
   if (!s.started) initialize(s);
   else if (!full && s.planner && !s.slots.length) loadMore(s);
@@ -238,9 +257,23 @@ function setMode(s, full, remember = true) {
 }
 async function nextRow(s) {
   if(s.filteredQueue)return s.filteredQueue.shift()||null;
+  const opening=s.profile.opening || [];
+  while((s.openingIndex||0)<opening.length){
+    const token=opening[s.openingIndex||0];s.openingIndex=(s.openingIndex||0)+1;
+    if(token.startsWith('anchor:')){
+      const id=token.slice(7);
+      try{const row=await s.client.anchor(id,s.route,s.inventory,s.config);if(row.items.length)return row;}
+      catch{s.client.assertCurrent();s.warnings.add(`Couldn't load ${id}.`);}
+    }else{
+      const row=token.startsWith('rule:')?s.planner.take(token):s.planner.shelves.some(r=>r.family===token.slice(7))?s.planner.next(token.slice(7)):null;
+      if(row)return row;
+    }
+  }
   while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
     if (s.anchorTurn && s.anchorIndex < s.profile.anchors.length) {
-      const id = s.profile.anchors[s.anchorIndex++]; s.anchorTurn = false;
+      const id = s.profile.anchors[s.anchorIndex++];
+      if(opening.includes(`anchor:${id}`))continue;
+      s.anchorTurn = false;
       try {
         const row = await s.client.anchor(id, s.route, s.inventory, s.config);
         if (row.items.length) return row;
@@ -344,6 +377,11 @@ function customize(s) {
   const input = element('textarea'); input.spellcheck = false; input.setAttribute('aria-label', 'Discovery configuration JSON');
   try { input.value = JSON.stringify(s.config || readConfig(s.api), null, 2); } catch { input.value = localStorage.getItem(configKey(s.api)) || JSON.stringify(DEFAULT_CONFIG, null, 2); }
   const error = element('p'); error.setAttribute('role', 'alert');
+  const visual=element('div','fx-visual-editor');
+  let initial;try{initial=validateConfig(JSON.parse(input.value));}catch{initial=DEFAULT_CONFIG;}
+  const editor=createVisualEditor(visual,initial,s.route.page,s.inventory,c=>{input.value=JSON.stringify(c,null,2);},{element,button});
+  const advanced=element('details','fx-advanced');advanced.append(element('summary','','Advanced: JSON import / export'));
+  input.addEventListener('change',()=>{try{editor.setConfig(validateConfig(JSON.parse(input.value)));error.textContent='';}catch(e){error.textContent=e.message;}});
   const actions = element('div', 'fx-dialog-actions');
   const apply = button('Apply', async () => {
     apply.disabled=true;
@@ -351,7 +389,7 @@ function customize(s) {
     catch (e) { error.textContent = e?.status===409 ? 'Preferences changed on another device. Close and reopen Customize before saving.' : e?.message || 'Could not save preferences. Check the connection and try again.'; }
     finally{apply.disabled=false;}
   });
-  const reset = button('Load supplied rules', () => { input.value = JSON.stringify(DEFAULT_CONFIG, null, 2); error.textContent = 'Review the rules, then Apply to save.'; });
+  const reset = button('Load supplied rules', () => { input.value = JSON.stringify(DEFAULT_CONFIG, null, 2);editor.setConfig(DEFAULT_CONFIG); error.textContent = 'Review the rules, then Apply to save.'; });
   const exportButton = button('Export JSON', () => { try { download('fazfort-discovery-config.json', validateConfig(JSON.parse(input.value))); } catch (e) { error.textContent = e.message; } });
   const file = element('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', 'Import discovery configuration or old shelf rules');
   file.addEventListener('change', async () => {
@@ -366,11 +404,13 @@ function customize(s) {
         c.pages.shows.rules = imported.filter(r => r.Types?.includes('Series')).map(r => ({ ...r, Types: ['Series'] }));
         input.value = JSON.stringify(validateConfig(c), null, 2);
       } else input.value = JSON.stringify(validateConfig(imported), null, 2);
-      error.textContent = 'Imported for review. Apply to save.';
+      editor.setConfig(validateConfig(JSON.parse(input.value)));error.textContent = 'Imported for review. Apply to save.';
     } catch (e) { error.textContent = e.message; }
   });
   actions.append(apply, exportButton, reset, button('Cancel', closeDialog));
-  dialog.append(title, help, file, input, error, actions);openDialog(dialog);
+  advanced.replaceChildren(element('summary','','Advanced: JSON import / export'),file,input,exportButton,reset);
+  actions.replaceChildren(apply,button('Cancel',closeDialog));
+  dialog.append(title,help,visual,advanced,error,actions);openDialog(dialog);
 }
 function visible(node) {
   if (!node?.isConnected || node.closest('.hide,[hidden],.hidePage')) return false;
@@ -392,7 +432,7 @@ function cleanup(preserve=true) {
   if (!state) return;
   if(preserve)saveFeed(state);
   clearTimeout(state.filterTimer);
-  state.io?.disconnect(); state.native.removeAttribute('data-fx-native-hidden'); state.root.remove(); state = null;
+  state.io?.disconnect(); syncNative(state,false); state.root.remove(); state = null;
   document.getElementById('fx-customize')?.remove();
   document.querySelectorAll('[data-fx-native-badge]').forEach(n => n.remove());
   document.querySelectorAll('[data-fx-badge-host]').forEach(n => n.removeAttribute('data-fx-badge-host'));
@@ -413,7 +453,7 @@ function reconcile() {
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}`;
-  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { decorateNative(state); return; }
+  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { if(!state.full && state.slots.length)syncNative(state,true); decorateNative(state); return; }
   cleanup();
   const token = generation;
   const root = element('div', 'fx-discovery'), toolbar = element('div', 'fx-toolbar'), list = element('div'), status = element('p', 'fx-status'), footer = element('div', 'fx-footer'), panel=element('div','fx-filters'),matchCount=element('p','fx-match-count');panel.hidden=true;
@@ -423,11 +463,13 @@ function reconcile() {
   s.toggle = button(route.page === 'home' ? 'Normal home' : 'Full library', () => setMode(s, !s.full));
   s.more = button('Load more', () => { s.pauseAutomatic = false; loadMore(s); });
   s.note = element('p', '', 'Loading shelves on demand.');
-  s.filterToggle=button('Filters',()=>{panel.hidden=!panel.hidden;if(!panel.hidden)focusNode(panel.querySelector('input,select'));});s.filterToggle.disabled=true;
+  s.filterToggle=button('Filters',()=>{s.root.querySelector('.fx-feed-menu')?.removeAttribute('open');panel.hidden=!panel.hidden;if(!panel.hidden)focusNode(panel.querySelector('input,select'));});s.filterToggle.disabled=true;
   const controlButton=button(`Controls: ${controlsMode(s).mode}`,()=>controlToggle(s,controlButton));root.classList.toggle('fx-tv',controlsMode(s).tv);
-  toolbar.append(element('h2', '', route.page === 'home' ? 'For you' : route.page === 'movies' ? 'Discover movies' : 'Discover shows'), s.toggle,s.filterToggle, button('Customize', () => customize(s)),controlButton, button('Restart feed', () => restart(true)));
+  const menu=element('details','fx-feed-menu'), summary=element('summary','','Browse options'), actions=element('div','fx-feed-menu-actions');
+  actions.append(s.toggle,s.filterToggle,button('Customize',()=>customize(s)),controlButton,button('Restart feed',()=>restart(true)));
+  menu.append(summary,actions);toolbar.append(menu);
   footer.append(s.more, s.note); root.append(toolbar,panel,matchCount,status,list,footer);
-  target.native.before(root); state = s;
+  if(route.page==='home') target.native.after(root); else target.native.before(root); state = s;
   let full = false; try { full = localStorage.getItem(prefKey(api, route.page)) === 'native'; } catch { /* A private browser can still use the unsaved view. */ }
   if (typeof IntersectionObserver === 'function') {
     s.io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) loadMore(s, true); }, { rootMargin: '600px 0px' }); s.io.observe(footer);
@@ -485,6 +527,7 @@ function remoteKey(event) {
     if(event.repeat||selectHold)return;
     selectHold={node:card,fired:false,timer:setTimeout(()=>{if(selectHold?.node===card&&state===s){selectHold.fired=true;const item=s.inventory.items.find(i=>i.Id===card.dataset.itemId);if(item)moreLikeThis(item,s);}},650)};return;
   }
+  if(key==='Escape'&&s.root.querySelector('.fx-feed-menu[open]')){event.preventDefault();event.stopPropagation();s.root.querySelector('.fx-feed-menu').removeAttribute('open');focusNode(s.root.querySelector('.fx-feed-menu>summary'));return;}
   if(key==='Escape'&&!s.panel.hidden){event.preventDefault();event.stopPropagation();s.panel.hidden=true;focusNode(s.filterToggle);return;}
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(key))return;
   let next;
@@ -494,11 +537,11 @@ function remoteKey(event) {
     else{
       const nextSlot=s.slots[slotIndex+(key==='ArrowUp'?-1:1)];
       if(nextSlot){if(!nextSlot.live)fillSlot(nextSlot,s);const options=[...nextSlot.node.querySelectorAll('.fx-card')];next=options[Math.min(index,options.length-1)];}
-      else if(key==='ArrowUp')next=s.filterToggle;
+      else if(key==='ArrowUp')next=s.root.querySelector('.fx-feed-menu>summary');
       else {next=s.more;if(!s.finished)loadMore(s);}
     }
   }else{
-    const bar=[...s.root.querySelectorAll('.fx-toolbar button')].filter(b=>!b.disabled),n=bar.indexOf(target);
+    const bar=[...s.root.querySelectorAll('.fx-toolbar summary,.fx-toolbar details[open] button')].filter(b=>!b.disabled),n=bar.indexOf(target);
     if(key==='ArrowDown')next=s.list.querySelector('.fx-card')||s.more;
     else next=bar[Math.max(0,Math.min(bar.length-1,n+(key==='ArrowLeft'?-1:1)))];
   }

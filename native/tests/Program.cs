@@ -46,4 +46,13 @@ Check(WebMarkup.Inject(html,"bad\"version",true)==html,"Invalid version cannot i
 Check(WebMarkup.Inject("fragment","0.3.2.0",true)=="fragment","Non-index fragments unchanged");
 Check(WebMarkup.Inject("<BODY></BODY>","0.3.2.0",true).Contains("data-discovery-asset"),"Uppercase body closing tag supported");
 Check(WebMarkup.Inject(injected,"0.3.3.0",true).Contains("v=0.3.3.0"),"Upgrade replaces old asset URL");
+var editorConfig=System.Text.Json.Nodes.JsonNode.Parse(defaults.GetRawText())!;
+editorConfig["pages"]!["home"]!["opening"]=new System.Text.Json.Nodes.JsonArray("anchor:MyMedia","rule:popcorn","family:director");
+editorConfig["pages"]!["home"]!["layouts"]=new System.Text.Json.Nodes.JsonObject{["rule:popcorn"]="portrait",["anchor:DiscoverMovies"]="portrait"};
+Check(ConfigPolicy.Valid(JsonDocument.Parse(editorConfig.ToJsonString()).RootElement),"Visual opening rows and artwork save on the server");
+editorConfig["pages"]!["home"]!["opening"]=new System.Text.Json.Nodes.JsonArray("rule:missing");
+Check(!ConfigPolicy.Valid(JsonDocument.Parse(editorConfig.ToJsonString()).RootElement),"Unknown pinned category is rejected");
+editorConfig["pages"]!["home"]!["opening"]=new System.Text.Json.Nodes.JsonArray("family:director");
+editorConfig["pages"]!["home"]!["layouts"]!["rule:popcorn"]="stretch";
+Check(!ConfigPolicy.Valid(JsonDocument.Parse(editorConfig.ToJsonString()).RootElement),"Unsupported artwork layouts are rejected");
 Console.WriteLine($"{checks} native ledger and validation checks passed.");

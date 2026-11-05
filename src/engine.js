@@ -112,11 +112,14 @@ export function validateConfig(config) {
     if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 100) throw Error(`${page}: use up to 100 rules.`);
     if (!Array.isArray(profile.anchors) || profile.anchors.some(a => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
     if (!Array.isArray(profile.families) || profile.families.some(f => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
+    if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>100||profile.opening.some(t=>typeof t!=='string'||!(t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
+    if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>200||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
     const keys = new Set();
     for (const r of profile.rules) {
       if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
       keys.add(r.Key);
       if (typeof r.Title !== 'string' || !r.Title.trim() || r.Title.length > 120) throw Error(`${r.Key}: title needs 1–120 characters.`);
+      if(r.Layout != null && !['auto','portrait','landscape'].includes(r.Layout))throw Error(`${r.Key}: invalid layout.`);
       if (r.Enabled != null && typeof r.Enabled !== 'boolean') throw Error(`${r.Key}: Enabled must be true or false.`);
       if (!Array.isArray(r.Types) || !r.Types.length || r.Types.some(t => !['Movie', 'Series'].includes(t))) throw Error(`${r.Key}: Types must contain Movie and/or Series.`);
       for (const field of ['GenresAny', 'TagsAny', 'DirectorsAny', 'ActorsAny', 'StudiosAny']) {
@@ -139,8 +142,10 @@ export function buildShelves(items, profile, config, page, now) {
     if (unique.length >= config.minimumItems) shelves.push({ key, title, family, items: unique });
   };
   for (const rule of profile.rules) {
+    if(!profile.families.includes('theme')&&!profile.opening?.includes(`rule:${rule.Key}`))continue;
     if (rule.Enabled === false || (rule.Months?.length && !rule.Months.includes(month))) continue;
     add(`rule:${rule.Key}`, rule.Title, 'theme', eligible.filter(i => matches(rule, i)));
+    const added=shelves.find(r=>r.key===`rule:${rule.Key}`);if(added)added.layout=rule.Layout||'auto';
   }
   const grouping = (family, values, title, filter = () => true) => {
     if (!profile.families.includes(family)) return;
@@ -172,9 +177,10 @@ export class FeedPlanner {
     this.shelves = shelves; this.config = config; this.seed = seed;
     this.counts = new Map(); this.lastFamilies = []; this.lastKeys = []; this.lastItems = []; this.index = 0;
   }
-  next(preferredFamily = null) {
+  take(key) { return this.next(null,key); }
+  next(preferredFamily = null, exactKey = null) {
     if (!this.shelves.length) return null;
-    let pool = this.shelves.filter(s => this.config.endless || !this.counts.has(s.key));
+    let pool = this.shelves.filter(s => (!exactKey || s.key===exactKey) && (this.config.endless || !this.counts.has(s.key)));
     if (!pool.length) return null;
     const fresh = pool.filter(s => !this.lastKeys.includes(s.key));
     if (fresh.length) pool = fresh;

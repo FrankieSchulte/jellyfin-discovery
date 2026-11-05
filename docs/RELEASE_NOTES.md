@@ -1,10 +1,12 @@
-Jellyfin Discovery now includes its browser bundle and themed HSS shelves in one server plugin.
+Jellyfin Discovery 0.3.3 fixes presentation and adds visual feed editing.
 
-- Install/update through a Jellyfin catalog after adding the release manifest URL.
-- File Transformation injects the matching, versioned browser bundle automatically. Disable older Discovery scripts in JavaScript Injector.
-- Existing Discovery plugin ID, preferences and arrival history are retained.
-- Standalone Shelves users must export their rules and disable/remove the old Shelves plugin before using the consolidated HSS integration. See docs/MIGRATION.md.
-- Target: Jellyfin 12.4, legacy Web layout. HSS 3.0.4 is needed for HSS-derived rows; File Transformation is needed for automatic web delivery. Install these separately.
-- Independent native apps do not inherit custom web screens.
+- Preserve SleekFin's visible hero mount anchor and its adjacency while hiding native rows individually. Late HSS rows are hidden without removing the banner anchor.
+- Replace the utility-button header with one compact Browse options disclosure. Keep native/full-library view, Filters, Customize, control mode and reshuffle actions available inside it.
+- Render Discover posters in portrait cards and prefer Primary artwork for portrait rows. Automatically use portrait rows for poster-only pools; support explicit per-category and per-row-type artwork overrides.
+- Add a visual category editor for Home, Movies and Shows. Edit names, media types, genres, tags, directors, cast, studios, score, runtime, years and scheduled months. JSON remains an advanced import/export option.
+- Arrange opening rows with Move Up/Down: mix default sections, specific themes and rotating genre/director/cast/studio/decade slots. Empty/out-of-season rows are skipped; diverse continuous browsing follows the opening.
+- Add the missing dashboard settings-menu link.
 
-Local automated checks do not replace live migration, proxy/base-path, browser and device testing.
+Existing rule keys, plugin ID, preferences storage and arrival history are retained. The saved profiles stay independent across Home, Movies and Shows. File Transformation delivers the matching browser bundle after update/restart; no JavaScript Injector copy is required.
+
+Automated tests cover the integrations with synthetic DOM/API fixtures. Live visual layout, actual SleekFin registration timing, proxy HTTP behavior and physical remotes still need acceptance testing. An enabled, working SleekFin hero is required for its banner; Discovery does not replace a disabled theme hero with a second implementation.

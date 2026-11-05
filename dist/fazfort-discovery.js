@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.3.2 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.3.3 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -883,7 +883,68 @@
         }
       }
     };
-    const DISCOVERY_CSS = '.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box}\n.fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}\n.fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}\n.fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}\n.fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}\n.fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}\n.fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}\n.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scroll-snap-type:x proximity;scrollbar-width:thin}\n.fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);scroll-snap-align:start;min-width:0}\n.fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}\n.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}\n.fx-card-visual{position:relative;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}\n.fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}\n.fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}\n.fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}\n.fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}\n.fx-footer{text-align:center;padding:20px}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row{contain:strict}\n.fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}\n.fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}\n/* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */\n[data-fx-native-hidden="true"]{display:none!important}\n.fx-discovery [hidden]{display:none!important}\n.cardScalable[data-fx-badge-host]{position:relative}\n.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#181818;border:1px solid #444;border-radius:10px;margin-bottom:18px}\n.fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}\n.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:44px;border-radius:6px;border:1px solid #666;background:#242424;color:#fff;padding:8px;max-width:100%;box-sizing:border-box}\n.fx-match-count{color:#ccc}.fx-match-count:empty{display:none}\n.fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}\n.fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}\n.fx-dialog-fallback{display:block;position:relative;left:auto;right:auto;top:auto;bottom:auto;margin:auto}\n.fx-similar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}\n.fx-similar-grid .fx-card-entry{width:100%}.fx-match-reason{font-size:13px;color:#aaa;margin:7px 2px}\n.fx-tv .fx-card:focus,.fx-tv button:focus{outline:4px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px rgba(229,9,20,.5)}\n.fx-tv .fx-card-entry:focus-within{z-index:3}.fx-discovery button,.fx-dialog button{min-height:44px;touch-action:manipulation}\n.fx-discovery{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}\n@supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}\n@media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}\n@media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}\n';
+    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box}
+.fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
+.fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
+.fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
+.fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
+.fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}
+.fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
+.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);scroll-snap-align:start;min-width:0}
+.fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
+.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}
+.fx-card-visual{position:relative;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
+.fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
+.fx-footer{text-align:center;padding:20px}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row{contain:strict}
+.fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}
+.fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
+/* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
+[data-fx-native-hidden="true"]{display:none!important}
+.fx-discovery [hidden]{display:none!important}
+.cardScalable[data-fx-badge-host]{position:relative}
+.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#181818;border:1px solid #444;border-radius:10px;margin-bottom:18px}
+.fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}
+.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:44px;border-radius:6px;border:1px solid #666;background:#242424;color:#fff;padding:8px;max-width:100%;box-sizing:border-box}
+.fx-match-count{color:#ccc}.fx-match-count:empty{display:none}
+.fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}
+.fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.fx-dialog-fallback{display:block;position:relative;left:auto;right:auto;top:auto;bottom:auto;margin:auto}
+.fx-similar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.fx-similar-grid .fx-card-entry{width:100%}.fx-match-reason{font-size:13px;color:#aaa;margin:7px 2px}
+.fx-tv .fx-card:focus,.fx-tv button:focus{outline:4px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px rgba(229,9,20,.5)}
+.fx-tv .fx-card-entry:focus-within{z-index:3}.fx-discovery button,.fx-dialog button{min-height:44px;touch-action:manipulation}
+.fx-discovery{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
+@supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
+@media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
+/* Keep SleekFin's mount anchor visible; hide its native rows individually. */
+[data-fx-hero-anchor="true"]{min-height:1px}
+.fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
+.fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
+.fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:#181818;border:1px solid #555;border-radius:12px;box-shadow:0 12px 40px #000a;min-width:190px;z-index:10}
+.fx-feed-menu:not([open])>.fx-feed-menu-actions{display:none}
+.fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
+.fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
+.fx-card-portrait .fx-card-visual img{object-fit:contain}
+.fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
+.fx-editor-tabs,.fx-editor-fields,.fx-order-row,.fx-category-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.fx-editor-tabs{position:sticky;top:-22px;background:#151515;padding:10px 0;z-index:2}.fx-editor-tabs [aria-pressed="true"]{background:#eee;color:#111}
+.fx-editor-field{display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:120px;flex:1}
+.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:44px;background:#252525;color:#fff;border:1px solid #666;border-radius:6px;padding:9px;font:inherit}
+.fx-editor-field input[type="checkbox"]{width:22px;min-height:22px}
+.fx-order-list{padding-left:24px}.fx-order-row{padding:12px 0;border-bottom:1px solid #444;flex-wrap:wrap}.fx-order-row>span{flex:1;min-width:170px}
+.fx-category-row{padding:10px 0;border-bottom:1px solid #333}.fx-category-row .fx-editor-field{flex-direction:row;align-items:center;justify-content:space-between}.fx-category-row input{flex:0 0 22px}
+.fx-rule-form{margin-top:18px;padding:16px;border:1px solid #555;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fx-rule-form p{grid-column:1/-1}
+.fx-advanced{margin-top:24px}.fx-advanced>summary{padding:12px;cursor:pointer}.fx-advanced textarea{margin-top:12px}
+@supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
+@media(hover:none){.fx-card-more{opacity:1}}
+@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-rule-form{grid-template-columns:minmax(0,1fr)}.fx-editor-tabs{top:-15px}}
+`;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
     function hash(value) {
@@ -990,11 +1051,14 @@
         if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 100) throw Error(`${page}: use up to 100 rules.`);
         if (!Array.isArray(profile.anchors) || profile.anchors.some((a) => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
         if (!Array.isArray(profile.families) || profile.families.some((f) => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
+        if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 100 || profile.opening.some((t) => typeof t !== "string" || !(t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
+        if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 200 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
         const keys = /* @__PURE__ */ new Set();
         for (const r of profile.rules) {
           if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
           keys.add(r.Key);
           if (typeof r.Title !== "string" || !r.Title.trim() || r.Title.length > 120) throw Error(`${r.Key}: title needs 1\u2013120 characters.`);
+          if (r.Layout != null && !["auto", "portrait", "landscape"].includes(r.Layout)) throw Error(`${r.Key}: invalid layout.`);
           if (r.Enabled != null && typeof r.Enabled !== "boolean") throw Error(`${r.Key}: Enabled must be true or false.`);
           if (!Array.isArray(r.Types) || !r.Types.length || r.Types.some((t) => !["Movie", "Series"].includes(t))) throw Error(`${r.Key}: Types must contain Movie and/or Series.`);
           for (const field of ["GenresAny", "TagsAny", "DirectorsAny", "ActorsAny", "StudiosAny"]) {
@@ -1009,7 +1073,7 @@
       return config;
     }
     function buildShelves(items, profile, config, page, now) {
-      var _a;
+      var _a, _b;
       const eligible = items.filter((i) => {
         var _a2;
         return (page === "home" ? ["Movie", "Series"].includes(i.Type) : i.Type === (page === "movies" ? "Movie" : "Series")) && (!config.hideWatched || !((_a2 = i.UserData) == null ? void 0 : _a2.Played));
@@ -1021,8 +1085,11 @@
         if (unique.length >= config.minimumItems) shelves.push({ key, title, family, items: unique });
       };
       for (const rule of profile.rules) {
-        if (rule.Enabled === false || ((_a = rule.Months) == null ? void 0 : _a.length) && !rule.Months.includes(month)) continue;
+        if (!profile.families.includes("theme") && !((_a = profile.opening) == null ? void 0 : _a.includes(`rule:${rule.Key}`))) continue;
+        if (rule.Enabled === false || ((_b = rule.Months) == null ? void 0 : _b.length) && !rule.Months.includes(month)) continue;
         add(`rule:${rule.Key}`, rule.Title, "theme", eligible.filter((i) => matches(rule, i)));
+        const added = shelves.find((r) => r.key === `rule:${rule.Key}`);
+        if (added) added.layout = rule.Layout || "auto";
       }
       const grouping = (family, values, title, filter = () => true) => {
         if (!profile.families.includes(family)) return;
@@ -1062,9 +1129,12 @@
         this.lastItems = [];
         this.index = 0;
       }
-      next(preferredFamily = null) {
+      take(key) {
+        return this.next(null, key);
+      }
+      next(preferredFamily = null, exactKey = null) {
         if (!this.shelves.length) return null;
-        let pool = this.shelves.filter((s) => this.config.endless || !this.counts.has(s.key));
+        let pool = this.shelves.filter((s) => (!exactKey || s.key === exactKey) && (this.config.endless || !this.counts.has(s.key)));
         if (!pool.length) return null;
         const fresh = pool.filter((s) => !this.lastKeys.includes(s.key));
         if (fresh.length) pool = fresh;
@@ -1232,9 +1302,206 @@
         }
       }
     }
+    function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button }) {
+      let draft = cloneJson(initial), page = selectedPage, editing = null;
+      const anchors = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
+      const families = { theme: "Rotating theme", genre: "Rotating genre", director: "Directed by\u2026", actor: "Starring\u2026", decade: "Best of a decade", studio: "Studio / network", rating: "Highly rated", rewatch: "Worth another watch", runtime: "Short movies" };
+      const emit = () => changed(cloneJson(draft));
+      function field(parent, label, value, save, choices = null, type = "text") {
+        const wrap = element("label", "fx-editor-field", label), control = element(choices ? "select" : "input");
+        control.setAttribute("aria-label", label);
+        if (choices) {
+          choices.forEach(([v, t]) => {
+            const o = element("option", "", t);
+            o.value = v;
+            o.selected = String(value) === v;
+            control.append(o);
+          });
+        } else {
+          control.type = type;
+          if (type === "checkbox") control.checked = !!value;
+          else control.value = value != null ? value : "";
+        }
+        control.addEventListener("change", () => {
+          save(type === "checkbox" ? control.checked : control.value);
+          emit();
+        });
+        wrap.append(control);
+        parent.append(wrap);
+        return control;
+      }
+      const layoutChoices = [["auto", "Automatic"], ["landscape", "Landscape"], ["portrait", "Portrait"]];
+      function draw() {
+        var _a, _b;
+        host.replaceChildren();
+        const tabs = element("div", "fx-editor-tabs");
+        for (const name of ["home", "movies", "shows"]) {
+          const b = button(name[0].toUpperCase() + name.slice(1), () => {
+            page = name;
+            editing = null;
+            draw();
+          });
+          b.setAttribute("aria-pressed", String(page === name));
+          tabs.append(b);
+        }
+        host.append(tabs);
+        const profile = draft.pages[page];
+        host.append(element("h3", "", "Shared feed preferences"));
+        const general = element("div", "fx-editor-fields");
+        field(general, "Timezone", draft.timeZone, (v) => draft.timeZone = v);
+        field(general, "Cards per shelf", draft.cardsPerShelf, (v) => draft.cardsPerShelf = Number(v), null, "number");
+        field(general, "Minimum matching titles", draft.minimumItems, (v) => draft.minimumItems = Number(v), null, "number");
+        field(general, "Continuous scrolling", draft.endless, (v) => draft.endless = v, null, "checkbox");
+        field(general, "Hide watched titles", draft.hideWatched, (v) => draft.hideWatched = v, null, "checkbox");
+        host.append(general);
+        host.append(element("h3", "", "Opening rows"), element("p", "", "Arrange a fixed opening, mixing default sections, specific categories and rotating slots. Afterwards the varied feed continues. Empty or out-of-season rows are skipped. Unlisted default sections follow the opening."));
+        const options = () => [
+          ...Object.entries(anchors).map(([key, label]) => [`anchor:${key}`, label]),
+          ...profile.rules.map((r) => [`rule:${r.Key}`, r.Title]),
+          ...Object.entries(families).map(([key, label]) => [`family:${key}`, label])
+        ];
+        const opening = profile.opening || profile.anchors.flatMap((a) => [`anchor:${a}`, "family:theme"]);
+        const rows = element("ol", "fx-order-list");
+        const updateOpening = () => {
+          profile.opening = [...opening];
+          emit();
+          draw();
+        };
+        opening.forEach((token, n) => {
+          var _a2, _b2;
+          const row = element("li", "fx-order-row");
+          row.append(element("span", "", ((_a2 = options().find(([id]) => id === token)) == null ? void 0 : _a2[1]) || token));
+          const up = button("\u2191", () => {
+            [opening[n - 1], opening[n]] = [opening[n], opening[n - 1]];
+            updateOpening();
+          });
+          up.disabled = n === 0;
+          up.setAttribute("aria-label", `Move row ${n + 1} up`);
+          const down = button("\u2193", () => {
+            [opening[n + 1], opening[n]] = [opening[n], opening[n + 1]];
+            updateOpening();
+          });
+          down.disabled = n === opening.length - 1;
+          down.setAttribute("aria-label", `Move row ${n + 1} down`);
+          field(row, `Row ${n + 1} artwork`, ((_b2 = profile.layouts) == null ? void 0 : _b2[token]) || "auto", (v) => {
+            profile.layouts = { ...profile.layouts, [token]: v };
+            profile.opening = [...opening];
+          }, layoutChoices);
+          row.append(up, down, button("Remove", () => {
+            if (token.startsWith("anchor:")) profile.anchors = profile.anchors.filter((a) => a !== token.slice(7));
+            opening.splice(n, 1);
+            updateOpening();
+          }));
+          rows.append(row);
+        });
+        host.append(rows);
+        const addRow = element("div", "fx-editor-fields");
+        let next = options()[0][0];
+        field(addRow, "Add opening row", next, (v) => next = v, options());
+        addRow.append(button("Add row", () => {
+          if (next.startsWith("family:")) profile.families = [.../* @__PURE__ */ new Set([...profile.families, next.slice(7)])];
+          opening.push(next);
+          updateOpening();
+        }));
+        addRow.append(button("Use automatic ordering", () => {
+          delete profile.opening;
+          emit();
+          draw();
+        }));
+        host.append(addRow);
+        host.append(element("h3", "", "Category library"), element("p", "", "Enable categories, change their matching rules, or add your own. Artwork can be set per category or opening-row type."));
+        const rules = element("div", "fx-category-list");
+        profile.rules.forEach((rule2, n) => {
+          const row = element("div", "fx-category-row");
+          field(row, rule2.Title, rule2.Enabled !== false, (v) => rule2.Enabled = v, null, "checkbox");
+          row.append(button("Edit", () => {
+            var _a2;
+            editing = rule2.Key;
+            draw();
+            (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
+          }), button("Delete", () => {
+            var _a2;
+            profile.rules.splice(n, 1);
+            profile.opening = (_a2 = profile.opening) == null ? void 0 : _a2.filter((t) => t !== `rule:${rule2.Key}`);
+            if (profile.layouts) delete profile.layouts[`rule:${rule2.Key}`];
+            editing = null;
+            emit();
+            draw();
+          }));
+          rules.append(row);
+        });
+        host.append(rules, button("Add category", () => {
+          var _a2;
+          const key = `category-${hash(String(Date.now()) + profile.rules.length).toString(16)}`;
+          profile.rules.push({ Key: key, Title: "New category", Enabled: true, Types: [page === "shows" ? "Series" : "Movie"], GenresAny: [], TagsAny: [], Months: [] });
+          editing = key;
+          emit();
+          draw();
+          (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
+        }));
+        const rule = profile.rules.find((r) => r.Key === editing);
+        if (rule) {
+          const form = element("fieldset", "fx-rule-form");
+          form.append(element("legend", "", "Edit category"));
+          field(form, "Category title", rule.Title, (v) => {
+            rule.Title = v;
+          });
+          field(form, "Media type", rule.Types.length === 2 ? "both" : rule.Types[0], (v) => rule.Types = v === "both" ? ["Movie", "Series"] : [v], [["Movie", "Movies"], ["Series", "Shows"], ["both", "Movies and shows"]]);
+          for (const [key, label] of [["GenresAny", "Genres"], ["TagsAny", "Tags"], ["DirectorsAny", "Directors"], ["ActorsAny", "Cast"], ["StudiosAny", "Studios"]]) {
+            const control = field(form, label, (rule[key] || []).join(", "), (v) => rule[key] = v.split(",").map((x) => x.trim()).filter(Boolean));
+            control.placeholder = "Comma-separated names";
+            const known = key === "GenresAny" ? "Genres" : key === "TagsAny" ? "Tags" : null;
+            if (known) {
+              const list = element("datalist");
+              list.id = `fx-values-${key}`;
+              [...new Set(((inventory == null ? void 0 : inventory.items) || []).flatMap((i) => i[known] || []))].sort().forEach((v) => {
+                const o = element("option");
+                o.value = v;
+                list.append(o);
+              });
+              control.setAttribute("list", list.id);
+              form.append(list);
+            }
+          }
+          field(form, "Minimum community rating", rule.MinRating, (v) => rule.MinRating = v === "" ? null : Number(v), null, "number");
+          field(form, "Under minutes", rule.MaxMinutes, (v) => rule.MaxMinutes = v === "" ? null : Number(v), null, "number");
+          field(form, "Scheduled months", (rule.Months || []).join(", "), (v) => rule.Months = v.split(",").map((x) => x.trim()).filter(Boolean).map(Number));
+          field(form, "From year", (_a = rule.Years) == null ? void 0 : _a[0], (v) => {
+            var _a2, _b2, _c;
+            rule.Years = v === "" && !((_a2 = rule.Years) == null ? void 0 : _a2[1]) ? null : [v === "" ? 0 : Number(v), (_c = (_b2 = rule.Years) == null ? void 0 : _b2[1]) != null ? _c : 9999];
+          }, null, "number");
+          field(form, "Through year", (_b = rule.Years) == null ? void 0 : _b[1], (v) => {
+            var _a2, _b2, _c;
+            rule.Years = v === "" && !((_a2 = rule.Years) == null ? void 0 : _a2[0]) ? null : [(_c = (_b2 = rule.Years) == null ? void 0 : _b2[0]) != null ? _c : 0, v === "" ? 9999 : Number(v)];
+          }, null, "number");
+          form.append(element("p", "", "Months: blank = all year; 10 = October; 12 = December. Names match exactly, ignoring case. Each filter group must match; names within one group are alternatives."));
+          field(form, "Category artwork", rule.Layout || "auto", (v) => rule.Layout = v, layoutChoices);
+          form.append(button("Done editing", () => {
+            editing = null;
+            emit();
+            draw();
+          }));
+          host.append(form);
+        }
+        host.append(element("h3", "", "Rotating category types"));
+        const rotation = element("div", "fx-editor-fields");
+        Object.entries(families).forEach(([key, label]) => field(rotation, label, profile.families.includes(key), (checked) => {
+          profile.families = checked ? [.../* @__PURE__ */ new Set([...profile.families, key])] : profile.families.filter((k) => k !== key);
+        }, null, "checkbox"));
+        host.append(rotation);
+      }
+      draw();
+      return { setConfig(config) {
+        draft = cloneJson(config);
+        editing = null;
+        draw();
+      }, getConfig() {
+        return cloneJson(draft);
+      } };
+    }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.3.2";
+      const VERSION = "0.3.3";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -1361,7 +1628,7 @@
           return "";
         }
       }
-      function imageChoices(item, api) {
+      function imageChoices(item, api, layout = "landscape") {
         var _a2, _b2, _c2, _d2, _e2;
         const results = [];
         const add = (id, type, tag, poster = false) => {
@@ -1379,7 +1646,7 @@
           const url = safeUrl(/^https?:/i.test(raw) ? raw : api.getUrl(raw));
           if (url) results.push({ url, poster: true });
         }
-        return results;
+        return layout === "portrait" ? results.filter((c) => c.poster) : results;
       }
       function itemHref(item, api) {
         var _a2, _b2, _c2, _d2;
@@ -1393,7 +1660,7 @@
         }
         return item.Id ? `#/details?${q}` : "";
       }
-      function renderCard(item, s, withSimilar = true) {
+      function renderCard(item, s, withSimilar = true, layout = "landscape") {
         var _a2, _b2;
         const card = element("a", "fx-card");
         card.href = itemHref(item, s.api) || "#";
@@ -1408,7 +1675,7 @@
         const visual = element("div", "fx-card-visual");
         const placeholder = element("span", "fx-placeholder", name);
         visual.append(placeholder);
-        const choices = imageChoices(item, s.api);
+        const choices = imageChoices(item, s.api, layout);
         if (choices.length) {
           const img = element("img");
           img.alt = "";
@@ -1445,7 +1712,7 @@
         if (badge) visual.append(element("span", "fx-badge", badge));
         card.append(visual, element("span", "fx-name", name));
         card.title = name;
-        const entry = element("div", "fx-card-entry");
+        const entry = element("div", `fx-card-entry fx-card-${layout}`);
         entry.append(card);
         if (withSimilar && ["Movie", "Series"].includes(item.Type) && s.inventory.items.some((i) => i.Id === item.Id)) {
           const more = button("\u22EF", () => moreLikeThis(item, s));
@@ -1461,6 +1728,7 @@
         return entry;
       }
       function fillSlot(slot, s) {
+        var _a2;
         const row = slot.data;
         slot.node.replaceChildren();
         slot.node.className = "fx-shelf";
@@ -1470,8 +1738,16 @@
         const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
         back.setAttribute("aria-label", `Previous ${row.title}`);
         forward.setAttribute("aria-label", `More ${row.title}`);
+        const token = row.family === "anchor" ? `anchor:${row.key}` : row.family === "theme" ? row.key : `family:${row.family}`;
+        const requested = ((_a2 = s.profile.layouts) == null ? void 0 : _a2[token]) || row.layout || "auto";
+        const portraitOnly = row.key !== "MyMedia" && row.items.filter((i) => {
+          var _a3, _b2, _c2, _d2, _e2;
+          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b2 = i.BackdropImageTags) == null ? void 0 : _b2.length) && !((_c2 = i.ParentBackdropImageTags) == null ? void 0 : _c2.length) && (((_d2 = i.ImageTags) == null ? void 0 : _d2.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
+        }).length > row.items.length / 2;
+        const layout = requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
+        slot.node.dataset.layout = layout;
         head.append(title, back, forward);
-        row.items.forEach((item) => track.append(renderCard(item, s)));
+        row.items.forEach((item) => track.append(renderCard(item, s, true, layout)));
         slot.node.append(head, track);
         slot.live = true;
       }
@@ -1568,6 +1844,7 @@
         s.pending = null;
         s.pauseAutomatic = false;
         s.anchorIndex = 0;
+        s.openingIndex = 0;
         s.anchorTurn = true;
         s.slots = [];
         s.list.replaceChildren();
@@ -1586,7 +1863,7 @@
         var _a2;
         if (!s.inventory || !s.config || !s.planner) return;
         const root = findScrollRoot(s.root);
-        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.map((slot) => slot.data), anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.map((slot) => {
+        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.map((slot) => slot.data), openingIndex: s.openingIndex || 0, anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.map((slot) => {
           var _a3;
           return ((_a3 = slot.node.querySelector(".fx-track")) == null ? void 0 : _a3.scrollLeft) || 0;
         }), at: Date.now() });
@@ -1598,6 +1875,7 @@
         s.planner = saved.planner;
         s.pending = saved.pending;
         s.filteredQueue = ((_a2 = saved.filteredQueue) == null ? void 0 : _a2.slice()) || null;
+        s.openingIndex = saved.openingIndex || 0;
         s.anchorIndex = saved.anchorIndex;
         s.anchorTurn = saved.anchorTurn;
         s.finished = saved.finished;
@@ -1627,6 +1905,24 @@
           virtualize(s);
         });
       }
+      function syncNative(s, hide) {
+        s.native.removeAttribute("data-fx-native-hidden");
+        s.native.querySelectorAll("[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
+        s.native.removeAttribute("data-fx-hero-anchor");
+        if (!hide) return;
+        if (s.route.page !== "home") {
+          s.native.setAttribute("data-fx-native-hidden", "true");
+          return;
+        }
+        s.native.dataset.fxHeroAnchor = "true";
+        const protect = ".sleekfin-hero,.hero,#slides-container";
+        const walk = (parent) => [...parent.children].forEach((node) => {
+          if (node.matches(protect) || node.closest(".fx-discovery")) return;
+          if (node.matches(".sections") || node.querySelector(`${protect},.sections`)) walk(node);
+          else node.setAttribute("data-fx-native-hidden", "true");
+        });
+        walk(s.native);
+      }
       function setMode(s, full, remember = true) {
         s.full = full;
         s.list.hidden = full;
@@ -1635,8 +1931,7 @@
         s.matchCount.hidden = full;
         if (full) s.panel.hidden = true;
         s.toggle.textContent = full ? "Discover shelves" : s.route.page === "home" ? "Normal home" : "Full library";
-        if (full || !s.slots.length && !s.filteredQueue) s.native.removeAttribute("data-fx-native-hidden");
-        else s.native.setAttribute("data-fx-native-hidden", "true");
+        syncNative(s, !(full || !s.slots.length && !s.filteredQueue));
         if (remember) {
           try {
             localStorage.setItem(prefKey(s.api, s.route.page), full ? "native" : "discover");
@@ -1650,9 +1945,28 @@
       }
       async function nextRow(s) {
         if (s.filteredQueue) return s.filteredQueue.shift() || null;
+        const opening = s.profile.opening || [];
+        while ((s.openingIndex || 0) < opening.length) {
+          const token = opening[s.openingIndex || 0];
+          s.openingIndex = (s.openingIndex || 0) + 1;
+          if (token.startsWith("anchor:")) {
+            const id = token.slice(7);
+            try {
+              const row = await s.client.anchor(id, s.route, s.inventory, s.config);
+              if (row.items.length) return row;
+            } catch {
+              s.client.assertCurrent();
+              s.warnings.add(`Couldn't load ${id}.`);
+            }
+          } else {
+            const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7)) : null;
+            if (row) return row;
+          }
+        }
         while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
           if (s.anchorTurn && s.anchorIndex < s.profile.anchors.length) {
             const id = s.profile.anchors[s.anchorIndex++];
+            if (opening.includes(`anchor:${id}`)) continue;
             s.anchorTurn = false;
             try {
               const row = await s.client.anchor(id, s.route, s.inventory, s.config);
@@ -1817,6 +2131,26 @@
         }
         const error = element("p");
         error.setAttribute("role", "alert");
+        const visual = element("div", "fx-visual-editor");
+        let initial;
+        try {
+          initial = validateConfig(JSON.parse(input.value));
+        } catch {
+          initial = DEFAULT_CONFIG2;
+        }
+        const editor = createVisualEditor(visual, initial, s.route.page, s.inventory, (c) => {
+          input.value = JSON.stringify(c, null, 2);
+        }, { element, button });
+        const advanced = element("details", "fx-advanced");
+        advanced.append(element("summary", "", "Advanced: JSON import / export"));
+        input.addEventListener("change", () => {
+          try {
+            editor.setConfig(validateConfig(JSON.parse(input.value)));
+            error.textContent = "";
+          } catch (e) {
+            error.textContent = e.message;
+          }
+        });
         const actions = element("div", "fx-dialog-actions");
         const apply = button("Apply", async () => {
           apply.disabled = true;
@@ -1834,6 +2168,7 @@
         });
         const reset = button("Load supplied rules", () => {
           input.value = JSON.stringify(DEFAULT_CONFIG2, null, 2);
+          editor.setConfig(DEFAULT_CONFIG2);
           error.textContent = "Review the rules, then Apply to save.";
         });
         const exportButton = button("Export JSON", () => {
@@ -1867,13 +2202,16 @@
               }).map((r) => ({ ...r, Types: ["Series"] }));
               input.value = JSON.stringify(validateConfig(c), null, 2);
             } else input.value = JSON.stringify(validateConfig(imported), null, 2);
+            editor.setConfig(validateConfig(JSON.parse(input.value)));
             error.textContent = "Imported for review. Apply to save.";
           } catch (e) {
             error.textContent = e.message;
           }
         });
         actions.append(apply, exportButton, reset, button("Cancel", closeDialog));
-        dialog.append(title, help, file, input, error, actions);
+        advanced.replaceChildren(element("summary", "", "Advanced: JSON import / export"), file, input, exportButton, reset);
+        actions.replaceChildren(apply, button("Cancel", closeDialog));
+        dialog.append(title, help, visual, advanced, error, actions);
         openDialog(dialog);
       }
       function visible(node) {
@@ -1901,7 +2239,7 @@
         if (preserve) saveFeed(state);
         clearTimeout(state.filterTimer);
         (_a2 = state.io) == null ? void 0 : _a2.disconnect();
-        state.native.removeAttribute("data-fx-native-hidden");
+        syncNative(state, false);
         state.root.remove();
         state = null;
         (_b2 = document.getElementById("fx-customize")) == null ? void 0 : _b2.remove();
@@ -1945,6 +2283,7 @@
         }
         const key = `${scope}:${route.page}:${route.parentId}`;
         if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+          if (!state.full && state.slots.length) syncNative(state, true);
           decorateNative(state);
           return;
         }
@@ -1962,16 +2301,22 @@
         });
         s.note = element("p", "", "Loading shelves on demand.");
         s.filterToggle = button("Filters", () => {
+          var _a3;
+          (_a3 = s.root.querySelector(".fx-feed-menu")) == null ? void 0 : _a3.removeAttribute("open");
           panel.hidden = !panel.hidden;
           if (!panel.hidden) focusNode(panel.querySelector("input,select"));
         });
         s.filterToggle.disabled = true;
         const controlButton = button(`Controls: ${controlsMode(s).mode}`, () => controlToggle(s, controlButton));
         root.classList.toggle("fx-tv", controlsMode(s).tv);
-        toolbar.append(element("h2", "", route.page === "home" ? "For you" : route.page === "movies" ? "Discover movies" : "Discover shows"), s.toggle, s.filterToggle, button("Customize", () => customize(s)), controlButton, button("Restart feed", () => restart(true)));
+        const menu = element("details", "fx-feed-menu"), summary = element("summary", "", "Browse options"), actions = element("div", "fx-feed-menu-actions");
+        actions.append(s.toggle, s.filterToggle, button("Customize", () => customize(s)), controlButton, button("Restart feed", () => restart(true)));
+        menu.append(summary, actions);
+        toolbar.append(menu);
         footer.append(s.more, s.note);
         root.append(toolbar, panel, matchCount, status, list, footer);
-        target.native.before(root);
+        if (route.page === "home") target.native.after(root);
+        else target.native.before(root);
         state = s;
         let full = false;
         try {
@@ -2070,6 +2415,13 @@
           }, 650) };
           return;
         }
+        if (key === "Escape" && s.root.querySelector(".fx-feed-menu[open]")) {
+          event.preventDefault();
+          event.stopPropagation();
+          s.root.querySelector(".fx-feed-menu").removeAttribute("open");
+          focusNode(s.root.querySelector(".fx-feed-menu>summary"));
+          return;
+        }
         if (key === "Escape" && !s.panel.hidden) {
           event.preventDefault();
           event.stopPropagation();
@@ -2088,14 +2440,14 @@
               if (!nextSlot.live) fillSlot(nextSlot, s);
               const options = [...nextSlot.node.querySelectorAll(".fx-card")];
               next = options[Math.min(index, options.length - 1)];
-            } else if (key === "ArrowUp") next = s.filterToggle;
+            } else if (key === "ArrowUp") next = s.root.querySelector(".fx-feed-menu>summary");
             else {
               next = s.more;
               if (!s.finished) loadMore(s);
             }
           }
         } else {
-          const bar = [...s.root.querySelectorAll(".fx-toolbar button")].filter((b) => !b.disabled), n = bar.indexOf(target);
+          const bar = [...s.root.querySelectorAll(".fx-toolbar summary,.fx-toolbar details[open] button")].filter((b) => !b.disabled), n = bar.indexOf(target);
           if (key === "ArrowDown") next = s.list.querySelector(".fx-card") || s.more;
           else next = bar[Math.max(0, Math.min(bar.length - 1, n + (key === "ArrowLeft" ? -1 : 1)))];
         }

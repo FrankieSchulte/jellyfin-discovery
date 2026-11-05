@@ -47,7 +47,7 @@ def package(root, output, repository, timestamp):
     entry['repositoryUrl'] = f'https://github.com/{repository}'
     entry['versions'] = [{
         'version': version,
-        'changelog': 'Catalog installation, bundled browser delivery and consolidated themed shelves.',
+        'changelog': 'Hero and artwork fixes, visual category editing and configurable opening rows.',
         'targetAbi': metadata['targetAbi'],
         'sourceUrl': f'https://github.com/{repository}/releases/download/v{browser_version}/{filename}',
         'checksum': hashlib.md5(payload).hexdigest().upper(),
