@@ -1,10 +1,16 @@
 # Consolidating the standalone shelves extension
 
-Discovery 0.3.1 includes the themed HSS engine previously shipped as FazFort Shelves 1.0.2. The separate shelves assembly is no longer needed after migration. Its source is retained under `legacy/` for reference, not deployment.
+Discovery 0.3.2 includes the themed HSS engine previously shipped as FazFort Shelves 1.0.2. The separate shelves assembly is no longer needed after migration. Its source is retained under `legacy/` for reference, not deployment.
 
 This is an explicit migration: configuration from the older plugin is **not automatically imported**. Back up first and keep the old files until the replacement has passed live checks.
 
-## Before installing
+## Dashboard migration (preferred)
+
+Export/copy the standalone plugin's rules and record its other settings first. Back up server settings/data. In Dashboard → Plugins → Installed, uninstall the standalone **FazFort Themed Shelves** plugin, then restart. Install **Jellyfin Discovery** through the [catalog](CATALOG.md), restart, and restore the exported settings using the steps below. The earlier Discovery companion shares the consolidated plugin ID, so use the catalog's normal update/install path for it.
+
+If an older manually installed assembly remains loaded or the dashboard cannot remove it, use the filesystem fallback below. Never leave duplicate Discovery assemblies or both shelf providers loaded. Runtime duplicate detection skips the new HSS registration but does not migrate the old rules.
+
+## Filesystem fallback before installing
 
 1. Export/copy the old plugin's Rules JSON. Record Enabled, TimeZone, DailyShelfCount, CardsPerShelf, MinimumItems and HideWatched. Back up Jellyfin's plugin configurations and HSS settings.
 2. Back up the Discovery data directory (`fazfort-discovery` under Jellyfin's data directory), if present. Existing arrival history and per-user profiles remain in the same location.

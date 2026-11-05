@@ -37,4 +37,13 @@ altered["pages"]!["home"]!["rules"]![0]!["Types"]=new System.Text.Json.Nodes.Jso
 Check(!ConfigPolicy.Valid(JsonDocument.Parse(altered.ToJsonString()).RootElement),"Invalid media types are rejected by server");
 var pendingMovie=Guid.NewGuid();var baseline2=new Ledger();baseline2.Baseline([new(pendingMovie,"Movie",false)],now);
 Check(baseline2.Observe(new(pendingMovie,"Movie",true),now.AddDays(1)),"Previously virtual movie earns arrival only once playable");
+var html="<html><head></head><body><script src=\"other.js\"></script></body></html>";
+var injected=WebMarkup.Inject(html,"0.3.2.0",true);
+Check(injected.Contains("../FazFortDiscovery/Assets/discovery.js?v=0.3.2.0"),"Asset respects reverse-proxy base path through relative URL");
+Check(WebMarkup.Inject(injected,"0.3.2.0",true)==injected,"Repeated transformations do not duplicate script");
+Check(WebMarkup.Inject(injected,"0.3.2.0",false)==html,"Disable removes only owned script");
+Check(WebMarkup.Inject(html,"bad\"version",true)==html,"Invalid version cannot inject markup");
+Check(WebMarkup.Inject("fragment","0.3.2.0",true)=="fragment","Non-index fragments unchanged");
+Check(WebMarkup.Inject("<BODY></BODY>","0.3.2.0",true).Contains("data-discovery-asset"),"Uppercase body closing tag supported");
+Check(WebMarkup.Inject(injected,"0.3.3.0",true).Contains("v=0.3.3.0"),"Upgrade replaces old asset URL");
 Console.WriteLine($"{checks} native ledger and validation checks passed.");

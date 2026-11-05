@@ -4,7 +4,7 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 mode="${1:---check}"
 [[ "$mode" == --check || "$mode" == --install ]] || { echo 'Usage: bash install.sh [--check|--install]'; exit 2; }
 plugin_root="${JELLYFIN_PLUGIN_DIR:-/var/lib/jellyfin/plugins}"
-target="$plugin_root/FazFort.Discovery_0.3.1.0"
+target="$plugin_root/FazFort.Discovery_0.3.2.0"
 [[ -d "$plugin_root" ]] || { echo "Missing Jellyfin plugin directory: $plugin_root"; exit 1; }
 version=$(dpkg-query -W -f='${Version}' jellyfin-server)
 [[ "$version" =~ (^|[^0-9])12\.4(\.0)?([^0-9]|$) ]] || { echo "This companion targets Jellyfin 12.4.0. Found $version"; exit 1; }

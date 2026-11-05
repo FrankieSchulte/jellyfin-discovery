@@ -15,5 +15,5 @@ cp native/install.sh native/uninstall.sh native/deploy-from-proxmox.sh "$stage/f
 cd "$stage/fazfort-discovery-companion"
 sha256sum plugin/* > SHA256SUMS
 )
-tar -czf server/fazfort-discovery-companion-0.3.1.tar.gz -C "$stage" fazfort-discovery-companion
-echo 'Built server/fazfort-discovery-companion-0.3.1.tar.gz. Nothing has been installed.'
+tar -czf server/fazfort-discovery-companion-0.3.2.tar.gz -C "$stage" fazfort-discovery-companion
+echo 'Built server/fazfort-discovery-companion-0.3.2.tar.gz. Nothing has been installed.'

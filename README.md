@@ -33,29 +33,25 @@ Mobile web wrappers and TV browser shells may load the extension. Physical remot
 
 Existing installations upgrading from a separate themed-shelves plugin or Discovery 0.3.0 should first follow [Migration](docs/MIGRATION.md). Do not run two assemblies registering the same HSS shelf IDs.
 
-### Server plugin
+### Install from the plugin catalog
 
-A prebuilt Linux installer is included at `server/fazfort-discovery-companion-0.3.1.tar.gz`. Extract it on the Jellyfin server and run:
+Once a release has been published, add **Jellyfin Discovery** under Dashboard → Plugins → Repositories → **+ New Repository**, using:
 
-```sh
-bash install.sh --check
-sudo bash install.sh --install
+```text
+https://github.com/FrankieSchulte/jellyfin-discovery/releases/latest/download/manifest.json
 ```
 
-Run these commands from the extracted directory. The installer currently supports Debian/Ubuntu packages managed by the `jellyfin` systemd service. It checks the server version and checksums, sets file ownership, backs up the replaced build and checks startup readiness. A failed readiness check restores the replaced build. Review `native/install.sh` for configurable paths and `JELLYFIN_HEALTH_URL` when using a different port or base URL.
+Install **File Transformation** and **Home Screen Sections** from their respective catalogs if needed, restart, then install **Jellyfin Discovery** from Catalog and restart again. File Transformation delivers the bundled browser script automatically; HSS supplies optional HSS shelves and related default sections. This catalog does not automatically install those dependencies.
 
-An optional Proxmox helper is included; review its container/path settings before using it. Other deployment types require an installation procedure appropriate to that environment.
+Disable older Discovery/Home Feed/interleaving scripts in JavaScript Injector and refresh. Keep unrelated scripts and theme settings. Do not also paste the bundled browser script when automatic delivery is enabled.
 
-**This repository is not yet a Jellyfin plugin catalog.** Adding its GitHub URL to Jellyfin's repository list will not install it. A catalog manifest and release workflow are separate future work.
+The catalog URL becomes available only after the first successful **Release plugin catalog** workflow. Source uploads and passing checks alone do not publish an installable release. See [Catalog setup](docs/CATALOG.md) for publishing, updates and acceptance tests.
 
-### Browser extension
+### Manual fallback
 
-1. Install JavaScript Injector in Jellyfin if it is not already available.
-2. Disable older discovery/interleaving scripts that modify the same pages.
-3. Add one script named **Jellyfin Discovery**, containing all of `dist/fazfort-discovery.js`. Enable it with module mode off.
-4. Save, refresh, and open Home, Movies or Shows.
+Manual installation is optional. The Linux package `server/fazfort-discovery-companion-0.3.2.tar.gz` supports Debian/Ubuntu systemd installations; its installer validates checksums and backs up replaced files. Review its paths and health-check configuration before use. An optional Proxmox helper is included.
 
-The browser extension can run without the server plugin. Arrival badges and server-synchronized preferences are then unavailable; the UI reports this rather than inferring arrival dates.
+If automatic browser delivery is unavailable, disable **Automatically load Discovery in Jellyfin Web** in plugin settings, restart, then add `dist/fazfort-discovery.js` as one enabled, non-module JavaScript Injector script. Without the server plugin, browsing still works but arrival tracking and synchronized preferences are unavailable.
 
 ### Themed HSS shelves
 

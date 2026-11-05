@@ -10,6 +10,7 @@ namespace FazFort.Discovery;
 
 public sealed class Configuration : BasePluginConfiguration
 {
+    public bool InjectBrowserScript { get; set; } = true;
     public bool Enabled { get; set; } = true;
     public string TimeZone { get; set; } = "UTC";
     public int DailyShelfCount { get; set; } = 4;
@@ -49,5 +50,6 @@ public sealed class Registrator : IPluginServiceRegistrator
         services.AddSingleton<DiscoveryStore>();
         services.AddHostedService<ArrivalMonitor>();
         services.AddHostedService<Registration>();
+        services.AddHostedService<WebRegistration>();
     }
 }

@@ -2,7 +2,7 @@
 <html><head><title>Jellyfin Discovery — HSS Shelves</title></head><body>
 <div id="FazFortShelvesPage" data-role="page" class="page type-interior pluginConfigurationPage">
 <div data-role="content"><div class="content-primary"><form id="FazFortShelvesForm">
-<h2>Jellyfin Discovery — HSS Shelves</h2><p>These are server-wide HSS fallback shelves. The browser extension has separate per-user Home, Movies and Shows profiles under Customize; changes here do not overwrite those profiles.</p>
+<h2>Jellyfin Discovery — HSS Shelves</h2><div class="checkboxContainer"><label><input id="ffInject" is="emby-checkbox" type="checkbox"><span>Automatically load Discovery in Jellyfin Web (requires File Transformation; restart after changing)</span></label></div><p>These are server-wide HSS fallback shelves. The browser extension has separate per-user Home, Movies and Shows profiles under Customize; changes here do not overwrite those profiles.</p>
 <p>A configurable number of themed shelves rotates daily. Seasonal shelves appear in their scheduled months, in addition to the daily shelves. Empty shelves stay hidden.</p>
 <div class="checkboxContainer checkboxContainer-withDescription"><label><input id="ffEnabled" is="emby-checkbox" type="checkbox"><span>Enable themed shelves</span></label></div>
 <div class="inputContainer"><label class="inputLabel" for="ffZone">Timezone</label><input is="emby-input" id="ffZone" required><div class="fieldDescription">Default: UTC. Controls the daily change and month boundaries.</div></div>
@@ -23,7 +23,7 @@ var el=function(id){return page.querySelector('#'+id);};
 page.addEventListener('pageshow',function(){
  Dashboard.showLoadingMsg();
  ApiClient.getPluginConfiguration(pluginId).then(function(c){config=c;
- el('ffEnabled').checked=c.Enabled;el('ffZone').value=c.TimeZone;el('ffCount').value=c.DailyShelfCount;
+ el('ffInject').checked=c.InjectBrowserScript!==false;el('ffEnabled').checked=c.Enabled;el('ffZone').value=c.TimeZone;el('ffCount').value=c.DailyShelfCount;
  el('ffCards').value=c.CardsPerShelf;el('ffMin').value=c.MinimumItems;el('ffWatched').checked=c.HideWatched;
  el('ffRules').value=c.RulesJson;el('ffStatus').textContent='';
  }).catch(function(e){el('ffStatus').textContent='Could not load settings: '+String(e);}).finally(function(){Dashboard.hideLoadingMsg();});
@@ -33,7 +33,7 @@ el('FazFortShelvesForm').addEventListener('submit',function(e){
  try{
  if(!config)throw new Error('Settings have not loaded. Reopen this page.');
  var rules=JSON.parse(el('ffRules').value);if(!Array.isArray(rules))throw new Error('Rules must be an array.');
- config.Enabled=el('ffEnabled').checked;config.TimeZone=el('ffZone').value.trim();
+ config.InjectBrowserScript=el('ffInject').checked;config.Enabled=el('ffEnabled').checked;config.TimeZone=el('ffZone').value.trim();
  config.DailyShelfCount=Number(el('ffCount').value);config.CardsPerShelf=Number(el('ffCards').value);config.MinimumItems=Number(el('ffMin').value);
  config.HideWatched=el('ffWatched').checked;config.RulesJson=JSON.stringify(rules,null,2);
  Dashboard.showLoadingMsg();
