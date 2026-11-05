@@ -10,3 +10,7 @@ const built=await transform(source,{target:['chrome69','safari13'],format:'iife'
 await mkdir(new URL('../dist', import.meta.url), { recursive: true });
 await writeFile(new URL('../dist/fazfort-discovery.js', import.meta.url),`/* FazFort Discovery ${manifest.version} — paste this entire file into one non-module JS Injector script. */\n`+built.code);
 console.log(`Built dist/fazfort-discovery.js (${Buffer.byteLength(built.code)} bytes).`);
+
+const hub=await transform(await readFile(new URL('../requests/web.js',import.meta.url),'utf8'),{target:['chrome69','safari13'],format:'iife',minify:false,legalComments:'none'});
+await mkdir(new URL('../requests/dist',import.meta.url),{recursive:true});
+await writeFile(new URL('../requests/dist/web.js',import.meta.url),hub.code);

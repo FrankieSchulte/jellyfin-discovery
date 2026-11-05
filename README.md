@@ -49,7 +49,7 @@ The catalog URL becomes available only after the first successful **Release plug
 
 ### Manual fallback
 
-Manual installation is optional. The Linux package `server/fazfort-discovery-companion-0.3.3.tar.gz` supports Debian/Ubuntu systemd installations; its installer validates checksums and backs up replaced files. Review its paths and health-check configuration before use. An optional Proxmox helper is included.
+Manual installation is optional. The Linux package `server/fazfort-discovery-companion-0.4.0.tar.gz` supports Debian/Ubuntu systemd installations; its installer validates checksums and backs up replaced files. Review its paths and health-check configuration before use. An optional Proxmox helper is included.
 
 If automatic browser delivery is unavailable, disable **Automatically load Discovery in Jellyfin Web** in plugin settings, restart, then add `dist/fazfort-discovery.js` as one enabled, non-module JavaScript Injector script. Without the server plugin, browsing still works but arrival tracking and synchronized preferences are unavailable.
 
@@ -61,8 +61,8 @@ The HSS settings and browser profiles serve different interfaces. Use **Customiz
 
 ## Controls and configuration
 
-- **Browse options → Customize:** use the visual editor to add/edit categories, move opening rows up/down, choose artwork layouts and select rotating category types separately for Home, Movies and Shows. JSON is available under Advanced for import/export. Authenticated users save their own rules to the server when available; version checks prevent stale edits overwriting newer saves. Local fallback settings can be exported.
-- **Browse options → Filters:** combine criteria or change sorting. Filtered results are finite and paginated; clear filters to resume mixed discovery browsing.
+- **Profile → Settings → Discovery settings:** use the visual editor to add/edit categories, move opening rows up/down, choose artwork layouts and select rotating category types separately for Home, Movies and Shows. JSON is available under Advanced for import/export. Authenticated users save their own rules to the server when available; version checks prevent stale edits overwriting newer saves. Local fallback settings can be exported.
+- **Movies / TV Shows → Filters:** combine criteria or change sorting. Filtered results are finite and paginated; clear filters to resume mixed discovery browsing.
 - **⋯ on a local title:** open explained recommendations. Recommendations stay within the accessible inventory and active filters.
 - **Full library / Normal home:** restore native browsing. **Discover shelves** switches back.
 - **Controls: auto / tv / touch:** select a device-specific navigation mode. In TV mode, arrows move between cards/shelves, Select opens a title, and holding Select opens recommendations. Back closes the extension's dialogs first.
@@ -129,3 +129,19 @@ In Customize, mix default sections with specific categories or rotating slots su
 Automatic artwork uses portrait cards for Discover sections and poster-only pools, and landscape cards for other rows. Explicit artwork overrides are available for category definitions and opening-row types. Repeated occurrences of a row type share its artwork setting.
 
 SleekFin's hero remains owned by SleekFin. Discovery preserves its visible mount anchor and does not require changes to the theme. Ensure the hero is enabled in SleekFin settings.
+
+## Suggestions, Library and Genres
+
+Movies and TV Shows default to Suggestions with metadata-driven shelves. The page selector switches to the native Library (with filters/sort/view options) or styled genre shelves. Play All and Shuffle are hidden on these library pages. Other tabs, such as Favorites and Collections, retain their native behavior.
+
+Home has no visible utility header. Open your profile's Settings page and choose Discovery settings for category editing, device control mode, normal/Discovery Home and reshuffling. The settings are for the signed-in user. Home filters are omitted; Movies and TV Shows keep a Filters action.
+
+Category arrows and remote navigation wrap at either edge; horizontal trackpad/swipe edge gestures can also wrap. Each row loops its current loaded selection, whose size is controlled by Cards per shelf. This is bounded circular browsing rather than downloading every matching title into each row. Physical gesture behavior still needs device testing.
+
+Continue Watching groups episodes by series and opens the selected resume episode's details. It prefers an in-progress episode over a Next Up entry, then the newest reported playback activity. It does not autoplay or modify playback state.
+
+Existing saved profiles remain unchanged. In Discovery settings, select the appropriate page and choose **Add supplied categories** to merge the new defaults without replacing categories that already share those keys. Defaults use real metadata: genres, anime/theme tags, community scores and director/cast/studio groups. Categories below the minimum count stay hidden.
+
+## Optional Request Hub
+
+The release catalog also contains **Jellyfin Request Hub**, a separate plugin for Jellyseerr browsing and requests within Jellyfin Web. Install it separately, configure the server connection and explicitly map each user's Jellyfin/Jellyseerr IDs. See [Request Hub setup and security](requests/README.md). Its credentials and permissions are independent of Discovery and HSS.

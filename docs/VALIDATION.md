@@ -1,8 +1,8 @@
-# Validation for 0.3.3 preview
+# Validation for 0.4.0 preview
 
 Target: Jellyfin 12.4 / HSS 3.0.4, SleekFin and the legacy Jellyfin Web pages. Mobile web wrappers and TV browser shells are intended targets; independent native client interfaces and Modern React mounts are not supported.
 
-Completed locally for 0.3.3: **52 JavaScript/DOM/installer tests, 28 native ledger/config/HTML checks, 36 merged shelf-engine checks and 4 catalog packaging tests passed.** The native build completed with zero warnings/errors. Installer duplicate-assembly guards were exercised with command fixtures.
+Completed locally for 0.4.0: **62 JavaScript/DOM/installer tests, 28 native ledger/config/HTML checks, 36 shelf-engine checks, 32 Request Hub security/delivery checks and 5 catalog packaging tests passed.** Both native builds completed with zero warnings/errors. No live server deployment, upstream request or physical-device test is implied by those checks.
 
 - Browser build downleveled to Chrome 69/Safari 13 syntax, with source/bundle syntax checks.
 - Node tests for matching, filtering, scopes, arrival-badge truthfulness, explained recommendations, 200-row feed diversity, finite results, hydration, pagination and profile request versioning.
@@ -43,3 +43,9 @@ New checks exercise flat ZIP layout, exact manifest checksum/download URLs, vers
 ## 0.3.3 presentation and editor
 
 New fixtures verify that the native section host remains visible and adjacent to a simulated SleekFin hero, late native rows are hidden individually, and cleanup restores those rows. They cover explicit opening order with a rotating director, portrait Discover artwork selection, visual category creation and versioned server saves, separate page profiles, and the compact closed utility disclosure. Server validation covers new opening/layout fields and invalid references. Real browser launch remains blocked by workspace socket permissions, so pixel-level visual verification and actual theme timing must be checked on the live installation.
+
+## 0.4.0 navigation and Request Hub
+
+New tests cover explicit Suggestions/Library/Genres routes, untouched native Library controls, Home controls under profile settings, settings dialogs surviving reconciliation, series-level resume deduplication, circular arrow/remote navigation and the separate Request Hub lifecycle. Request Hub tests verify explicit season confirmation, mapped identity headers, refusal of unconfigured identities, constrained paths/URLs, safe response projection, write caps and independent catalog ZIPs.
+
+No live Jellyseerr request, actual library navigation through a running Jellyfin router, pixel-level browser render or physical trackpad/TV remote has been verified here. Request Hub's middleware contract was read from its upstream source; a real mapped-user permissions/approval test is mandatory before wider use. Its studio list is curated, and circular local shelves loop their bounded loaded selection. Available-title local playback links are not yet part of Request Hub.

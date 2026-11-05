@@ -870,6 +870,73 @@
             "Horror",
             "Thriller"
           ]
+        },
+        {
+          "Key": "tv-drama",
+          "Title": "Drama Worth Your Time",
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Drama"
+          ],
+          "Enabled": true
+        },
+        {
+          "Key": "tv-comedy",
+          "Title": "Familiar TV Favorites",
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Comedy"
+          ],
+          "Enabled": true
+        },
+        {
+          "Key": "tv-anime",
+          "Title": "Animated Worlds",
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Animation",
+            "Anime"
+          ],
+          "Enabled": true
+        },
+        {
+          "Key": "tv-scifi",
+          "Title": "Strange Worlds",
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Sci-Fi & Fantasy",
+            "Science Fiction",
+            "Fantasy"
+          ],
+          "Enabled": true
+        },
+        {
+          "Key": "tv-crime",
+          "Title": "Crime and Consequences",
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Crime"
+          ],
+          "Enabled": true
+        },
+        {
+          "Key": "tv-acclaimed",
+          "Title": "Highly Rated TV",
+          "Types": [
+            "Series"
+          ],
+          "MinRating": 8,
+          "Enabled": true
         }
       ]
     }

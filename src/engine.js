@@ -205,8 +205,12 @@ export function routeInfo(hashValue) {
   const value = String(hashValue || '').replace(/^#!?\/?/, '').replace(/^\//, '');
   const [path, query = ''] = value.split('?');
   const p = new URLSearchParams(query), name = path.replace(/\.html$/, '').toLowerCase();
-  if (p.has('seerrfintab') || (p.has('tab') && p.get('tab') !== '0')) return null;
+  if ([...p.keys()].some(k=>['seerrfintab','requesthub'].includes(k.toLowerCase()))) return null;
   const collection = p.get('collectionType')?.toLowerCase();
   const page = ['home', ''].includes(name) ? 'home' : name === 'movies' ? 'movies' : ['tv', 'tvshows'].includes(name) ? 'shows' : name === 'list' && ['movies', 'tvshows'].includes(collection) ? (collection === 'movies' ? 'movies' : 'shows') : null;
-  return page ? { page, parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
+  const tab=p.get('tab');
+  if(page==='home'&&tab&&tab!=='0')return null;
+  let view='suggestions';
+  if(page&&page!=='home'){if(tab==='0')view='library';else if(tab===(page==='movies'?'4':'3'))view='genres';else if(tab&&tab!=='1')return null;}
+  return page ? { page, ...(page!=='home'?{view}:{}), parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
 }

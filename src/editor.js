@@ -1,5 +1,5 @@
 // Visual editing works on a cloned configuration. Nothing persists until Apply.
-export function createVisualEditor(host, initial, selectedPage, inventory, changed, {element,button}) {
+export function createVisualEditor(host, initial, selectedPage, inventory, changed, {element,button,supplied}) {
   let draft=cloneJson(initial), page=selectedPage, editing=null;
   const anchors={ContinueWatchingNextUp:'Continue Watching / Next Up',RecentlyAddedMovies:'Recently Added in Movies',RecentlyAddedShows:'Recently Added in Shows',DiscoverMovies:'Discover Movies',DiscoverTV:'Discover TV Shows',MyJellyseerrRequests:'My Requests',MyMedia:'My Media'};
   const families={theme:'Rotating theme',genre:'Rotating genre',director:'Directed by…',actor:'Starring…',decade:'Best of a decade',studio:'Studio / network',rating:'Highly rated',rewatch:'Worth another watch',runtime:'Short movies'};
@@ -50,7 +50,7 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
       row.append(button('Edit',()=>{editing=rule.Key;draw();host.querySelector('[aria-label="Category title"]')?.focus();}),button('Delete',()=>{
         profile.rules.splice(n,1);profile.opening=profile.opening?.filter(t=>t!==`rule:${rule.Key}`);if(profile.layouts)delete profile.layouts[`rule:${rule.Key}`];editing=null;emit();draw();
       }));rules.append(row);
-    });host.append(rules,button('Add category',()=>{
+    });host.append(rules,button('Add supplied categories',()=>{for(const rule of supplied.pages[page].rules){if(!profile.rules.some(r=>r.Key===rule.Key))profile.rules.push(cloneJson(rule));}emit();draw();}),button('Add category',()=>{
       const key=`category-${hash(String(Date.now())+profile.rules.length).toString(16)}`;
       profile.rules.push({Key:key,Title:'New category',Enabled:true,Types:[page==='shows'?'Series':'Movie'],GenresAny:[],TagsAny:[],Months:[]});editing=key;emit();draw();host.querySelector('[aria-label="Category title"]')?.focus();
     }));

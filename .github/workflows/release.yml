@@ -44,10 +44,12 @@ jobs:
           fi
       - run: npm ci --ignore-scripts
       - run: npm run build && npm run check && npm test
-      - run: git diff --exit-code -- dist/fazfort-discovery.js
+      - run: git diff --exit-code -- dist/fazfort-discovery.js requests/dist/web.js
       - run: dotnet build native/src -c Release --nologo
       - run: dotnet run --project native/tests -c Release
       - run: dotnet run --project native/shelf-tests -c Release
+      - run: dotnet build requests/src -c Release --nologo
+      - run: dotnet run --project requests/tests -c Release
       - run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Package catalog assets
         run: python3 scripts/catalog.py --timestamp "$(git show -s --format=%cI HEAD)"

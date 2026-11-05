@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.3.3';
+const VERSION = '0.4.0';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -93,9 +93,10 @@ function imageChoices(item, api, layout = 'landscape') {
 }
 function itemHref(item, api) {
   if (item.ProviderIds?.JellyseerrRoot && item.ProviderIds?.Jellyseerr && ['movie', 'tv'].includes(item.SourceType)) {
+    if(window.JellyfinRequestHub)return `#/home?requesthub=discover&mediaType=${item.SourceType}&mediaId=${encodeURIComponent(item.ProviderIds.Jellyseerr)}`;
     return safeUrl(`${item.ProviderIds.JellyseerrRoot.replace(/\/$/, '')}/${item.SourceType}/${encodeURIComponent(item.ProviderIds.Jellyseerr)}`);
   }
-  const q = new URLSearchParams({ id: item.Id || '', serverId: api.serverId?.() || '' });
+  const q = new URLSearchParams({ id: item.ResumeItemId || item.Id || '', serverId: api.serverId?.() || '' });
   if (item.CollectionType) {
     const page = item.CollectionType === 'movies' ? 'movies' : item.CollectionType === 'tvshows' ? 'tv' : 'list';
     return `#/${page}?${new URLSearchParams({ topParentId: item.Id, collectionType: item.CollectionType, serverId: api.serverId?.() || '' })}`;
@@ -136,7 +137,9 @@ function fillSlot(slot, s) {
   const row = slot.data;
   slot.node.replaceChildren(); slot.node.className = 'fx-shelf'; slot.node.style.height = '';
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
-  const scroll = direction => track.scrollBy({ left: direction * Math.max(250, track.clientWidth * .85), behavior: 'smooth' });
+  const scroll = direction => {const end=Math.max(0,track.scrollWidth-track.clientWidth);if(direction>0&&track.scrollLeft>=end-2)track.scrollLeft=0;else if(direction<0&&track.scrollLeft<=2)track.scrollLeft=end;else track.scrollBy({left:direction*Math.max(250,track.clientWidth*.85),behavior:'smooth'});};
+  track.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;const end=track.scrollWidth-track.clientWidth;if(end>0&&(e.deltaX>0&&track.scrollLeft>=end-2||e.deltaX<0&&track.scrollLeft<=2)){e.preventDefault();scroll(e.deltaX>0?1:-1);}},{passive:false});
+  let touchX;track.addEventListener('touchstart',e=>touchX=e.touches[0]?.clientX,{passive:true});track.addEventListener('touchend',e=>{const delta=touchX-e.changedTouches[0]?.clientX;if(Math.abs(delta)>40){const end=track.scrollWidth-track.clientWidth;if(end>0&&(delta>0&&track.scrollLeft>=end-2||delta<0&&track.scrollLeft<=2))scroll(delta>0?1:-1);}},{passive:true});
   const back = button('‹', () => scroll(-1)), forward = button('›', () => scroll(1));
   back.setAttribute('aria-label', `Previous ${row.title}`); forward.setAttribute('aria-label', `More ${row.title}`);
   const token = row.family === 'anchor' ? `anchor:${row.key}` : row.family === 'theme' ? row.key : `family:${row.family}`;
@@ -189,12 +192,12 @@ function filterPanel(s) {
 function preparePlanner(s) {
   const items = filterItems(s.inventory.items, s.filters, s.tracking);
   s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now,s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
-  s.filteredQueue = null;
+  s.filteredQueue = s.route.view==='genres'?s.planner.shelves.filter(r=>r.family==='genre'&&r.key!=='genre:explore').sort((a,b)=>a.title.localeCompare(b.title)):null;
   if (filtersActive(s.filters) || s.filters.sort !== 'recommended') {
     s.filteredQueue = [];
     for (let n=0;n<items.length;n+=s.config.cardsPerShelf) s.filteredQueue.push({key:`filtered:${n}`,title:`Matches ${n+1}–${Math.min(n+s.config.cardsPerShelf,items.length)} of ${items.length}`,family:'filtered',items:items.slice(n,n+s.config.cardsPerShelf)});
   }
-  s.matchCount.textContent = s.filteredQueue ? `${items.length} matching titles` : '';
+  s.matchCount.textContent = s.filteredQueue && s.route.view!=='genres' ? `${items.length} matching titles` : '';
 }
 function applyFilters(s) {
   if (state!==s || s.loading) { s.filterPending=true; return; }
@@ -295,7 +298,7 @@ async function loadMore(s, automatic = false) {
       const row = s.pending || await nextRow(s);
       if (!row) { s.finished = true; break; }
       s.pending = row;
-      const items = row.key === 'MyMedia' || row.external ? row.items : await s.client.hydrate(row.items);
+      const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' ? row.items : await s.client.hydrate(row.items);
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length) appendRow({ ...row, items }, s);
@@ -379,7 +382,7 @@ function customize(s) {
   const error = element('p'); error.setAttribute('role', 'alert');
   const visual=element('div','fx-visual-editor');
   let initial;try{initial=validateConfig(JSON.parse(input.value));}catch{initial=DEFAULT_CONFIG;}
-  const editor=createVisualEditor(visual,initial,s.route.page,s.inventory,c=>{input.value=JSON.stringify(c,null,2);},{element,button});
+  const editor=createVisualEditor(visual,initial,s.route.page,s.inventory,c=>{input.value=JSON.stringify(c,null,2);},{element,button,supplied:DEFAULT_CONFIG});
   const advanced=element('details','fx-advanced');advanced.append(element('summary','','Advanced: JSON import / export'));
   input.addEventListener('change',()=>{try{editor.setConfig(validateConfig(JSON.parse(input.value)));error.textContent='';}catch(e){error.textContent=e.message;}});
   const actions = element('div', 'fx-dialog-actions');
@@ -391,6 +394,8 @@ function customize(s) {
   });
   const reset = button('Load supplied rules', () => { input.value = JSON.stringify(DEFAULT_CONFIG, null, 2);editor.setConfig(DEFAULT_CONFIG); error.textContent = 'Review the rules, then Apply to save.'; });
   const exportButton = button('Export JSON', () => { try { download('fazfort-discovery-config.json', validateConfig(JSON.parse(input.value))); } catch (e) { error.textContent = e.message; } });
+  const device=element('div','fx-dialog-actions'),control=button(`Controls: ${controlsMode(s).mode}`,()=>controlToggle(s,control));
+  device.append(control,button('Use normal Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'native');error.textContent='Normal Home selected for this device.';}),button('Use Discovery Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'discover');error.textContent='Discovery Home selected for this device.';}),button('Reshuffle feed',()=>{closeDialog();restart(true);}));
   const file = element('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', 'Import discovery configuration or old shelf rules');
   file.addEventListener('change', async () => {
     try {
@@ -410,7 +415,23 @@ function customize(s) {
   actions.append(apply, exportButton, reset, button('Cancel', closeDialog));
   advanced.replaceChildren(element('summary','','Advanced: JSON import / export'),file,input,exportButton,reset);
   actions.replaceChildren(apply,button('Cancel',closeDialog));
-  dialog.append(title,help,visual,advanced,error,actions);openDialog(dialog);
+  dialog.append(title,help,device,visual,advanced,error,actions);openDialog(dialog);
+}
+let settingsScope='';
+async function openUserSettings(api){
+  if(!api?.getCurrentUserId?.())return;
+  const scope=scopeKey(api);const s={api,scope,root:element('div'),route:{page:'home'},config:null};try{s.config=readConfig(api);}catch{}
+  s.client=new JellyfinClient(api,()=>scopeKey(api)===scope);
+  try{const profile=await s.client.preferences();s.config=profile.config?validateConfig(profile.config):s.config;s.profileVersion=profile.version;s.syncAvailable=true;}catch{s.client.assertCurrent();}
+  customize(s);
+}
+function syncSettings(api){
+  const scope=api?.getCurrentUserId?.()?scopeKey(api):'';
+  if(settingsScope&&scope!==settingsScope){closeDialog();document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());}settingsScope=scope;
+  if(!scope||!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))return;
+  const page=[...document.querySelectorAll('.userPreferencesPage')].find(visible);
+  if(!page||page.querySelector('[data-fx-settings-link]'))return;
+  const link=button('Discovery settings',()=>openUserSettings(api));link.dataset.fxSettingsLink='true';link.className='fx-profile-settings';page.prepend(link);
 }
 function visible(node) {
   if (!node?.isConnected || node.closest('.hide,[hidden],.hidePage')) return false;
@@ -420,7 +441,7 @@ function locate(route) {
   const selector = route.page === 'home' ? '#indexPage, .homePage' : route.page === 'movies' ? '#moviesPage' : '#tvshowsPage, #tvRecommendedPage';
   for (const page of document.querySelectorAll(selector)) {
     if (!visible(page)) continue;
-    const native = route.page === 'home' ? page.querySelector('.homeSectionsContainer') : page.querySelector('.pageTabContent[data-index="0"]');
+    const native = route.page === 'home' ? page.querySelector('.homeSectionsContainer') : page.querySelector(`.pageTabContent[data-index="${route.view==='genres'?(route.page==='movies'?4:3):route.view==='library'?0:(new URLSearchParams(location.hash.split('?')[1]||'').get('tab')||0)}"]`);
     if (native && !native.closest('.fx-discovery')) return { page, native };
   }
   return null;
@@ -446,13 +467,15 @@ function reconcile() {
   clearTimeout(timer); timer = 0;
   if (stopped) return;
   const api = window.ApiClient, route = routeInfo(location.hash);
+  syncSettings(api);
   if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
-  if (!route || (route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase())) { cleanup(); return; }
+  if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
+  if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
   if(lastScope&&lastScope!==scope){cleanup(false);savedFeeds.clear();snapshots.clear();}
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
-  const key = `${scope}:${route.page}:${route.parentId}`;
+  const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
   if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { if(!state.full && state.slots.length)syncNative(state,true); decorateNative(state); return; }
   cleanup();
   const token = generation;
@@ -468,9 +491,15 @@ function reconcile() {
   const menu=element('details','fx-feed-menu'), summary=element('summary','','Browse options'), actions=element('div','fx-feed-menu-actions');
   actions.append(s.toggle,s.filterToggle,button('Customize',()=>customize(s)),controlButton,button('Restart feed',()=>restart(true)));
   menu.append(summary,actions);toolbar.append(menu);
+  if(route.page==='home')toolbar.hidden=true;
+  else {
+    menu.hidden=true;const heading=element('h1','',route.page==='movies'?'Movies':'TV Shows'), switcher=element('select');switcher.setAttribute('aria-label','Browse mode');
+    for(const [value,label] of [['suggestions','Suggestions'],['library','Library'],['genres','Genres']]){const option=element('option','',label);option.value=value;option.selected=route.view===value;switcher.append(option);}
+    switcher.addEventListener('change',()=>{const q=new URLSearchParams(location.hash.split('?')[1]||'');q.set('tab',switcher.value==='library'?'0':switcher.value==='genres'?(route.page==='movies'?'4':'3'):'1');location.hash=location.hash.split('?')[0]+'?'+q;});toolbar.prepend(heading,switcher);if(route.view!=='library')toolbar.append(s.filterToggle);
+  }
   footer.append(s.more, s.note); root.append(toolbar,panel,matchCount,status,list,footer);
   if(route.page==='home') target.native.after(root); else target.native.before(root); state = s;
-  let full = false; try { full = localStorage.getItem(prefKey(api, route.page)) === 'native'; } catch { /* A private browser can still use the unsaved view. */ }
+  let full = route.view==='library'; try { if(route.page==='home')full = localStorage.getItem(prefKey(api, route.page)) === 'native'; } catch { /* A private browser can still use the unsaved view. */ }
   if (typeof IntersectionObserver === 'function') {
     s.io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) loadMore(s, true); }, { rootMargin: '600px 0px' }); s.io.observe(footer);
   }
@@ -489,6 +518,16 @@ function scheduleScroll() {
   });
 }
 function schedule() { if (!timer && !stopped) timer = setTimeout(reconcile, 120); }
+function navSuggestions(event){
+  const target=event.target.closest?.('[data-sleekfin-header-proxy-item],a[href]');if(!target)return;
+  const proxy=target.getAttribute('data-sleekfin-header-proxy-item');
+  const page=proxy==='jellyfin:movies'?'movies':proxy==='jellyfin:shows'?'tv':null;
+  let route=page?`#/${page}`:target.getAttribute('href');
+  if(!page&&!target.closest('header,.headerTabs'))return;
+  if(!/^#\/(movies|tv|tvshows)(?:[?]|$)/.test(route||''))return;
+  const [path,raw='']=route.split('?'),q=new URLSearchParams(raw);q.set('tab','1');
+  event.preventDefault();event.stopImmediatePropagation?.();event.stopPropagation();location.hash=path+'?'+q;
+}
 function rememberFocus(event) {
   const s=state,card=event.target.closest?.('.fx-card');
   if(s&&card&&s.root.contains(card))s.lastFocus={row:s.slots.findIndex(slot=>slot.node.contains(card)),id:card.dataset.itemId};
@@ -533,11 +572,11 @@ function remoteKey(event) {
   let next;
   if(card){
     const slotIndex=s.slots.findIndex(slot=>slot.node.contains(card)),track=card.closest('.fx-track'),cards=[...track.querySelectorAll('.fx-card')],index=cards.indexOf(card);
-    if(key==='ArrowLeft'||key==='ArrowRight')next=cards[Math.max(0,Math.min(cards.length-1,index+(key==='ArrowLeft'?-1:1)))];
+    if(key==='ArrowLeft'||key==='ArrowRight')next=cards[(index+(key==='ArrowLeft'?-1:1)+cards.length)%cards.length];
     else{
       const nextSlot=s.slots[slotIndex+(key==='ArrowUp'?-1:1)];
       if(nextSlot){if(!nextSlot.live)fillSlot(nextSlot,s);const options=[...nextSlot.node.querySelectorAll('.fx-card')];next=options[Math.min(index,options.length-1)];}
-      else if(key==='ArrowUp')next=s.root.querySelector('.fx-feed-menu>summary');
+      else if(key==='ArrowUp')next=s.route.page==='home'?s.page.querySelector('.sleekfin-hero button,.sleekfin-hero a[href]'):s.root.querySelector('.fx-toolbar select');
       else {next=s.more;if(!s.finished)loadMore(s);}
     }
   }else{
@@ -558,20 +597,20 @@ function start() {
     if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
+  document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
   document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', scheduleScroll);
   // Sign-out / server switch can occur without a hash change.
   heartbeat = setInterval(schedule, 2000); reconcile();
 }
 window.FazFortDiscovery = {
-  version: VERSION, restart,
+  version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
     stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); snapshots.clear();savedFeeds.clear();
-    window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
+    document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
+    document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };
 if (document.body) start(); else document.addEventListener('DOMContentLoaded', start, { once: true });

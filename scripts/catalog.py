@@ -47,15 +47,33 @@ def package(root, output, repository, timestamp):
     entry['repositoryUrl'] = f'https://github.com/{repository}'
     entry['versions'] = [{
         'version': version,
-        'changelog': 'Hero and artwork fixes, visual category editing and configurable opening rows.',
+        'changelog': 'Suggestions-first browsing, genres, profile settings and circular category navigation.',
         'targetAbi': metadata['targetAbi'],
         'sourceUrl': f'https://github.com/{repository}/releases/download/v{browser_version}/{filename}',
         'checksum': hashlib.md5(payload).hexdigest().upper(),
         'timestamp': stamp.isoformat().replace('+00:00', 'Z'),
         'dependencies': []
     }]
-    (output / 'manifest.json').write_text(json.dumps([entry], indent=2) + '\n')
-    (output / 'SHA256SUMS').write_text(f'{hashlib.sha256(payload).hexdigest()}  {filename}\n')
+    entries=[entry]
+    sums=f'{hashlib.sha256(payload).hexdigest()}  {filename}\n'
+    hub_meta=root/'requests/meta.json'
+    if hub_meta.exists():
+        hub=json.loads(hub_meta.read_text())
+        if hub['version']!=version:raise ValueError('Request Hub and release versions must agree')
+        hub_name=f"Jellyfin.RequestHub_{version}.zip"
+        with zipfile.ZipFile(output/hub_name,'w',zipfile.ZIP_DEFLATED) as bundle:
+            for name in ('Jellyfin.RequestHub.dll','Jellyfin.RequestHub.deps.json'):
+                source=root/'requests/src/bin/Release/net10.0'/name
+                if not source.is_file() or not source.stat().st_size:raise ValueError('Missing Request Hub compiled asset')
+                info=zipfile.ZipInfo(name,(2020,1,1,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16
+                bundle.writestr(info,source.read_bytes())
+        hub_bytes=(output/hub_name).read_bytes()
+        hub_entry={key:hub[key] for key in ('guid','name','description','overview','owner','category')}
+        hub_entry['repositoryUrl']=entry['repositoryUrl']
+        hub_entry['versions']=[{**entry['versions'][0],'sourceUrl':f'https://github.com/{repository}/releases/download/v{browser_version}/{hub_name}','checksum':hashlib.md5(hub_bytes).hexdigest().upper(),'changelog':'Independent Jellyseerr browsing, search and mapped-user requests.'}]
+        entries.append(hub_entry);sums+=f'{hashlib.sha256(hub_bytes).hexdigest()}  {hub_name}\n'
+    (output / 'manifest.json').write_text(json.dumps(entries, indent=2) + '\n')
+    (output / 'SHA256SUMS').write_text(sums)
     return archive
 
 if __name__ == '__main__':

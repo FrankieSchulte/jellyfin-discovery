@@ -1,12 +1,17 @@
-Jellyfin Discovery 0.3.3 fixes presentation and adds visual feed editing.
+Jellyfin Discovery 0.4.0 and the independently installable Jellyfin Request Hub:
 
-- Preserve SleekFin's visible hero mount anchor and its adjacency while hiding native rows individually. Late HSS rows are hidden without removing the banner anchor.
-- Replace the utility-button header with one compact Browse options disclosure. Keep native/full-library view, Filters, Customize, control mode and reshuffle actions available inside it.
-- Render Discover posters in portrait cards and prefer Primary artwork for portrait rows. Automatically use portrait rows for poster-only pools; support explicit per-category and per-row-type artwork overrides.
-- Add a visual category editor for Home, Movies and Shows. Edit names, media types, genres, tags, directors, cast, studios, score, runtime, years and scheduled months. JSON remains an advanced import/export option.
-- Arrange opening rows with Move Up/Down: mix default sections, specific themes and rotating genre/director/cast/studio/decade slots. Empty/out-of-season rows are skipped; diverse continuous browsing follows the opening.
-- Add the missing dashboard settings-menu link.
+Discovery:
+- Movies and TV Shows default to Suggestions, with a page heading and Suggestions / Library / Genres selector. Library preserves native filters, sorting and grid/list controls while hiding Play All/Shuffle. Genres uses the same shelf renderer as Home, without extra rating/year/type lines.
+- Add metadata-based TV category defaults and an Add supplied categories action for existing saved profiles. Custom categories are not overwritten.
+- Move Home controls into Profile → Settings → Discovery settings; remove the visible Home Browse options bar. Control mode, native/Discovery Home and category customization remain available there.
+- Wrap horizontal category navigation through arrows, keyboard edges and edge gestures. This wraps each row's loaded selection, not an unlimited external catalogue. No duplicate card DOM is created.
+- Hide category scrollbars, tighten spacing and bold titles.
+- Group Continue Watching/Next Up episodes into one card per series, preferring the most recently resumed episode and linking to that episode's details. Clicking does not silently autoplay or change watched state.
 
-Existing rule keys, plugin ID, preferences storage and arrival history are retained. The saved profiles stay independent across Home, Movies and Shows. File Transformation delivers the matching browser bundle after update/restart; no JavaScript Injector copy is required.
+Request Hub:
+- A second catalog entry/DLL with its own plugin ID and administrator settings.
+- Browse Trending, popular movies/series, genres, curated studio shortcuts and search inside Jellyfin Web.
+- Show title details, choose TV seasons and explicitly confirm a request.
+- Authenticate every call with an explicit Jellyfin→Jellyseerr user mapping. Keep API keys server-side for regular clients; retain Jellyseerr permissions, quotas and approvals.
 
-Automated tests cover the integrations with synthetic DOM/API fixtures. Live visual layout, actual SleekFin registration timing, proxy HTTP behavior and physical remotes still need acceptance testing. An enabled, working SleekFin hero is required for its banner; Discovery does not replace a disabled theme hero with a second implementation.
+Both target Jellyfin 12.4 legacy Web and need File Transformation for browser delivery. Request Hub is optional and does not make independent native apps display custom web screens. Live proxy, theme, request ownership and physical-device checks remain required; see docs/VALIDATION.md and requests/README.md.

@@ -206,3 +206,25 @@ test('feed utilities are inside one closed disclosure without a second page head
   const menu=toolbar.querySelector('details');assert.ok(menu);assert.equal(menu.hasAttribute('open'),false);
   assert.equal(menu.querySelector('summary').textContent,'Browse options');f.ctx.window.FazFortDiscovery.stop();
 });
+test('Movies Suggestions mount by default; explicit Library stays native and Genres uses owned shelves',async()=>{
+  const f=fixture();await f.settle();
+  f.document.getElementById('indexPage').classList.add('hide');const page=f.document.getElementById('moviesPage');page.classList.remove('hide');
+  for(const index of [1,4]){const tab=f.document.createElement('div');tab.className='pageTabContent';tab.dataset.index=String(index);tab.textContent='Native tab';page.append(tab);}
+  f.navigate('#/movies?tab=1');await f.settle();assert.ok(f.document.querySelectorAll('.fx-shelf').length>2);assert.equal(f.document.querySelector('.fx-toolbar h1').textContent,'Movies');
+  f.navigate('#/movies?tab=0');await f.settle();assert.equal(f.document.querySelector('[data-fx-native-hidden]'),null);assert.equal(f.document.querySelector('.fx-shelf'),null);
+  f.navigate('#/movies?tab=4');await f.settle();assert.ok([...f.document.querySelectorAll('.fx-shelf')].every(n=>n.dataset.shelfKey.startsWith('genre:')));
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('Home controls move to the user profile and stay open through reconciliation',async()=>{
+  const f=fixture();await f.settle();assert.equal(f.document.querySelector('.fx-toolbar').hidden,true);
+  const profile=f.document.createElement('div');profile.className='userPreferencesPage';f.document.body.append(profile);f.document.getElementById('indexPage').classList.add('hide');
+  f.navigate('#/mypreferencesmenu');await f.settle();assert.ok(profile.querySelector('[data-fx-settings-link]'));
+  profile.querySelector('button').click();await f.settle();assert.ok(f.document.querySelector('#fx-customize'));
+  f.navigate('#/mypreferencesmenu');await f.settle();assert.ok(f.document.querySelector('#fx-customize'));f.ctx.window.FazFortDiscovery.stop();
+});
+test('category arrows wrap at either horizontal edge and remote navigation loops cards',async()=>{
+  const f=fixture();await f.settle();const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track');
+  Object.defineProperties(track,{clientWidth:{value:500},scrollWidth:{value:1500}});track.scrollLeft=1000;shelf.querySelectorAll('.fx-row-head button')[1].click();assert.equal(track.scrollLeft,0);
+  shelf.querySelector('.fx-row-head button').click();assert.equal(track.scrollLeft,1000);
+  f.storage.set('fazfort-discovery:controls:s:u','tv');const cards=track.querySelectorAll('.fx-card');cards[cards.length-1].focus();f.key(cards[cards.length-1],'ArrowRight',39);assert.equal(f.document.activeElement,cards[0]);f.ctx.window.FazFortDiscovery.stop();
+});

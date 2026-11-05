@@ -89,7 +89,7 @@ test('same seed has stable ordering and another seed varies it', () => {
   assert.deepEqual(plan('a'),plan('a'));assert.notDeepEqual(plan('a'),plan('b'));
 });
 test('route detection preserves library scope and avoids favorites/details', () => {
-  assert.deepEqual(routeInfo('#/movies?topParentId=abc&collectionType=movies'),{page:'movies',parentId:'abc',serverId:''});
+  assert.deepEqual(routeInfo('#/movies?topParentId=abc&collectionType=movies'),{page:'movies',view:'suggestions',parentId:'abc',serverId:''});
   assert.equal(routeInfo('#/tv?topParentId=xyz').page,'shows');
   assert.equal(routeInfo('#/home?tab=1'),null);
   assert.equal(routeInfo('#/details?id=a'),null);
@@ -102,4 +102,9 @@ test('opening rows and artwork validate and missing category references fail',()
   assert.doesNotThrow(()=>validateConfig(c));
   c.pages.home.opening=['rule:missing'];assert.throws(()=>validateConfig(c),/opening/);
   c.pages.home.opening=['family:director'];c.pages.home.layouts={'anchor:DiscoverMovies':'stretch'};assert.throws(()=>validateConfig(c),/layout/);
+});
+test('Suggestions default, explicit Library/Genres and Request Hub routes remain separate',()=>{
+  assert.equal(routeInfo('#/movies').view,'suggestions');assert.equal(routeInfo('#/tv?tab=1').view,'suggestions');
+  assert.equal(routeInfo('#/movies?tab=0').view,'library');assert.equal(routeInfo('#/movies?tab=4').view,'genres');assert.equal(routeInfo('#/tv?tab=3').view,'genres');
+  assert.equal(routeInfo('#/movies?tab=2'),null);assert.equal(routeInfo('#/home?requesthub=discover'),null);
 });

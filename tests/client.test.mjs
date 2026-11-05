@@ -48,3 +48,12 @@ test('tracked movie additions outrank old filesystem dates in recently added',as
   const row=await new JellyfinClient(api).anchor('RecentlyAddedMovies',{page:'movies'},{items,tracking:new Map([[id(1),{AddedAt:'2026-11-03'}]])},{cardsPerShelf:8});
   assert.equal(row.items[0].Id,id(1));
 });
+test('resume groups episodes by series and retains the most recently resumed episode target',()=>{
+  const client=new JellyfinClient({getCurrentUserId:()=> 'u'});
+  const result=client.groupResume([
+    {Id:'first',Type:'Episode',SeriesId:'show',SeriesName:'Show',UserData:{PlaybackPositionTicks:10,LastPlayedDate:'2026-10-01'}},
+    {Id:'latest',Type:'Episode',SeriesId:'show',SeriesName:'Show',UserData:{PlaybackPositionTicks:10,LastPlayedDate:'2026-11-01'}},
+    {Id:'next',Type:'Episode',SeriesId:'show',SeriesName:'Show',UserData:{}},
+    {Id:'film',Type:'Movie',Name:'Film'}],{items:[{Id:'show',Name:'Show',ImageTags:{Primary:'poster'},BackdropImageTags:['show-image']}]});
+  assert.equal(result.length,2);assert.equal(result[0].Id,'show');assert.equal(result[0].ResumeItemId,'latest');assert.equal(result[0].Type,'Series');assert.deepEqual(result[0].BackdropImageTags,['show-image']);
+});

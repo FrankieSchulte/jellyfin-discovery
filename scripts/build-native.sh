@@ -5,6 +5,8 @@ dotnet_cmd="${FAZFORT_DOTNET:-dotnet}"
 "$dotnet_cmd" build native/src -c Release --nologo
 "$dotnet_cmd" run --project native/tests -c Release
 "$dotnet_cmd" run --project native/shelf-tests -c Release
+"$dotnet_cmd" build requests/src -c Release --nologo
+"$dotnet_cmd" run --project requests/tests -c Release
 stage="$(mktemp -d)"
 trap 'rm -rf -- "$stage"' EXIT
 mkdir -p "$stage/fazfort-discovery-companion/plugin" server
@@ -15,5 +17,5 @@ cp native/install.sh native/uninstall.sh native/deploy-from-proxmox.sh "$stage/f
 cd "$stage/fazfort-discovery-companion"
 sha256sum plugin/* > SHA256SUMS
 )
-tar -czf server/fazfort-discovery-companion-0.3.3.tar.gz -C "$stage" fazfort-discovery-companion
-echo 'Built server/fazfort-discovery-companion-0.3.3.tar.gz. Nothing has been installed.'
+tar -czf server/fazfort-discovery-companion-0.4.0.tar.gz -C "$stage" fazfort-discovery-companion
+echo 'Built server/fazfort-discovery-companion-0.4.0.tar.gz. Nothing has been installed.'

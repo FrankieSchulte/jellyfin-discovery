@@ -42,3 +42,14 @@ class CatalogTests(unittest.TestCase):
     def test_repository_injection_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             with self.assertRaises(ValueError):catalog.package(Path(temp),Path(temp)/'out','owner/repo?token=secret','2026-11-04T12:00:00Z')
+    def test_independent_requesthub_package_in_shared_catalog(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);self.fixture(root)
+            target=root/'requests/src/bin/Release/net10.0';target.mkdir(parents=True)
+            meta=json.loads((root/'native/meta.json').read_text());meta['guid']='request-hub-guid';meta['name']='Request Hub';(root/'requests/meta.json').write_text(json.dumps(meta))
+            for name in ['Jellyfin.RequestHub.dll','Jellyfin.RequestHub.deps.json']:(target/name).write_bytes(b'independent fixture')
+            catalog.package(root,root/'out','owner/repo','2026-11-04T12:00:00Z')
+            entries=json.loads((root/'out/manifest.json').read_text());self.assertEqual(len(entries),2);self.assertNotEqual(entries[0]['guid'],entries[1]['guid'])
+            archive=root/'out/Jellyfin.RequestHub_0.3.2.0.zip'
+            with zipfile.ZipFile(archive) as z:self.assertEqual(sorted(z.namelist()),['Jellyfin.RequestHub.deps.json','Jellyfin.RequestHub.dll'])
+            self.assertEqual(entries[1]['versions'][0]['checksum'],hashlib.md5(archive.read_bytes()).hexdigest().upper())

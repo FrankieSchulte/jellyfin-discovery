@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.3.3 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.0 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -878,6 +878,73 @@
                 "Horror",
                 "Thriller"
               ]
+            },
+            {
+              "Key": "tv-drama",
+              "Title": "Drama Worth Your Time",
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Drama"
+              ],
+              "Enabled": true
+            },
+            {
+              "Key": "tv-comedy",
+              "Title": "Familiar TV Favorites",
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Comedy"
+              ],
+              "Enabled": true
+            },
+            {
+              "Key": "tv-anime",
+              "Title": "Animated Worlds",
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Animation",
+                "Anime"
+              ],
+              "Enabled": true
+            },
+            {
+              "Key": "tv-scifi",
+              "Title": "Strange Worlds",
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Sci-Fi & Fantasy",
+                "Science Fiction",
+                "Fantasy"
+              ],
+              "Enabled": true
+            },
+            {
+              "Key": "tv-crime",
+              "Title": "Crime and Consequences",
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Crime"
+              ],
+              "Enabled": true
+            },
+            {
+              "Key": "tv-acclaimed",
+              "Title": "Highly Rated TV",
+              "Types": [
+                "Series"
+              ],
+              "MinRating": 8,
+              "Enabled": true
             }
           ]
         }
@@ -944,6 +1011,14 @@
 @supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
 @media(hover:none){.fx-card-more{opacity:1}}
 @media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-rule-form{grid-template-columns:minmax(0,1fr)}.fx-editor-tabs{top:-15px}}
+.fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
+.fx-shelf{margin-bottom:22px}.fx-row-head{margin-bottom:16px}.fx-name{font-weight:600}
+.fx-toolbar h1{font-size:28px;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:12px}
+.fx-toolbar select{font:inherit;border-radius:22px;padding:10px 18px;color:inherit;background:#222;border:1px solid #555}
+.fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#222;color:#fff;border:1px solid #555;font:inherit;cursor:pointer}
+#moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
+.fx-shelf{margin-bottom:18px}.fx-name{font-weight:700}
+#moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
@@ -1162,10 +1237,18 @@
       const value = String(hashValue || "").replace(/^#!?\/?/, "").replace(/^\//, "");
       const [path, query = ""] = value.split("?");
       const p = new URLSearchParams(query), name = path.replace(/\.html$/, "").toLowerCase();
-      if (p.has("seerrfintab") || p.has("tab") && p.get("tab") !== "0") return null;
+      if ([...p.keys()].some((k) => ["seerrfintab", "requesthub"].includes(k.toLowerCase()))) return null;
       const collection = (_a = p.get("collectionType")) == null ? void 0 : _a.toLowerCase();
       const page = ["home", ""].includes(name) ? "home" : name === "movies" ? "movies" : ["tv", "tvshows"].includes(name) ? "shows" : name === "list" && ["movies", "tvshows"].includes(collection) ? collection === "movies" ? "movies" : "shows" : null;
-      return page ? { page, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
+      const tab = p.get("tab");
+      if (page === "home" && tab && tab !== "0") return null;
+      let view = "suggestions";
+      if (page && page !== "home") {
+        if (tab === "0") view = "library";
+        else if (tab === (page === "movies" ? "4" : "3")) view = "genres";
+        else if (tab && tab !== "1") return null;
+      }
+      return page ? { page, ...page !== "home" ? { view } : {}, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
     }
     class JellyfinClient {
       constructor(api, current = () => true) {
@@ -1274,6 +1357,35 @@
         const byId = new Map((response.Items || []).map((i) => [i.Id, i]));
         return items.filter((i) => !ids.includes(i.Id) || byId.has(i.Id)).map((i) => byId.has(i.Id) ? { ...i, ...byId.get(i.Id) } : i);
       }
+      groupResume(items, inventory) {
+        var _a, _b;
+        const grouped = /* @__PURE__ */ new Map();
+        for (const item of items) {
+          const key = item.Type === "Episode" && item.SeriesId ? item.SeriesId : item.Id;
+          const old = grouped.get(key);
+          const priority = (i) => {
+            var _a2;
+            return ((_a2 = i.UserData) == null ? void 0 : _a2.PlaybackPositionTicks) > 0 ? 2 : 1;
+          };
+          if (old && (priority(old) > priority(item) || priority(old) === priority(item) && (Date.parse((_a = old.UserData) == null ? void 0 : _a.LastPlayedDate) || 0) >= (Date.parse((_b = item.UserData) == null ? void 0 : _b.LastPlayedDate) || 0))) continue;
+          grouped.set(key, item);
+        }
+        return [...grouped.values()].map((item) => {
+          if (item.Type !== "Episode" || !item.SeriesId) return item;
+          const show = inventory.items.find((i) => i.Id === item.SeriesId);
+          return {
+            ...item,
+            Name: item.SeriesName || (show == null ? void 0 : show.Name) || item.Name,
+            Type: "Series",
+            ResumeItemId: item.Id,
+            Id: item.SeriesId,
+            ImageTags: (show == null ? void 0 : show.ImageTags) || {},
+            BackdropImageTags: (show == null ? void 0 : show.BackdropImageTags) || item.ParentBackdropImageTags || [],
+            SeriesName: void 0,
+            PrimaryImageAspectRatio: show == null ? void 0 : show.PrimaryImageAspectRatio
+          };
+        });
+      }
       async anchor(id, route, inventory, config) {
         const typed = (list) => route.page === "home" ? list : list.filter((i) => route.page === "movies" ? i.Type === "Movie" || i.SourceType === "movie" : ["Series", "Episode"].includes(i.Type) || i.SourceType === "tv");
         const arrival = (item) => {
@@ -1293,16 +1405,17 @@
             const allowed = new Set(inventory.items.map((i) => i.Id));
             list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
           }
+          if (id === "ContinueWatchingNextUp") list = this.groupResume(list, inventory);
           return { key: id, title, family: "anchor", items: list.slice(0, config.cardsPerShelf), external: id.startsWith("Discover") };
         } catch (error) {
           this.assertCurrent();
           if (id !== "ContinueWatchingNextUp") throw error;
           const resume = await this.json("Items/Resume", { UserId: this.userId, Limit: config.cardsPerShelf, ...route.parentId ? { ParentId: route.parentId } : {}, Fields: "DateCreated,PrimaryImageAspectRatio", EnableImages: true });
-          return { key: id, title: "Continue Watching", family: "anchor", items: typed(resume.Items || []).slice(0, config.cardsPerShelf) };
+          return { key: id, title: "Continue Watching", family: "anchor", items: this.groupResume(typed(resume.Items || []), inventory).slice(0, config.cardsPerShelf) };
         }
       }
     }
-    function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button }) {
+    function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button, supplied }) {
       let draft = cloneJson(initial), page = selectedPage, editing = null;
       const anchors = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
       const families = { theme: "Rotating theme", genre: "Rotating genre", director: "Directed by\u2026", actor: "Starring\u2026", decade: "Best of a decade", studio: "Studio / network", rating: "Highly rated", rewatch: "Worth another watch", runtime: "Short movies" };
@@ -1430,7 +1543,13 @@
           }));
           rules.append(row);
         });
-        host.append(rules, button("Add category", () => {
+        host.append(rules, button("Add supplied categories", () => {
+          for (const rule2 of supplied.pages[page].rules) {
+            if (!profile.rules.some((r) => r.Key === rule2.Key)) profile.rules.push(cloneJson(rule2));
+          }
+          emit();
+          draw();
+        }), button("Add category", () => {
           var _a2;
           const key = `category-${hash(String(Date.now()) + profile.rules.length).toString(16)}`;
           profile.rules.push({ Key: key, Title: "New category", Enabled: true, Types: [page === "shows" ? "Series" : "Movie"], GenresAny: [], TagsAny: [], Months: [] });
@@ -1501,7 +1620,7 @@
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.3.3";
+      const VERSION = "0.4.0";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -1651,9 +1770,10 @@
       function itemHref(item, api) {
         var _a2, _b2, _c2, _d2;
         if (((_a2 = item.ProviderIds) == null ? void 0 : _a2.JellyseerrRoot) && ((_b2 = item.ProviderIds) == null ? void 0 : _b2.Jellyseerr) && ["movie", "tv"].includes(item.SourceType)) {
+          if (window.JellyfinRequestHub) return `#/home?requesthub=discover&mediaType=${item.SourceType}&mediaId=${encodeURIComponent(item.ProviderIds.Jellyseerr)}`;
           return safeUrl(`${item.ProviderIds.JellyseerrRoot.replace(/\/$/, "")}/${item.SourceType}/${encodeURIComponent(item.ProviderIds.Jellyseerr)}`);
         }
-        const q = new URLSearchParams({ id: item.Id || "", serverId: ((_c2 = api.serverId) == null ? void 0 : _c2.call(api)) || "" });
+        const q = new URLSearchParams({ id: item.ResumeItemId || item.Id || "", serverId: ((_c2 = api.serverId) == null ? void 0 : _c2.call(api)) || "" });
         if (item.CollectionType) {
           const page = item.CollectionType === "movies" ? "movies" : item.CollectionType === "tvshows" ? "tv" : "list";
           return `#/${page}?${new URLSearchParams({ topParentId: item.Id, collectionType: item.CollectionType, serverId: ((_d2 = api.serverId) == null ? void 0 : _d2.call(api)) || "" })}`;
@@ -1734,7 +1854,33 @@
         slot.node.className = "fx-shelf";
         slot.node.style.height = "";
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
-        const scroll = (direction) => track.scrollBy({ left: direction * Math.max(250, track.clientWidth * 0.85), behavior: "smooth" });
+        const scroll = (direction) => {
+          const end = Math.max(0, track.scrollWidth - track.clientWidth);
+          if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
+          else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
+          else track.scrollBy({ left: direction * Math.max(250, track.clientWidth * 0.85), behavior: "smooth" });
+        };
+        track.addEventListener("wheel", (e) => {
+          if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          const end = track.scrollWidth - track.clientWidth;
+          if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) {
+            e.preventDefault();
+            scroll(e.deltaX > 0 ? 1 : -1);
+          }
+        }, { passive: false });
+        let touchX;
+        track.addEventListener("touchstart", (e) => {
+          var _a3;
+          return touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
+        }, { passive: true });
+        track.addEventListener("touchend", (e) => {
+          var _a3;
+          const delta = touchX - ((_a3 = e.changedTouches[0]) == null ? void 0 : _a3.clientX);
+          if (Math.abs(delta) > 40) {
+            const end = track.scrollWidth - track.clientWidth;
+            if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
+          }
+        }, { passive: true });
         const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
         back.setAttribute("aria-label", `Previous ${row.title}`);
         forward.setAttribute("aria-label", `More ${row.title}`);
@@ -1827,12 +1973,12 @@
       function preparePlanner(s) {
         const items = filterItems(s.inventory.items, s.filters, s.tracking);
         s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now, s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
-        s.filteredQueue = null;
+        s.filteredQueue = s.route.view === "genres" ? s.planner.shelves.filter((r) => r.family === "genre" && r.key !== "genre:explore").sort((a, b) => a.title.localeCompare(b.title)) : null;
         if (filtersActive(s.filters) || s.filters.sort !== "recommended") {
           s.filteredQueue = [];
           for (let n = 0; n < items.length; n += s.config.cardsPerShelf) s.filteredQueue.push({ key: `filtered:${n}`, title: `Matches ${n + 1}\u2013${Math.min(n + s.config.cardsPerShelf, items.length)} of ${items.length}`, family: "filtered", items: items.slice(n, n + s.config.cardsPerShelf) });
         }
-        s.matchCount.textContent = s.filteredQueue ? `${items.length} matching titles` : "";
+        s.matchCount.textContent = s.filteredQueue && s.route.view !== "genres" ? `${items.length} matching titles` : "";
       }
       function applyFilters(s) {
         if (state !== s || s.loading) {
@@ -1997,7 +2143,7 @@
               break;
             }
             s.pending = row;
-            const items = row.key === "MyMedia" || row.external ? row.items : await s.client.hydrate(row.items);
+            const items = row.key === "MyMedia" || row.external || row.key === "ContinueWatchingNextUp" ? row.items : await s.client.hydrate(row.items);
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length) appendRow({ ...row, items }, s);
@@ -2140,7 +2286,7 @@
         }
         const editor = createVisualEditor(visual, initial, s.route.page, s.inventory, (c) => {
           input.value = JSON.stringify(c, null, 2);
-        }, { element, button });
+        }, { element, button, supplied: DEFAULT_CONFIG2 });
         const advanced = element("details", "fx-advanced");
         advanced.append(element("summary", "", "Advanced: JSON import / export"));
         input.addEventListener("change", () => {
@@ -2178,6 +2324,17 @@
             error.textContent = e.message;
           }
         });
+        const device = element("div", "fx-dialog-actions"), control = button(`Controls: ${controlsMode(s).mode}`, () => controlToggle(s, control));
+        device.append(control, button("Use normal Home", () => {
+          localStorage.setItem(prefKey(s.api, "home"), "native");
+          error.textContent = "Normal Home selected for this device.";
+        }), button("Use Discovery Home", () => {
+          localStorage.setItem(prefKey(s.api, "home"), "discover");
+          error.textContent = "Discovery Home selected for this device.";
+        }), button("Reshuffle feed", () => {
+          closeDialog();
+          restart(true);
+        }));
         const file = element("input");
         file.type = "file";
         file.accept = ".json,application/json";
@@ -2211,8 +2368,45 @@
         actions.append(apply, exportButton, reset, button("Cancel", closeDialog));
         advanced.replaceChildren(element("summary", "", "Advanced: JSON import / export"), file, input, exportButton, reset);
         actions.replaceChildren(apply, button("Cancel", closeDialog));
-        dialog.append(title, help, visual, advanced, error, actions);
+        dialog.append(title, help, device, visual, advanced, error, actions);
         openDialog(dialog);
+      }
+      let settingsScope = "";
+      async function openUserSettings(api) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
+        const scope = scopeKey(api);
+        const s = { api, scope, root: element("div"), route: { page: "home" }, config: null };
+        try {
+          s.config = readConfig(api);
+        } catch {
+        }
+        s.client = new JellyfinClient(api, () => scopeKey(api) === scope);
+        try {
+          const profile = await s.client.preferences();
+          s.config = profile.config ? validateConfig(profile.config) : s.config;
+          s.profileVersion = profile.version;
+          s.syncAvailable = true;
+        } catch {
+          s.client.assertCurrent();
+        }
+        customize(s);
+      }
+      function syncSettings(api) {
+        var _a2;
+        const scope = ((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) ? scopeKey(api) : "";
+        if (settingsScope && scope !== settingsScope) {
+          closeDialog();
+          document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
+        }
+        settingsScope = scope;
+        if (!scope || !/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash)) return;
+        const page = [...document.querySelectorAll(".userPreferencesPage")].find(visible);
+        if (!page || page.querySelector("[data-fx-settings-link]")) return;
+        const link = button("Discovery settings", () => openUserSettings(api));
+        link.dataset.fxSettingsLink = "true";
+        link.className = "fx-profile-settings";
+        page.prepend(link);
       }
       function visible(node) {
         if (!(node == null ? void 0 : node.isConnected) || node.closest(".hide,[hidden],.hidePage")) return false;
@@ -2222,7 +2416,7 @@
         const selector = route.page === "home" ? "#indexPage, .homePage" : route.page === "movies" ? "#moviesPage" : "#tvshowsPage, #tvRecommendedPage";
         for (const page of document.querySelectorAll(selector)) {
           if (!visible(page)) continue;
-          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector('.pageTabContent[data-index="0"]');
+          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector(`.pageTabContent[data-index="${route.view === "genres" ? route.page === "movies" ? 4 : 3 : route.view === "library" ? 0 : new URLSearchParams(location.hash.split("?")[1] || "").get("tab") || 0}"]`);
           if (native && !native.closest(".fx-discovery")) return { page, native };
         }
         return null;
@@ -2259,6 +2453,7 @@
         timer = 0;
         if (stopped) return;
         const api = window.ApiClient, route = routeInfo(location.hash);
+        syncSettings(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
           savedFeeds.clear();
@@ -2266,7 +2461,12 @@
           lastScope = "";
           return;
         }
-        if (!route || route.serverId && route.serverId.toLowerCase() !== (((_b2 = api.serverId) == null ? void 0 : _b2.call(api)) || "").toLowerCase()) {
+        if (!route) {
+          if (state) cleanup();
+          else if (!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash)) closeDialog();
+          return;
+        }
+        if (route.serverId && route.serverId.toLowerCase() !== (((_b2 = api.serverId) == null ? void 0 : _b2.call(api)) || "").toLowerCase()) {
           cleanup();
           return;
         }
@@ -2281,7 +2481,7 @@
           if (state) cleanup();
           return;
         }
-        const key = `${scope}:${route.page}:${route.parentId}`;
+        const key = `${scope}:${route.page}:${route.parentId}:${route.view || "home"}`;
         if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
           if (!state.full && state.slots.length) syncNative(state, true);
           decorateNative(state);
@@ -2313,14 +2513,33 @@
         actions.append(s.toggle, s.filterToggle, button("Customize", () => customize(s)), controlButton, button("Restart feed", () => restart(true)));
         menu.append(summary, actions);
         toolbar.append(menu);
+        if (route.page === "home") toolbar.hidden = true;
+        else {
+          menu.hidden = true;
+          const heading = element("h1", "", route.page === "movies" ? "Movies" : "TV Shows"), switcher = element("select");
+          switcher.setAttribute("aria-label", "Browse mode");
+          for (const [value, label] of [["suggestions", "Suggestions"], ["library", "Library"], ["genres", "Genres"]]) {
+            const option = element("option", "", label);
+            option.value = value;
+            option.selected = route.view === value;
+            switcher.append(option);
+          }
+          switcher.addEventListener("change", () => {
+            const q = new URLSearchParams(location.hash.split("?")[1] || "");
+            q.set("tab", switcher.value === "library" ? "0" : switcher.value === "genres" ? route.page === "movies" ? "4" : "3" : "1");
+            location.hash = location.hash.split("?")[0] + "?" + q;
+          });
+          toolbar.prepend(heading, switcher);
+          if (route.view !== "library") toolbar.append(s.filterToggle);
+        }
         footer.append(s.more, s.note);
         root.append(toolbar, panel, matchCount, status, list, footer);
         if (route.page === "home") target.native.after(root);
         else target.native.before(root);
         state = s;
-        let full = false;
+        let full = route.view === "library";
         try {
-          full = localStorage.getItem(prefKey(api, route.page)) === "native";
+          if (route.page === "home") full = localStorage.getItem(prefKey(api, route.page)) === "native";
         } catch {
         }
         if (typeof IntersectionObserver === "function") {
@@ -2346,6 +2565,22 @@
       }
       function schedule() {
         if (!timer && !stopped) timer = setTimeout(reconcile, 120);
+      }
+      function navSuggestions(event) {
+        var _a2, _b2, _c2;
+        const target = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy-item],a[href]");
+        if (!target) return;
+        const proxy = target.getAttribute("data-sleekfin-header-proxy-item");
+        const page = proxy === "jellyfin:movies" ? "movies" : proxy === "jellyfin:shows" ? "tv" : null;
+        let route = page ? `#/${page}` : target.getAttribute("href");
+        if (!page && !target.closest("header,.headerTabs")) return;
+        if (!/^#\/(movies|tv|tvshows)(?:[?]|$)/.test(route || "")) return;
+        const [path, raw = ""] = route.split("?"), q = new URLSearchParams(raw);
+        q.set("tab", "1");
+        event.preventDefault();
+        (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+        event.stopPropagation();
+        location.hash = path + "?" + q;
       }
       function rememberFocus(event) {
         var _a2, _b2;
@@ -2433,14 +2668,14 @@
         let next;
         if (card) {
           const slotIndex = s.slots.findIndex((slot) => slot.node.contains(card)), track = card.closest(".fx-track"), cards = [...track.querySelectorAll(".fx-card")], index = cards.indexOf(card);
-          if (key === "ArrowLeft" || key === "ArrowRight") next = cards[Math.max(0, Math.min(cards.length - 1, index + (key === "ArrowLeft" ? -1 : 1)))];
+          if (key === "ArrowLeft" || key === "ArrowRight") next = cards[(index + (key === "ArrowLeft" ? -1 : 1) + cards.length) % cards.length];
           else {
             const nextSlot = s.slots[slotIndex + (key === "ArrowUp" ? -1 : 1)];
             if (nextSlot) {
               if (!nextSlot.live) fillSlot(nextSlot, s);
               const options = [...nextSlot.node.querySelectorAll(".fx-card")];
               next = options[Math.min(index, options.length - 1)];
-            } else if (key === "ArrowUp") next = s.root.querySelector(".fx-feed-menu>summary");
+            } else if (key === "ArrowUp") next = s.route.page === "home" ? s.page.querySelector(".sleekfin-hero button,.sleekfin-hero a[href]") : s.root.querySelector(".fx-toolbar select");
             else {
               next = s.more;
               if (!s.finished) loadMore(s);
@@ -2478,6 +2713,7 @@
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+        document.addEventListener("click", navSuggestions, true);
         window.addEventListener("hashchange", schedule);
         document.addEventListener("viewshow", schedule);
         document.addEventListener("keydown", remoteKey, true);
@@ -2491,6 +2727,7 @@
       window.FazFortDiscovery = {
         version: VERSION,
         restart,
+        openSettings: () => openUserSettings(window.ApiClient),
         diagnostics: () => {
           var _a2, _b2;
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
@@ -2504,6 +2741,7 @@
           cleanup(false);
           snapshots.clear();
           savedFeeds.clear();
+          document.removeEventListener("click", navSuggestions, true);
           window.removeEventListener("hashchange", schedule);
           document.removeEventListener("viewshow", schedule);
           document.removeEventListener("scroll", scheduleScroll, true);
@@ -2511,6 +2749,7 @@
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
+          document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
           (_a2 = document.getElementById("fx-discovery-style")) == null ? void 0 : _a2.remove();
           delete window.FazFortDiscovery;
         }

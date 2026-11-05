@@ -1,6 +1,6 @@
 {
   "name": "fazfort-discovery",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "Configurable Jellyfin Web discovery feeds with seasonal shelves and continuous browsing",
@@ -8,7 +8,7 @@
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "preview": "node scripts/preview-server.mjs",
-    "check": "node --check src/engine.js && node --check src/editor.js && node --check src/client.js && node --check src/ui.js && node --check dist/fazfort-discovery.js"
+    "check": "node --check src/engine.js && node --check src/editor.js && node --check src/client.js && node --check src/ui.js && node --check dist/fazfort-discovery.js && node --check requests/web.js && node --check requests/dist/web.js"
   },
   "engines": {
     "node": ">=20"

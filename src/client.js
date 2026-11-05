@@ -79,6 +79,23 @@ export class JellyfinClient {
     // A missing item may have been removed or lost permission since the inventory read.
     return items.filter(i => !ids.includes(i.Id) || byId.has(i.Id)).map(i => byId.has(i.Id) ? { ...i, ...byId.get(i.Id) } : i);
   }
+  groupResume(items, inventory) {
+    const grouped=new Map();
+    for(const item of items){
+      const key=item.Type==='Episode'&&item.SeriesId?item.SeriesId:item.Id;
+      const old=grouped.get(key);
+      const priority=i=>i.UserData?.PlaybackPositionTicks>0?2:1;
+      if(old&&(priority(old)>priority(item)||priority(old)===priority(item)&&(Date.parse(old.UserData?.LastPlayedDate)||0)>=(Date.parse(item.UserData?.LastPlayedDate)||0)))continue;
+      grouped.set(key,item);
+    }
+    return [...grouped.values()].map(item=>{
+      if(item.Type!=='Episode'||!item.SeriesId)return item;
+      const show=inventory.items.find(i=>i.Id===item.SeriesId);
+      return {...item,Name:item.SeriesName||show?.Name||item.Name,Type:'Series',ResumeItemId:item.Id,
+        Id:item.SeriesId,ImageTags:show?.ImageTags||{},BackdropImageTags:show?.BackdropImageTags||item.ParentBackdropImageTags||[],
+        SeriesName:undefined,PrimaryImageAspectRatio:show?.PrimaryImageAspectRatio};
+    });
+  }
   async anchor(id, route, inventory, config) {
     const typed = list => route.page === 'home' ? list : list.filter(i => route.page === 'movies' ? i.Type === 'Movie' || i.SourceType === 'movie' : ['Series', 'Episode'].includes(i.Type) || i.SourceType === 'tv');
     const arrival = item => { const r=inventory.tracking?.get(item.Id);return Date.parse(kindDate(item,r))||0; };
@@ -94,12 +111,13 @@ export class JellyfinClient {
         const allowed = new Set(inventory.items.map(i => i.Id));
         list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));
       }
+      if(id==='ContinueWatchingNextUp')list=this.groupResume(list,inventory);
       return { key: id, title, family: 'anchor', items: list.slice(0, config.cardsPerShelf), external: id.startsWith('Discover') };
     } catch (error) {
       this.assertCurrent();
       if (id !== 'ContinueWatchingNextUp') throw error;
       const resume = await this.json('Items/Resume', { UserId: this.userId, Limit: config.cardsPerShelf, ...(route.parentId ? { ParentId: route.parentId } : {}), Fields: 'DateCreated,PrimaryImageAspectRatio', EnableImages: true });
-      return { key: id, title: 'Continue Watching', family: 'anchor', items: typed(resume.Items || []).slice(0, config.cardsPerShelf) };
+      return { key: id, title: 'Continue Watching', family: 'anchor', items: this.groupResume(typed(resume.Items || []),inventory).slice(0, config.cardsPerShelf) };
     }
   }
 }
