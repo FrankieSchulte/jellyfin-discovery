@@ -1,101 +1,98 @@
-# FazFort Discovery 0.3.0 — preview
+# Jellyfin Discovery
 
-Custom Home, Movies and Shows feeds for Jellyfin Web's legacy layout with SleekFin. This release adds explained **More like this**, interactive browsing filters, reliable arrival tracking through a native companion, synchronized rules, and mobile/TV navigation improvements.
+Configurable discovery feeds for Jellyfin: themed shelves, continuous browsing, explained recommendations and useful filters across Home, Movies and Shows.
 
-**Target:** Jellyfin 12.4, HSS 3.0.4, the existing FazFort Shelves 1.0.2, and a modern web browser/wrapper. The native Android TV app, Swiftfin and other independent interfaces do not load this web extension. Modern React page mounts remain outside this release. Live installation, physical remotes and mobile playback have not been verified here.
+This project contains a browser extension and a server plugin. The server plugin also provides themed shelves through Home Screen Sections (HSS), persistent arrival tracking and per-user configuration synchronization.
 
-## Install the update
+## Features
 
-There are two parts. Keep your existing HSS, SleekFin and FazFort Shelves plugins installed.
+- Separate Home, Movies and Shows profiles, with configurable opening sections.
+- Themes based on genres, tags, ratings, runtime and scheduled months.
+- Mixed shelves featuring genres, directors, cast, studios and decades, with repetition cooldowns.
+- Continuous scrolling with bounded live card rendering. Titles eventually recur because the library is finite.
+- **More like this**, with matching metadata explained and library permissions respected.
+- Search, genre, tag, watch-status, runtime, rating, decade and media-type filters.
+- **Recently Added** and **New Season** badges based on observations recorded by the server plugin.
+- Touch controls, keyboard/remote navigation, and session-local feed/focus restoration.
+- A toggle back to Jellyfin's normal library view.
 
-### 1. Install the addition-tracking companion
+## Compatibility
 
-The prebuilt `server/fazfort-discovery-companion-0.3.0.tar.gz` contains the compiled DLL and installer. No SDK is needed on your server. From your Mac, after extracting this ZIP:
+The current build targets **Jellyfin 12.4**, **HSS 3.0.4**, and Jellyfin Web's **legacy layout**. SleekFin can be used alongside it; the extension does not install or distribute that theme. Modern React page mounts are not implemented.
 
-```sh
-scp ~/Downloads/fazfort-discovery/server/fazfort-discovery-companion-0.3.0.tar.gz root@192.168.1.10:/root/
-```
+| Component | Where it works |
+| --- | --- |
+| Discovery feeds, filters, badges and navigation | Compatible web interfaces that load the browser script |
+| Themed HSS shelves | Interfaces that support the HSS integration |
+| Arrival tracking and stored discovery preferences | Server-side; their presentation requires a compatible client |
+| Independent native interfaces | Do not automatically inherit the web extension, theme or custom screens |
 
-Adjust the local Downloads path if you extracted elsewhere. On the Proxmox host:
+Mobile web wrappers and TV browser shells may load the extension. Physical remotes, client playback and individual TV browsers still require device testing. This project does not replace Jellyfin's playback engine or guarantee identical interfaces across clients.
 
-```sh
-tar -xzf /root/fazfort-discovery-companion-0.3.0.tar.gz -C /root
-bash /root/fazfort-discovery-companion/deploy-from-proxmox.sh --check
-bash /root/fazfort-discovery-companion/deploy-from-proxmox.sh --install
-```
+## Installation
 
-The deploy script targets Jellyfin **CT 100**. Installation briefly restarts Jellyfin, assigns files to its service user, and checks the local `/health` endpoint. If readiness fails it restores the previous companion. The health check confirms Jellyfin startup, not every companion feature. A customized local port/base URL requires `JELLYFIN_HEALTH_URL` inside the container; read `native/install.sh` before installation in that case.
+Existing installations upgrading from a separate themed-shelves plugin or Discovery 0.3.0 should first follow [Migration](docs/MIGRATION.md). Do not run two assemblies registering the same HSS shelf IDs.
 
-The companion is separate from FazFort Shelves: plugin ID `da85d59b-cd29-4f4a-9b72-820a298cdb9d`, folder `FazFort.Discovery_0.3.0.0`. It does not replace or rewrite the earlier plugin or HSS rules.
+### Server plugin
 
-### 2. Replace the browser script
-
-1. Open Jellyfin → Dashboard → JavaScript Injector.
-2. Disable the old Discovery 0.2.0, Home Feed and interleaving scripts. Leave unrelated scripts/theme settings enabled.
-3. Add or replace one script named **FazFort Discovery 0.3.0**, using the entire `dist/fazfort-discovery.js` file. Enable it and leave module mode off.
-4. Save and refresh. Open Home, Movies and Shows.
-5. Wait for the companion's initial baseline. `window.FazFortDiscovery.diagnostics()` reports `trackingReady` and `preferencesSync`.
-
-The browser script can work without the companion: browsing, filtering and recommendations remain available, but tracked arrival badges and cross-device rule synchronization are unavailable. It displays that status rather than guessing dates.
-
-## New controls
-
-- **⋯ on a local card:** opens More like this with the matching tags/genres/director/cast explained. Recommendations use only the current page/library's accessible inventory, exclude the source title and obey active filters. Movies can recommend movies; Shows recommends shows; Home can mix both. Your default Hide Watched preference is respected unless an explicit watch-status filter overrides it.
-- **Filters:** title/person search, genre, tag, watched/unwatched, movie runtime, community score, decade, Home media type, and sorting. Numeric filters exclude unknown data. Active filters/sorts produce a finite, paginated list of matches; empty results stay empty instead of showing the unfiltered library. Clear filters to return to curated endless browsing.
-- **Full library / Normal home:** restores native Jellyfin browsing. Our filters are disabled in that mode; native sorting/filtering remains available. **Discover shelves** switches back.
-- **Controls: auto / tv / touch:** a device-specific override. Auto recognizes Jellyfin TV layout and common TV user agents. If TV Bro appears as a generic Android browser, explicitly choose **tv**.
-- **TV controls:** Left/Right moves between cards; Up/Down moves between shelves. Select opens a title; holding Select for about 650 ms opens More like this. Info/context-menu is another shortcut where the remote provides it. Back closes our dialog or open filters first. Player keys and text input are left to the client outside our owned controls.
-- **Return from a title:** the same feed, filters, focused card and horizontal/vertical positions are restored within the same tab for up to 30 minutes. Restart feed explicitly reshuffles. Full page reloads or leaving the app/browser process do not preserve this in-memory history.
-
-Mobile controls have 44 px touch targets, safe-area spacing, scrollable dialogs and narrow-screen layouts. The bundle is compiled for Chrome 69+/Safari 13+ JavaScript, with a `replaceChildren` fallback and a dialog fallback. This does not guarantee that every older TV can run Jellyfin/SleekFin themselves. TV shell playback/codec support is a separate device test.
-
-## How reliable addition tracking works
-
-The companion stores a persistent ID ledger in Jellyfin's data directory at `fazfort-discovery/ledger.json`, with a previous-write `.bak` copy. Back up this directory with your server data.
-
-- The first scan establishes the existing library as a **baseline without arrival badges**. Historical import times are not reconstructed from filesystem dates.
-- A movie is recorded when first observed with a local path and playable runtime metadata.
-- A show is recorded when its first playable episode is observed. Empty/virtual series do not immediately earn a badge.
-- A **New Season** timestamp is recorded on the first playable episode of a previously unseen Season 2+. Later episodes in that season do not reset it. Specials and Season 1 do not qualify as New Season.
-- Item-added events are processed in batches, and a one-minute reconciliation catches missed events or metadata that became playable later. Typical visibility is seconds to a minute, followed by a feed refresh.
-- Duplicate scan/metadata events and restarts retain the original observation timestamp. Removing/reimporting the same Jellyfin item ID is conservatively treated as the same arrival; rebuilding IDs requires a fresh baseline/review rather than manufacturing historical dates.
-- When the server was offline, the time is **first observed after startup**, not a claim about the exact import time during downtime.
-- Badges expire after one calendar month. A recent season takes precedence over a recently added show. No media tags or NFO files are changed.
-- Corrupt/unwritable tracking storage disables tracking and leaves Jellyfin's library/playback running. Do not delete the ledger to repair a date; preserve it for diagnosis.
-
-Recently Added shelves prioritize tracked arrivals, including tracked season arrivals for Shows. Baseline titles without tracked history use Jellyfin's existing DateCreated only for the remaining shelf ordering, never to award a tracked arrival badge.
-
-## Rules and synchronization
-
-Customize retains separate Home, Movies and Shows rules. With the companion ready, Apply saves them to your authenticated Jellyfin user; another compatible device picks them up when it opens/restarts the feed. Concurrent changes use version checks so a stale editor cannot overwrite a newer save. If the companion is unavailable, preferences can be saved locally and transferred using Export/Import.
-
-Only the discovery configuration is synchronized. Control mode and native/discovery toggles are device/browser preferences. Browsing filters and scroll history are session-local. No watchlist or playback engine is added by this release.
-
-Existing Home names, seasonal Halloween/Christmas rules, and the previous alternating opening anchors are retained. Further shelves mix themes, genres, directors, cast, studios and decades. The planner favors family variety and recent-title cooldowns. Endless browsing revisits titles from your finite collection; it is not an unlimited external catalogue.
-
-IMDb Top 250 and Award Winners still require explicit membership tags (`imdb-top-250` / `award-winner`). They are not inferred from high ratings. See [docs/RULES.md](docs/RULES.md).
-
-## Security and performance
-
-The companion's APIs require a signed-in Jellyfin user. Preferences are addressed by the authenticated identity; there is no caller-supplied target user. Tracking requests are limited to specific item IDs and each is rechecked through Jellyfin's per-item user visibility lookup. The global arrival ledger is never returned to clients. Configuration writes are size-limited, validated and versioned.
-
-Browser metadata inventory still loads in pages of 200. This release does not move full feed planning to the server or introduce a server-side feed cursor. Images load lazily; only nearby shelf rows keep live card DOM, plus a focused row. Offscreen rows are reconstructed as you scroll back. HSS may still perform its usual background home loading. Initial catalogues are cached in memory for five minutes, per user/server/page/library.
-
-The companion periodically reads Movie, Series and Episode IDs/availability metadata for tracking, without artwork or names in the persisted ledger. It does not scrape external recommendation services. Rules/profiles are stored on the server, and browser fallbacks contain only configuration—not integration credentials.
-
-## Rollback
-
-Disable Discovery 0.3.0 in JS Injector and refresh. Re-enable your prior script if desired. To remove the companion too, from Proxmox:
+A prebuilt Linux installer is included at `server/fazfort-discovery-companion-0.3.1.tar.gz`. Extract it on the Jellyfin server and run:
 
 ```sh
-pct exec 100 -- bash /root/fazfort-discovery-companion/uninstall.sh
+bash install.sh --check
+sudo bash install.sh --install
 ```
 
-Uninstall briefly restarts Jellyfin and retains arrival history/preferences for reinstallation. Existing HSS and FazFort Shelves remain installed. Runtime stop for this tab is `window.FazFortDiscovery.stop()`.
+Run these commands from the extracted directory. The installer currently supports Debian/Ubuntu packages managed by the `jellyfin` systemd service. It checks the server version and checksums, sets file ownership, backs up the replaced build and checks startup readiness. A failed readiness check restores the replaced build. Review `native/install.sh` for configurable paths and `JELLYFIN_HEALTH_URL` when using a different port or base URL.
 
-## Develop / upload to GitHub
+An optional Proxmox helper is included; review its container/path settings before using it. Other deployment types require an installation procedure appropriate to that environment.
 
-The extracted folder is the repository root. Upload its contents, including `.github`, `.gitignore`, the npm lockfile and the browser bundle. No repository has been created or pushed for you. Avoid uploading private ledger files, configuration backups or `node_modules`.
+**This repository is not yet a Jellyfin plugin catalog.** Adding its GitHub URL to Jellyfin's repository list will not install it. A catalog manifest and release workflow are separate future work.
+
+### Browser extension
+
+1. Install JavaScript Injector in Jellyfin if it is not already available.
+2. Disable older discovery/interleaving scripts that modify the same pages.
+3. Add one script named **Jellyfin Discovery**, containing all of `dist/fazfort-discovery.js`. Enable it with module mode off.
+4. Save, refresh, and open Home, Movies or Shows.
+
+The browser extension can run without the server plugin. Arrival badges and server-synchronized preferences are then unavailable; the UI reports this rather than inferring arrival dates.
+
+### Themed HSS shelves
+
+Open **Dashboard → Plugins → Jellyfin Discovery** to configure server-wide themed shelf rules, daily counts and seasonal schedules. Restart Jellyfin after adding/removing rules or changing shelf titles, then add the registered rows under **HSS → Section Settings**.
+
+The HSS settings and browser profiles serve different interfaces. Use **Customize** in the browser feed for per-user Home, Movies and Shows profiles. Changing server-wide HSS rules does not overwrite those profiles.
+
+## Controls and configuration
+
+- **Customize:** edit, import or export a discovery profile. Authenticated users save their own rules to the server when available; version checks prevent stale edits overwriting newer saves. Local fallback settings can be exported.
+- **Filters:** combine criteria or change sorting. Filtered results are finite and paginated; clear filters to resume mixed discovery browsing.
+- **⋯ on a local title:** open explained recommendations. Recommendations stay within the accessible inventory and active filters.
+- **Full library / Normal home:** restore native browsing. **Discover shelves** switches back.
+- **Controls: auto / tv / touch:** select a device-specific navigation mode. In TV mode, arrows move between cards/shelves, Select opens a title, and holding Select opens recommendations. Back closes the extension's dialogs first.
+- Returning from a title restores the feed and positions within the same tab for up to 30 minutes. **Restart feed** reshuffles. Reloading or closing the process clears this in-memory history.
+
+Rules support exact, case-insensitive genre/tag matching, optional rating/runtime limits and month schedules. Seasonal examples use `[10]` for October and `[12]` for December. Keep a rule's `Key` stable to preserve its HSS row identity. See [Rules](docs/RULES.md).
+
+IMDb Top 250 and award categories require explicit membership tags; high community ratings alone do not establish membership. The project does not scrape or claim authoritative rankings.
+
+## Arrival tracking
+
+The first scan establishes a baseline without marking existing titles as new. A movie is recorded when first observed with a playable local path and runtime. A show is recorded when its first playable episode is observed.
+
+**New Season** is recorded for the first playable episode in a previously unseen Season 2 or later. Later episodes do not reset it; specials and Season 1 do not qualify. Badges expire after one calendar month, with New Season taking precedence. No media tags or NFO files are changed.
+
+Events are processed in batches and reconciled every minute. Times represent first observation, including after server downtime. Historical import dates are not reconstructed. Reimporting the same item ID does not create a fresh arrival.
+
+Back up `fazfort-discovery/ledger.json` in Jellyfin's data directory, together with its `.bak` file and plugin configuration. Corrupt/unwritable tracking storage disables tracking without stopping library playback. Preserve the ledger for diagnosis rather than deleting it to change dates.
+
+## Privacy and performance
+
+Server APIs require authentication. Preferences belong to the signed-in user; tracking responses recheck visibility for each requested item. Clients never receive the entire arrival ledger or integration credentials.
+
+Metadata loads in pages and is cached briefly per user/server/page/library. Images load lazily, and distant card rows are virtualized. Planning still runs in the browser; very large libraries may need further performance work. Existing HSS background loading may still occur.
+
+## Development
 
 ```sh
 npm ci --ignore-scripts
@@ -105,13 +102,26 @@ npm test
 npm run preview
 ```
 
-The preview at `http://127.0.0.1:8088` uses synthetic data only. For native development, install .NET 10:
+The preview uses synthetic data at `http://127.0.0.1:8088`. Edit `src/` and `config/`, then rebuild the tracked browser bundle.
+
+Native development requires .NET 10:
 
 ```sh
 dotnet build native/src -c Release
 dotnet run --project native/tests -c Release
+dotnet run --project native/shelf-tests -c Release
 bash scripts/build-native.sh
 python3 scripts/package.py
 ```
 
-The native build creates `server/fazfort-discovery-companion-0.3.0.tar.gz`; packaging includes that prebuilt tarball and source in `release/fazfort-discovery-0.3.0.zip`. The legacy native Shelves source remains under `legacy/native-shelves-1.0.2/`. Current implementation and remaining live checks are recorded in [docs/VALIDATION.md](docs/VALIDATION.md).
+GitHub Actions checks both implementations and verifies that the browser bundle matches its source. Passing checks do not establish live server or device compatibility. See [Validation](docs/VALIDATION.md) for coverage and remaining acceptance checks.
+
+Some internal assembly names, API routes and filenames retain their original identifiers for upgrade compatibility. They are implementation details, not separate plugins to install.
+
+## Rollback
+
+Disable the browser script and refresh to restore the previous interface. The server package includes `uninstall.sh`, which removes the plugin while retaining tracking/preferences. For an upgrade rollback, restore the backed-up plugin directory while Jellyfin is stopped; never leave multiple versions of the same assembly under its plugins directory. See [Migration](docs/MIGRATION.md) before restoring a standalone shelves build.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

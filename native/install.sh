@@ -4,7 +4,7 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 mode="${1:---check}"
 [[ "$mode" == --check || "$mode" == --install ]] || { echo 'Usage: bash install.sh [--check|--install]'; exit 2; }
 plugin_root="${JELLYFIN_PLUGIN_DIR:-/var/lib/jellyfin/plugins}"
-target="$plugin_root/FazFort.Discovery_0.3.0.0"
+target="$plugin_root/FazFort.Discovery_0.3.1.0"
 [[ -d "$plugin_root" ]] || { echo "Missing Jellyfin plugin directory: $plugin_root"; exit 1; }
 version=$(dpkg-query -W -f='${Version}' jellyfin-server)
 [[ "$version" =~ (^|[^0-9])12\.4(\.0)?([^0-9]|$) ]] || { echo "This companion targets Jellyfin 12.4.0. Found $version"; exit 1; }
@@ -17,6 +17,10 @@ sha256sum -c SHA256SUMS
 while IFS= read -r existing; do
  [[ "$existing" == "$target/FazFort.Discovery.dll" ]] || { echo "Another companion build exists: $existing. Move it outside plugins before installing."; exit 1; }
 done < <(find "$plugin_root" -type f -name FazFort.Discovery.dll)
+if find "$plugin_root" -type f -name FazFort.Shelves.dll -print -quit | read -r _; then
+ echo 'Standalone shelves found. Export its rules/settings, stop Jellyfin and move its plugin directory outside plugins before installing. See docs/MIGRATION.md.' >&2
+ exit 1
+fi
 echo "Preflight passed. Target: $target"
 [[ "$mode" == --install ]] || { echo 'No changes made. Use --install to install and briefly restart Jellyfin.'; exit 0; }
 [[ "$EUID" == 0 ]] || { echo 'Run inside the Jellyfin container as root.'; exit 1; }
@@ -50,5 +54,5 @@ if [[ "$was_running" == true ]];then
  [[ "$ready" == true ]] || { echo 'Jellyfin health check failed. Check JELLYFIN_HEALTH_URL if your local port/base URL is customized.' >&2;exit 1; }
 fi
 success=true
-echo "Companion installed. Existing Shelves/HSS settings were preserved. Backup: $backup_dir"
+echo "Companion installed. Existing HSS settings were preserved. Backup: $backup_dir"
 echo 'Install the matching browser script, then wait for the initial arrival baseline to finish. It does not badge the existing library.'

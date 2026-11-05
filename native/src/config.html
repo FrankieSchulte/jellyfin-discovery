@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><title>Jellyfin Discovery — HSS Shelves</title></head><body>
+<div id="FazFortShelvesPage" data-role="page" class="page type-interior pluginConfigurationPage">
+<div data-role="content"><div class="content-primary"><form id="FazFortShelvesForm">
+<h2>Jellyfin Discovery — HSS Shelves</h2><p>These are server-wide HSS fallback shelves. The browser extension has separate per-user Home, Movies and Shows profiles under Customize; changes here do not overwrite those profiles.</p>
+<p>A configurable number of themed shelves rotates daily. Seasonal shelves appear in their scheduled months, in addition to the daily shelves. Empty shelves stay hidden.</p>
+<div class="checkboxContainer checkboxContainer-withDescription"><label><input id="ffEnabled" is="emby-checkbox" type="checkbox"><span>Enable themed shelves</span></label></div>
+<div class="inputContainer"><label class="inputLabel" for="ffZone">Timezone</label><input is="emby-input" id="ffZone" required><div class="fieldDescription">Default: UTC. Controls the daily change and month boundaries.</div></div>
+<div class="inputContainer"><label class="inputLabel" for="ffCount">Daily themed shelves</label><input is="emby-input" id="ffCount" type="number" min="0" max="20" required></div>
+<div class="inputContainer"><label class="inputLabel" for="ffCards">Cards per shelf</label><input is="emby-input" id="ffCards" type="number" min="1" max="40" required></div>
+<div class="inputContainer"><label class="inputLabel" for="ffMin">Minimum matching titles</label><input is="emby-input" id="ffMin" type="number" min="1" max="40" required></div>
+<div class="checkboxContainer checkboxContainer-withDescription"><label><input id="ffWatched" is="emby-checkbox" type="checkbox"><span>Hide watched titles in these shelves</span></label></div>
+<div class="inputContainer"><label class="inputLabel" for="ffRules">Shelf rules (JSON)</label><textarea id="ffRules" rows="28" style="width:100%;box-sizing:border-box;background:#202020;color:#eee;font-family:monospace;padding:1em" spellcheck="false" required></textarea>
+<div class="fieldDescription">Enabled turns a shelf on/off. Months: [] means all year; [10] means October; [12] means December. Types: Movie and/or Series. GenresAny and TagsAny match exact names, ignoring case; when both are provided both filters must match. MinRating and MaxMinutes are optional. Keep Key unchanged to preserve its Home Screen Sections settings. After changing titles or adding/removing rules, restart Jellyfin. Filter/schedule changes apply on the next home reload. Keep all desired rotating rows enabled in HSS and choose which participate here.</div></div>
+<p id="ffStatus" role="status" style="white-space:pre-wrap"></p>
+<button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
+</form></div></div>
+<script type="text/javascript">
+(function(){
+'use strict';
+var pluginId='da85d59b-cd29-4f4a-9b72-820a298cdb9d', page=document.querySelector('#FazFortShelvesPage'), config;
+var el=function(id){return page.querySelector('#'+id);};
+page.addEventListener('pageshow',function(){
+ Dashboard.showLoadingMsg();
+ ApiClient.getPluginConfiguration(pluginId).then(function(c){config=c;
+ el('ffEnabled').checked=c.Enabled;el('ffZone').value=c.TimeZone;el('ffCount').value=c.DailyShelfCount;
+ el('ffCards').value=c.CardsPerShelf;el('ffMin').value=c.MinimumItems;el('ffWatched').checked=c.HideWatched;
+ el('ffRules').value=c.RulesJson;el('ffStatus').textContent='';
+ }).catch(function(e){el('ffStatus').textContent='Could not load settings: '+String(e);}).finally(function(){Dashboard.hideLoadingMsg();});
+});
+el('FazFortShelvesForm').addEventListener('submit',function(e){
+ e.preventDefault();
+ try{
+ if(!config)throw new Error('Settings have not loaded. Reopen this page.');
+ var rules=JSON.parse(el('ffRules').value);if(!Array.isArray(rules))throw new Error('Rules must be an array.');
+ config.Enabled=el('ffEnabled').checked;config.TimeZone=el('ffZone').value.trim();
+ config.DailyShelfCount=Number(el('ffCount').value);config.CardsPerShelf=Number(el('ffCards').value);config.MinimumItems=Number(el('ffMin').value);
+ config.HideWatched=el('ffWatched').checked;config.RulesJson=JSON.stringify(rules,null,2);
+ Dashboard.showLoadingMsg();
+ ApiClient.updatePluginConfiguration(pluginId,config).then(function(){el('ffStatus').textContent='Saved. Restart Jellyfin if you changed titles or added/removed rules, then reload Home.';})
+ .catch(function(){el('ffStatus').textContent='Save failed. Check the rules, timezone and number ranges. Existing saved settings remain active.';}).finally(function(){Dashboard.hideLoadingMsg();});
+ }catch(error){el('ffStatus').textContent=error.message;}
+});
+})();
+</script></div></body></html>

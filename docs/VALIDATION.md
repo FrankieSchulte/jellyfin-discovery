@@ -1,8 +1,8 @@
-# Validation for 0.3.0 preview
+# Validation for 0.3.1 preview
 
 Target: Jellyfin 12.4 / HSS 3.0.4, SleekFin and the legacy Jellyfin Web pages. Mobile web wrappers and TV browser shells are intended targets; independent native client interfaces and Modern React mounts are not supported.
 
-Completed locally: **45 JavaScript/DOM/installer checks and 18 native ledger/config checks passed.**
+Completed locally for 0.3.1: **47 JavaScript/DOM/installer tests, 18 native ledger/config checks and 36 merged shelf-engine checks passed.** The native build completed with zero warnings/errors. Installer duplicate-assembly guards were exercised with command fixtures.
 
 - Browser build downleveled to Chrome 69/Safari 13 syntax, with source/bundle syntax checks.
 - Node tests for matching, filtering, scopes, arrival-badge truthfulness, explained recommendations, 200-row feed diversity, finite results, hydration, pagination and profile request versioning.
@@ -31,3 +31,7 @@ Live acceptance sequence:
 10. Disable the script and, if needed, uninstall the companion. Confirm the original UI and previous plugins work.
 
 Use window.FazFortDiscovery.diagnostics() for a shareable status summary. Do not share the ledger or complete server backups: they contain user preferences and item identifiers.
+
+## 0.3.1 consolidation acceptance
+
+The native plugin now embeds the HSS engine and configuration page. Stable section IDs and existing Discovery storage/routes are retained. Test the explicit migration in [MIGRATION.md](MIGRATION.md), especially restoring old rules, HSS ordering, artwork, startup with HSS absent, and rollback. No live migration has been performed here.

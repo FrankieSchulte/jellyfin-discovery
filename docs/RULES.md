@@ -50,7 +50,7 @@ Anchors: `ContinueWatchingNextUp`, `RecentlyAddedMovies`, `RecentlyAddedShows`, 
 
 Seasons, scores, runtimes, tags and credits must actually be present in Jellyfin metadata. Unknown data never earns a badge, rating threshold or tag-filtered shelf. The customization editor validates structure, but it cannot infer missing metadata.
 
-## Interactive filters and recommendations (0.3.0)
+## Interactive filters and recommendations (0.3.1)
 
 Filters apply to the current Home/Movies/Shows library scope. Title/person search, exact genre/tag, watched state, movie runtime, minimum community rating, decade and type combine with AND. Unknown ratings/runtime/year do not satisfy numeric restrictions. Results are finite and load in card batches; clearing filters returns to the mixed feed. Native Full library has its own independent controls.
 
