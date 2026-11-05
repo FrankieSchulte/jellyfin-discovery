@@ -1,0 +1,12 @@
+{
+  "guid": "278398d1-df9f-46aa-9952-97b45795c957",
+  "name": "FazFort Themed Shelves",
+  "description": "Daily themed shelves and October/December holiday shelves for HSS.",
+  "overview": "Metadata-driven themed home shelves.",
+  "owner": "FazFort",
+  "category": "General",
+  "version": "1.0.2.0",
+  "targetAbi": "12.4.0.0",
+  "status": "Active",
+  "autoUpdate": false
+}

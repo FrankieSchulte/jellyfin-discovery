@@ -1,0 +1,877 @@
+{
+  "schemaVersion": 1,
+  "timeZone": "America/Los_Angeles",
+  "cardsPerShelf": 8,
+  "batchSize": 4,
+  "minimumItems": 3,
+  "maxLiveRows": 24,
+  "endless": true,
+  "hideWatched": false,
+  "pages": {
+    "home": {
+      "anchors": [
+        "ContinueWatchingNextUp",
+        "RecentlyAddedMovies",
+        "DiscoverMovies",
+        "MyJellyseerrRequests",
+        "DiscoverTV",
+        "MyMedia"
+      ],
+      "families": [
+        "theme",
+        "genre",
+        "director",
+        "actor",
+        "decade",
+        "studio",
+        "rating",
+        "rewatch"
+      ],
+      "rules": [
+        {
+          "Key": "popcorn",
+          "Title": "Perfect Popcorn Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Action",
+            "Adventure"
+          ]
+        },
+        {
+          "Key": "laugh",
+          "Title": "Family Guy Funny Moments",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Comedy"
+          ]
+        },
+        {
+          "Key": "incredible",
+          "Title": "Iancredible Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MinRating": 8
+        },
+        {
+          "Key": "short",
+          "Title": "Movie Night Under Two Hours",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MaxMinutes": 120
+        },
+        {
+          "Key": "scifi",
+          "Title": "Sci-Fi & Fantasy Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Science Fiction",
+            "Fantasy"
+          ]
+        },
+        {
+          "Key": "horror",
+          "Title": "Something Spooky",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Horror",
+            "Thriller"
+          ]
+        },
+        {
+          "Key": "anime",
+          "Title": "Weeb Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "anime"
+          ]
+        },
+        {
+          "Key": "games",
+          "Title": "Gamer Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "based on video game"
+          ]
+        },
+        {
+          "Key": "time",
+          "Title": "Time Travel Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "time travel"
+          ]
+        },
+        {
+          "Key": "comfort",
+          "Title": "Comfort Watches",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "comforting",
+            "lighthearted"
+          ]
+        },
+        {
+          "Key": "halloween",
+          "Title": "Halloween Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "halloween"
+          ],
+          "Months": [
+            10
+          ]
+        },
+        {
+          "Key": "christmas",
+          "Title": "Christmas Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "christmas"
+          ],
+          "Months": [
+            12
+          ]
+        },
+        {
+          "Key": "page-to-screen",
+          "Title": "Novel Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "based on novel or book"
+          ]
+        },
+        {
+          "Key": "masks-and-capes",
+          "Title": "Superheroes",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "superhero"
+          ]
+        },
+        {
+          "Key": "movie-magic",
+          "Title": "Wizards United",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "magic"
+          ]
+        },
+        {
+          "Key": "bleak-futures",
+          "Title": "Dystopian Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "dystopia"
+          ]
+        },
+        {
+          "Key": "sing-along",
+          "Title": "Musical Musicals",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "musical"
+          ]
+        },
+        {
+          "Key": "growing-up",
+          "Title": "Come of Age and Lock In",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "coming of age"
+          ]
+        },
+        {
+          "Key": "among-the-stars",
+          "Title": "Stellar Nucleosynthesis Spallation",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "space"
+          ]
+        },
+        {
+          "Key": "dark-side-laughs",
+          "Title": "Relax Liberal, It's Called Dark Humor",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "dark comedy"
+          ]
+        },
+        {
+          "Key": "mind-benders",
+          "Title": "Mind F**kers",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "psychological thriller",
+            "psychological horror"
+          ]
+        },
+        {
+          "Key": "imdb-top-250",
+          "Title": "IMDb Top 250",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "imdb-top-250"
+          ]
+        },
+        {
+          "Key": "award-winners",
+          "Title": "Award Winners",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "award-winner"
+          ]
+        },
+        {
+          "Key": "cyberpunk",
+          "Title": "Cyberpunk",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "cyberpunk"
+          ]
+        }
+      ]
+    },
+    "movies": {
+      "anchors": [
+        "ContinueWatchingNextUp",
+        "RecentlyAddedMovies",
+        "DiscoverMovies",
+        "MyJellyseerrRequests"
+      ],
+      "families": [
+        "theme",
+        "genre",
+        "director",
+        "actor",
+        "decade",
+        "studio",
+        "rating",
+        "rewatch"
+      ],
+      "rules": [
+        {
+          "Key": "popcorn",
+          "Title": "Perfect Popcorn Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Action",
+            "Adventure"
+          ]
+        },
+        {
+          "Key": "laugh",
+          "Title": "Family Guy Funny Moments",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Comedy"
+          ]
+        },
+        {
+          "Key": "incredible",
+          "Title": "Iancredible Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MinRating": 8
+        },
+        {
+          "Key": "short",
+          "Title": "Movie Night Under Two Hours",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MaxMinutes": 120
+        },
+        {
+          "Key": "scifi",
+          "Title": "Sci-Fi & Fantasy Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Science Fiction",
+            "Fantasy"
+          ]
+        },
+        {
+          "Key": "horror",
+          "Title": "Something Spooky",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Horror",
+            "Thriller"
+          ]
+        },
+        {
+          "Key": "anime",
+          "Title": "Weeb Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "anime"
+          ]
+        },
+        {
+          "Key": "games",
+          "Title": "Gamer Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on video game"
+          ]
+        },
+        {
+          "Key": "time",
+          "Title": "Time Travel Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "time travel"
+          ]
+        },
+        {
+          "Key": "comfort",
+          "Title": "Comfort Watches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "comforting",
+            "lighthearted"
+          ]
+        },
+        {
+          "Key": "halloween",
+          "Title": "Halloween Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "halloween"
+          ],
+          "Months": [
+            10
+          ]
+        },
+        {
+          "Key": "christmas",
+          "Title": "Christmas Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "christmas"
+          ],
+          "Months": [
+            12
+          ]
+        },
+        {
+          "Key": "page-to-screen",
+          "Title": "Novel Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on novel or book"
+          ]
+        },
+        {
+          "Key": "masks-and-capes",
+          "Title": "Superheroes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "superhero"
+          ]
+        },
+        {
+          "Key": "movie-magic",
+          "Title": "Wizards United",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "magic"
+          ]
+        },
+        {
+          "Key": "bleak-futures",
+          "Title": "Dystopian Slop",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "dystopia"
+          ]
+        },
+        {
+          "Key": "sing-along",
+          "Title": "Musical Musicals",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "musical"
+          ]
+        },
+        {
+          "Key": "growing-up",
+          "Title": "Come of Age and Lock In",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "coming of age"
+          ]
+        },
+        {
+          "Key": "among-the-stars",
+          "Title": "Stellar Nucleosynthesis Spallation",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "space"
+          ]
+        },
+        {
+          "Key": "dark-side-laughs",
+          "Title": "Relax Liberal, It's Called Dark Humor",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "dark comedy"
+          ]
+        },
+        {
+          "Key": "mind-benders",
+          "Title": "Mind F**kers",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "psychological thriller",
+            "psychological horror"
+          ]
+        },
+        {
+          "Key": "imdb-top-250",
+          "Title": "IMDb Top 250",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "imdb-top-250"
+          ]
+        },
+        {
+          "Key": "award-winners",
+          "Title": "Award Winners",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "award-winner"
+          ]
+        },
+        {
+          "Key": "cyberpunk",
+          "Title": "Cyberpunk",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cyberpunk"
+          ]
+        }
+      ]
+    },
+    "shows": {
+      "anchors": [
+        "ContinueWatchingNextUp",
+        "RecentlyAddedShows",
+        "DiscoverTV",
+        "MyJellyseerrRequests"
+      ],
+      "families": [
+        "theme",
+        "genre",
+        "director",
+        "actor",
+        "decade",
+        "studio",
+        "rating",
+        "rewatch"
+      ],
+      "rules": [
+        {
+          "Key": "anime",
+          "Title": "Weeb Slop",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "anime"
+          ]
+        },
+        {
+          "Key": "games",
+          "Title": "From Controller to Screen",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "based on video game"
+          ]
+        },
+        {
+          "Key": "time",
+          "Title": "Time Travel Slop",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "time travel"
+          ]
+        },
+        {
+          "Key": "comfort",
+          "Title": "Comfort Watches",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "comforting",
+            "lighthearted"
+          ]
+        },
+        {
+          "Key": "page-to-screen",
+          "Title": "Novel Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "based on novel or book"
+          ]
+        },
+        {
+          "Key": "masks-and-capes",
+          "Title": "Superheroes",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "superhero"
+          ]
+        },
+        {
+          "Key": "movie-magic",
+          "Title": "Magic & Myth",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "magic"
+          ]
+        },
+        {
+          "Key": "bleak-futures",
+          "Title": "Dystopian Slop",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dystopia"
+          ]
+        },
+        {
+          "Key": "sing-along",
+          "Title": "Musical Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "musical"
+          ]
+        },
+        {
+          "Key": "growing-up",
+          "Title": "Come of Age and Lock In",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "coming of age"
+          ]
+        },
+        {
+          "Key": "among-the-stars",
+          "Title": "Stellar Nucleosynthesis Spallation",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "space"
+          ]
+        },
+        {
+          "Key": "dark-side-laughs",
+          "Title": "Relax Liberal, It's Called Dark Humor",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dark comedy"
+          ]
+        },
+        {
+          "Key": "mind-benders",
+          "Title": "Mind F**kers",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "psychological thriller",
+            "psychological horror"
+          ]
+        },
+        {
+          "Key": "award-winners",
+          "Title": "Award Winners",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "award-winner"
+          ]
+        },
+        {
+          "Key": "cyberpunk",
+          "Title": "Cyberpunk",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "cyberpunk"
+          ]
+        },
+        {
+          "Key": "drama",
+          "Title": "TV Dramas",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Drama"
+          ]
+        },
+        {
+          "Key": "great-tv",
+          "Title": "Highly Rated Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "MinRating": 8
+        },
+        {
+          "Key": "funny-tv",
+          "Title": "Need a Good Laugh?",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Comedy"
+          ]
+        },
+        {
+          "Key": "scifi-tv",
+          "Title": "Sci-Fi & Fantasy Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Sci-Fi & Fantasy",
+            "Science Fiction",
+            "Fantasy"
+          ]
+        },
+        {
+          "Key": "crime-tv",
+          "Title": "Crime & Mystery",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Crime",
+            "Mystery"
+          ]
+        },
+        {
+          "Key": "animated-tv",
+          "Title": "Animated Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Animation"
+          ]
+        },
+        {
+          "Key": "horror-tv",
+          "Title": "Something Spooky",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Horror",
+            "Thriller"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+**/bin/
+**/obj/
+*.user
+*.log
+*backup*.json
+.DS_Store
+.env*
+release/

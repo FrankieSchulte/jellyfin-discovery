@@ -1,0 +1,2171 @@
+/* FazFort Discovery 0.3.0 — paste this entire file into one non-module JS Injector script. */
+(() => {
+  (() => {
+    "use strict";
+    if (!Element.prototype.replaceChildren) Element.prototype.replaceChildren = function(...nodes) {
+      while (this.firstChild) this.removeChild(this.firstChild);
+      this.append(...nodes);
+    };
+    const DEFAULT_CONFIG = {
+      "schemaVersion": 1,
+      "timeZone": "America/Los_Angeles",
+      "cardsPerShelf": 8,
+      "batchSize": 4,
+      "minimumItems": 3,
+      "maxLiveRows": 24,
+      "endless": true,
+      "hideWatched": false,
+      "pages": {
+        "home": {
+          "anchors": [
+            "ContinueWatchingNextUp",
+            "RecentlyAddedMovies",
+            "DiscoverMovies",
+            "MyJellyseerrRequests",
+            "DiscoverTV",
+            "MyMedia"
+          ],
+          "families": [
+            "theme",
+            "genre",
+            "director",
+            "actor",
+            "decade",
+            "studio",
+            "rating",
+            "rewatch"
+          ],
+          "rules": [
+            {
+              "Key": "popcorn",
+              "Title": "Perfect Popcorn Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Action",
+                "Adventure"
+              ]
+            },
+            {
+              "Key": "laugh",
+              "Title": "Family Guy Funny Moments",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Comedy"
+              ]
+            },
+            {
+              "Key": "incredible",
+              "Title": "Iancredible Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MinRating": 8
+            },
+            {
+              "Key": "short",
+              "Title": "Movie Night Under Two Hours",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MaxMinutes": 120
+            },
+            {
+              "Key": "scifi",
+              "Title": "Sci-Fi & Fantasy Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Science Fiction",
+                "Fantasy"
+              ]
+            },
+            {
+              "Key": "horror",
+              "Title": "Something Spooky",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Horror",
+                "Thriller"
+              ]
+            },
+            {
+              "Key": "anime",
+              "Title": "Weeb Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "anime"
+              ]
+            },
+            {
+              "Key": "games",
+              "Title": "Gamer Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "based on video game"
+              ]
+            },
+            {
+              "Key": "time",
+              "Title": "Time Travel Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "time travel"
+              ]
+            },
+            {
+              "Key": "comfort",
+              "Title": "Comfort Watches",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "comforting",
+                "lighthearted"
+              ]
+            },
+            {
+              "Key": "halloween",
+              "Title": "Halloween Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "halloween"
+              ],
+              "Months": [
+                10
+              ]
+            },
+            {
+              "Key": "christmas",
+              "Title": "Christmas Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "christmas"
+              ],
+              "Months": [
+                12
+              ]
+            },
+            {
+              "Key": "page-to-screen",
+              "Title": "Novel Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "based on novel or book"
+              ]
+            },
+            {
+              "Key": "masks-and-capes",
+              "Title": "Superheroes",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "superhero"
+              ]
+            },
+            {
+              "Key": "movie-magic",
+              "Title": "Wizards United",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "magic"
+              ]
+            },
+            {
+              "Key": "bleak-futures",
+              "Title": "Dystopian Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "dystopia"
+              ]
+            },
+            {
+              "Key": "sing-along",
+              "Title": "Musical Musicals",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "musical"
+              ]
+            },
+            {
+              "Key": "growing-up",
+              "Title": "Come of Age and Lock In",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "coming of age"
+              ]
+            },
+            {
+              "Key": "among-the-stars",
+              "Title": "Stellar Nucleosynthesis Spallation",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "space"
+              ]
+            },
+            {
+              "Key": "dark-side-laughs",
+              "Title": "Relax Liberal, It's Called Dark Humor",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "dark comedy"
+              ]
+            },
+            {
+              "Key": "mind-benders",
+              "Title": "Mind F**kers",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "psychological thriller",
+                "psychological horror"
+              ]
+            },
+            {
+              "Key": "imdb-top-250",
+              "Title": "IMDb Top 250",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "imdb-top-250"
+              ]
+            },
+            {
+              "Key": "award-winners",
+              "Title": "Award Winners",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "award-winner"
+              ]
+            },
+            {
+              "Key": "cyberpunk",
+              "Title": "Cyberpunk",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "cyberpunk"
+              ]
+            }
+          ]
+        },
+        "movies": {
+          "anchors": [
+            "ContinueWatchingNextUp",
+            "RecentlyAddedMovies",
+            "DiscoverMovies",
+            "MyJellyseerrRequests"
+          ],
+          "families": [
+            "theme",
+            "genre",
+            "director",
+            "actor",
+            "decade",
+            "studio",
+            "rating",
+            "rewatch"
+          ],
+          "rules": [
+            {
+              "Key": "popcorn",
+              "Title": "Perfect Popcorn Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Action",
+                "Adventure"
+              ]
+            },
+            {
+              "Key": "laugh",
+              "Title": "Family Guy Funny Moments",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Comedy"
+              ]
+            },
+            {
+              "Key": "incredible",
+              "Title": "Iancredible Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MinRating": 8
+            },
+            {
+              "Key": "short",
+              "Title": "Movie Night Under Two Hours",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MaxMinutes": 120
+            },
+            {
+              "Key": "scifi",
+              "Title": "Sci-Fi & Fantasy Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Science Fiction",
+                "Fantasy"
+              ]
+            },
+            {
+              "Key": "horror",
+              "Title": "Something Spooky",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Horror",
+                "Thriller"
+              ]
+            },
+            {
+              "Key": "anime",
+              "Title": "Weeb Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "anime"
+              ]
+            },
+            {
+              "Key": "games",
+              "Title": "Gamer Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on video game"
+              ]
+            },
+            {
+              "Key": "time",
+              "Title": "Time Travel Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "time travel"
+              ]
+            },
+            {
+              "Key": "comfort",
+              "Title": "Comfort Watches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "comforting",
+                "lighthearted"
+              ]
+            },
+            {
+              "Key": "halloween",
+              "Title": "Halloween Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "halloween"
+              ],
+              "Months": [
+                10
+              ]
+            },
+            {
+              "Key": "christmas",
+              "Title": "Christmas Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "christmas"
+              ],
+              "Months": [
+                12
+              ]
+            },
+            {
+              "Key": "page-to-screen",
+              "Title": "Novel Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on novel or book"
+              ]
+            },
+            {
+              "Key": "masks-and-capes",
+              "Title": "Superheroes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "superhero"
+              ]
+            },
+            {
+              "Key": "movie-magic",
+              "Title": "Wizards United",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "magic"
+              ]
+            },
+            {
+              "Key": "bleak-futures",
+              "Title": "Dystopian Slop",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "dystopia"
+              ]
+            },
+            {
+              "Key": "sing-along",
+              "Title": "Musical Musicals",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "musical"
+              ]
+            },
+            {
+              "Key": "growing-up",
+              "Title": "Come of Age and Lock In",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "coming of age"
+              ]
+            },
+            {
+              "Key": "among-the-stars",
+              "Title": "Stellar Nucleosynthesis Spallation",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "space"
+              ]
+            },
+            {
+              "Key": "dark-side-laughs",
+              "Title": "Relax Liberal, It's Called Dark Humor",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "dark comedy"
+              ]
+            },
+            {
+              "Key": "mind-benders",
+              "Title": "Mind F**kers",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "psychological thriller",
+                "psychological horror"
+              ]
+            },
+            {
+              "Key": "imdb-top-250",
+              "Title": "IMDb Top 250",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "imdb-top-250"
+              ]
+            },
+            {
+              "Key": "award-winners",
+              "Title": "Award Winners",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "award-winner"
+              ]
+            },
+            {
+              "Key": "cyberpunk",
+              "Title": "Cyberpunk",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cyberpunk"
+              ]
+            }
+          ]
+        },
+        "shows": {
+          "anchors": [
+            "ContinueWatchingNextUp",
+            "RecentlyAddedShows",
+            "DiscoverTV",
+            "MyJellyseerrRequests"
+          ],
+          "families": [
+            "theme",
+            "genre",
+            "director",
+            "actor",
+            "decade",
+            "studio",
+            "rating",
+            "rewatch"
+          ],
+          "rules": [
+            {
+              "Key": "anime",
+              "Title": "Weeb Slop",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "anime"
+              ]
+            },
+            {
+              "Key": "games",
+              "Title": "From Controller to Screen",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "based on video game"
+              ]
+            },
+            {
+              "Key": "time",
+              "Title": "Time Travel Slop",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "time travel"
+              ]
+            },
+            {
+              "Key": "comfort",
+              "Title": "Comfort Watches",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "comforting",
+                "lighthearted"
+              ]
+            },
+            {
+              "Key": "page-to-screen",
+              "Title": "Novel Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "based on novel or book"
+              ]
+            },
+            {
+              "Key": "masks-and-capes",
+              "Title": "Superheroes",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "superhero"
+              ]
+            },
+            {
+              "Key": "movie-magic",
+              "Title": "Magic & Myth",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "magic"
+              ]
+            },
+            {
+              "Key": "bleak-futures",
+              "Title": "Dystopian Slop",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dystopia"
+              ]
+            },
+            {
+              "Key": "sing-along",
+              "Title": "Musical Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "musical"
+              ]
+            },
+            {
+              "Key": "growing-up",
+              "Title": "Come of Age and Lock In",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "coming of age"
+              ]
+            },
+            {
+              "Key": "among-the-stars",
+              "Title": "Stellar Nucleosynthesis Spallation",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "space"
+              ]
+            },
+            {
+              "Key": "dark-side-laughs",
+              "Title": "Relax Liberal, It's Called Dark Humor",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dark comedy"
+              ]
+            },
+            {
+              "Key": "mind-benders",
+              "Title": "Mind F**kers",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "psychological thriller",
+                "psychological horror"
+              ]
+            },
+            {
+              "Key": "award-winners",
+              "Title": "Award Winners",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "award-winner"
+              ]
+            },
+            {
+              "Key": "cyberpunk",
+              "Title": "Cyberpunk",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "cyberpunk"
+              ]
+            },
+            {
+              "Key": "drama",
+              "Title": "TV Dramas",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Drama"
+              ]
+            },
+            {
+              "Key": "great-tv",
+              "Title": "Highly Rated Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "MinRating": 8
+            },
+            {
+              "Key": "funny-tv",
+              "Title": "Need a Good Laugh?",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Comedy"
+              ]
+            },
+            {
+              "Key": "scifi-tv",
+              "Title": "Sci-Fi & Fantasy Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Sci-Fi & Fantasy",
+                "Science Fiction",
+                "Fantasy"
+              ]
+            },
+            {
+              "Key": "crime-tv",
+              "Title": "Crime & Mystery",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Crime",
+                "Mystery"
+              ]
+            },
+            {
+              "Key": "animated-tv",
+              "Title": "Animated Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Animation"
+              ]
+            },
+            {
+              "Key": "horror-tv",
+              "Title": "Something Spooky",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Horror",
+                "Thriller"
+              ]
+            }
+          ]
+        }
+      }
+    };
+    const DISCOVERY_CSS = '.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box}\n.fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}\n.fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}\n.fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}\n.fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}\n.fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}\n.fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}\n.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scroll-snap-type:x proximity;scrollbar-width:thin}\n.fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);scroll-snap-align:start;min-width:0}\n.fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}\n.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}\n.fx-card-visual{position:relative;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}\n.fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}\n.fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}\n.fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}\n.fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}\n.fx-footer{text-align:center;padding:20px}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row{contain:strict}\n.fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}\n.fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}\n/* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */\n[data-fx-native-hidden="true"]{display:none!important}\n.fx-discovery [hidden]{display:none!important}\n.cardScalable[data-fx-badge-host]{position:relative}\n.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#181818;border:1px solid #444;border-radius:10px;margin-bottom:18px}\n.fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}\n.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:44px;border-radius:6px;border:1px solid #666;background:#242424;color:#fff;padding:8px;max-width:100%;box-sizing:border-box}\n.fx-match-count{color:#ccc}.fx-match-count:empty{display:none}\n.fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}\n.fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}\n.fx-dialog-fallback{display:block;position:relative;left:auto;right:auto;top:auto;bottom:auto;margin:auto}\n.fx-similar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}\n.fx-similar-grid .fx-card-entry{width:100%}.fx-match-reason{font-size:13px;color:#aaa;margin:7px 2px}\n.fx-tv .fx-card:focus,.fx-tv button:focus{outline:4px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px rgba(229,9,20,.5)}\n.fx-tv .fx-card-entry:focus-within{z-index:3}.fx-discovery button,.fx-dialog button{min-height:44px;touch-action:manipulation}\n.fx-discovery{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}\n@supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}\n@media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}\n@media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}\n';
+    const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
+    const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
+    function hash(value) {
+      let result = 2166136261;
+      for (const c of String(value)) result = Math.imul(result ^ c.charCodeAt(0), 16777619);
+      return result >>> 0;
+    }
+    function dayInZone(now, zone) {
+      const parts = new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+      const part = (key) => parts.find((p) => p.type === key).value;
+      return `${part("year")}-${part("month")}-${part("day")}`;
+    }
+    function monthAgo(now) {
+      const cutoff = new Date(now);
+      const day = cutoff.getUTCDate();
+      cutoff.setUTCDate(1);
+      cutoff.setUTCMonth(cutoff.getUTCMonth() - 1);
+      const lastDay = new Date(Date.UTC(cutoff.getUTCFullYear(), cutoff.getUTCMonth() + 1, 0)).getUTCDate();
+      cutoff.setUTCDate(Math.min(day, lastDay));
+      return cutoff;
+    }
+    function recent(date, now) {
+      const time = Date.parse(date);
+      return Number.isFinite(time) && time >= monthAgo(now).getTime() && time <= now.getTime();
+    }
+    function seasonBadges(seasons, now) {
+      const map = /* @__PURE__ */ new Map();
+      for (const season of seasons) {
+        if (season.Type !== "Season" || !(season.IndexNumber >= 2) || !recent(season.DateCreated, now)) continue;
+        const series = season.SeriesId || season.ParentId;
+        if (series) map.set(series, "New Season");
+      }
+      return map;
+    }
+    function badgeFor(item, seasons, now, tracking = null) {
+      if (tracking) {
+        const record = tracking.get(item.Id);
+        if (item.Type === "Series" && recent(record == null ? void 0 : record.NewSeasonAt, now)) return "New Season";
+        return recent(record == null ? void 0 : record.AddedAt, now) ? "Recently Added" : "";
+      }
+      if (item.Type === "Series" && seasons.has(item.Id)) return "New Season";
+      return ["Movie", "Series"].includes(item.Type) && recent(item.DateCreated, now) ? "Recently Added" : "";
+    }
+    const DEFAULT_FILTERS = { query: "", genre: "", tag: "", watched: "all", maxMinutes: "", minRating: "", decade: "", type: "", sort: "recommended" };
+    function filtersActive(filters) {
+      return Object.keys(DEFAULT_FILTERS).some((k) => {
+        var _a;
+        return k !== "sort" && String((_a = filters[k]) != null ? _a : "") !== String(DEFAULT_FILTERS[k]);
+      });
+    }
+    function filterItems(items, filters, tracking = /* @__PURE__ */ new Map()) {
+      let result = items.filter((i) => {
+        var _a;
+        const query = normalize(filters.query);
+        const haystack = normalize([i.Name, ...(i.People || []).map((p) => p.Name)].join(" "));
+        return (!query || haystack.includes(query)) && (!filters.genre || intersects([filters.genre], i.Genres)) && (!filters.tag || intersects([filters.tag], i.Tags)) && (!filters.type || i.Type === filters.type) && (filters.watched === "all" || !!((_a = i.UserData) == null ? void 0 : _a.Played) === (filters.watched === "watched")) && (!filters.maxMinutes || i.Type === "Movie" && i.RunTimeTicks > 0 && i.RunTimeTicks < Number(filters.maxMinutes) * 6e8) && (!filters.minRating || i.CommunityRating != null && i.CommunityRating >= Number(filters.minRating)) && (!filters.decade || i.ProductionYear >= Number(filters.decade) && i.ProductionYear < Number(filters.decade) + 10);
+      });
+      if (filters.sort !== "recommended") result = result.slice().sort((a, b) => {
+        var _a, _b, _c, _d;
+        if (filters.sort === "rating") return ((_a = b.CommunityRating) != null ? _a : -1) - ((_b = a.CommunityRating) != null ? _b : -1) || String(a.Name).localeCompare(String(b.Name));
+        if (filters.sort === "year") return (b.ProductionYear || 0) - (a.ProductionYear || 0) || String(a.Name).localeCompare(String(b.Name));
+        if (filters.sort === "added") return (Date.parse((_c = tracking.get(b.Id)) == null ? void 0 : _c.AddedAt) || 0) - (Date.parse((_d = tracking.get(a.Id)) == null ? void 0 : _d.AddedAt) || 0) || String(a.Name).localeCompare(String(b.Name));
+        return String(a.Name || "").localeCompare(String(b.Name || ""));
+      });
+      return result;
+    }
+    function similarItems(seed, items, limit = 24) {
+      const tokens = (item, field) => new Set((item[field] || []).map(normalize).filter(Boolean));
+      const shared = (a, b) => [...a].filter((x) => b.has(x));
+      const seedTags = tokens(seed, "Tags"), seedGenres = tokens(seed, "Genres");
+      const credits = (item, type) => new Set((item.People || []).filter((p) => p.Type === type).map((p) => normalize(p.Name)));
+      const directors = credits(seed, "Director"), actors = credits(seed, "Actor");
+      const frequencies = /* @__PURE__ */ new Map();
+      items.forEach((item) => tokens(item, "Tags").forEach((tag) => frequencies.set(tag, (frequencies.get(tag) || 0) + 1)));
+      return items.filter((i) => i.Id !== seed.Id && ["Movie", "Series"].includes(i.Type)).map((item) => {
+        const tags = shared(seedTags, tokens(item, "Tags")), genres = shared(seedGenres, tokens(item, "Genres"));
+        const ds = shared(directors, credits(item, "Director")), cast = shared(actors, credits(item, "Actor"));
+        const score = tags.reduce((sum, t) => sum + 3 * Math.log(2 + items.length / (frequencies.get(t) || 1)), 0) + genres.length * 1.5 + ds.length * 4 + Math.min(3, cast.length);
+        const names = tags.length ? tags.slice(0, 2) : ds.length ? ["same director"] : genres.length ? genres.slice(0, 2) : cast.length ? ["shared cast"] : [];
+        return { item, score, reason: names.join(" \xB7 ") };
+      }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || String(a.item.Name).localeCompare(String(b.item.Name))).slice(0, limit);
+    }
+    function cloneJson(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+    function matches(rule, item, hideWatched = false) {
+      var _a, _b;
+      const people = item.People || [];
+      return (rule.Types || ["Movie"]).includes(item.Type) && (!hideWatched || !((_a = item.UserData) == null ? void 0 : _a.Played)) && intersects(rule.GenresAny, item.Genres) && intersects(rule.TagsAny, item.Tags) && intersects(rule.DirectorsAny, people.filter((p) => p.Type === "Director").map((p) => p.Name)) && intersects(rule.ActorsAny, people.filter((p) => p.Type === "Actor").map((p) => p.Name)) && intersects(rule.StudiosAny, (item.Studios || []).map((s) => s.Name)) && (rule.MinRating == null || item.CommunityRating != null && item.CommunityRating >= rule.MinRating) && (rule.MaxMinutes == null || item.RunTimeTicks > 0 && item.RunTimeTicks < rule.MaxMinutes * 6e8) && (!((_b = rule.Years) == null ? void 0 : _b.length) || item.ProductionYear >= rule.Years[0] && item.ProductionYear <= rule.Years[1]);
+    }
+    const familiesAllowed = /* @__PURE__ */ new Set(["theme", "genre", "director", "actor", "decade", "studio", "rating", "rewatch", "runtime"]);
+    const anchorsAllowed = /* @__PURE__ */ new Set(["ContinueWatchingNextUp", "RecentlyAddedMovies", "RecentlyAddedShows", "DiscoverMovies", "DiscoverTV", "MyJellyseerrRequests", "MyMedia"]);
+    function validateConfig(config) {
+      var _a;
+      if ((config == null ? void 0 : config.schemaVersion) !== 1) throw Error("schemaVersion must be 1.");
+      dayInZone(/* @__PURE__ */ new Date(), config.timeZone);
+      for (const [key, min, max] of [["cardsPerShelf", 3, 24], ["batchSize", 1, 8], ["minimumItems", 1, 12], ["maxLiveRows", 12, 60]]) {
+        if (!Number.isInteger(config[key]) || config[key] < min || config[key] > max) throw Error(`${key} must be ${min}\u2013${max}.`);
+      }
+      if (config.minimumItems > config.cardsPerShelf) throw Error("minimumItems cannot exceed cardsPerShelf.");
+      if (typeof config.endless !== "boolean" || typeof config.hideWatched !== "boolean") throw Error("endless and hideWatched must be true or false.");
+      for (const page of ["home", "movies", "shows"]) {
+        const profile = (_a = config.pages) == null ? void 0 : _a[page];
+        if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 100) throw Error(`${page}: use up to 100 rules.`);
+        if (!Array.isArray(profile.anchors) || profile.anchors.some((a) => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
+        if (!Array.isArray(profile.families) || profile.families.some((f) => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
+        const keys = /* @__PURE__ */ new Set();
+        for (const r of profile.rules) {
+          if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
+          keys.add(r.Key);
+          if (typeof r.Title !== "string" || !r.Title.trim() || r.Title.length > 120) throw Error(`${r.Key}: title needs 1\u2013120 characters.`);
+          if (r.Enabled != null && typeof r.Enabled !== "boolean") throw Error(`${r.Key}: Enabled must be true or false.`);
+          if (!Array.isArray(r.Types) || !r.Types.length || r.Types.some((t) => !["Movie", "Series"].includes(t))) throw Error(`${r.Key}: Types must contain Movie and/or Series.`);
+          for (const field of ["GenresAny", "TagsAny", "DirectorsAny", "ActorsAny", "StudiosAny"]) {
+            if (r[field] != null && (!Array.isArray(r[field]) || r[field].some((v) => typeof v !== "string" || !v.trim()))) throw Error(`${r.Key}: ${field} must be a string array.`);
+          }
+          if (r.Months != null && (!Array.isArray(r.Months) || r.Months.some((m) => !Number.isInteger(m) || m < 1 || m > 12))) throw Error(`${r.Key}: Months must contain 1\u201312.`);
+          if (r.Years != null && (!Array.isArray(r.Years) || r.Years.length !== 2 || r.Years.some((y) => !Number.isInteger(y)) || r.Years[0] > r.Years[1])) throw Error(`${r.Key}: Years must be [first, last].`);
+          if (r.MinRating != null && (!Number.isFinite(r.MinRating) || r.MinRating < 0 || r.MinRating > 10)) throw Error(`${r.Key}: MinRating must be 0\u201310.`);
+          if (r.MaxMinutes != null && (!Number.isInteger(r.MaxMinutes) || r.MaxMinutes <= 0)) throw Error(`${r.Key}: MaxMinutes must be a positive whole number.`);
+        }
+      }
+      return config;
+    }
+    function buildShelves(items, profile, config, page, now) {
+      var _a;
+      const eligible = items.filter((i) => {
+        var _a2;
+        return (page === "home" ? ["Movie", "Series"].includes(i.Type) : i.Type === (page === "movies" ? "Movie" : "Series")) && (!config.hideWatched || !((_a2 = i.UserData) == null ? void 0 : _a2.Played));
+      });
+      const month = Number(dayInZone(now, config.timeZone).split("-")[1]);
+      const shelves = [];
+      const add = (key, title, family, list) => {
+        const unique = Array.from(new Map(list.map((i) => [i.Id, i])).values());
+        if (unique.length >= config.minimumItems) shelves.push({ key, title, family, items: unique });
+      };
+      for (const rule of profile.rules) {
+        if (rule.Enabled === false || ((_a = rule.Months) == null ? void 0 : _a.length) && !rule.Months.includes(month)) continue;
+        add(`rule:${rule.Key}`, rule.Title, "theme", eligible.filter((i) => matches(rule, i)));
+      }
+      const grouping = (family, values, title, filter = () => true) => {
+        if (!profile.families.includes(family)) return;
+        const groups = /* @__PURE__ */ new Map();
+        for (const item of eligible.filter(filter)) {
+          for (const value of new Set(values(item).filter(Boolean))) {
+            const key = normalize(value);
+            if (!groups.has(key)) groups.set(key, { name: value, items: [] });
+            groups.get(key).items.push(item);
+          }
+        }
+        Array.from(groups.entries()).sort((a, b) => b[1].items.length - a[1].items.length || a[0].localeCompare(b[0])).slice(0, 60).forEach(([key, g]) => add(`${family}:${key}`, title(g.name), family, g.items));
+      };
+      const label = page === "movies" ? "Movies" : page === "shows" ? "Shows" : "Movies & Shows";
+      grouping("genre", (i) => i.Genres || [], (g) => `${g} ${label}`);
+      grouping("director", (i) => (i.People || []).filter((p) => p.Type === "Director").map((p) => p.Name), (p) => `Directed by ${p}`);
+      grouping("actor", (i) => (i.People || []).filter((p) => p.Type === "Actor").slice(0, 8).map((p) => p.Name), (p) => `Starring ${p}`);
+      grouping("studio", (i) => (i.Studios || []).map((s) => s.Name), (s) => `From ${s}`);
+      grouping("decade", (i) => i.ProductionYear ? [String(Math.floor(i.ProductionYear / 10) * 10)] : [], (d) => `Highly Rated from the ${d}s`, (i) => i.CommunityRating >= 7);
+      if (profile.families.includes("rating")) add("rating:8", `Highly Rated ${label}`, "rating", eligible.filter((i) => i.CommunityRating >= 8));
+      if (profile.families.includes("rewatch")) add("rewatch:played", "Worth Another Watch", "rewatch", items.filter((i) => {
+        var _a2;
+        return ((_a2 = i.UserData) == null ? void 0 : _a2.Played) && (page === "home" || i.Type === (page === "movies" ? "Movie" : "Series"));
+      }));
+      if (profile.families.includes("runtime")) add("runtime:short", "Movie Night Under Two Hours", "runtime", eligible.filter((i) => i.Type === "Movie" && i.RunTimeTicks > 0 && i.RunTimeTicks < 72e9));
+      add("genre:explore", `Explore More ${label}`, "genre", eligible);
+      return shelves;
+    }
+    class FeedPlanner {
+      constructor(shelves, config, seed) {
+        this.shelves = shelves;
+        this.config = config;
+        this.seed = seed;
+        this.counts = /* @__PURE__ */ new Map();
+        this.lastFamilies = [];
+        this.lastKeys = [];
+        this.lastItems = [];
+        this.index = 0;
+      }
+      next(preferredFamily = null) {
+        if (!this.shelves.length) return null;
+        let pool = this.shelves.filter((s) => this.config.endless || !this.counts.has(s.key));
+        if (!pool.length) return null;
+        const fresh = pool.filter((s) => !this.lastKeys.includes(s.key));
+        if (fresh.length) pool = fresh;
+        const preferred = pool.filter((s) => s.family === preferredFamily);
+        if (preferred.length) pool = preferred;
+        const familyDiverse = pool.filter((s) => !this.lastFamilies.includes(s.family));
+        if (familyDiverse.length) pool = familyDiverse;
+        pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
+        const shelf = pool[0], recentIds = new Set(this.lastItems);
+        const selected = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`)).slice(0, this.config.cardsPerShelf);
+        this.counts.set(shelf.key, (this.counts.get(shelf.key) || 0) + 1);
+        this.lastKeys.push(shelf.key);
+        const cooldown = Math.min(12, Math.max(0, this.shelves.length - 1));
+        this.lastKeys = cooldown ? this.lastKeys.slice(-cooldown) : [];
+        this.lastFamilies.push(shelf.family);
+        this.lastFamilies = this.lastFamilies.slice(-2);
+        this.lastItems.push(...selected.map((i) => i.Id));
+        this.lastItems = this.lastItems.slice(-this.config.cardsPerShelf * 5);
+        this.index++;
+        return { ...shelf, items: selected, ordinal: this.index };
+      }
+    }
+    function routeInfo(hashValue) {
+      var _a;
+      const value = String(hashValue || "").replace(/^#!?\/?/, "").replace(/^\//, "");
+      const [path, query = ""] = value.split("?");
+      const p = new URLSearchParams(query), name = path.replace(/\.html$/, "").toLowerCase();
+      if (p.has("seerrfintab") || p.has("tab") && p.get("tab") !== "0") return null;
+      const collection = (_a = p.get("collectionType")) == null ? void 0 : _a.toLowerCase();
+      const page = ["home", ""].includes(name) ? "home" : name === "movies" ? "movies" : ["tv", "tvshows"].includes(name) ? "shows" : name === "list" && ["movies", "tvshows"].includes(collection) ? collection === "movies" ? "movies" : "shows" : null;
+      return page ? { page, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
+    }
+    class JellyfinClient {
+      constructor(api, current = () => true) {
+        var _a;
+        this.api = api;
+        this.userId = api.getCurrentUserId();
+        this.current = current;
+        this.serverId = ((_a = api.serverId) == null ? void 0 : _a.call(api)) || "";
+        if (!this.userId) throw Error("Sign in to Jellyfin first.");
+      }
+      assertCurrent() {
+        var _a, _b;
+        if (!this.current() || this.api.getCurrentUserId() !== this.userId || (((_b = (_a = this.api).serverId) == null ? void 0 : _b.call(_a)) || "") !== this.serverId) throw Error("This view has changed.");
+      }
+      async request(promise) {
+        this.assertCurrent();
+        let timer;
+        try {
+          const result = await Promise.race([promise, new Promise((_, reject) => {
+            timer = setTimeout(() => reject(Error("Jellyfin request timed out.")), 2e4);
+          })]);
+          this.assertCurrent();
+          return result;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      json(path, params = {}) {
+        return this.request(this.api.getJSON(this.api.getUrl(path, params)));
+      }
+      items(params) {
+        return this.request(this.api.getItems(this.userId, params));
+      }
+      async preferences() {
+        var _a, _b, _c, _d;
+        const value = await this.json("FazFortDiscovery/Preferences");
+        if (!Number.isInteger((_a = value.Version) != null ? _a : value.version)) throw Error("Companion preferences are unavailable.");
+        return { version: (_b = value.Version) != null ? _b : value.version, config: (_d = (_c = value.Config) != null ? _c : value.config) != null ? _d : null };
+      }
+      async savePreferences(config, version) {
+        this.assertCurrent();
+        return this.request(this.api.ajax({ url: this.api.getUrl("FazFortDiscovery/Preferences"), type: "POST", contentType: "application/json", dataType: "json", data: JSON.stringify({ ExpectedVersion: version, Config: config }) }));
+      }
+      async tracking(items) {
+        var _a, _b, _c, _d, _e;
+        const records = /* @__PURE__ */ new Map();
+        let ready = false;
+        for (let offset = 0; offset < items.length || offset === 0; offset += 200) {
+          const ids = items.slice(offset, offset + 200).map((i) => i.Id);
+          const result = await this.json("FazFortDiscovery/Tracking", { Ids: ids.join(",") });
+          if (((_a = result.Ready) != null ? _a : result.ready) !== true) throw Error("Arrival tracking is not ready.");
+          ready = true;
+          const map = (_c = (_b = result.Records) != null ? _b : result.records) != null ? _c : {};
+          for (const item of items.slice(offset, offset + 200)) {
+            const r = map[item.Id] || map[item.Id.replace(/-/g, "").toLowerCase()];
+            if (r) records.set(item.Id, { AddedAt: (_d = r.AddedAt) != null ? _d : r.addedAt, NewSeasonAt: (_e = r.NewSeasonAt) != null ? _e : r.newSeasonAt });
+          }
+          if (!items.length) break;
+        }
+        return { ready, records };
+      }
+      async inventory(route, progress) {
+        const views = await this.json(`Users/${encodeURIComponent(this.userId)}/Views`);
+        this.views = (views.Items || []).filter((v) => ["movies", "tvshows", "", null, void 0].includes(v.CollectionType));
+        const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter((v) => route.page === "home" || !v.CollectionType || v.CollectionType === (route.page === "movies" ? "movies" : "tvshows"));
+        const type = route.page === "movies" ? "Movie" : route.page === "shows" ? "Series" : "Movie,Series";
+        const all = /* @__PURE__ */ new Map(), seasons = /* @__PURE__ */ new Map();
+        for (const folder of folders) {
+          for (const types of [type, ...route.page === "movies" ? [] : ["Season"]]) {
+            let offset = 0;
+            for (; ; ) {
+              this.assertCurrent();
+              const response = await this.items({
+                ParentId: folder.Id,
+                Recursive: true,
+                IncludeItemTypes: types,
+                Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio",
+                EnableUserData: true,
+                EnableImages: true,
+                ImageTypeLimit: 1,
+                EnableImageTypes: "Primary,Backdrop,Thumb",
+                SortBy: "SortName",
+                SortOrder: "Ascending",
+                StartIndex: offset,
+                Limit: 200
+              });
+              const list = response.Items || [], target = types === "Season" ? seasons : all;
+              let added = 0;
+              for (const item of list) if (item.Id && !target.has(item.Id)) {
+                target.set(item.Id, item);
+                added++;
+              }
+              offset += list.length;
+              progress == null ? void 0 : progress(all.size, seasons.size);
+              if (list.length === 0 || added === 0 || list.length < 200 || Number.isFinite(response.TotalRecordCount) && offset >= response.TotalRecordCount) break;
+              if (offset >= 1e5) throw Error("Library exceeds the 100,000-item safety limit. Use a smaller library.");
+            }
+          }
+        }
+        return { items: [...all.values()], seasons: [...seasons.values()], views: this.views };
+      }
+      async hydrate(items) {
+        const ids = items.filter((i) => /^[a-f0-9-]{32,36}$/i.test(i.Id || "")).map((i) => i.Id);
+        if (!ids.length) return items;
+        const response = await this.items({ Ids: ids.join(","), Fields: "DateCreated,PrimaryImageAspectRatio", EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" });
+        const byId = new Map((response.Items || []).map((i) => [i.Id, i]));
+        return items.filter((i) => !ids.includes(i.Id) || byId.has(i.Id)).map((i) => byId.has(i.Id) ? { ...i, ...byId.get(i.Id) } : i);
+      }
+      async anchor(id, route, inventory, config) {
+        const typed = (list) => route.page === "home" ? list : list.filter((i) => route.page === "movies" ? i.Type === "Movie" || i.SourceType === "movie" : ["Series", "Episode"].includes(i.Type) || i.SourceType === "tv");
+        const arrival = (item) => {
+          var _a;
+          const r = (_a = inventory.tracking) == null ? void 0 : _a.get(item.Id);
+          return Date.parse(kindDate(item, r)) || 0;
+        };
+        const kindDate = (item, r) => item.Type === "Series" ? (r == null ? void 0 : r.NewSeasonAt) || (r == null ? void 0 : r.AddedAt) : r == null ? void 0 : r.AddedAt;
+        const recentItems = (kind) => inventory.items.filter((i) => i.Type === kind).sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
+        const title = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
+        if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
+        if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
+        try {
+          const response = await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
+          let list = typed(response.Items || []);
+          if (route.parentId && !id.startsWith("Discover")) {
+            const allowed = new Set(inventory.items.map((i) => i.Id));
+            list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
+          }
+          return { key: id, title, family: "anchor", items: list.slice(0, config.cardsPerShelf), external: id.startsWith("Discover") };
+        } catch (error) {
+          this.assertCurrent();
+          if (id !== "ContinueWatchingNextUp") throw error;
+          const resume = await this.json("Items/Resume", { UserId: this.userId, Limit: config.cardsPerShelf, ...route.parentId ? { ParentId: route.parentId } : {}, Fields: "DateCreated,PrimaryImageAspectRatio", EnableImages: true });
+          return { key: id, title: "Continue Watching", family: "anchor", items: typed(resume.Items || []).slice(0, config.cardsPerShelf) };
+        }
+      }
+    }
+    function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
+      var _a, _b, _c, _d, _e;
+      const VERSION = "0.3.0";
+      if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
+      (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
+      (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
+      let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
+      const snapshots = /* @__PURE__ */ new Map();
+      const savedFeeds = /* @__PURE__ */ new Map();
+      let activeDialog = null, lastScope = "", selectHold = null;
+      const element = (tag, cls, text) => {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+      };
+      const button = (text, action) => {
+        const b = element("button", "", text);
+        b.type = "button";
+        b.addEventListener("click", action);
+        return b;
+      };
+      const scopeKey = (api) => {
+        var _a2;
+        return `${((_a2 = api.serverId) == null ? void 0 : _a2.call(api)) || location.origin}:${api.getCurrentUserId()}`;
+      };
+      const configKey = (api) => `fazfort-discovery:config:v1:${scopeKey(api)}`;
+      const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
+      function readConfig(api) {
+        try {
+          const raw = localStorage.getItem(configKey(api));
+          return validateConfig(raw ? JSON.parse(raw) : cloneJson(DEFAULT_CONFIG2));
+        } catch {
+          throw Error("Saved discovery rules are invalid. Open Customize to repair them, or reset to the supplied rules.");
+        }
+      }
+      function closeDialog() {
+        var _a2;
+        if (!activeDialog) return;
+        const { dialog, overlay, previous } = activeDialog;
+        activeDialog = null;
+        if (typeof dialog.close === "function") {
+          try {
+            dialog.close();
+          } catch {
+          }
+        }
+        overlay.remove();
+        if (previous == null ? void 0 : previous.isConnected) (_a2 = previous.focus) == null ? void 0 : _a2.call(previous, { preventScroll: true });
+      }
+      function openDialog(dialog) {
+        var _a2, _b2;
+        closeDialog();
+        const previous = document.activeElement;
+        const overlay = element("div", "fx-dialog-overlay");
+        overlay.append(dialog);
+        document.body.append(overlay);
+        activeDialog = { dialog, overlay, previous };
+        dialog.setAttribute("aria-modal", "true");
+        dialog.setAttribute("role", "dialog");
+        dialog.addEventListener("cancel", (event) => {
+          event.preventDefault();
+          closeDialog();
+        });
+        try {
+          if (typeof dialog.showModal !== "function") throw Error();
+          dialog.showModal();
+        } catch {
+          dialog.setAttribute("open", "");
+          dialog.classList.add("fx-dialog-fallback");
+        }
+        (_b2 = (_a2 = dialog.querySelector("button,input,select,textarea,a[href]") || dialog).focus) == null ? void 0 : _b2.call(_a2);
+      }
+      function controlsMode(s) {
+        let mode = "auto";
+        try {
+          mode = localStorage.getItem(`fazfort-discovery:controls:${s.scope}`) || "auto";
+        } catch {
+        }
+        const automatic = document.documentElement.classList.contains("layout-tv") || document.body.classList.contains("layout-tv") || /Tizen|SmartTV|TV Bro|Android TV|GoogleTV/i.test(typeof navigator === "object" ? navigator.userAgent || "" : "");
+        return { mode, tv: mode === "tv" || mode === "auto" && automatic };
+      }
+      function controlToggle(s, b) {
+        const current = controlsMode(s).mode, modes = ["auto", "tv", "touch"];
+        const next = modes[(modes.indexOf(current) + 1) % modes.length];
+        try {
+          localStorage.setItem(`fazfort-discovery:controls:${s.scope}`, next);
+        } catch {
+        }
+        b.textContent = `Controls: ${next}`;
+        s.root.classList.toggle("fx-tv", controlsMode(s).tv);
+      }
+      function focusNode(node) {
+        var _a2, _b2;
+        if (!node) return;
+        (_a2 = node.focus) == null ? void 0 : _a2.call(node, { preventScroll: true });
+        (_b2 = node.scrollIntoView) == null ? void 0 : _b2.call(node, { block: "nearest", inline: "nearest", behavior: "auto" });
+      }
+      function moreLikeThis(item, s) {
+        const source = s.inventory.items.find((i) => i.Id === item.Id) || item;
+        const base = s.config.hideWatched && s.filters.watched === "all" ? s.inventory.items.filter((i) => {
+          var _a2;
+          return !((_a2 = i.UserData) == null ? void 0 : _a2.Played);
+        }) : s.inventory.items;
+        const pool = filterItems(base, s.filters, s.tracking);
+        const recommendations = similarItems(source, pool, 24);
+        const dialog = element("dialog", "fx-dialog fx-similar");
+        dialog.setAttribute("aria-label", `More like ${source.Name}`);
+        dialog.append(element("h2", "", `More like ${source.Name}`), button("Close", closeDialog));
+        const info = element("p", "", "Matches use shared tags, genres, directors and cast in your accessible library. Active filters also apply.");
+        dialog.append(info);
+        if (!recommendations.length) dialog.append(element("p", "", "No matching titles with these filters. Clear a filter or add more library metadata."));
+        const grid = element("div", "fx-similar-grid");
+        recommendations.forEach((r) => {
+          const entry = element("div", "fx-similar-entry");
+          entry.append(renderCard(r.item, s, false), element("p", "fx-match-reason", r.reason));
+          grid.append(entry);
+        });
+        dialog.append(grid);
+        openDialog(dialog);
+      }
+      function safeUrl(value, base = location.href) {
+        try {
+          const url = new URL(value, base);
+          return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+        } catch {
+          return "";
+        }
+      }
+      function imageChoices(item, api) {
+        var _a2, _b2, _c2, _d2, _e2;
+        const results = [];
+        const add = (id, type, tag, poster = false) => {
+          if (!id || !tag) return;
+          const url = safeUrl(api.getImageUrl(id, { type, tag, maxWidth: 700, quality: 88, ...type === "Backdrop" ? { index: 0 } : {} }));
+          if (url) results.push({ url, poster });
+        };
+        add(item.Id, "Thumb", (_a2 = item.ImageTags) == null ? void 0 : _a2.Thumb);
+        add(item.Id, "Backdrop", (_b2 = item.BackdropImageTags) == null ? void 0 : _b2[0]);
+        add(item.ParentBackdropItemId || item.SeriesId, "Backdrop", (_c2 = item.ParentBackdropImageTags) == null ? void 0 : _c2[0]);
+        add(item.Id, "Primary", (_d2 = item.ImageTags) == null ? void 0 : _d2.Primary, true);
+        add(item.SeriesId, "Primary", item.SeriesPrimaryImageTag, true);
+        if ((_e2 = item.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster) {
+          const raw = item.ProviderIds.JellyseerrPoster;
+          const url = safeUrl(/^https?:/i.test(raw) ? raw : api.getUrl(raw));
+          if (url) results.push({ url, poster: true });
+        }
+        return results;
+      }
+      function itemHref(item, api) {
+        var _a2, _b2, _c2, _d2;
+        if (((_a2 = item.ProviderIds) == null ? void 0 : _a2.JellyseerrRoot) && ((_b2 = item.ProviderIds) == null ? void 0 : _b2.Jellyseerr) && ["movie", "tv"].includes(item.SourceType)) {
+          return safeUrl(`${item.ProviderIds.JellyseerrRoot.replace(/\/$/, "")}/${item.SourceType}/${encodeURIComponent(item.ProviderIds.Jellyseerr)}`);
+        }
+        const q = new URLSearchParams({ id: item.Id || "", serverId: ((_c2 = api.serverId) == null ? void 0 : _c2.call(api)) || "" });
+        if (item.CollectionType) {
+          const page = item.CollectionType === "movies" ? "movies" : item.CollectionType === "tvshows" ? "tv" : "list";
+          return `#/${page}?${new URLSearchParams({ topParentId: item.Id, collectionType: item.CollectionType, serverId: ((_d2 = api.serverId) == null ? void 0 : _d2.call(api)) || "" })}`;
+        }
+        return item.Id ? `#/details?${q}` : "";
+      }
+      function renderCard(item, s, withSimilar = true) {
+        var _a2, _b2;
+        const card = element("a", "fx-card");
+        card.href = itemHref(item, s.api) || "#";
+        card.dataset.itemId = item.Id || "";
+        card.addEventListener("click", () => {
+          s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: item.Id };
+          saveFeed(s);
+          if (activeDialog) closeDialog();
+        });
+        if (/^https?:/i.test(card.getAttribute("href"))) card.rel = "noopener noreferrer";
+        const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
+        const visual = element("div", "fx-card-visual");
+        const placeholder = element("span", "fx-placeholder", name);
+        visual.append(placeholder);
+        const choices = imageChoices(item, s.api);
+        if (choices.length) {
+          const img = element("img");
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          let index = 0;
+          const use = () => {
+            const choice = choices[index++];
+            img.className = choice.poster ? "fx-poster" : "";
+            img.src = choice.url;
+          };
+          img.addEventListener("load", () => {
+            placeholder.hidden = true;
+          });
+          img.addEventListener("error", () => {
+            if (index < choices.length) use();
+            else {
+              img.remove();
+              placeholder.hidden = false;
+            }
+          });
+          use();
+          visual.append(img);
+        }
+        const percent = Math.max(0, Math.min(100, Number(((_a2 = item.UserData) == null ? void 0 : _a2.PlayedPercentage) || (item.RunTimeTicks ? 100 * (((_b2 = item.UserData) == null ? void 0 : _b2.PlaybackPositionTicks) || 0) / item.RunTimeTicks : 0))));
+        if (percent > 0 && percent < 100) {
+          const progress = element("div", "fx-progress");
+          const fill = element("span");
+          fill.style.width = percent + "%";
+          progress.append(fill);
+          visual.append(progress);
+        }
+        const badge = badgeFor(item, s.badges, s.now, s.tracking);
+        if (badge) visual.append(element("span", "fx-badge", badge));
+        card.append(visual, element("span", "fx-name", name));
+        card.title = name;
+        const entry = element("div", "fx-card-entry");
+        entry.append(card);
+        if (withSimilar && ["Movie", "Series"].includes(item.Type) && s.inventory.items.some((i) => i.Id === item.Id)) {
+          const more = button("\u22EF", () => moreLikeThis(item, s));
+          more.className = "fx-card-more";
+          more.title = "More like this";
+          more.setAttribute("aria-label", `More like ${name}`);
+          entry.append(more);
+          card.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            moreLikeThis(item, s);
+          });
+        }
+        return entry;
+      }
+      function fillSlot(slot, s) {
+        const row = slot.data;
+        slot.node.replaceChildren();
+        slot.node.className = "fx-shelf";
+        slot.node.style.height = "";
+        const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
+        const scroll = (direction) => track.scrollBy({ left: direction * Math.max(250, track.clientWidth * 0.85), behavior: "smooth" });
+        const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
+        back.setAttribute("aria-label", `Previous ${row.title}`);
+        forward.setAttribute("aria-label", `More ${row.title}`);
+        head.append(title, back, forward);
+        row.items.forEach((item) => track.append(renderCard(item, s)));
+        slot.node.append(head, track);
+        slot.live = true;
+      }
+      function virtualize(s) {
+        if (state !== s || !s.root.isConnected || s.full) return;
+        const center = innerHeight / 2;
+        const ranked = s.slots.map((slot) => ({ slot, distance: Math.abs((slot.node.getBoundingClientRect().top + slot.node.getBoundingClientRect().bottom) / 2 - center) })).sort((a, b) => a.distance - b.distance);
+        const keep = new Set(ranked.slice(0, s.config.maxLiveRows).map((x) => x.slot));
+        for (const slot of s.slots) {
+          if (keep.has(slot) && !slot.live) fillSlot(slot, s);
+          else if (!keep.has(slot) && slot.live && !slot.node.contains(document.activeElement)) {
+            const height = slot.node.getBoundingClientRect().height;
+            if (height <= 0) continue;
+            slot.node.style.height = `${height}px`;
+            slot.node.replaceChildren();
+            slot.node.className = "fx-shelf fx-placeholder-row";
+            slot.live = false;
+          }
+        }
+      }
+      function appendRow(row, s) {
+        const slot = { node: element("section", "fx-shelf"), data: row, live: false };
+        slot.node.dataset.shelfKey = row.key;
+        s.list.append(slot.node);
+        s.slots.push(slot);
+        fillSlot(slot, s);
+      }
+      function filterPanel(s) {
+        s.panel.replaceChildren();
+        const field = (label, name, values2) => {
+          const wrap = element("label", "fx-filter-field", label), input = element("select");
+          input.setAttribute("aria-label", label);
+          values2.forEach(([value, title]) => {
+            const option = element("option", "", title);
+            option.value = value;
+            option.selected = value === s.filters[name];
+            input.append(option);
+          });
+          input.addEventListener("change", () => {
+            s.filters[name] = input.value;
+            applyFilters(s);
+          });
+          wrap.append(input);
+          s.panel.append(wrap);
+        };
+        const queryWrap = element("label", "fx-filter-field", "Title or person"), query = element("input");
+        query.type = "search";
+        query.placeholder = "Search this library";
+        query.value = s.filters.query;
+        query.addEventListener("input", () => {
+          clearTimeout(s.filterTimer);
+          s.filterTimer = setTimeout(() => {
+            if (state === s) {
+              s.filters.query = query.value;
+              applyFilters(s);
+            }
+          }, 200);
+        });
+        queryWrap.append(query);
+        s.panel.append(queryWrap);
+        const values = (key) => [...new Set(s.inventory.items.flatMap((i) => i[key] || []))].sort((a, b) => a.localeCompare(b)).map((v) => [v, v]);
+        field("Genre", "genre", [["", "Any genre"], ...values("Genres")]);
+        field("Theme / tag", "tag", [["", "Any tag"], ...values("Tags")]);
+        field("Watch status", "watched", [["all", "All titles"], ["unwatched", "Unwatched"], ["watched", "Watched"]]);
+        if (s.route.page !== "shows") field("Movie runtime", "maxMinutes", [["", "Any runtime"], ["90", "Under 90 minutes"], ["120", "Under two hours"], ["180", "Under three hours"]]);
+        field("Rating", "minRating", [["", "Any rating"], ["7", "7+"], ["8", "8+"], ["9", "9+"]]);
+        const decades = [...new Set(s.inventory.items.filter((i) => i.ProductionYear).map((i) => Math.floor(i.ProductionYear / 10) * 10))].sort((a, b) => b - a);
+        field("Decade", "decade", [["", "Any decade"], ...decades.map((d) => [String(d), `${d}s`])]);
+        if (s.route.page === "home") field("Type", "type", [["", "Movies & shows"], ["Movie", "Movies"], ["Series", "Shows"]]);
+        field("Sort", "sort", [["recommended", "Curated shelves"], ["title", "Title"], ["rating", "Highest rated"], ["year", "Newest release year"], ["added", "Tracked additions"]]);
+        s.panel.append(button("Clear filters", () => {
+          s.filters = cloneJson(DEFAULT_FILTERS);
+          filterPanel(s);
+          applyFilters(s);
+        }));
+      }
+      function preparePlanner(s) {
+        const items = filterItems(s.inventory.items, s.filters, s.tracking);
+        s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now, s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
+        s.filteredQueue = null;
+        if (filtersActive(s.filters) || s.filters.sort !== "recommended") {
+          s.filteredQueue = [];
+          for (let n = 0; n < items.length; n += s.config.cardsPerShelf) s.filteredQueue.push({ key: `filtered:${n}`, title: `Matches ${n + 1}\u2013${Math.min(n + s.config.cardsPerShelf, items.length)} of ${items.length}`, family: "filtered", items: items.slice(n, n + s.config.cardsPerShelf) });
+        }
+        s.matchCount.textContent = s.filteredQueue ? `${items.length} matching titles` : "";
+      }
+      function applyFilters(s) {
+        if (state !== s || s.loading) {
+          s.filterPending = true;
+          return;
+        }
+        s.filterPending = false;
+        s.finished = false;
+        s.pending = null;
+        s.pauseAutomatic = false;
+        s.anchorIndex = 0;
+        s.anchorTurn = true;
+        s.slots = [];
+        s.list.replaceChildren();
+        s.more.hidden = false;
+        preparePlanner(s);
+        loadMore(s);
+      }
+      function findScrollRoot(node) {
+        for (let current = node == null ? void 0 : node.parentElement; current && current !== document.body; current = current.parentElement) {
+          const style = getComputedStyle(current);
+          if (/auto|scroll/.test(style.overflowY || "") && current.scrollHeight > current.clientHeight) return current;
+        }
+        return document.scrollingElement || document.documentElement;
+      }
+      function saveFeed(s) {
+        var _a2;
+        if (!s.inventory || !s.config || !s.planner) return;
+        const root = findScrollRoot(s.root);
+        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.map((slot) => slot.data), anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.map((slot) => {
+          var _a3;
+          return ((_a3 = slot.node.querySelector(".fx-track")) == null ? void 0 : _a3.scrollLeft) || 0;
+        }), at: Date.now() });
+        if (savedFeeds.size > 6) savedFeeds.delete(savedFeeds.keys().next().value);
+      }
+      function restoreFeed(s, saved) {
+        var _a2;
+        s.filters = cloneJson(saved.filters);
+        s.planner = saved.planner;
+        s.pending = saved.pending;
+        s.filteredQueue = ((_a2 = saved.filteredQueue) == null ? void 0 : _a2.slice()) || null;
+        s.anchorIndex = saved.anchorIndex;
+        s.anchorTurn = saved.anchorTurn;
+        s.finished = saved.finished;
+        s.shuffle = saved.shuffle;
+        s.lastFocus = saved.focus;
+        saved.rows.forEach((row) => appendRow(row, s));
+        s.more.hidden = s.finished;
+        s.more.disabled = false;
+        s.matchCount.textContent = s.filteredQueue ? `${filterItems(s.inventory.items, s.filters, s.tracking).length} matching titles` : "";
+        s.note.textContent = s.finished ? "You\u2019ve reached the available matches." : "More shelves load as you scroll.";
+        setMode(s, s.full, false);
+        filterPanel(s);
+        requestAnimationFrame(() => {
+          var _a3, _b2;
+          if (state !== s || !s.root.isConnected) return;
+          const root = findScrollRoot(s.root);
+          root.scrollTop = saved.scrollTop;
+          s.slots.forEach((slot2, n) => {
+            const track = slot2.node.querySelector(".fx-track");
+            if (track) track.scrollLeft = saved.tracks[n] || 0;
+          });
+          const slot = s.slots[(_a3 = saved.focus) == null ? void 0 : _a3.row];
+          if (slot) {
+            const card = [...slot.node.querySelectorAll(".fx-card")].find((c) => c.dataset.itemId === saved.focus.id);
+            (_b2 = card == null ? void 0 : card.focus) == null ? void 0 : _b2.call(card, { preventScroll: true });
+          }
+          virtualize(s);
+        });
+      }
+      function setMode(s, full, remember = true) {
+        s.full = full;
+        s.list.hidden = full;
+        s.footer.hidden = full;
+        s.filterToggle.disabled = full || !s.inventory;
+        s.matchCount.hidden = full;
+        if (full) s.panel.hidden = true;
+        s.toggle.textContent = full ? "Discover shelves" : s.route.page === "home" ? "Normal home" : "Full library";
+        if (full || !s.slots.length && !s.filteredQueue) s.native.removeAttribute("data-fx-native-hidden");
+        else s.native.setAttribute("data-fx-native-hidden", "true");
+        if (remember) {
+          try {
+            localStorage.setItem(prefKey(s.api, s.route.page), full ? "native" : "discover");
+          } catch {
+            s.status.textContent = "View preference could not be saved in this browser.";
+          }
+        }
+        if (!s.started) initialize(s);
+        else if (!full && s.planner && !s.slots.length) loadMore(s);
+        if (!full) scheduleScroll();
+      }
+      async function nextRow(s) {
+        if (s.filteredQueue) return s.filteredQueue.shift() || null;
+        while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
+          if (s.anchorTurn && s.anchorIndex < s.profile.anchors.length) {
+            const id = s.profile.anchors[s.anchorIndex++];
+            s.anchorTurn = false;
+            try {
+              const row = await s.client.anchor(id, s.route, s.inventory, s.config);
+              if (row.items.length) return row;
+            } catch {
+              s.client.assertCurrent();
+              s.warnings.add(`Couldn't load ${id}. Check HSS/Jellyseerr, then restart this feed.`);
+            }
+          } else {
+            s.anchorTurn = true;
+            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.length < s.profile.anchors.length * 2 ? "theme" : null);
+            if (row) return row;
+            if (s.anchorIndex >= s.profile.anchors.length) return null;
+          }
+        }
+        return null;
+      }
+      async function loadMore(s, automatic = false) {
+        if (state !== s || s.loading || s.full || s.finished || !s.planner || automatic && s.pauseAutomatic) return;
+        s.loading = true;
+        s.more.disabled = true;
+        s.more.textContent = "Loading\u2026";
+        try {
+          for (let n = 0; n < s.config.batchSize; n++) {
+            const row = s.pending || await nextRow(s);
+            if (!row) {
+              s.finished = true;
+              break;
+            }
+            s.pending = row;
+            const items = row.key === "MyMedia" || row.external ? row.items : await s.client.hydrate(row.items);
+            s.client.assertCurrent();
+            if (state !== s) return;
+            if (items.length) appendRow({ ...row, items }, s);
+            s.pending = null;
+          }
+          s.status.textContent = [...s.warnings].join(" ");
+          s.pauseAutomatic = false;
+          if ((s.slots.length || s.filteredQueue) && !s.full) setMode(s, false, false);
+          if (!s.slots.length) s.status.textContent = s.filteredQueue ? "No matching titles. Clear a filter to broaden your search." : "No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.";
+          s.more.hidden = s.finished;
+          s.note.textContent = s.finished ? "You\u2019ve reached the available matches. Clear filters or use Restart feed to explore again." : s.filteredQueue ? "Filtered results load as you scroll." : "Keeps browsing your library; titles can return in different shelves further down.";
+          virtualize(s);
+        } catch {
+          if (state === s) {
+            s.pauseAutomatic = true;
+            s.status.textContent = "Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.";
+          }
+        } finally {
+          s.loading = false;
+          if (state === s) {
+            s.more.disabled = false;
+            s.more.textContent = s.pauseAutomatic ? "Try again" : "Load more";
+          }
+          if (state === s && s.filterPending) applyFilters(s);
+        }
+      }
+      async function initialize(s) {
+        if (s.started) return;
+        s.started = true;
+        s.status.textContent = "Reading library metadata\u2026";
+        try {
+          let localError;
+          try {
+            s.config = readConfig(s.api);
+          } catch (e) {
+            localError = e;
+          }
+          try {
+            const profile = await s.client.preferences();
+            s.profileVersion = profile.version;
+            s.syncAvailable = true;
+            if (profile.config) s.config = validateConfig(profile.config);
+          } catch {
+            s.client.assertCurrent();
+            s.syncAvailable = false;
+          }
+          if (!s.config) throw localError || Error("No valid discovery configuration.");
+          s.profile = s.config.pages[s.route.page];
+          const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
+          const cached = snapshots.get(cacheKey);
+          s.inventory = cached && Date.now() - cached.at < 5 * 6e4 ? cached.value : await s.client.inventory(s.route, (count, seasons) => {
+            if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons\u2026`;
+          });
+          s.client.assertCurrent();
+          snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
+          if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
+          s.badges = seasonBadges(s.inventory.seasons, s.now);
+          s.tracking = /* @__PURE__ */ new Map();
+          try {
+            const arrival = await s.client.tracking(s.inventory.items);
+            s.tracking = arrival.records;
+            s.trackingReady = arrival.ready;
+          } catch {
+            s.client.assertCurrent();
+            s.trackingReady = false;
+            s.warnings.add("Arrival badges are unavailable until the Discovery Companion is installed and its baseline is ready.");
+          }
+          s.inventory.tracking = s.tracking;
+          s.byId = new Map(s.inventory.items.map((i) => [i.Id, i]));
+          s.filterToggle.disabled = s.full;
+          const saved = savedFeeds.get(s.key);
+          if (saved && Date.now() - saved.at < 30 * 6e4 && saved.config === JSON.stringify(s.config)) {
+            restoreFeed(s, saved);
+            s.status.textContent = [...s.warnings].join(" ");
+          } else {
+            preparePlanner(s);
+            filterPanel(s);
+            s.status.textContent = "";
+            await loadMore(s);
+          }
+          decorateNative(s);
+        } catch {
+          if (state !== s) return;
+          s.status.textContent = "Discovery could not start. The normal view is restored. Check Customize for invalid rules or use Restart feed to try again.";
+          setMode(s, true, false);
+        }
+      }
+      function decorateNative(s) {
+        if (!s.byId || state !== s) return;
+        for (const card of s.page.querySelectorAll(".card[data-id]")) {
+          const item = s.byId.get(card.dataset.id), host = card.querySelector(".cardScalable");
+          if (!host || !item) continue;
+          const text = badgeFor(item, s.badges, /* @__PURE__ */ new Date(), s.tracking);
+          let badge = host.querySelector("[data-fx-native-badge]");
+          if (!text) {
+            badge == null ? void 0 : badge.remove();
+            continue;
+          }
+          if (!badge) {
+            badge = element("span", "fx-badge");
+            badge.dataset.fxNativeBadge = "";
+            host.dataset.fxBadgeHost = "";
+            host.append(badge);
+          }
+          if (badge.textContent !== text) badge.textContent = text;
+        }
+      }
+      function download(name, obj) {
+        const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" }));
+        const a = element("a");
+        a.href = url;
+        a.download = name;
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1e3);
+      }
+      function customize(s) {
+        closeDialog();
+        const dialog = element("dialog", "fx-dialog");
+        dialog.id = "fx-customize";
+        const title = element("h2", "", "Customize discovery");
+        const help = element("p", "", s.syncAvailable ? "Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices." : "The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.");
+        const input = element("textarea");
+        input.spellcheck = false;
+        input.setAttribute("aria-label", "Discovery configuration JSON");
+        try {
+          input.value = JSON.stringify(s.config || readConfig(s.api), null, 2);
+        } catch {
+          input.value = localStorage.getItem(configKey(s.api)) || JSON.stringify(DEFAULT_CONFIG2, null, 2);
+        }
+        const error = element("p");
+        error.setAttribute("role", "alert");
+        const actions = element("div", "fx-dialog-actions");
+        const apply = button("Apply", async () => {
+          apply.disabled = true;
+          try {
+            const config = validateConfig(JSON.parse(input.value));
+            if (s.syncAvailable) await s.client.savePreferences(config, s.profileVersion);
+            localStorage.setItem(configKey(s.api), JSON.stringify(config));
+            closeDialog();
+            restart(true);
+          } catch (e) {
+            error.textContent = (e == null ? void 0 : e.status) === 409 ? "Preferences changed on another device. Close and reopen Customize before saving." : (e == null ? void 0 : e.message) || "Could not save preferences. Check the connection and try again.";
+          } finally {
+            apply.disabled = false;
+          }
+        });
+        const reset = button("Load supplied rules", () => {
+          input.value = JSON.stringify(DEFAULT_CONFIG2, null, 2);
+          error.textContent = "Review the rules, then Apply to save.";
+        });
+        const exportButton = button("Export JSON", () => {
+          try {
+            download("fazfort-discovery-config.json", validateConfig(JSON.parse(input.value)));
+          } catch (e) {
+            error.textContent = e.message;
+          }
+        });
+        const file = element("input");
+        file.type = "file";
+        file.accept = ".json,application/json";
+        file.setAttribute("aria-label", "Import discovery configuration or old shelf rules");
+        file.addEventListener("change", async () => {
+          var _a2;
+          try {
+            const selected = (_a2 = file.files) == null ? void 0 : _a2[0];
+            if (!selected) return;
+            if (selected.size > 1e6) throw Error("Use a JSON file smaller than 1 MB.");
+            const imported = JSON.parse(await selected.text());
+            if (Array.isArray(imported)) {
+              const c = validateConfig(JSON.parse(input.value));
+              c.pages.home.rules = imported;
+              c.pages.movies.rules = imported.filter((r) => {
+                var _a3;
+                return (_a3 = r.Types) == null ? void 0 : _a3.includes("Movie");
+              }).map((r) => ({ ...r, Types: ["Movie"] }));
+              c.pages.shows.rules = imported.filter((r) => {
+                var _a3;
+                return (_a3 = r.Types) == null ? void 0 : _a3.includes("Series");
+              }).map((r) => ({ ...r, Types: ["Series"] }));
+              input.value = JSON.stringify(validateConfig(c), null, 2);
+            } else input.value = JSON.stringify(validateConfig(imported), null, 2);
+            error.textContent = "Imported for review. Apply to save.";
+          } catch (e) {
+            error.textContent = e.message;
+          }
+        });
+        actions.append(apply, exportButton, reset, button("Cancel", closeDialog));
+        dialog.append(title, help, file, input, error, actions);
+        openDialog(dialog);
+      }
+      function visible(node) {
+        if (!(node == null ? void 0 : node.isConnected) || node.closest(".hide,[hidden],.hidePage")) return false;
+        return getComputedStyle(node).display !== "none";
+      }
+      function locate(route) {
+        const selector = route.page === "home" ? "#indexPage, .homePage" : route.page === "movies" ? "#moviesPage" : "#tvshowsPage, #tvRecommendedPage";
+        for (const page of document.querySelectorAll(selector)) {
+          if (!visible(page)) continue;
+          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector('.pageTabContent[data-index="0"]');
+          if (native && !native.closest(".fx-discovery")) return { page, native };
+        }
+        return null;
+      }
+      function cleanup(preserve = true) {
+        var _a2, _b2;
+        generation++;
+        if (selectHold) {
+          clearTimeout(selectHold.timer);
+          selectHold = null;
+        }
+        closeDialog();
+        if (!state) return;
+        if (preserve) saveFeed(state);
+        clearTimeout(state.filterTimer);
+        (_a2 = state.io) == null ? void 0 : _a2.disconnect();
+        state.native.removeAttribute("data-fx-native-hidden");
+        state.root.remove();
+        state = null;
+        (_b2 = document.getElementById("fx-customize")) == null ? void 0 : _b2.remove();
+        document.querySelectorAll("[data-fx-native-badge]").forEach((n) => n.remove());
+        document.querySelectorAll("[data-fx-badge-host]").forEach((n) => n.removeAttribute("data-fx-badge-host"));
+      }
+      function restart(clearCache = false) {
+        const key = state == null ? void 0 : state.key;
+        if (clearCache) snapshots.clear();
+        cleanup(false);
+        if (key) savedFeeds.delete(key);
+        reconcile();
+      }
+      function reconcile() {
+        var _a2, _b2;
+        clearTimeout(timer);
+        timer = 0;
+        if (stopped) return;
+        const api = window.ApiClient, route = routeInfo(location.hash);
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+          cleanup(false);
+          savedFeeds.clear();
+          snapshots.clear();
+          lastScope = "";
+          return;
+        }
+        if (!route || route.serverId && route.serverId.toLowerCase() !== (((_b2 = api.serverId) == null ? void 0 : _b2.call(api)) || "").toLowerCase()) {
+          cleanup();
+          return;
+        }
+        const target = locate(route), scope = scopeKey(api);
+        if (lastScope && lastScope !== scope) {
+          cleanup(false);
+          savedFeeds.clear();
+          snapshots.clear();
+        }
+        lastScope = scope;
+        if (!target) {
+          if (state) cleanup();
+          return;
+        }
+        const key = `${scope}:${route.page}:${route.parentId}`;
+        if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+          decorateNative(state);
+          return;
+        }
+        cleanup();
+        const token = generation;
+        const root = element("div", "fx-discovery"), toolbar = element("div", "fx-toolbar"), list = element("div"), status = element("p", "fx-status"), footer = element("div", "fx-footer"), panel = element("div", "fx-filters"), matchCount = element("p", "fx-match-count");
+        panel.hidden = true;
+        status.setAttribute("role", "status");
+        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: /* @__PURE__ */ new Map(), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, shuffle: hash(String(Date.now())) };
+        s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
+        s.toggle = button(route.page === "home" ? "Normal home" : "Full library", () => setMode(s, !s.full));
+        s.more = button("Load more", () => {
+          s.pauseAutomatic = false;
+          loadMore(s);
+        });
+        s.note = element("p", "", "Loading shelves on demand.");
+        s.filterToggle = button("Filters", () => {
+          panel.hidden = !panel.hidden;
+          if (!panel.hidden) focusNode(panel.querySelector("input,select"));
+        });
+        s.filterToggle.disabled = true;
+        const controlButton = button(`Controls: ${controlsMode(s).mode}`, () => controlToggle(s, controlButton));
+        root.classList.toggle("fx-tv", controlsMode(s).tv);
+        toolbar.append(element("h2", "", route.page === "home" ? "For you" : route.page === "movies" ? "Discover movies" : "Discover shows"), s.toggle, s.filterToggle, button("Customize", () => customize(s)), controlButton, button("Restart feed", () => restart(true)));
+        footer.append(s.more, s.note);
+        root.append(toolbar, panel, matchCount, status, list, footer);
+        target.native.before(root);
+        state = s;
+        let full = false;
+        try {
+          full = localStorage.getItem(prefKey(api, route.page)) === "native";
+        } catch {
+        }
+        if (typeof IntersectionObserver === "function") {
+          s.io = new IntersectionObserver((entries) => {
+            if (entries.some((e) => e.isIntersecting)) loadMore(s, true);
+          }, { rootMargin: "600px 0px" });
+          s.io.observe(footer);
+        }
+        setMode(s, full, false);
+      }
+      let scrollQueued = false;
+      function scheduleScroll() {
+        if (scrollQueued || stopped) return;
+        scrollQueued = true;
+        requestAnimationFrame(() => {
+          scrollQueued = false;
+          const s = state;
+          if (!s || s.full || !s.root.isConnected) return;
+          if (s.config) virtualize(s);
+          const rect = s.footer.getBoundingClientRect();
+          if (rect.top < innerHeight + 600 && rect.bottom >= 0) loadMore(s, true);
+        });
+      }
+      function schedule() {
+        if (!timer && !stopped) timer = setTimeout(reconcile, 120);
+      }
+      function rememberFocus(event) {
+        var _a2, _b2;
+        const s = state, card = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-card");
+        if (s && card && s.root.contains(card)) s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: card.dataset.itemId };
+      }
+      function remoteKey(event) {
+        var _a2, _b2, _c2, _d2, _e2;
+        const s = state;
+        const key = { 37: "ArrowLeft", 38: "ArrowUp", 39: "ArrowRight", 40: "ArrowDown", 13: "Enter", 27: "Escape", 10009: "Escape", 461: "Escape", 457: "ContextMenu" }[event.keyCode] || event.key;
+        const target = event.target || document.activeElement;
+        if (activeDialog) {
+          if (key === "Escape" || event.keyCode === 10009) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeDialog();
+            return;
+          }
+          if (key === "Tab") {
+            const controls = [...activeDialog.dialog.querySelectorAll("button,a[href],input,select,textarea")].filter((n2) => !n2.disabled && !n2.hidden);
+            const n = controls.indexOf(document.activeElement);
+            if (controls.length && (event.shiftKey && n <= 0 || !event.shiftKey && n === controls.length - 1)) {
+              event.preventDefault();
+              focusNode(controls[event.shiftKey ? controls.length - 1 : 0]);
+            }
+          }
+          if (!s || !controlsMode(s).tv || ((_a2 = target == null ? void 0 : target.matches) == null ? void 0 : _a2.call(target, "input,select,textarea"))) return;
+          if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(key)) {
+            const controls = [...activeDialog.dialog.querySelectorAll("button,a[href]")].filter((n) => !n.disabled), index = controls.indexOf(document.activeElement);
+            const rect = (_b2 = document.activeElement || controls[0]) == null ? void 0 : _b2.getBoundingClientRect();
+            if (controls.length && rect) {
+              const x = (rect.left + rect.right) / 2, y = (rect.top + rect.bottom) / 2;
+              const ranked = controls.filter((n) => n !== document.activeElement).map((node) => {
+                const r = node.getBoundingClientRect(), dx = (r.left + r.right) / 2 - x, dy = (r.top + r.bottom) / 2 - y;
+                const primary = key === "ArrowLeft" ? -dx : key === "ArrowRight" ? dx : key === "ArrowUp" ? -dy : dy;
+                return { node, primary, score: primary + 3 * Math.abs(key === "ArrowLeft" || key === "ArrowRight" ? dy : dx) };
+              }).filter((n) => n.primary > 2).sort((a, b) => a.score - b.score);
+              event.preventDefault();
+              event.stopPropagation();
+              if (ranked.length) focusNode(ranked[0].node);
+            }
+          }
+          return;
+        }
+        if (!s || s.full || !controlsMode(s).tv || !s.root.isConnected || document.fullscreenElement || ((_c2 = target == null ? void 0 : target.matches) == null ? void 0 : _c2.call(target, 'input,select,textarea,[contenteditable="true"]'))) return;
+        if (!s.root.contains(target) && target !== document.body) return;
+        const card = (_d2 = target.closest) == null ? void 0 : _d2.call(target, ".fx-card");
+        if ((key === "ContextMenu" || event.keyCode === 457) && card) {
+          const item = (_e2 = s.inventory) == null ? void 0 : _e2.items.find((i) => i.Id === card.dataset.itemId);
+          if (item) {
+            event.preventDefault();
+            event.stopPropagation();
+            moreLikeThis(item, s);
+          }
+          return;
+        }
+        if (key === "Enter" && card) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (event.repeat || selectHold) return;
+          selectHold = { node: card, fired: false, timer: setTimeout(() => {
+            if ((selectHold == null ? void 0 : selectHold.node) === card && state === s) {
+              selectHold.fired = true;
+              const item = s.inventory.items.find((i) => i.Id === card.dataset.itemId);
+              if (item) moreLikeThis(item, s);
+            }
+          }, 650) };
+          return;
+        }
+        if (key === "Escape" && !s.panel.hidden) {
+          event.preventDefault();
+          event.stopPropagation();
+          s.panel.hidden = true;
+          focusNode(s.filterToggle);
+          return;
+        }
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(key)) return;
+        let next;
+        if (card) {
+          const slotIndex = s.slots.findIndex((slot) => slot.node.contains(card)), track = card.closest(".fx-track"), cards = [...track.querySelectorAll(".fx-card")], index = cards.indexOf(card);
+          if (key === "ArrowLeft" || key === "ArrowRight") next = cards[Math.max(0, Math.min(cards.length - 1, index + (key === "ArrowLeft" ? -1 : 1)))];
+          else {
+            const nextSlot = s.slots[slotIndex + (key === "ArrowUp" ? -1 : 1)];
+            if (nextSlot) {
+              if (!nextSlot.live) fillSlot(nextSlot, s);
+              const options = [...nextSlot.node.querySelectorAll(".fx-card")];
+              next = options[Math.min(index, options.length - 1)];
+            } else if (key === "ArrowUp") next = s.filterToggle;
+            else {
+              next = s.more;
+              if (!s.finished) loadMore(s);
+            }
+          }
+        } else {
+          const bar = [...s.root.querySelectorAll(".fx-toolbar button")].filter((b) => !b.disabled), n = bar.indexOf(target);
+          if (key === "ArrowDown") next = s.list.querySelector(".fx-card") || s.more;
+          else next = bar[Math.max(0, Math.min(bar.length - 1, n + (key === "ArrowLeft" ? -1 : 1)))];
+        }
+        if (next) {
+          event.preventDefault();
+          event.stopPropagation();
+          focusNode(next);
+        }
+      }
+      function remoteKeyUp(event) {
+        if (!selectHold || !(event.key === "Enter" || event.keyCode === 13)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const held = selectHold;
+        selectHold = null;
+        clearTimeout(held.timer);
+        if (!held.fired && held.node.isConnected) held.node.click();
+      }
+      function start() {
+        const style = element("style");
+        style.id = "fx-discovery-style";
+        style.textContent = DISCOVERY_CSS2;
+        document.head.append(style);
+        observer = new MutationObserver((records) => {
+          if (records.some((r) => {
+            var _a2, _b2;
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog")) && (r.type === "childList" || r.attributeName === "class");
+          })) schedule();
+        });
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+        window.addEventListener("hashchange", schedule);
+        document.addEventListener("viewshow", schedule);
+        document.addEventListener("keydown", remoteKey, true);
+        document.addEventListener("keyup", remoteKeyUp, true);
+        document.addEventListener("focusin", rememberFocus);
+        document.addEventListener("scroll", scheduleScroll, { passive: true, capture: true });
+        window.addEventListener("resize", scheduleScroll);
+        heartbeat = setInterval(schedule, 2e3);
+        reconcile();
+      }
+      window.FazFortDiscovery = {
+        version: VERSION,
+        restart,
+        diagnostics: () => {
+          var _a2, _b2;
+          return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
+        },
+        stop() {
+          var _a2;
+          stopped = true;
+          clearTimeout(timer);
+          clearInterval(heartbeat);
+          observer == null ? void 0 : observer.disconnect();
+          cleanup(false);
+          snapshots.clear();
+          savedFeeds.clear();
+          window.removeEventListener("hashchange", schedule);
+          document.removeEventListener("viewshow", schedule);
+          document.removeEventListener("scroll", scheduleScroll, true);
+          window.removeEventListener("resize", scheduleScroll);
+          document.removeEventListener("keydown", remoteKey, true);
+          document.removeEventListener("keyup", remoteKeyUp, true);
+          document.removeEventListener("focusin", rememberFocus);
+          (_a2 = document.getElementById("fx-discovery-style")) == null ? void 0 : _a2.remove();
+          delete window.FazFortDiscovery;
+        }
+      };
+      if (document.body) start();
+      else document.addEventListener("DOMContentLoaded", start, { once: true });
+    }
+    bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS);
+  })();
+})();

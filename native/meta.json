@@ -1,0 +1,13 @@
+{
+  "guid": "da85d59b-cd29-4f4a-9b72-820a298cdb9d",
+  "name": "FazFort Discovery Companion",
+  "description": "Persistent arrival tracking and per-user discovery preferences",
+  "overview": "Companion for the FazFort Discovery web extension",
+  "owner": "FazFort",
+  "category": "General",
+  "version": "0.3.0.0",
+  "targetAbi": "12.4.0.0",
+  "status": "Active",
+  "autoUpdate": false,
+  "assemblies": ["FazFort.Discovery.dll"]
+}
