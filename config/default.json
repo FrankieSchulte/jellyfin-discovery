@@ -313,6 +313,96 @@
           "TagsAny": [
             "cyberpunk"
           ]
+        },
+        {
+          "Key": "crime-heist-movies",
+          "Title": "Crime & Heist Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Crime",
+            "Mystery"
+          ]
+        },
+        {
+          "Key": "animated-movies",
+          "Title": "Animated Features",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Animation"
+          ]
+        },
+        {
+          "Key": "drama",
+          "Title": "TV Dramas",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Drama"
+          ]
+        },
+        {
+          "Key": "great-tv",
+          "Title": "Highly Rated Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "MinRating": 8
+        },
+        {
+          "Key": "funny-tv",
+          "Title": "Need a Good Laugh?",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Comedy"
+          ]
+        },
+        {
+          "Key": "scifi-tv",
+          "Title": "Sci-Fi & Fantasy Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Sci-Fi & Fantasy",
+            "Science Fiction",
+            "Fantasy"
+          ]
+        },
+        {
+          "Key": "crime-tv",
+          "Title": "Crime & Mystery Shows",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Crime",
+            "Mystery"
+          ]
+        },
+        {
+          "Key": "animated-tv",
+          "Title": "Animated Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Animation"
+          ]
         }
       ]
     },
@@ -603,6 +693,29 @@
           ],
           "TagsAny": [
             "cyberpunk"
+          ]
+        },
+        {
+          "Key": "crime-heist-movies",
+          "Title": "Crime & Heist Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Crime",
+            "Mystery"
+          ]
+        },
+        {
+          "Key": "animated-movies",
+          "Title": "Animated Features",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Animation"
           ]
         }
       ]

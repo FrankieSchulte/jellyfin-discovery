@@ -61,20 +61,27 @@ test('SleekFin header proxy receives Discover button before separator and regist
  f.stop();
 });
 
-test('Discover hides unreleased titles, replaces top-left title and deselects header tab on subpages, supports Networks and live search',async()=>{
+test('Discover hides unreleased titles, replaces top-left title and deselects header tab on subpages, renders scrollable Genre/Studio/Network cards and live search',async()=>{
  const f=fixture({hash:'#/home?requesthub=discover'});await f.settle();
  assert.equal([...f.document.querySelectorAll('.rh-card strong')].some(n=>n.textContent.includes('Unreleased Future Movie')),false);
  assert.equal([...f.document.querySelectorAll('.rh-row-head button')].some(b=>b.textContent==='Load more'),false);
  assert.equal([...f.document.querySelectorAll('.rh-toolbar button')].length,0);
  const searchInput=f.document.querySelector('.rh-search input');
  assert.ok(searchInput);
- assert.equal(searchInput.placeholder,'Search new movies and TV');
+ assert.equal(searchInput.placeholder,'Search new content');
  assert.ok(f.document.querySelector('.rh-search-icon'));
  assert.ok(f.document.querySelector('.rh-card.rh-see-more'));
+ assert.equal(f.document.querySelectorAll('.rh-media-row').length,3);
  const networkChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Netflix');
  assert.ok(networkChip);
+ assert.ok(networkChip.classList.contains('rh-logo-card'));
+ assert.ok(networkChip.querySelector('img')?.src.includes('w780_filter(duotone,ffffff,bababa)'));
+ const studioChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Disney');
+ assert.ok(studioChip);
+ assert.ok(studioChip.classList.contains('rh-logo-card'));
  const genreChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Action');
  assert.ok(genreChip);
+ assert.ok(genreChip.classList.contains('rh-genre-card'));
  const navLink=f.document.querySelector('[data-rh-link="true"]');
  assert.equal(navLink.getAttribute('aria-current'),'page');
  genreChip.click();await f.settle();

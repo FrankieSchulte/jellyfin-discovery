@@ -31,4 +31,5 @@ public static class HubPolicy
     }
     public static bool RequestValid(string type,int id,int[] seasons) => id>0&&type is "movie" or "tv"&&seasons.Length<=100&&seasons.Distinct().Count()==seasons.Length&&seasons.All(s=>s>=0&&s<1000)&&(type=="tv"?seasons.Length>0:seasons.Length==0);
     public static string? Poster(string? path)=>path is not null&&Regex.IsMatch(path,@"^/[A-Za-z0-9_-]+\.(jpg|png|webp)$",RegexOptions.IgnoreCase)?"https://image.tmdb.org/t/p/w500"+path:null;
+    public static string? Backdrop(string? path)=>path is not null&&Regex.IsMatch(path,@"^/[A-Za-z0-9_-]+\.(jpg|png|webp)$",RegexOptions.IgnoreCase)?path:null;
 }

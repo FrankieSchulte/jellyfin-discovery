@@ -3,7 +3,7 @@
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
-.fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}
+.fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
 .fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
@@ -110,9 +110,21 @@
 @media(hover:none){.fx-card-more{opacity:1}}
 @media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-editor-tabs{top:-15px}}
 .fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
-.fx-shelf{margin-bottom:18px}.fx-row-head{margin-bottom:16px}.fx-name{font-weight:700}
-.fx-toolbar h1{font-size:28px;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:12px}
-.fx-toolbar select{font:inherit;border-radius:22px;padding:10px 18px;color:inherit;background:#222;border:1px solid #555}
+.fx-shelf{margin-bottom:24px}.fx-row-head{margin-bottom:14px}.fx-name{font-weight:700}
+.fx-toolbar{justify-content:space-between;margin:4px 0 22px;position:relative;z-index:5}
+.fx-title-picker{position:relative;display:inline-flex;align-items:center;gap:12px;margin:0 auto 0 0;padding:4px 14px 4px 0;border-radius:10px;cursor:pointer;user-select:none;transition:background .15s ease}
+.fx-title-picker:hover{background:rgba(255,255,255,.06)}
+.fx-title-picker:focus-within{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 5px rgba(229,9,20,.5)}
+.fx-toolbar h1{font-size:28px;line-height:34px;font-weight:700;margin:0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
+.fx-title-mode{display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.88rem;font-weight:600;color:#e5e7eb}
+.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#1a1b22}
+.fx-title-select option{background:#1a1b22;color:#fff}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
+#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,80px) + 4px)!important}
+#moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 #moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
 #moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
+#moviesPage .cardText-secondary,#tvshowsPage .cardText-secondary,#tvRecommendedPage .cardText-secondary,#moviesPage [data-sleekfin-media-meta],#tvshowsPage [data-sleekfin-media-meta],#tvRecommendedPage [data-sleekfin-media-meta]{display:none!important}
+#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:24px!important;line-height:32px!important;font-weight:600!important;border-left:3px solid var(--sleekfin-accent,#e50914)!important;padding-left:10px!important;margin:0 auto 14px 0!important;color:#fff!important}
+#moviesPage .sectionTitleContainer,#tvshowsPage .sectionTitleContainer,#tvRecommendedPage .sectionTitleContainer{margin-bottom:14px!important}
+@media(max-width:768px){.fx-toolbar h1{font-size:24px;line-height:30px}.fx-row-head h2,#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:20px!important;line-height:28px!important}}

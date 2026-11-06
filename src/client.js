@@ -2,6 +2,7 @@ export class JellyfinClient {
   constructor(api, current = () => true) {
     this.api = api; this.userId = api.getCurrentUserId(); this.current = current;
     this.serverId = api.serverId?.() || '';
+    this.prefetchedSections = new Map();
     if (!this.userId) throw Error('Sign in to Jellyfin first.');
   }
   assertCurrent() {
@@ -50,25 +51,30 @@ export class JellyfinClient {
     const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter(v => route.page === 'home' || !v.CollectionType || v.CollectionType === (route.page === 'movies' ? 'movies' : 'tvshows'));
     const type = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Series' : 'Movie,Series';
     const all = new Map(), seasons = new Map();
+    const tasks = [];
     for (const folder of folders) {
-      for (const types of [type, ...(route.page === 'movies' ? [] : ['Season'])]) {
-        let offset = 0;
-        for (;;) {
-          this.assertCurrent();
-          const response = await this.items({ ParentId: folder.Id, Recursive: true, IncludeItemTypes: types,
-            Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio',
-            EnableUserData: true, EnableImages: true, ImageTypeLimit: 1,
-            EnableImageTypes: 'Primary,Backdrop,Thumb', SortBy: 'SortName', SortOrder: 'Ascending', StartIndex: offset, Limit: 200 });
-          const list = response.Items || [], target = types === 'Season' ? seasons : all;
-          let added = 0;
-          for (const item of list) if (item.Id && !target.has(item.Id)) { target.set(item.Id, item); added++; }
-          offset += list.length;
-          progress?.(all.size, seasons.size);
-          if (list.length === 0 || added === 0 || list.length < 200 || (Number.isFinite(response.TotalRecordCount) && offset >= response.TotalRecordCount)) break;
-          if (offset >= 100000) throw Error('Library exceeds the 100,000-item safety limit. Use a smaller library.');
-        }
+      const folderTypes = [type, ...(route.page === 'movies' || folder.CollectionType === 'movies' ? [] : ['Season'])];
+      for (const types of folderTypes) {
+        tasks.push((async () => {
+          let offset = 0;
+          for (;;) {
+            this.assertCurrent();
+            const response = await this.items({ ParentId: folder.Id, Recursive: true, IncludeItemTypes: types,
+              Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio',
+              EnableUserData: true, EnableImages: true, ImageTypeLimit: 1,
+              EnableImageTypes: 'Primary,Backdrop,Thumb', SortBy: 'SortName', SortOrder: 'Ascending', StartIndex: offset, Limit: 200 });
+            const list = response.Items || [], target = types === 'Season' ? seasons : all;
+            let added = 0;
+            for (const item of list) if (item.Id && !target.has(item.Id)) { target.set(item.Id, item); added++; }
+            offset += list.length;
+            progress?.(all.size, seasons.size);
+            if (list.length === 0 || added === 0 || list.length < 200 || (Number.isFinite(response.TotalRecordCount) && offset >= response.TotalRecordCount)) break;
+            if (offset >= 100000) throw Error('Library exceeds the 100,000-item safety limit. Use a smaller library.');
+          }
+        })());
       }
     }
+    await Promise.all(tasks);
     return { items: [...all.values()], seasons: [...seasons.values()], views: this.views };
   }
   async hydrate(items) {
@@ -105,7 +111,9 @@ export class JellyfinClient {
     if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };
     try {
-      const response = await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
+      const prefetched = this.prefetchedSections.get(id);
+      if (prefetched) this.prefetchedSections.delete(id);
+      const response = prefetched ? await prefetched : await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
       let list = typed(response.Items || []);
       if (route.parentId && !id.startsWith('Discover')) {
         const allowed = new Set(inventory.items.map(i => i.Id));

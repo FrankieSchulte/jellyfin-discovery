@@ -13,7 +13,7 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users):Contr
     public Task<IActionResult> Browse(string kind="trending",int page=1,string? query=null,int? filter=null)=>Run(async link=>{
         string path;try{path=HubPolicy.BrowsePath(kind,page,query,filter);}catch(ArgumentException){return BadRequest();}
         using var response=await gateway.Send(link,path,null,HttpContext.RequestAborted);var root=response.RootElement;
-        if(kind=="genres")return Ok(new{results=root.EnumerateArray().Select(g=>new{id=g.GetProperty("id").GetInt32(),name=g.GetProperty("name").GetString()}).ToArray(),pages=1});
+        if(kind=="genres")return Ok(new{results=root.EnumerateArray().Select(g=>new{id=g.GetProperty("id").GetInt32(),name=g.GetProperty("name").GetString(),backdrop=g.TryGetProperty("backdrops",out var b)&&b.ValueKind==JsonValueKind.Array&&b.GetArrayLength()>0?HubPolicy.Backdrop((b.GetArrayLength()>4?b[4]:b[0]).GetString()):null}).ToArray(),pages=1});
         var today=DateOnly.FromDateTime(DateTime.UtcNow);
         var items=root.GetProperty("results").EnumerateArray().Where(i=>(kind!="search"||i.TryGetProperty("mediaType",out var t)&&t.GetString()is "movie" or "tv")&&Projection.IsReleased(i,today)).Select(i=>Projection.Item(i,kind is "movies" or "genre" or "studio"?"movie":kind is "tv" or "network"?"tv":null)).ToArray();
         return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});

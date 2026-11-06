@@ -211,8 +211,23 @@ test('Movies Suggestions mount by default; explicit Library stays native and Gen
   f.document.getElementById('indexPage').classList.add('hide');const page=f.document.getElementById('moviesPage');page.classList.remove('hide');
   for(const index of [1,4]){const tab=f.document.createElement('div');tab.className='pageTabContent';tab.dataset.index=String(index);tab.textContent='Native tab';page.append(tab);}
   f.navigate('#/movies?tab=1');await f.settle();assert.ok(f.document.querySelectorAll('.fx-shelf').length>2);assert.equal(f.document.querySelector('.fx-toolbar h1').textContent,'Movies');
+  assert.ok([...page.querySelectorAll('.pageTabContent')].every(t=>t.getAttribute('data-fx-native-hidden')==='true'));
   f.navigate('#/movies?tab=0');await f.settle();assert.equal(f.document.querySelector('[data-fx-native-hidden]'),null);assert.equal(f.document.querySelector('.fx-shelf'),null);
-  f.navigate('#/movies?tab=4');await f.settle();assert.ok([...f.document.querySelectorAll('.fx-shelf')].every(n=>n.dataset.shelfKey.startsWith('genre:')));
+  assert.equal(page.querySelector('.pageTabContent[data-index="0"]').classList.contains('is-active'),true);
+  f.navigate('#/movies?tab=4');await f.settle();assert.ok([...f.document.querySelectorAll('.fx-shelf')].every(n=>n.dataset.shelfKey.startsWith('genre:')&&n.dataset.layout==='landscape'));
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('SleekFin jellyfin:view header buttons navigate to Suggestions and close side drawer',async()=>{
+  const f=fixture();await f.settle();
+  const drawer=f.document.createElement('div');drawer.className='mainDrawer drawer-open';
+  const link=f.document.createElement('a');link.dataset.itemid='tv-guid';link.setAttribute('href','#/tv.html?topParentId=tv-guid&collectionType=tvshows');
+  drawer.append(link);f.document.body.append(drawer);
+  const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
+  const btn=f.document.createElement('button');btn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:view:tv-guid');btn.textContent='Shows';
+  proxy.append(btn);f.document.body.append(proxy);
+  btn.click();
+  assert.equal(f.location.hash,'#/tv.html?topParentId=tv-guid&collectionType=tvshows&tab=1');
+  assert.equal(drawer.classList.contains('drawer-open'),false);
   f.ctx.window.FazFortDiscovery.stop();
 });
 test('Home controls move to the user profile and stay open through reconciliation',async()=>{
@@ -246,6 +261,12 @@ test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly 
   track.scrollLeft=cw*2;
   track.dispatchEvent(new f.ctx.document.defaultView.Event('scroll'));
   assert.equal(track.scrollLeft,cw);
+  let lastScrollBy=null;
+  track.scrollBy=opts=>{lastScrollBy=opts;};
+  track.scrollLeft=cw*2+40;
+  shelf.querySelectorAll('.fx-row-head button')[1].click();
+  assert.equal(track.scrollLeft,cw+40);
+  assert.equal(lastScrollBy?.left,Math.round(800*0.85));
   f.ctx.window.FazFortDiscovery.stop();
 });
 test('visual editor discovers possible categories from library metadata and toggles them on',async()=>{

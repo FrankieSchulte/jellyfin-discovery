@@ -1,11 +1,12 @@
-Jellyfin Discovery 0.4.3 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.4 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.3):
-- Eliminate scroll jumpiness when loading more shelves: disable CSS scroll anchoring (`overflow-anchor: none`) across Discovery containers and shelves, remove scroll-snap and manual `scrollTop` resets that interrupted smooth compositor scrolling, lock card aspect-ratio width before image decode, and ignore SleekFin header/Request Hub mutations in the Discovery MutationObserver.
+Discovery (0.4.4):
+- Progressive category-by-category loading: pre-fetch the opening Continue Watching row in parallel with library metadata, parallelize library inventory reads (`Limit: 500`), append each shelf immediately as it hydrates, and resolve arrival-tracking badges asynchronously in the background without blocking initial shelf rendering.
+- Overhaul Movies and TV Shows pages: intercept SleekFin `jellyfin:view:<guid>` header tab clicks in capture phase so switching tabs lands on Suggestions without opening the left side drawer, hide inactive/active native tab content when viewing Suggestions or Genres, make the top-left `Movies` / `TV Shows` heading itself open the view mode dropdown (`Suggestions`, `Library`, `Genres`), use landscape cards on Genres without SleekFin metadata clutter below posters, and include both movie-specific and show-specific categories in the default profile.
+- Smooth, even horizontal arrow scrolling across loop boundaries: pre-normalize `scrollLeft` before starting `scrollBy({ behavior: 'smooth' })` and guard `normalizeLoop` during programmatic smooth scrolling so arrow clicks never stop at loop boundaries.
+- Standardize page title (`28px/34px`) and category header (`24px/32px`) typography, red accent bar (`3px`), `10px` left gap, and `14px` bottom margin across all pages.
 
-Request Hub (0.4.3):
-- Subpage title replaces `Discover` in the top-left heading (e.g., `Popular Movies`, `Adventure`, `A24`, `Netflix`), removing the `← Back to Discover` button and duplicate sub-heading.
-- De-select the `Discover` header button when viewing any Discover subpage (matching Jellyfin/SleekFin's `Collections` subpage behavior) so clicking the de-selected `Discover` header button returns directly to the main Discover overview.
-- Eliminate scroll jumpiness on the Discover page and subpages: stop toggling `<p class="rh-row-status">Loading…</p>` between `display: none` and `display: block` during horizontal/vertical scroll loads, batch newly fetched cards in a `DocumentFragment`, and set `overflow-anchor: none` across all Discover rows, tracks, and grids.
-- Replace the `Search` and `Browse all` buttons with a live search input (`"Search new movies and TV"`) featuring a faded search icon on the left that updates results as you type and returns to the Discover overview when cleared.
-- Add a `Networks` section (`Netflix`, `Disney+`, `Prime Video`, `Apple TV+`, `HBO`, `Hulu`, `Paramount+`, `Peacock`, `FX`, `AMC`, `Showtime`, `Adult Swim`) alongside `Movie Genres` and `Studios`, backed by `/api/v1/discover/tv/network/{id}`.
+Request Hub (0.4.4):
+- Eliminate the Discover top gap and vertical jumpiness by locking `#indexPage.homePage.libraryPage { padding-top: 0 !important }` while `data-rh-active="true"`, preventing `sleekfin-hero`'s loading state toggles from shifting the page height.
+- Replace the `Movie Genres`, `Studios`, and `Networks` text chip boxes with horizontal scrollable Jellyseerr-style `2:1` visual media card carousels using TMDB duotone backdrops and studio/network logos.
+- Update the Discover live search placeholder to `"Search new content"` and match header/subheader typography and red bar spacing with Discovery.

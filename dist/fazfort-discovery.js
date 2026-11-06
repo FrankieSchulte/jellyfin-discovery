@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.3 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.4 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -321,6 +321,96 @@
               "TagsAny": [
                 "cyberpunk"
               ]
+            },
+            {
+              "Key": "crime-heist-movies",
+              "Title": "Crime & Heist Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Crime",
+                "Mystery"
+              ]
+            },
+            {
+              "Key": "animated-movies",
+              "Title": "Animated Features",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Animation"
+              ]
+            },
+            {
+              "Key": "drama",
+              "Title": "TV Dramas",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Drama"
+              ]
+            },
+            {
+              "Key": "great-tv",
+              "Title": "Highly Rated Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "MinRating": 8
+            },
+            {
+              "Key": "funny-tv",
+              "Title": "Need a Good Laugh?",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Comedy"
+              ]
+            },
+            {
+              "Key": "scifi-tv",
+              "Title": "Sci-Fi & Fantasy Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Sci-Fi & Fantasy",
+                "Science Fiction",
+                "Fantasy"
+              ]
+            },
+            {
+              "Key": "crime-tv",
+              "Title": "Crime & Mystery Shows",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Crime",
+                "Mystery"
+              ]
+            },
+            {
+              "Key": "animated-tv",
+              "Title": "Animated Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Animation"
+              ]
             }
           ]
         },
@@ -611,6 +701,29 @@
               ],
               "TagsAny": [
                 "cyberpunk"
+              ]
+            },
+            {
+              "Key": "crime-heist-movies",
+              "Title": "Crime & Heist Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Crime",
+                "Mystery"
+              ]
+            },
+            {
+              "Key": "animated-movies",
+              "Title": "Animated Features",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Animation"
               ]
             }
           ]
@@ -955,7 +1068,7 @@
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
-.fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}
+.fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
 .fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
@@ -1062,12 +1175,24 @@
 @media(hover:none){.fx-card-more{opacity:1}}
 @media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-editor-tabs{top:-15px}}
 .fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
-.fx-shelf{margin-bottom:18px}.fx-row-head{margin-bottom:16px}.fx-name{font-weight:700}
-.fx-toolbar h1{font-size:28px;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:12px}
-.fx-toolbar select{font:inherit;border-radius:22px;padding:10px 18px;color:inherit;background:#222;border:1px solid #555}
+.fx-shelf{margin-bottom:24px}.fx-row-head{margin-bottom:14px}.fx-name{font-weight:700}
+.fx-toolbar{justify-content:space-between;margin:4px 0 22px;position:relative;z-index:5}
+.fx-title-picker{position:relative;display:inline-flex;align-items:center;gap:12px;margin:0 auto 0 0;padding:4px 14px 4px 0;border-radius:10px;cursor:pointer;user-select:none;transition:background .15s ease}
+.fx-title-picker:hover{background:rgba(255,255,255,.06)}
+.fx-title-picker:focus-within{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 5px rgba(229,9,20,.5)}
+.fx-toolbar h1{font-size:28px;line-height:34px;font-weight:700;margin:0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
+.fx-title-mode{display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.88rem;font-weight:600;color:#e5e7eb}
+.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#1a1b22}
+.fx-title-select option{background:#1a1b22;color:#fff}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
+#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,80px) + 4px)!important}
+#moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 #moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
 #moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
+#moviesPage .cardText-secondary,#tvshowsPage .cardText-secondary,#tvRecommendedPage .cardText-secondary,#moviesPage [data-sleekfin-media-meta],#tvshowsPage [data-sleekfin-media-meta],#tvRecommendedPage [data-sleekfin-media-meta]{display:none!important}
+#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:24px!important;line-height:32px!important;font-weight:600!important;border-left:3px solid var(--sleekfin-accent,#e50914)!important;padding-left:10px!important;margin:0 auto 14px 0!important;color:#fff!important}
+#moviesPage .sectionTitleContainer,#tvshowsPage .sectionTitleContainer,#tvRecommendedPage .sectionTitleContainer{margin-bottom:14px!important}
+@media(max-width:768px){.fx-toolbar h1{font-size:24px;line-height:30px}.fx-row-head h2,#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:20px!important;line-height:28px!important}}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
@@ -1306,6 +1431,7 @@
         this.userId = api.getCurrentUserId();
         this.current = current;
         this.serverId = ((_a = api.serverId) == null ? void 0 : _a.call(api)) || "";
+        this.prefetchedSections = /* @__PURE__ */ new Map();
         if (!this.userId) throw Error("Sign in to Jellyfin first.");
       }
       assertCurrent() {
@@ -1365,38 +1491,43 @@
         const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter((v) => route.page === "home" || !v.CollectionType || v.CollectionType === (route.page === "movies" ? "movies" : "tvshows"));
         const type = route.page === "movies" ? "Movie" : route.page === "shows" ? "Series" : "Movie,Series";
         const all = /* @__PURE__ */ new Map(), seasons = /* @__PURE__ */ new Map();
+        const tasks = [];
         for (const folder of folders) {
-          for (const types of [type, ...route.page === "movies" ? [] : ["Season"]]) {
-            let offset = 0;
-            for (; ; ) {
-              this.assertCurrent();
-              const response = await this.items({
-                ParentId: folder.Id,
-                Recursive: true,
-                IncludeItemTypes: types,
-                Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio",
-                EnableUserData: true,
-                EnableImages: true,
-                ImageTypeLimit: 1,
-                EnableImageTypes: "Primary,Backdrop,Thumb",
-                SortBy: "SortName",
-                SortOrder: "Ascending",
-                StartIndex: offset,
-                Limit: 200
-              });
-              const list = response.Items || [], target = types === "Season" ? seasons : all;
-              let added = 0;
-              for (const item of list) if (item.Id && !target.has(item.Id)) {
-                target.set(item.Id, item);
-                added++;
+          const folderTypes = [type, ...route.page === "movies" || folder.CollectionType === "movies" ? [] : ["Season"]];
+          for (const types of folderTypes) {
+            tasks.push((async () => {
+              let offset = 0;
+              for (; ; ) {
+                this.assertCurrent();
+                const response = await this.items({
+                  ParentId: folder.Id,
+                  Recursive: true,
+                  IncludeItemTypes: types,
+                  Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio",
+                  EnableUserData: true,
+                  EnableImages: true,
+                  ImageTypeLimit: 1,
+                  EnableImageTypes: "Primary,Backdrop,Thumb",
+                  SortBy: "SortName",
+                  SortOrder: "Ascending",
+                  StartIndex: offset,
+                  Limit: 200
+                });
+                const list = response.Items || [], target = types === "Season" ? seasons : all;
+                let added = 0;
+                for (const item of list) if (item.Id && !target.has(item.Id)) {
+                  target.set(item.Id, item);
+                  added++;
+                }
+                offset += list.length;
+                progress == null ? void 0 : progress(all.size, seasons.size);
+                if (list.length === 0 || added === 0 || list.length < 200 || Number.isFinite(response.TotalRecordCount) && offset >= response.TotalRecordCount) break;
+                if (offset >= 1e5) throw Error("Library exceeds the 100,000-item safety limit. Use a smaller library.");
               }
-              offset += list.length;
-              progress == null ? void 0 : progress(all.size, seasons.size);
-              if (list.length === 0 || added === 0 || list.length < 200 || Number.isFinite(response.TotalRecordCount) && offset >= response.TotalRecordCount) break;
-              if (offset >= 1e5) throw Error("Library exceeds the 100,000-item safety limit. Use a smaller library.");
-            }
+            })());
           }
         }
+        await Promise.all(tasks);
         return { items: [...all.values()], seasons: [...seasons.values()], views: this.views };
       }
       async hydrate(items) {
@@ -1448,7 +1579,9 @@
         if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
         if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
         try {
-          const response = await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
+          const prefetched = this.prefetchedSections.get(id);
+          if (prefetched) this.prefetchedSections.delete(id);
+          const response = prefetched ? await prefetched : await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
           let list = typed(response.Items || []);
           if (route.parentId && !id.startsWith("Discover")) {
             const allowed = new Set(inventory.items.map((i) => i.Id));
@@ -2142,7 +2275,7 @@
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.3";
+      const VERSION = "0.4.4";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -2374,30 +2507,38 @@
         const row = slot.data;
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
-        const copies = row.key !== "MyMedia" && baseCount >= 2 ? Math.max(4, Math.ceil(20 / baseCount)) : 1;
+        const copies = row.key !== "MyMedia" && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
         const cycleWidth = () => {
           if (copies <= 1) return 0;
           const first = track.children[0], secondCycle = track.children[baseCount];
           return first && secondCycle && typeof secondCycle.offsetLeft === "number" && secondCycle.offsetLeft > first.offsetLeft ? secondCycle.offsetLeft - first.offsetLeft : 0;
         };
         const normalizeLoop = () => {
+          if (track._fxProgrammatic) return;
           const cw = cycleWidth();
           if (!cw) return;
           while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
           if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
         };
         const scroll = (direction) => {
-          const cw = cycleWidth(), step = Math.max(250, track.clientWidth * 0.85);
+          const cw = cycleWidth(), step = Math.max(250, Math.round(track.clientWidth * 0.85));
           if (cw > 0) {
+            clearTimeout(track._fxScrollTimer);
+            track._fxProgrammatic = true;
+            const prevBehavior = track.style.scrollBehavior;
+            track.style.scrollBehavior = "auto";
             if (direction > 0) {
-              while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
-              track._fxMoved = true;
-              track.scrollBy({ left: step, behavior: "smooth" });
+              while (track.scrollLeft >= cw * 2 || track.scrollLeft + step >= cw * (copies - 1.2)) track.scrollLeft -= cw;
             } else {
-              if (track.scrollLeft < step) track.scrollLeft += cw;
-              track._fxMoved = true;
-              track.scrollBy({ left: -step, behavior: "smooth" });
+              while (track.scrollLeft < step + 16) track.scrollLeft += cw;
             }
+            track.style.scrollBehavior = prevBehavior;
+            track._fxMoved = true;
+            track.scrollBy({ left: direction * step, behavior: "smooth" });
+            track._fxScrollTimer = setTimeout(() => {
+              track._fxProgrammatic = false;
+              normalizeLoop();
+            }, 520);
             return;
           }
           const end = Math.max(0, track.scrollWidth - track.clientWidth);
@@ -2460,7 +2601,7 @@
           var _a3, _b2, _c2, _d2, _e2;
           return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b2 = i.BackdropImageTags) == null ? void 0 : _b2.length) && !((_c2 = i.ParentBackdropImageTags) == null ? void 0 : _c2.length) && (((_d2 = i.ImageTags) == null ? void 0 : _d2.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
         }).length > row.items.length / 2;
-        const layout = requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
+        const layout = s.route.view === "genres" ? "landscape" : requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
         slot.node.dataset.layout = layout;
         head.append(title, back, forward);
         for (let copy = 0; copy < copies; copy++) {
@@ -2635,14 +2776,25 @@
         });
       }
       function syncNative(s, hide) {
+        var _a2, _b2, _c2, _d2;
         if (!hide) {
           s.native.removeAttribute("data-fx-native-hidden");
           s.native.querySelectorAll("[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
+          (_b2 = (_a2 = s.page) == null ? void 0 : _a2.querySelectorAll) == null ? void 0 : _b2.call(_a2, "[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
           s.native.removeAttribute("data-fx-hero-anchor");
+          if (s.route.page !== "home" && s.page) {
+            const tabs = [...s.page.querySelectorAll(".pageTabContent")];
+            if (tabs.length > 1) {
+              tabs.forEach((t) => t.classList.toggle("is-active", t.dataset.index === "0"));
+            }
+          }
           return;
         }
         if (s.route.page !== "home") {
           if (s.native.getAttribute("data-fx-native-hidden") !== "true") s.native.setAttribute("data-fx-native-hidden", "true");
+          (_d2 = (_c2 = s.page) == null ? void 0 : _c2.querySelectorAll) == null ? void 0 : _d2.call(_c2, ".pageTabContent").forEach((tab) => {
+            if (tab.getAttribute("data-fx-native-hidden") !== "true") tab.setAttribute("data-fx-native-hidden", "true");
+          });
           return;
         }
         if (s.native.dataset.fxHeroAnchor !== "true") s.native.dataset.fxHeroAnchor = "true";
@@ -2725,11 +2877,6 @@
         s.loading = true;
         s.more.disabled = true;
         s.more.textContent = "Loading\u2026";
-        const staged = [];
-        const flushStaged = () => {
-          if (!staged.length || state !== s || s.full) return;
-          while (staged.length) appendRow(staged.shift(), s);
-        };
         try {
           for (let n = 0; n < s.config.batchSize; n++) {
             const row = s.pending || await nextRow(s);
@@ -2741,18 +2888,13 @@
             const items = row.key === "MyMedia" || row.external || row.key === "ContinueWatchingNextUp" ? row.items : await s.client.hydrate(row.items);
             s.client.assertCurrent();
             if (state !== s) return;
-            if (items.length) {
-              if (!s.slots.length && !staged.length && !s.full) {
-                appendRow({ ...row, items }, s);
-                s.failed = false;
-                syncNative(s, true);
-              } else {
-                staged.push({ ...row, items });
-              }
+            if (items.length && !s.full) {
+              appendRow({ ...row, items }, s);
+              s.failed = false;
+              syncNative(s, true);
             }
             s.pending = null;
           }
-          flushStaged();
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
           if ((s.slots.length || s.filteredQueue) && !s.full) {
@@ -2771,7 +2913,6 @@
           s.note.textContent = s.finished ? "You\u2019ve reached the available matches. Clear filters or use Restart feed to explore again." : s.filteredQueue ? "Filtered results load as you scroll." : "Keeps browsing your library; titles can return in different shelves further down.";
           virtualize(s);
         } catch {
-          flushStaged();
           if (state === s) {
             s.pauseAutomatic = true;
             s.status.textContent = "Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.";
@@ -2789,17 +2930,44 @@
         const exactKey = `${scope}:${route.page}:${route.parentId}`;
         const exact = snapshots.get(exactKey);
         if (exact && Date.now() - exact.at < 5 * 6e4) return exact.value;
-        if (!route.parentId && (route.page === "movies" || route.page === "shows")) {
+        if (route.page === "movies" || route.page === "shows") {
           const homeSnap = snapshots.get(`${scope}:home:`);
           if (homeSnap && Date.now() - homeSnap.at < 5 * 6e4) {
-            const wantType = route.page === "movies" ? "Movie" : "Series";
-            return {
-              items: homeSnap.value.items.filter((i) => i.Type === wantType),
-              seasons: route.page === "shows" ? homeSnap.value.seasons : []
-            };
+            const wantCol = route.page === "movies" ? "movies" : "tvshows";
+            const matchingViews = (homeSnap.value.views || []).filter((v) => v.CollectionType === wantCol);
+            if (!route.parentId || matchingViews.length === 1 && matchingViews[0].Id === route.parentId) {
+              const wantType = route.page === "movies" ? "Movie" : "Series";
+              return {
+                items: homeSnap.value.items.filter((i) => i.Type === wantType),
+                seasons: route.page === "shows" ? homeSnap.value.seasons : [],
+                views: homeSnap.value.views || []
+              };
+            }
           }
         }
         return null;
+      }
+      function refreshSlotBadges(s) {
+        if (!s.byId || state !== s) return;
+        for (const slot of s.slots) {
+          if (!slot.live) continue;
+          for (const card of slot.node.querySelectorAll(".fx-card[data-item-id]")) {
+            const item = s.byId.get(card.dataset.itemId);
+            const visual = card.querySelector(".fx-card-visual");
+            if (!item || !visual) continue;
+            const text = badgeFor(item, s.badges, s.now, s.tracking);
+            let badge = visual.querySelector(".fx-badge");
+            if (!text) {
+              badge == null ? void 0 : badge.remove();
+              continue;
+            }
+            if (!badge) {
+              badge = element("span", "fx-badge");
+              visual.append(badge);
+            }
+            if (badge.textContent !== text) badge.textContent = text;
+          }
+        }
       }
       async function initialize(s) {
         if (s.started) return;
@@ -2811,6 +2979,12 @@
             s.config = readConfig(s.api);
           } catch (e) {
             localError = e;
+          }
+          if (!s.full && s.route.view !== "genres") {
+            const p = s.client.json("HomeScreen/Section/ContinueWatchingNextUp", { UserId: s.client.userId });
+            p.catch(() => {
+            });
+            s.client.prefetchedSections.set("ContinueWatchingNextUp", p);
           }
           const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
           const cachedInv = findCachedInventory(s.scope, s.route);
@@ -2839,19 +3013,24 @@
           snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
           if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
           s.badges = seasonBadges(s.inventory.seasons, s.now);
-          s.tracking = /* @__PURE__ */ new Map();
-          try {
-            const arrival = await s.client.tracking(s.inventory.items);
-            s.tracking = arrival.records;
-            s.trackingReady = arrival.ready;
-          } catch {
-            s.client.assertCurrent();
-            s.trackingReady = false;
-            s.warnings.add("Arrival badges are unavailable until the Discovery Companion is installed and its baseline is ready.");
-          }
-          s.inventory.tracking = s.tracking;
+          s.tracking = null;
+          s.inventory.tracking = /* @__PURE__ */ new Map();
           s.byId = new Map(s.inventory.items.map((i) => [i.Id, i]));
           s.filterToggle.disabled = s.full;
+          decorateNative(s);
+          const trackingTask = s.client.tracking(s.inventory.items).then((arrival) => {
+            if (state !== s) return;
+            s.tracking = arrival.records;
+            s.trackingReady = arrival.ready;
+            s.inventory.tracking = s.tracking;
+            decorateNative(s);
+            refreshSlotBadges(s);
+          }).catch(() => {
+            if (state !== s) return;
+            s.trackingReady = false;
+            s.warnings.add("Arrival badges are unavailable until the Discovery Companion is installed and its baseline is ready.");
+            if (!s.loading) s.status.textContent = [...s.warnings].join(" ");
+          });
           const saved = savedFeeds.get(s.key);
           if (saved && Date.now() - saved.at < 30 * 6e4 && saved.config === JSON.stringify(s.config)) {
             restoreFeed(s, saved);
@@ -2862,7 +3041,7 @@
             s.status.textContent = "";
             await loadMore(s);
           }
-          decorateNative(s);
+          await trackingTask;
         } catch {
           if (state !== s) return;
           s.failed = true;
@@ -3092,7 +3271,8 @@
         const selector = route.page === "home" ? "#indexPage, .homePage" : route.page === "movies" ? "#moviesPage" : "#tvshowsPage, #tvRecommendedPage";
         for (const page of document.querySelectorAll(selector)) {
           if (!visible(page)) continue;
-          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector(`.pageTabContent[data-index="${route.view === "genres" ? route.page === "movies" ? 4 : 3 : route.view === "library" ? 0 : new URLSearchParams(location.hash.split("?")[1] || "").get("tab") || 0}"]`);
+          const wantIndex = route.view === "genres" ? route.page === "movies" ? 4 : 3 : route.view === "library" ? 0 : new URLSearchParams(location.hash.split("?")[1] || "").get("tab") || 1;
+          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector(`.pageTabContent[data-index="${wantIndex}"]`) || page.querySelector(".pageTabContent.is-active, .pageTabContent");
           if (native && !native.closest(".fx-discovery")) return { page, native };
         }
         return null;
@@ -3192,7 +3372,10 @@
         if (route.page === "home") toolbar.hidden = true;
         else {
           menu.hidden = true;
-          const heading = element("h1", "", route.page === "movies" ? "Movies" : "TV Shows"), switcher = element("select");
+          const titlePicker = element("div", "fx-title-picker");
+          const heading = element("h1", "", route.page === "movies" ? "Movies" : "TV Shows");
+          const modeLabel = element("span", "fx-title-mode", `${route.view === "library" ? "Library" : route.view === "genres" ? "Genres" : "Suggestions"} \u25BE`);
+          const switcher = element("select", "fx-title-select");
           switcher.setAttribute("aria-label", "Browse mode");
           for (const [value, label] of [["suggestions", "Suggestions"], ["library", "Library"], ["genres", "Genres"]]) {
             const option = element("option", "", label);
@@ -3201,11 +3384,14 @@
             switcher.append(option);
           }
           switcher.addEventListener("change", () => {
+            modeLabel.textContent = `${switcher.value === "library" ? "Library" : switcher.value === "genres" ? "Genres" : "Suggestions"} \u25BE`;
             const q = new URLSearchParams(location.hash.split("?")[1] || "");
             q.set("tab", switcher.value === "library" ? "0" : switcher.value === "genres" ? route.page === "movies" ? "4" : "3" : "1");
             location.hash = location.hash.split("?")[0] + "?" + q;
+            schedule();
           });
-          toolbar.prepend(heading, switcher);
+          titlePicker.append(heading, modeLabel, switcher);
+          toolbar.prepend(titlePicker);
           if (route.view !== "library") toolbar.append(s.filterToggle);
         }
         footer.append(s.more, s.note);
@@ -3242,21 +3428,65 @@
       function schedule() {
         if (!timer && !stopped) timer = setTimeout(reconcile, 120);
       }
+      function closeDrawers() {
+        var _a2, _b2;
+        document.querySelectorAll(".mainDrawer.drawer-open,.touch-menu-la.drawer-open").forEach((d) => d.classList.remove("drawer-open"));
+        (_b2 = (_a2 = document.body) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.remove("menu-open", "withSectionTabs");
+        document.querySelectorAll(".mainDrawer-backdrop,.backdrop-open,.MuiDrawer-root .MuiBackdrop-root").forEach((b) => {
+          var _a3;
+          try {
+            if (getComputedStyle(b).display !== "none" && getComputedStyle(b).visibility !== "hidden") (_a3 = b.click) == null ? void 0 : _a3.call(b);
+          } catch {
+          }
+        });
+      }
       function navSuggestions(event) {
-        var _a2, _b2, _c2;
+        var _a2, _b2, _c2, _d2;
         const target = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy-item],a[href]");
         if (!target) return;
-        const proxy = target.getAttribute("data-sleekfin-header-proxy-item");
-        const page = proxy === "jellyfin:movies" ? "movies" : proxy === "jellyfin:shows" ? "tv" : null;
-        let route = page ? `#/${page}` : target.getAttribute("href");
-        if (!page && !target.closest("header,.headerTabs")) return;
-        if (!/^#\/(movies|tv|tvshows)(?:[?]|$)/.test(route || "")) return;
-        const [path, raw = ""] = route.split("?"), q = new URLSearchParams(raw);
-        q.set("tab", "1");
-        event.preventDefault();
-        (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
-        event.stopPropagation();
-        location.hash = path + "?" + q;
+        const proxy = target.getAttribute("data-sleekfin-header-proxy-item") || "";
+        let route = null;
+        if (proxy === "jellyfin:movies") route = "#/movies";
+        else if (proxy === "jellyfin:shows") route = "#/tv";
+        else if (proxy === "jellyfin:home") route = "#/home";
+        else if (proxy.startsWith("jellyfin:view:")) {
+          const viewId = proxy.slice("jellyfin:view:".length);
+          const sourceLink = document.querySelector(`a[data-itemid="${viewId}"],a[data-id="${viewId}"],a[href*="topParentId=${viewId}"],a[href*="parentId=${viewId}"]`);
+          if (sourceLink == null ? void 0 : sourceLink.getAttribute("href")) {
+            route = sourceLink.getAttribute("href");
+          } else {
+            const label = (target.textContent || "").trim().toLowerCase();
+            if (label === "movies") route = `#/movies.html?topParentId=${encodeURIComponent(viewId)}`;
+            else if (label === "shows" || label === "tv shows") route = `#/tv.html?topParentId=${encodeURIComponent(viewId)}`;
+            else if (label === "collections") route = `#/list.html?topParentId=${encodeURIComponent(viewId)}&collectionType=boxsets`;
+          }
+        } else {
+          route = target.getAttribute("href");
+        }
+        if (!proxy && !target.closest("header,.headerTabs,[data-sleekfin-header-proxy]")) return;
+        if (!route) return;
+        const normalized = route.startsWith("#") ? route : "#" + route.replace(/^\/+/, "/");
+        if (/^#!?\/?(movies|tv|tvshows)(?:\.html)?(?:[?]|$)/i.test(normalized)) {
+          const [path, raw = ""] = normalized.split("?"), q = new URLSearchParams(raw);
+          q.set("tab", "1");
+          event.preventDefault();
+          (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+          event.stopPropagation();
+          closeDrawers();
+          location.hash = path + "?" + q;
+          schedule();
+          setTimeout(closeDrawers, 40);
+          return;
+        }
+        if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home") {
+          event.preventDefault();
+          (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
+          event.stopPropagation();
+          closeDrawers();
+          location.hash = normalized;
+          schedule();
+          setTimeout(closeDrawers, 40);
+        }
       }
       function rememberFocus(event) {
         var _a2, _b2;
