@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.0 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.1 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -988,8 +988,9 @@
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
 @media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
-/* Keep SleekFin's mount anchor visible; hide its native rows individually. */
+/* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS rows never flash. */
 [data-fx-hero-anchor="true"]{min-height:1px}
+[data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections){display:none!important}
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -999,25 +1000,73 @@
 .fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
 .fx-card-portrait .fx-card-visual img{object-fit:contain}
 .fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
+.fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#14151b;border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
+.fx-inline-studio{color:#f3f4f6;background:#14151b;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.fx-inline-studio button{font:inherit;color:#fff;background:#252630;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
+.fx-inline-studio button:hover{background:#323442}
+.fx-dialog button.fx-btn-primary,.fx-inline-studio button.fx-btn-primary{background:#e50914;border-color:#ff2c37;color:#fff;font-weight:700}
+.fx-dialog button.fx-btn-primary:hover,.fx-inline-studio button.fx-btn-primary:hover{background:#f6121d}
 .fx-editor-tabs,.fx-editor-fields,.fx-order-row,.fx-category-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.fx-editor-tabs{position:sticky;top:-22px;background:#151515;padding:10px 0;z-index:2}.fx-editor-tabs [aria-pressed="true"]{background:#eee;color:#111}
-.fx-editor-field{display:flex;flex-direction:column;gap:6px;font-size:14px;min-width:120px;flex:1}
-.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:44px;background:#252525;color:#fff;border:1px solid #666;border-radius:6px;padding:9px;font:inherit}
-.fx-editor-field input[type="checkbox"]{width:22px;min-height:22px}
-.fx-order-list{padding-left:24px}.fx-order-row{padding:12px 0;border-bottom:1px solid #444;flex-wrap:wrap}.fx-order-row>span{flex:1;min-width:170px}
-.fx-category-row{padding:10px 0;border-bottom:1px solid #333}.fx-category-row .fx-editor-field{flex-direction:row;align-items:center;justify-content:space-between}.fx-category-row input{flex:0 0 22px}
-.fx-rule-form{margin-top:18px;padding:16px;border:1px solid #555;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.fx-rule-form p{grid-column:1/-1}
-.fx-advanced{margin-top:24px}.fx-advanced>summary{padding:12px;cursor:pointer}.fx-advanced textarea{margin-top:12px}
+.fx-editor-tabs{position:sticky;top:-22px;background:#14151b;padding:12px 0;z-index:4;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.fx-inline-studio .fx-editor-tabs{position:static;padding-top:4px}
+.fx-editor-tabs [aria-pressed="true"]{background:#e50914!important;border-color:#ff2c37!important;color:#fff!important;font-weight:700}
+.fx-editor-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.fx-editor-section h3{margin:0 0 6px;font-size:1.12rem;color:#fff;border-left:3px solid #e50914;padding-left:10px}
+.fx-editor-help{margin:0 0 14px;font-size:.88rem;color:rgba(255,255,255,.66);line-height:1.45}
+.fx-editor-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,.86);min-width:130px;flex:1}
+.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:42px;background:#0e0f14;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px 11px;font:inherit}
+.fx-editor-field input[type="checkbox"]{width:20px;min-height:20px;accent-color:#e50914}
+.fx-editor-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.fx-order-list{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
+.fx-order-row{padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.22);flex-wrap:wrap}
+.fx-order-label{flex:1;min-width:160px;font-weight:600;color:#fff}
+.fx-row-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.1);color:#ddd}
+.fx-row-badge-core{background:rgba(59,130,246,.22);color:#93c5fd;border:1px solid rgba(59,130,246,.4)}
+.fx-row-badge-category{background:rgba(229,9,20,.22);color:#fca5a5;border:1px solid rgba(229,9,20,.4)}
+.fx-row-badge-rotating{background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.38)}
+.fx-chip-toggles .fx-editor-field{flex:0 0 auto;min-width:0;flex-direction:row;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+.fx-explorer-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.fx-subtab-btn.is-active{background:rgba(229,9,20,.24)!important;border-color:#e50914!important;color:#fff!important;font-weight:700}
+.fx-explorer-search,.fx-library-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.fx-explorer-search input,.fx-library-toolbar input{flex:1;min-width:220px;min-height:42px;background:#0e0f14;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:8px 14px;font:inherit}
+.fx-candidate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;max-height:340px;overflow-y:auto;padding-right:4px}
+.fx-candidate-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.08)}
+.fx-candidate-card.is-enabled{background:rgba(229,9,20,.14);border-color:rgba(229,9,20,.45)}
+.fx-candidate-main{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0;flex:1}
+.fx-candidate-main input[type="checkbox"]{width:18px;height:18px;accent-color:#e50914;flex:0 0 18px}
+.fx-candidate-text{display:flex;flex-direction:column;min-width:0}
+.fx-candidate-text strong{font-size:.88rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fx-candidate-count{font-size:.76rem;color:rgba(255,255,255,.58)}
+.fx-btn-mini{min-height:32px!important;padding:4px 10px!important;font-size:.78rem!important;border-radius:999px!important}
+.fx-btn-mini.is-pinned{background:rgba(229,9,20,.25)!important;border-color:#e50914!important}
+.fx-template-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07)}
+.fx-template-label{font-size:.82rem;font-weight:700;color:rgba(255,255,255,.7);margin-right:4px}
+.fx-category-list{display:flex;flex-direction:column;gap:8px;max-height:440px;overflow-y:auto;padding-right:4px}
+.fx-category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.22)}
+.fx-category-row.is-editing{border-color:#e50914;background:rgba(229,9,20,.1)}
+.fx-category-main{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}
+.fx-category-main .fx-editor-field{flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:10px;font-size:.95rem;font-weight:700;color:#fff}
+.fx-category-main input{flex:0 0 18px;width:18px;min-height:18px}
+.fx-category-meta{font-size:.8rem;color:rgba(255,255,255,.6);padding-left:28px}
+.fx-category-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fx-rule-form{margin:14px 0 18px;padding:18px;border:1px solid rgba(229,9,20,.5);border-radius:12px;background:rgba(16,17,23,.95);display:flex;flex-direction:column;gap:14px}
+.fx-rule-form legend{font-weight:800;color:#fff;padding:0 8px;font-size:1rem}
+.fx-editor-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.fx-meta-col{display:flex;flex-direction:column;gap:6px}
+.fx-quick-picks{display:flex;flex-wrap:wrap;gap:6px}
+.fx-pick-chip{min-height:28px!important;padding:3px 9px!important;font-size:.75rem!important;border-radius:999px!important;background:rgba(255,255,255,.06)!important}
+.fx-pick-chip.is-selected{background:rgba(229,9,20,.25)!important;border-color:#e50914!important}
+.fx-advanced{margin-top:18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;background:rgba(0,0,0,.2)}.fx-advanced>summary{padding:8px 4px;cursor:pointer;font-weight:600}.fx-advanced textarea{margin-top:12px}
+.fx-editor-alert{color:#fde047;font-weight:600}
 @supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
 @media(hover:none){.fx-card-more{opacity:1}}
-@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-rule-form{grid-template-columns:minmax(0,1fr)}.fx-editor-tabs{top:-15px}}
+@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-editor-tabs{top:-15px}}
 .fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
-.fx-shelf{margin-bottom:22px}.fx-row-head{margin-bottom:16px}.fx-name{font-weight:600}
+.fx-shelf{margin-bottom:18px}.fx-row-head{margin-bottom:16px}.fx-name{font-weight:700}
 .fx-toolbar h1{font-size:28px;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:12px}
 .fx-toolbar select{font:inherit;border-radius:22px;padding:10px 18px;color:inherit;background:#222;border:1px solid #555}
-.fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#222;color:#fff;border:1px solid #555;font:inherit;cursor:pointer}
+.fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 #moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
-.fx-shelf{margin-bottom:18px}.fx-name{font-weight:700}
 #moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
@@ -1416,7 +1465,7 @@
       }
     }
     function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button, supplied }) {
-      let draft = cloneJson(initial), page = selectedPage, editing = null;
+      let draft = cloneJson(initial), page = selectedPage || "home", editing = null, explorerKind = "director", explorerQuery = "", libraryQuery = "";
       const anchors = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
       const families = { theme: "Rotating theme", genre: "Rotating genre", director: "Directed by\u2026", actor: "Starring\u2026", decade: "Best of a decade", studio: "Studio / network", rating: "Highly rated", rewatch: "Worth another watch", runtime: "Short movies" };
       const emit = () => changed(cloneJson(draft));
@@ -1444,8 +1493,221 @@
         return control;
       }
       const layoutChoices = [["auto", "Automatic"], ["landscape", "Landscape"], ["portrait", "Portrait"]];
+      const defaultTypesForPage = (p) => p === "shows" ? ["Series"] : p === "movies" ? ["Movie"] : ["Movie", "Series"];
+      const pageItems = () => {
+        const all = (inventory == null ? void 0 : inventory.items) || [];
+        if (page === "movies") return all.filter((i) => i.Type === "Movie");
+        if (page === "shows") return all.filter((i) => i.Type === "Series");
+        return all.filter((i) => i.Type === "Movie" || i.Type === "Series");
+      };
+      function countRuleMatches(rule) {
+        const items = pageItems();
+        if (!items.length) return null;
+        try {
+          return items.filter((i) => matchesRule(i, rule, (/* @__PURE__ */ new Date()).getMonth() + 1)).length;
+        } catch {
+          return null;
+        }
+      }
+      function slug(prefix, name) {
+        const clean = String(name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+        return `${prefix}-${clean || hash(String(name)).toString(16)}`;
+      }
+      function discoverCandidates() {
+        const items = pageItems();
+        const minCount = Math.max(1, Math.min(3, Number(draft.minimumItems) || 2));
+        const mediaWord = page === "movies" ? "Movies" : page === "shows" ? "Shows" : "Titles";
+        const byDirector = /* @__PURE__ */ new Map(), byActor = /* @__PURE__ */ new Map(), byStudio = /* @__PURE__ */ new Map(), byYear = /* @__PURE__ */ new Map(), byDecade = /* @__PURE__ */ new Map(), byGenre = /* @__PURE__ */ new Map(), byTag = /* @__PURE__ */ new Map();
+        const bump = (map, name) => {
+          if (!name) return;
+          const k = String(name).trim();
+          if (!k) return;
+          map.set(k, (map.get(k) || 0) + 1);
+        };
+        for (const item of items) {
+          for (const p of item.People || []) {
+            if ((p == null ? void 0 : p.Type) === "Director") bump(byDirector, p.Name);
+            else if ((p == null ? void 0 : p.Type) === "Actor") bump(byActor, p.Name);
+          }
+          for (const s of item.Studios || []) bump(byStudio, typeof s === "string" ? s : s == null ? void 0 : s.Name);
+          for (const g of item.Genres || []) bump(byGenre, g);
+          for (const t of item.Tags || []) bump(byTag, t);
+          const yr = Number(item.ProductionYear);
+          if (yr >= 1900 && yr <= 2100) {
+            bump(byYear, String(yr));
+            bump(byDecade, String(Math.floor(yr / 10) * 10));
+          }
+        }
+        const list = [];
+        const toSorted = (map, limit = 60) => [...map.entries()].filter(([, c]) => c >= minCount || map.size <= 12).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, limit);
+        for (const [name, count] of toSorted(byDirector, 60)) {
+          list.push({
+            kind: "director",
+            name,
+            count,
+            title: `Directed by ${name}`,
+            key: slug("dir", name),
+            match: (r) => {
+              var _a, _b;
+              return (r.DirectorsAny || []).some((x) => x.toLowerCase() === name.toLowerCase()) && !((_a = r.ActorsAny) == null ? void 0 : _a.length) && !((_b = r.GenresAny) == null ? void 0 : _b.length);
+            },
+            create: () => ({ Key: slug("dir", name), Title: `Directed by ${name}`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], DirectorsAny: [name], Months: [] })
+          });
+        }
+        for (const [name, count] of toSorted(byActor, 60)) {
+          list.push({
+            kind: "actor",
+            name,
+            count,
+            title: `Starring ${name}`,
+            key: slug("cast", name),
+            match: (r) => {
+              var _a, _b;
+              return (r.ActorsAny || []).some((x) => x.toLowerCase() === name.toLowerCase()) && !((_a = r.DirectorsAny) == null ? void 0 : _a.length) && !((_b = r.GenresAny) == null ? void 0 : _b.length);
+            },
+            create: () => ({ Key: slug("cast", name), Title: `Starring ${name}`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], ActorsAny: [name], Months: [] })
+          });
+        }
+        for (const [name, count] of toSorted(byStudio, 50)) {
+          list.push({
+            kind: "studio",
+            name,
+            count,
+            title: `From ${name}`,
+            key: slug("studio", name),
+            match: (r) => (r.StudiosAny || []).some((x) => x.toLowerCase() === name.toLowerCase()),
+            create: () => ({ Key: slug("studio", name), Title: `From ${name}`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], StudiosAny: [name], Months: [] })
+          });
+        }
+        for (const [dec, count] of [...byDecade.entries()].sort((a, b) => Number(b[0]) - Number(a[0]))) {
+          const d = Number(dec);
+          list.push({
+            kind: "year",
+            name: `${d}s`,
+            count,
+            title: `${mediaWord} from the ${d}s`,
+            key: `decade-${d}s`,
+            match: (r) => {
+              var _a, _b;
+              return ((_a = r.Years) == null ? void 0 : _a[0]) === d && ((_b = r.Years) == null ? void 0 : _b[1]) === d + 9;
+            },
+            create: () => ({ Key: `decade-${d}s`, Title: `${mediaWord} from the ${d}s`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], Years: [d, d + 9], Months: [] })
+          });
+        }
+        for (const [yr, count] of [...byYear.entries()].sort((a, b) => Number(b[0]) - Number(a[0])).slice(0, 35)) {
+          const y = Number(yr);
+          list.push({
+            kind: "year",
+            name: yr,
+            count,
+            title: `${mediaWord} from ${y}`,
+            key: `year-${y}`,
+            match: (r) => {
+              var _a, _b;
+              return ((_a = r.Years) == null ? void 0 : _a[0]) === y && ((_b = r.Years) == null ? void 0 : _b[1]) === y;
+            },
+            create: () => ({ Key: `year-${y}`, Title: `${mediaWord} from ${y}`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], Years: [y, y], Months: [] })
+          });
+        }
+        for (const [name, count] of toSorted(byGenre, 40)) {
+          list.push({
+            kind: "genre",
+            name,
+            count,
+            title: `${name} Spotlight`,
+            key: slug("genre", name),
+            match: (r) => {
+              var _a;
+              return (r.GenresAny || []).length === 1 && r.GenresAny[0].toLowerCase() === name.toLowerCase() && !((_a = r.TagsAny) == null ? void 0 : _a.length);
+            },
+            create: () => ({ Key: slug("genre", name), Title: `${name} Spotlight`, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [name], TagsAny: [], Months: [] })
+          });
+        }
+        for (const [name, count] of toSorted(byTag, 50)) {
+          const pretty = name.replace(/\b\w/g, (c) => c.toUpperCase());
+          list.push({
+            kind: "tag",
+            name,
+            count,
+            title: pretty,
+            key: slug("tag", name),
+            match: (r) => {
+              var _a;
+              return (r.TagsAny || []).length === 1 && r.TagsAny[0].toLowerCase() === name.toLowerCase() && !((_a = r.GenresAny) == null ? void 0 : _a.length);
+            },
+            create: () => ({ Key: slug("tag", name), Title: pretty, Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [name], Months: [] })
+          });
+        }
+        return list;
+      }
+      function ruleSummary(rule) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+        const parts = [];
+        const types = ((_a = rule.Types) == null ? void 0 : _a.length) === 2 ? "Movies & Shows" : ((_b = rule.Types) == null ? void 0 : _b[0]) === "Series" ? "Shows" : "Movies";
+        parts.push(types);
+        if ((_c = rule.DirectorsAny) == null ? void 0 : _c.length) parts.push(`Dir: ${rule.DirectorsAny.slice(0, 2).join(", ")}`);
+        if ((_d = rule.ActorsAny) == null ? void 0 : _d.length) parts.push(`Cast: ${rule.ActorsAny.slice(0, 2).join(", ")}`);
+        if ((_e = rule.StudiosAny) == null ? void 0 : _e.length) parts.push(`Studio: ${rule.StudiosAny.slice(0, 2).join(", ")}`);
+        if ((_f = rule.GenresAny) == null ? void 0 : _f.length) parts.push(`Genres: ${rule.GenresAny.slice(0, 2).join(", ")}`);
+        if ((_g = rule.TagsAny) == null ? void 0 : _g.length) parts.push(`Tags: ${rule.TagsAny.slice(0, 2).join(", ")}`);
+        if (((_h = rule.Years) == null ? void 0 : _h.length) === 2) {
+          parts.push(rule.Years[0] === rule.Years[1] ? `Year: ${rule.Years[0]}` : `Years: ${rule.Years[0]}\u2013${rule.Years[1]}`);
+        }
+        if (rule.MinRating) parts.push(`${rule.MinRating}+ \u2605`);
+        if (rule.MaxMinutes) parts.push(`< ${rule.MaxMinutes}m`);
+        if ((_i = rule.Months) == null ? void 0 : _i.length) parts.push(`Months: ${rule.Months.join(",")}`);
+        const matches2 = countRuleMatches(rule);
+        if (matches2 !== null) parts.push(`${matches2} match${matches2 === 1 ? "" : "es"}`);
+        return parts.join(" \xB7 ");
+      }
+      function uniqueValues(kind) {
+        const items = (inventory == null ? void 0 : inventory.items) || [];
+        if (kind === "DirectorsAny") return [...new Set(items.flatMap((i) => (i.People || []).filter((p) => (p == null ? void 0 : p.Type) === "Director").map((p) => p.Name)).filter(Boolean))].sort();
+        if (kind === "ActorsAny") return [...new Set(items.flatMap((i) => (i.People || []).filter((p) => (p == null ? void 0 : p.Type) === "Actor").map((p) => p.Name)).filter(Boolean))].sort();
+        if (kind === "StudiosAny") return [...new Set(items.flatMap((i) => (i.Studios || []).map((s) => typeof s === "string" ? s : s == null ? void 0 : s.Name)).filter(Boolean))].sort();
+        if (kind === "GenresAny") return [...new Set(items.flatMap((i) => i.Genres || []).filter(Boolean))].sort();
+        if (kind === "TagsAny") return [...new Set(items.flatMap((i) => i.Tags || []).filter(Boolean))].sort();
+        return [];
+      }
+      function createFromTemplate(kind) {
+        var _a;
+        const profile = draft.pages[page];
+        const key = `category-${hash(String(Date.now()) + profile.rules.length + kind).toString(16)}`;
+        const base = { Key: key, Title: "New category", Enabled: true, Types: defaultTypesForPage(page), GenresAny: [], TagsAny: [], Months: [] };
+        const dirs = uniqueValues("DirectorsAny"), actors = uniqueValues("ActorsAny"), studios = uniqueValues("StudiosAny");
+        const yr = (/* @__PURE__ */ new Date()).getFullYear();
+        if (kind === "director") {
+          base.Title = dirs[0] ? `Directed by ${dirs[0]}` : "Directed by\u2026";
+          base.DirectorsAny = dirs[0] ? [dirs[0]] : [];
+        } else if (kind === "actor") {
+          base.Title = actors[0] ? `Starring ${actors[0]}` : "Starring\u2026";
+          base.ActorsAny = actors[0] ? [actors[0]] : [];
+        } else if (kind === "studio") {
+          base.Title = studios[0] ? `From ${studios[0]}` : "Studio Spotlight";
+          base.StudiosAny = studios[0] ? [studios[0]] : [];
+        } else if (kind === "year") {
+          base.Title = `${page === "shows" ? "Shows" : "Movies"} from ${yr - 1}`;
+          base.Years = [yr - 1, yr];
+        } else if (kind === "short") {
+          base.Title = "Under 100 Minutes";
+          base.Types = ["Movie"];
+          base.MaxMinutes = 100;
+        } else if (kind === "acclaimed") {
+          base.Title = "Critics\u2019 Choice (8.0+)";
+          base.MinRating = 8;
+        } else if (kind === "seasonal") {
+          base.Title = "October Chills";
+          base.GenresAny = ["Horror", "Thriller"];
+          base.Months = [10];
+        }
+        profile.rules.push(base);
+        editing = key;
+        emit();
+        draw();
+        (_a = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a.focus();
+      }
       function draw() {
-        var _a, _b;
+        var _a, _b, _c;
         host.replaceChildren();
         const tabs = element("div", "fx-editor-tabs");
         for (const name of ["home", "movies", "shows"]) {
@@ -1454,36 +1716,74 @@
             editing = null;
             draw();
           });
+          b.className = `fx-tab-btn ${page === name ? "is-active" : ""}`.trim();
           b.setAttribute("aria-pressed", String(page === name));
           tabs.append(b);
         }
         host.append(tabs);
         const profile = draft.pages[page];
-        host.append(element("h3", "", "Shared feed preferences"));
+        const sharedSec = element("section", "fx-editor-section");
+        sharedSec.append(element("h3", "", "Shared feed preferences"), element("p", "fx-editor-help", "Global display limits and behavior shared across Home, Movies and Shows."));
         const general = element("div", "fx-editor-fields");
         field(general, "Timezone", draft.timeZone, (v) => draft.timeZone = v);
         field(general, "Cards per shelf", draft.cardsPerShelf, (v) => draft.cardsPerShelf = Number(v), null, "number");
         field(general, "Minimum matching titles", draft.minimumItems, (v) => draft.minimumItems = Number(v), null, "number");
         field(general, "Continuous scrolling", draft.endless, (v) => draft.endless = v, null, "checkbox");
         field(general, "Hide watched titles", draft.hideWatched, (v) => draft.hideWatched = v, null, "checkbox");
-        host.append(general);
-        host.append(element("h3", "", "Opening rows"), element("p", "", "Arrange a fixed opening, mixing default sections, specific categories and rotating slots. Afterwards the varied feed continues. Empty or out-of-season rows are skipped. Unlisted default sections follow the opening."));
+        sharedSec.append(general);
+        host.append(sharedSec);
+        const openingSec = element("section", "fx-editor-section");
+        openingSec.append(
+          element("h3", "", "Opening rows & shelf order"),
+          element("p", "fx-editor-help", "Arrange the exact shelves that appear at the top of this page. Mix core sections (Continue Watching, Recently Added), specific custom categories, and rotating pools (e.g. a random Director or Studio shelf). After these opening rows, the endless varied feed continues.")
+        );
         const options = () => [
           ...Object.entries(anchors).map(([key, label]) => [`anchor:${key}`, label]),
           ...profile.rules.map((r) => [`rule:${r.Key}`, r.Title]),
           ...Object.entries(families).map(([key, label]) => [`family:${key}`, label])
         ];
         const opening = profile.opening || profile.anchors.flatMap((a) => [`anchor:${a}`, "family:theme"]);
-        const rows = element("ol", "fx-order-list");
         const updateOpening = () => {
           profile.opening = [...opening];
           emit();
           draw();
         };
+        const presetRow = element("div", "fx-editor-presets");
+        presetRow.append(
+          button("Interleave Core & Custom", () => {
+            const core = profile.anchors.map((a) => `anchor:${a}`);
+            const rot = ["family:theme", "family:director", "family:actor", "family:studio", "family:decade", "family:genre"];
+            const nextOpening = [];
+            const max = Math.max(core.length, rot.length);
+            for (let i = 0; i < max; i++) {
+              if (core[i]) nextOpening.push(core[i]);
+              if (rot[i]) nextOpening.push(rot[i]);
+            }
+            profile.opening = nextOpening;
+            emit();
+            draw();
+          }),
+          button("Pin enabled categories first", () => {
+            const pinned = profile.rules.filter((r) => r.Enabled !== false).slice(0, 6).map((r) => `rule:${r.Key}`);
+            profile.opening = ["anchor:ContinueWatchingNextUp", ...pinned, "anchor:RecentlyAddedMovies", "family:director", "family:actor"];
+            emit();
+            draw();
+          }),
+          button("Use automatic ordering", () => {
+            delete profile.opening;
+            emit();
+            draw();
+          })
+        );
+        openingSec.append(presetRow);
+        const rows = element("ol", "fx-order-list");
         opening.forEach((token, n) => {
           var _a2, _b2;
           const row = element("li", "fx-order-row");
-          row.append(element("span", "", ((_a2 = options().find(([id]) => id === token)) == null ? void 0 : _a2[1]) || token));
+          const badgeType = token.startsWith("anchor:") ? "Core" : token.startsWith("rule:") ? "Category" : "Rotating";
+          const badge = element("span", `fx-row-badge fx-row-badge-${badgeType.toLowerCase()}`, badgeType);
+          const label = element("span", "fx-order-label", ((_a2 = options().find(([id]) => id === token)) == null ? void 0 : _a2[1]) || token);
+          row.append(badge, label);
           const up = button("\u2191", () => {
             [opening[n - 1], opening[n]] = [opening[n], opening[n - 1]];
             updateOpening();
@@ -1500,127 +1800,349 @@
             profile.layouts = { ...profile.layouts, [token]: v };
             profile.opening = [...opening];
           }, layoutChoices);
-          row.append(up, down, button("Remove", () => {
+          const rem = button("Remove", () => {
             if (token.startsWith("anchor:")) profile.anchors = profile.anchors.filter((a) => a !== token.slice(7));
             opening.splice(n, 1);
             updateOpening();
-          }));
+          });
+          row.append(up, down, rem);
           rows.append(row);
         });
-        host.append(rows);
-        const addRow = element("div", "fx-editor-fields");
-        let next = options()[0][0];
+        openingSec.append(rows);
+        const addRow = element("div", "fx-editor-fields fx-add-opening-bar");
+        let next = ((_a = options()[0]) == null ? void 0 : _a[0]) || "family:theme";
         field(addRow, "Add opening row", next, (v) => next = v, options());
         addRow.append(button("Add row", () => {
           if (next.startsWith("family:")) profile.families = [.../* @__PURE__ */ new Set([...profile.families, next.slice(7)])];
           opening.push(next);
           updateOpening();
         }));
-        addRow.append(button("Use automatic ordering", () => {
-          delete profile.opening;
-          emit();
-          draw();
-        }));
-        host.append(addRow);
-        host.append(element("h3", "", "Category library"), element("p", "", "Enable categories, change their matching rules, or add your own. Artwork can be set per category or opening-row type."));
-        const rules = element("div", "fx-category-list");
-        profile.rules.forEach((rule2, n) => {
-          const row = element("div", "fx-category-row");
-          field(row, rule2.Title, rule2.Enabled !== false, (v) => rule2.Enabled = v, null, "checkbox");
-          row.append(button("Edit", () => {
-            var _a2;
-            editing = rule2.Key;
+        openingSec.append(addRow);
+        host.append(openingSec);
+        const rotSec = element("section", "fx-editor-section");
+        rotSec.append(
+          element("h3", "", "Automatic rotating shelf pools"),
+          element("p", "fx-editor-help", "Toggle which auto-generated shelf families can appear as you scroll (e.g. Directed by X, Starring X, Best of a decade, Studio / network).")
+        );
+        const rotation = element("div", "fx-editor-fields fx-chip-toggles");
+        Object.entries(families).forEach(([key, label]) => field(rotation, label, profile.families.includes(key), (checked) => {
+          profile.families = checked ? [.../* @__PURE__ */ new Set([...profile.families, key])] : profile.families.filter((k) => k !== key);
+        }, null, "checkbox"));
+        rotSec.append(rotation);
+        host.append(rotSec);
+        const explorerSec = element("section", "fx-editor-section");
+        explorerSec.append(
+          element("h3", "", "Discover & toggle possible categories"),
+          element("p", "fx-editor-help", "Browse directors, actors, studios, release years/decades, genres and tags discovered in your library. Toggle any item on to add it as a dedicated category shelf, or pin it directly to your Opening Rows.")
+        );
+        const candidates = discoverCandidates();
+        const kindTabs = element("div", "fx-explorer-tabs");
+        const kindDefs = [
+          ["director", "Directed by\u2026"],
+          ["actor", "Starring\u2026"],
+          ["studio", "From Studio\u2026"],
+          ["year", "Years & Decades"],
+          ["genre", "Genres"],
+          ["tag", "Themes & Tags"]
+        ];
+        for (const [k, lbl] of kindDefs) {
+          const count = candidates.filter((c) => c.kind === k).length;
+          const b = button(`${lbl} (${count})`, () => {
+            explorerKind = k;
             draw();
-            (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
-          }), button("Delete", () => {
+          });
+          b.className = `fx-subtab-btn ${explorerKind === k ? "is-active" : ""}`.trim();
+          kindTabs.append(b);
+        }
+        const searchBar = element("div", "fx-explorer-search");
+        const searchInput = element("input");
+        searchInput.type = "search";
+        searchInput.placeholder = "Filter possible categories (e.g. Nolan, A24, 2024, Willem Dafoe, anime)\u2026";
+        searchInput.value = explorerQuery;
+        searchInput.setAttribute("aria-label", "Filter possible categories");
+        searchInput.addEventListener("input", () => {
+          explorerQuery = searchInput.value;
+          renderCandidateGrid();
+        });
+        searchBar.append(searchInput);
+        const candidateGrid = element("div", "fx-candidate-grid");
+        function renderCandidateGrid() {
+          var _a2;
+          candidateGrid.replaceChildren();
+          const q = explorerQuery.trim().toLowerCase();
+          const filtered = candidates.filter((c) => q ? c.title.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) : c.kind === explorerKind).slice(0, 36);
+          if (!filtered.length) {
+            candidateGrid.append(element("p", "fx-editor-empty", ((_a2 = inventory == null ? void 0 : inventory.items) == null ? void 0 : _a2.length) ? "No matching library categories found for this filter." : "Open Customize from Home, Movies, or Shows (or wait a moment) to scan library metadata for possible categories."));
+            return;
+          }
+          for (const cand of filtered) {
+            const existing = profile.rules.find((r) => r.Key === cand.key || cand.match(r));
+            const active = Boolean(existing && existing.Enabled !== false);
+            const card = element("div", `fx-candidate-card ${active ? "is-enabled" : ""}`.trim());
+            const checkWrap = element("label", "fx-candidate-main");
+            const box = element("input");
+            box.type = "checkbox";
+            box.checked = active;
+            box.addEventListener("change", () => {
+              const found = profile.rules.find((r) => r.Key === cand.key || cand.match(r));
+              if (box.checked) {
+                if (found) found.Enabled = true;
+                else profile.rules.push(cand.create());
+              } else if (found) {
+                found.Enabled = false;
+              }
+              emit();
+              draw();
+            });
+            const textCol = element("div", "fx-candidate-text");
+            textCol.append(element("strong", "", cand.title), element("span", "fx-candidate-count", `${cand.count} title${cand.count === 1 ? "" : "s"}`));
+            checkWrap.append(box, textCol);
+            const pinBtn = button("Pin to top", () => {
+              let found = profile.rules.find((r) => r.Key === cand.key || cand.match(r));
+              if (!found) {
+                found = cand.create();
+                profile.rules.push(found);
+              }
+              found.Enabled = true;
+              const token = `rule:${found.Key}`;
+              const cur = profile.opening || profile.anchors.flatMap((a) => [`anchor:${a}`, "family:theme"]);
+              if (!cur.includes(token)) cur.unshift(token);
+              profile.opening = [...cur];
+              emit();
+              draw();
+            });
+            pinBtn.className = "fx-btn-mini";
+            card.append(checkWrap, pinBtn);
+            candidateGrid.append(card);
+          }
+        }
+        renderCandidateGrid();
+        explorerSec.append(kindTabs, searchBar, candidateGrid);
+        host.append(explorerSec);
+        const libSec = element("section", "fx-editor-section");
+        libSec.append(
+          element("h3", "", "Category library"),
+          element("p", "fx-editor-help", "Enable or disable categories, reorder them, pin them to Opening Rows, or craft your own custom categories from directors, actors, studios, years, ratings, runtime, genres and tags.")
+        );
+        const templateBar = element("div", "fx-template-bar");
+        templateBar.append(
+          element("span", "fx-template-label", "Quick create:"),
+          button("Add category", () => {
             var _a2;
-            profile.rules.splice(n, 1);
-            profile.opening = (_a2 = profile.opening) == null ? void 0 : _a2.filter((t) => t !== `rule:${rule2.Key}`);
-            if (profile.layouts) delete profile.layouts[`rule:${rule2.Key}`];
-            editing = null;
+            const key = `category-${hash(String(Date.now()) + profile.rules.length).toString(16)}`;
+            profile.rules.push({ Key: key, Title: "New category", Enabled: true, Types: [page === "shows" ? "Series" : "Movie"], GenresAny: [], TagsAny: [], Months: [] });
+            editing = key;
             emit();
             draw();
-          }));
-          rules.append(row);
+            (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
+          }),
+          button("+ Director Spotlight", () => createFromTemplate("director")),
+          button("+ Actor Spotlight", () => createFromTemplate("actor")),
+          button("+ Studio Collection", () => createFromTemplate("studio")),
+          button("+ Year / Era", () => createFromTemplate("year")),
+          button("+ Under 100m", () => createFromTemplate("short")),
+          button("+ 8.0+ Acclaimed", () => createFromTemplate("acclaimed")),
+          button("+ Seasonal", () => createFromTemplate("seasonal")),
+          button("Add supplied categories", () => {
+            for (const r of supplied.pages[page].rules) {
+              if (!profile.rules.some((x) => x.Key === r.Key)) profile.rules.push(cloneJson(r));
+            }
+            emit();
+            draw();
+          })
+        );
+        libSec.append(templateBar);
+        const ruleFilterBar = element("div", "fx-library-toolbar");
+        const ruleSearch = element("input");
+        ruleSearch.type = "search";
+        ruleSearch.placeholder = "Search your categories\u2026";
+        ruleSearch.value = libraryQuery;
+        ruleSearch.setAttribute("aria-label", "Search your categories");
+        ruleSearch.addEventListener("input", () => {
+          libraryQuery = ruleSearch.value;
+          renderRuleList();
         });
-        host.append(rules, button("Add supplied categories", () => {
-          for (const rule2 of supplied.pages[page].rules) {
-            if (!profile.rules.some((r) => r.Key === rule2.Key)) profile.rules.push(cloneJson(rule2));
-          }
-          emit();
-          draw();
-        }), button("Add category", () => {
-          var _a2;
-          const key = `category-${hash(String(Date.now()) + profile.rules.length).toString(16)}`;
-          profile.rules.push({ Key: key, Title: "New category", Enabled: true, Types: [page === "shows" ? "Series" : "Movie"], GenresAny: [], TagsAny: [], Months: [] });
-          editing = key;
-          emit();
-          draw();
-          (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
-        }));
-        const rule = profile.rules.find((r) => r.Key === editing);
-        if (rule) {
-          const form = element("fieldset", "fx-rule-form");
-          form.append(element("legend", "", "Edit category"));
-          field(form, "Category title", rule.Title, (v) => {
-            rule.Title = v;
+        const enableAllBtn = button("Enable all", () => {
+          profile.rules.forEach((r) => {
+            r.Enabled = true;
           });
-          field(form, "Media type", rule.Types.length === 2 ? "both" : rule.Types[0], (v) => rule.Types = v === "both" ? ["Movie", "Series"] : [v], [["Movie", "Movies"], ["Series", "Shows"], ["both", "Movies and shows"]]);
-          for (const [key, label] of [["GenresAny", "Genres"], ["TagsAny", "Tags"], ["DirectorsAny", "Directors"], ["ActorsAny", "Cast"], ["StudiosAny", "Studios"]]) {
-            const control = field(form, label, (rule[key] || []).join(", "), (v) => rule[key] = v.split(",").map((x) => x.trim()).filter(Boolean));
-            control.placeholder = "Comma-separated names";
-            const known = key === "GenresAny" ? "Genres" : key === "TagsAny" ? "Tags" : null;
-            if (known) {
+          emit();
+          draw();
+        });
+        const disableAllBtn = button("Disable all", () => {
+          profile.rules.forEach((r) => {
+            r.Enabled = false;
+          });
+          emit();
+          draw();
+        });
+        ruleFilterBar.append(ruleSearch, enableAllBtn, disableAllBtn);
+        libSec.append(ruleFilterBar);
+        const ruleFormContainer = element("div", "fx-rule-form-host");
+        libSec.append(ruleFormContainer);
+        const rules = element("div", "fx-category-list");
+        function renderRuleList() {
+          rules.replaceChildren();
+          const q = libraryQuery.trim().toLowerCase();
+          profile.rules.forEach((r, n) => {
+            if (q && !r.Title.toLowerCase().includes(q) && !ruleSummary(r).toLowerCase().includes(q)) return;
+            const row = element("div", `fx-category-row ${editing === r.Key ? "is-editing" : ""}`.trim());
+            const mainInfo = element("div", "fx-category-main");
+            field(mainInfo, r.Title, r.Enabled !== false, (v) => {
+              r.Enabled = v;
+            }, null, "checkbox");
+            mainInfo.append(element("span", "fx-category-meta", ruleSummary(r)));
+            const actions = element("div", "fx-category-actions");
+            const upBtn = button("\u2191", () => {
+              if (n > 0) {
+                [profile.rules[n - 1], profile.rules[n]] = [profile.rules[n], profile.rules[n - 1]];
+                emit();
+                draw();
+              }
+            });
+            upBtn.disabled = n === 0;
+            upBtn.title = "Move category up";
+            const downBtn = button("\u2193", () => {
+              if (n < profile.rules.length - 1) {
+                [profile.rules[n + 1], profile.rules[n]] = [profile.rules[n], profile.rules[n + 1]];
+                emit();
+                draw();
+              }
+            });
+            downBtn.disabled = n === profile.rules.length - 1;
+            downBtn.title = "Move category down";
+            const isPinned = (profile.opening || []).includes(`rule:${r.Key}`);
+            const pinBtn = button(isPinned ? "Pinned" : "Pin to top", () => {
+              const cur = profile.opening ? [...profile.opening] : profile.anchors.flatMap((a) => [`anchor:${a}`, "family:theme"]);
+              const token = `rule:${r.Key}`;
+              const idx = cur.indexOf(token);
+              if (idx >= 0) cur.splice(idx, 1);
+              else cur.unshift(token);
+              profile.opening = cur;
+              emit();
+              draw();
+            });
+            pinBtn.className = `fx-btn-mini ${isPinned ? "is-pinned" : ""}`.trim();
+            const editBtn = button("Edit", () => {
+              var _a2;
+              editing = r.Key;
+              draw();
+              (_a2 = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a2.focus();
+            });
+            const delBtn = button("Delete", () => {
+              var _a2;
+              profile.rules.splice(n, 1);
+              profile.opening = (_a2 = profile.opening) == null ? void 0 : _a2.filter((t) => t !== `rule:${r.Key}`);
+              if (profile.layouts) delete profile.layouts[`rule:${r.Key}`];
+              if (editing === r.Key) editing = null;
+              emit();
+              draw();
+            });
+            actions.append(upBtn, downBtn, pinBtn, editBtn, delBtn);
+            row.append(mainInfo, actions);
+            rules.append(row);
+          });
+        }
+        renderRuleList();
+        libSec.append(rules);
+        const activeRule = profile.rules.find((r) => r.Key === editing);
+        if (activeRule) {
+          const form = element("fieldset", "fx-rule-form");
+          const liveMatches = countRuleMatches(activeRule);
+          form.append(element("legend", "", `Edit category: ${activeRule.Title}${liveMatches !== null ? ` (${liveMatches} matching titles)` : ""}`));
+          const grid = element("div", "fx-editor-fields");
+          field(grid, "Category title", activeRule.Title, (v) => {
+            activeRule.Title = v;
+          });
+          field(grid, "Media type", activeRule.Types.length === 2 ? "both" : activeRule.Types[0], (v) => activeRule.Types = v === "both" ? ["Movie", "Series"] : [v], [["Movie", "Movies"], ["Series", "Shows"], ["both", "Movies and shows"]]);
+          field(grid, "Category artwork", activeRule.Layout || "auto", (v) => activeRule.Layout = v, layoutChoices);
+          field(grid, "Minimum community rating", activeRule.MinRating, (v) => activeRule.MinRating = v === "" ? null : Number(v), null, "number");
+          field(grid, "Under minutes", activeRule.MaxMinutes, (v) => activeRule.MaxMinutes = v === "" ? null : Number(v), null, "number");
+          field(grid, "Scheduled months", (activeRule.Months || []).join(", "), (v) => activeRule.Months = v.split(",").map((x) => x.trim()).filter(Boolean).map(Number));
+          field(grid, "From year", (_b = activeRule.Years) == null ? void 0 : _b[0], (v) => {
+            var _a2, _b2, _c2;
+            activeRule.Years = v === "" && !((_a2 = activeRule.Years) == null ? void 0 : _a2[1]) ? null : [v === "" ? 0 : Number(v), (_c2 = (_b2 = activeRule.Years) == null ? void 0 : _b2[1]) != null ? _c2 : 9999];
+          }, null, "number");
+          field(grid, "Through year", (_c = activeRule.Years) == null ? void 0 : _c[1], (v) => {
+            var _a2, _b2, _c2;
+            activeRule.Years = v === "" && !((_a2 = activeRule.Years) == null ? void 0 : _a2[0]) ? null : [(_c2 = (_b2 = activeRule.Years) == null ? void 0 : _b2[0]) != null ? _c2 : 0, v === "" ? 9999 : Number(v)];
+          }, null, "number");
+          form.append(grid);
+          const metaGrid = element("div", "fx-editor-meta-grid");
+          for (const [key, label, hint] of [
+            ["GenresAny", "Genres", "e.g. Action, Sci-Fi, Horror"],
+            ["TagsAny", "Tags", "e.g. superhero, anime, space"],
+            ["DirectorsAny", "Directors", "e.g. Christopher Nolan, Denis Villeneuve"],
+            ["ActorsAny", "Cast", "e.g. Willem Dafoe, Christian Bale"],
+            ["StudiosAny", "Studios", "e.g. A24, Marvel Studios, Pixar"]
+          ]) {
+            const col = element("div", "fx-meta-col");
+            const control = field(col, label, (activeRule[key] || []).join(", "), (v) => {
+              activeRule[key] = v.split(",").map((x) => x.trim()).filter(Boolean);
+            });
+            control.placeholder = hint || "Comma-separated names";
+            const vals = uniqueValues(key);
+            if (vals.length) {
               const list = element("datalist");
               list.id = `fx-values-${key}`;
-              [...new Set(((inventory == null ? void 0 : inventory.items) || []).flatMap((i) => i[known] || []))].sort().forEach((v) => {
+              vals.slice(0, 250).forEach((v) => {
                 const o = element("option");
                 o.value = v;
                 list.append(o);
               });
               control.setAttribute("list", list.id);
-              form.append(list);
+              col.append(list);
+              const picks = element("div", "fx-quick-picks");
+              vals.slice(0, 10).forEach((v) => {
+                const active = (activeRule[key] || []).some((x) => x.toLowerCase() === v.toLowerCase());
+                const chip = button(active ? `\u2713 ${v}` : `+ ${v}`, () => {
+                  const cur = activeRule[key] || [];
+                  const idx = cur.findIndex((x) => x.toLowerCase() === v.toLowerCase());
+                  if (idx >= 0) cur.splice(idx, 1);
+                  else cur.push(v);
+                  activeRule[key] = [...cur];
+                  emit();
+                  draw();
+                });
+                chip.className = `fx-pick-chip ${active ? "is-selected" : ""}`.trim();
+                picks.append(chip);
+              });
+              col.append(picks);
             }
+            metaGrid.append(col);
           }
-          field(form, "Minimum community rating", rule.MinRating, (v) => rule.MinRating = v === "" ? null : Number(v), null, "number");
-          field(form, "Under minutes", rule.MaxMinutes, (v) => rule.MaxMinutes = v === "" ? null : Number(v), null, "number");
-          field(form, "Scheduled months", (rule.Months || []).join(", "), (v) => rule.Months = v.split(",").map((x) => x.trim()).filter(Boolean).map(Number));
-          field(form, "From year", (_a = rule.Years) == null ? void 0 : _a[0], (v) => {
-            var _a2, _b2, _c;
-            rule.Years = v === "" && !((_a2 = rule.Years) == null ? void 0 : _a2[1]) ? null : [v === "" ? 0 : Number(v), (_c = (_b2 = rule.Years) == null ? void 0 : _b2[1]) != null ? _c : 9999];
-          }, null, "number");
-          field(form, "Through year", (_b = rule.Years) == null ? void 0 : _b[1], (v) => {
-            var _a2, _b2, _c;
-            rule.Years = v === "" && !((_a2 = rule.Years) == null ? void 0 : _a2[0]) ? null : [(_c = (_b2 = rule.Years) == null ? void 0 : _b2[0]) != null ? _c : 0, v === "" ? 9999 : Number(v)];
-          }, null, "number");
-          form.append(element("p", "", "Months: blank = all year; 10 = October; 12 = December. Names match exactly, ignoring case. Each filter group must match; names within one group are alternatives."));
-          field(form, "Category artwork", rule.Layout || "auto", (v) => rule.Layout = v, layoutChoices);
-          form.append(button("Done editing", () => {
+          form.append(metaGrid);
+          form.append(element("p", "fx-editor-help", "Months: blank = all year; 10 = October; 12 = December. Names match ignoring case. Each populated filter group must match; comma-separated values within a field act as OR alternatives."));
+          const formActions = element("div", "fx-rule-form-actions");
+          formActions.append(button("Done editing", () => {
             editing = null;
             emit();
             draw();
           }));
-          host.append(form);
+          form.append(formActions);
+          ruleFormContainer.append(form);
         }
-        host.append(element("h3", "", "Rotating category types"));
-        const rotation = element("div", "fx-editor-fields");
-        Object.entries(families).forEach(([key, label]) => field(rotation, label, profile.families.includes(key), (checked) => {
-          profile.families = checked ? [.../* @__PURE__ */ new Set([...profile.families, key])] : profile.families.filter((k) => k !== key);
-        }, null, "checkbox"));
-        host.append(rotation);
+        host.append(libSec);
       }
       draw();
-      return { setConfig(config) {
-        draft = cloneJson(config);
-        editing = null;
-        draw();
-      }, getConfig() {
-        return cloneJson(draft);
-      } };
+      return {
+        setConfig(config) {
+          draft = cloneJson(config);
+          editing = null;
+          draw();
+        },
+        setInventory(inv) {
+          inventory = inv;
+          draw();
+        },
+        getConfig() {
+          return cloneJson(draft);
+        }
+      };
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.0";
+      const VERSION = "0.4.1";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -1854,14 +2376,55 @@
         slot.node.className = "fx-shelf";
         slot.node.style.height = "";
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
+        const baseCount = row.items.length;
+        const copies = row.key !== "MyMedia" && baseCount >= 2 ? Math.max(4, Math.ceil(20 / baseCount)) : 1;
+        const cycleWidth = () => {
+          if (copies <= 1) return 0;
+          const first = track.children[0], secondCycle = track.children[baseCount];
+          return first && secondCycle && typeof secondCycle.offsetLeft === "number" && secondCycle.offsetLeft > first.offsetLeft ? secondCycle.offsetLeft - first.offsetLeft : 0;
+        };
+        const normalizeLoop = () => {
+          const cw = cycleWidth();
+          if (!cw) return;
+          while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
+          if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
+        };
         const scroll = (direction) => {
+          const cw = cycleWidth(), step = Math.max(250, track.clientWidth * 0.85);
+          if (cw > 0) {
+            if (direction > 0) {
+              while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
+              track._fxMoved = true;
+              track.scrollBy({ left: step, behavior: "smooth" });
+            } else {
+              if (track.scrollLeft < step) track.scrollLeft += cw;
+              track._fxMoved = true;
+              track.scrollBy({ left: -step, behavior: "smooth" });
+            }
+            return;
+          }
           const end = Math.max(0, track.scrollWidth - track.clientWidth);
           if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
           else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
-          else track.scrollBy({ left: direction * Math.max(250, track.clientWidth * 0.85), behavior: "smooth" });
+          else track.scrollBy({ left: direction * step, behavior: "smooth" });
         };
+        track.addEventListener("scroll", () => {
+          if (track.scrollLeft > 12) track._fxMoved = true;
+          normalizeLoop();
+        }, { passive: true });
         track.addEventListener("wheel", (e) => {
           if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          const cw = cycleWidth();
+          if (cw > 0) {
+            if (e.deltaX < 0 && track.scrollLeft <= 12) {
+              track.scrollLeft += cw;
+              track._fxMoved = true;
+            } else if (e.deltaX > 0 && track.scrollLeft >= cw * (copies - 1.5)) {
+              track.scrollLeft -= cw;
+              track._fxMoved = true;
+            }
+            return;
+          }
           const end = track.scrollWidth - track.clientWidth;
           if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) {
             e.preventDefault();
@@ -1871,12 +2434,22 @@
         let touchX;
         track.addEventListener("touchstart", (e) => {
           var _a3;
-          return touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
+          touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
+          const cw = cycleWidth();
+          if (cw > 0 && track.scrollLeft <= 12) {
+            track.scrollLeft += cw;
+            track._fxMoved = true;
+          }
         }, { passive: true });
         track.addEventListener("touchend", (e) => {
           var _a3;
           const delta = touchX - ((_a3 = e.changedTouches[0]) == null ? void 0 : _a3.clientX);
           if (Math.abs(delta) > 40) {
+            const cw = cycleWidth();
+            if (cw > 0) {
+              normalizeLoop();
+              return;
+            }
             const end = track.scrollWidth - track.clientWidth;
             if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
           }
@@ -1893,7 +2466,13 @@
         const layout = requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
         slot.node.dataset.layout = layout;
         head.append(title, back, forward);
-        row.items.forEach((item) => track.append(renderCard(item, s, true, layout)));
+        for (let copy = 0; copy < copies; copy++) {
+          row.items.forEach((item) => {
+            const cardNode = renderCard(item, s, true, layout);
+            if (copy > 0) cardNode.dataset.loopClone = String(copy);
+            track.append(cardNode);
+          });
+        }
         slot.node.append(head, track);
         slot.live = true;
       }
@@ -2077,7 +2656,7 @@
         s.matchCount.hidden = full;
         if (full) s.panel.hidden = true;
         s.toggle.textContent = full ? "Discover shelves" : s.route.page === "home" ? "Normal home" : "Full library";
-        syncNative(s, !(full || !s.slots.length && !s.filteredQueue));
+        syncNative(s, !(full || s.failed));
         if (remember) {
           try {
             localStorage.setItem(prefKey(s.api, s.route.page), full ? "native" : "discover");
@@ -2146,13 +2725,28 @@
             const items = row.key === "MyMedia" || row.external || row.key === "ContinueWatchingNextUp" ? row.items : await s.client.hydrate(row.items);
             s.client.assertCurrent();
             if (state !== s) return;
-            if (items.length) appendRow({ ...row, items }, s);
+            if (items.length) {
+              appendRow({ ...row, items }, s);
+              if (s.slots.length === 1 && !s.full) {
+                s.failed = false;
+                syncNative(s, true);
+              }
+            }
             s.pending = null;
           }
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
-          if ((s.slots.length || s.filteredQueue) && !s.full) setMode(s, false, false);
-          if (!s.slots.length) s.status.textContent = s.filteredQueue ? "No matching titles. Clear a filter to broaden your search." : "No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.";
+          if ((s.slots.length || s.filteredQueue) && !s.full) {
+            s.failed = false;
+            setMode(s, false, false);
+          }
+          if (!s.slots.length) {
+            if (!s.filteredQueue) {
+              s.failed = true;
+              syncNative(s, false);
+            }
+            s.status.textContent = s.filteredQueue ? "No matching titles. Clear a filter to broaden your search." : "No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.";
+          }
           s.more.hidden = s.finished;
           s.note.textContent = s.finished ? "You\u2019ve reached the available matches. Clear filters or use Restart feed to explore again." : s.filteredQueue ? "Filtered results load as you scroll." : "Keeps browsing your library; titles can return in different shelves further down.";
           virtualize(s);
@@ -2170,6 +2764,22 @@
           if (state === s && s.filterPending) applyFilters(s);
         }
       }
+      function findCachedInventory(scope, route) {
+        const exactKey = `${scope}:${route.page}:${route.parentId}`;
+        const exact = snapshots.get(exactKey);
+        if (exact && Date.now() - exact.at < 5 * 6e4) return exact.value;
+        if (!route.parentId && (route.page === "movies" || route.page === "shows")) {
+          const homeSnap = snapshots.get(`${scope}:home:`);
+          if (homeSnap && Date.now() - homeSnap.at < 5 * 6e4) {
+            const wantType = route.page === "movies" ? "Movie" : "Series";
+            return {
+              items: homeSnap.value.items.filter((i) => i.Type === wantType),
+              seasons: route.page === "shows" ? homeSnap.value.seasons : []
+            };
+          }
+        }
+        return null;
+      }
       async function initialize(s) {
         if (s.started) return;
         s.started = true;
@@ -2181,23 +2791,30 @@
           } catch (e) {
             localError = e;
           }
-          try {
-            const profile = await s.client.preferences();
-            s.profileVersion = profile.version;
+          const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
+          const cachedInv = findCachedInventory(s.scope, s.route);
+          const prefPromise = s.client.preferences().then((profile) => ({ ok: true, profile })).catch(() => ({ ok: false }));
+          const invPromise = cachedInv ? Promise.resolve(cachedInv) : s.client.inventory(s.route, (count, seasons) => {
+            if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons\u2026`;
+          });
+          const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
+          s.client.assertCurrent();
+          if (prefRes.ok) {
+            s.profileVersion = prefRes.profile.version;
             s.syncAvailable = true;
-            if (profile.config) s.config = validateConfig(profile.config);
-          } catch {
-            s.client.assertCurrent();
+            if (prefRes.profile.config) {
+              s.config = validateConfig(prefRes.profile.config);
+              try {
+                localStorage.setItem(configKey(s.api), JSON.stringify(s.config));
+              } catch {
+              }
+            }
+          } else {
             s.syncAvailable = false;
           }
           if (!s.config) throw localError || Error("No valid discovery configuration.");
           s.profile = s.config.pages[s.route.page];
-          const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
-          const cached = snapshots.get(cacheKey);
-          s.inventory = cached && Date.now() - cached.at < 5 * 6e4 ? cached.value : await s.client.inventory(s.route, (count, seasons) => {
-            if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons\u2026`;
-          });
-          s.client.assertCurrent();
+          s.inventory = inv;
           snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
           if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
           s.badges = seasonBadges(s.inventory.seasons, s.now);
@@ -2227,6 +2844,7 @@
           decorateNative(s);
         } catch {
           if (state !== s) return;
+          s.failed = true;
           s.status.textContent = "Discovery could not start. The normal view is restored. Check Customize for invalid rules or use Restart feed to try again.";
           setMode(s, true, false);
         }
@@ -2261,12 +2879,10 @@
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1e3);
       }
-      function customize(s) {
-        closeDialog();
-        const dialog = element("dialog", "fx-dialog");
-        dialog.id = "fx-customize";
+      function buildSettingsContent(s, container, isDialog = true) {
+        var _a2, _b2;
         const title = element("h2", "", "Customize discovery");
-        const help = element("p", "", s.syncAvailable ? "Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices." : "The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.");
+        const help = element("p", "fx-dialog-lead", s.syncAvailable ? "Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices." : "The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.");
         const input = element("textarea");
         input.spellcheck = false;
         input.setAttribute("aria-label", "Discovery configuration JSON");
@@ -2275,7 +2891,7 @@
         } catch {
           input.value = localStorage.getItem(configKey(s.api)) || JSON.stringify(DEFAULT_CONFIG2, null, 2);
         }
-        const error = element("p");
+        const error = element("p", "fx-editor-alert");
         error.setAttribute("role", "alert");
         const visual = element("div", "fx-visual-editor");
         let initial;
@@ -2287,6 +2903,15 @@
         const editor = createVisualEditor(visual, initial, s.route.page, s.inventory, (c) => {
           input.value = JSON.stringify(c, null, 2);
         }, { element, button, supplied: DEFAULT_CONFIG2 });
+        if (!((_b2 = (_a2 = s.inventory) == null ? void 0 : _a2.items) == null ? void 0 : _b2.length) && s.client) {
+          s.client.inventory({ page: "home", parentId: "" }).then((inv) => {
+            var _a3;
+            s.inventory = inv;
+            snapshots.set(`${s.scope}:home:`, { at: Date.now(), value: inv });
+            (_a3 = editor.setInventory) == null ? void 0 : _a3.call(editor, inv);
+          }).catch(() => {
+          });
+        }
         const advanced = element("details", "fx-advanced");
         advanced.append(element("summary", "", "Advanced: JSON import / export"));
         input.addEventListener("change", () => {
@@ -2302,16 +2927,25 @@
           apply.disabled = true;
           try {
             const config = validateConfig(JSON.parse(input.value));
-            if (s.syncAvailable) await s.client.savePreferences(config, s.profileVersion);
+            if (s.syncAvailable) {
+              const saved = await s.client.savePreferences(config, s.profileVersion);
+              if ((saved == null ? void 0 : saved.version) !== void 0) s.profileVersion = saved.version;
+            }
             localStorage.setItem(configKey(s.api), JSON.stringify(config));
-            closeDialog();
-            restart(true);
+            if (isDialog) {
+              closeDialog();
+              restart(true);
+            } else {
+              error.textContent = "Saved to your Jellyfin profile! Reload Home, Movies, or Shows to see your updated shelves.";
+              restart(true);
+            }
           } catch (e) {
             error.textContent = (e == null ? void 0 : e.status) === 409 ? "Preferences changed on another device. Close and reopen Customize before saving." : (e == null ? void 0 : e.message) || "Could not save preferences. Check the connection and try again.";
           } finally {
             apply.disabled = false;
           }
         });
+        apply.className = "fx-btn-primary";
         const reset = button("Load supplied rules", () => {
           input.value = JSON.stringify(DEFAULT_CONFIG2, null, 2);
           editor.setConfig(DEFAULT_CONFIG2);
@@ -2324,7 +2958,7 @@
             error.textContent = e.message;
           }
         });
-        const device = element("div", "fx-dialog-actions"), control = button(`Controls: ${controlsMode(s).mode}`, () => controlToggle(s, control));
+        const device = element("div", "fx-dialog-actions fx-device-bar"), control = button(`Controls: ${controlsMode(s).mode}`, () => controlToggle(s, control));
         device.append(control, button("Use normal Home", () => {
           localStorage.setItem(prefKey(s.api, "home"), "native");
           error.textContent = "Normal Home selected for this device.";
@@ -2332,7 +2966,7 @@
           localStorage.setItem(prefKey(s.api, "home"), "discover");
           error.textContent = "Discovery Home selected for this device.";
         }), button("Reshuffle feed", () => {
-          closeDialog();
+          if (isDialog) closeDialog();
           restart(true);
         }));
         const file = element("input");
@@ -2340,9 +2974,9 @@
         file.accept = ".json,application/json";
         file.setAttribute("aria-label", "Import discovery configuration or old shelf rules");
         file.addEventListener("change", async () => {
-          var _a2;
+          var _a3;
           try {
-            const selected = (_a2 = file.files) == null ? void 0 : _a2[0];
+            const selected = (_a3 = file.files) == null ? void 0 : _a3[0];
             if (!selected) return;
             if (selected.size > 1e6) throw Error("Use a JSON file smaller than 1 MB.");
             const imported = JSON.parse(await selected.text());
@@ -2350,12 +2984,12 @@
               const c = validateConfig(JSON.parse(input.value));
               c.pages.home.rules = imported;
               c.pages.movies.rules = imported.filter((r) => {
-                var _a3;
-                return (_a3 = r.Types) == null ? void 0 : _a3.includes("Movie");
+                var _a4;
+                return (_a4 = r.Types) == null ? void 0 : _a4.includes("Movie");
               }).map((r) => ({ ...r, Types: ["Movie"] }));
               c.pages.shows.rules = imported.filter((r) => {
-                var _a3;
-                return (_a3 = r.Types) == null ? void 0 : _a3.includes("Series");
+                var _a4;
+                return (_a4 = r.Types) == null ? void 0 : _a4.includes("Series");
               }).map((r) => ({ ...r, Types: ["Series"] }));
               input.value = JSON.stringify(validateConfig(c), null, 2);
             } else input.value = JSON.stringify(validateConfig(imported), null, 2);
@@ -2365,18 +2999,24 @@
             error.textContent = e.message;
           }
         });
-        actions.append(apply, exportButton, reset, button("Cancel", closeDialog));
         advanced.replaceChildren(element("summary", "", "Advanced: JSON import / export"), file, input, exportButton, reset);
-        actions.replaceChildren(apply, button("Cancel", closeDialog));
-        dialog.append(title, help, device, visual, advanced, error, actions);
+        if (isDialog) actions.replaceChildren(apply, button("Cancel", closeDialog));
+        else actions.replaceChildren(apply);
+        container.append(title, help, device, visual, advanced, error, actions);
+      }
+      function customize(s) {
+        closeDialog();
+        const dialog = element("dialog", "fx-dialog");
+        dialog.id = "fx-customize";
+        buildSettingsContent(s, dialog, true);
         openDialog(dialog);
       }
       let settingsScope = "";
-      async function openUserSettings(api) {
+      async function buildStandaloneSettingsState(api) {
         var _a2;
-        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
         const scope = scopeKey(api);
-        const s = { api, scope, root: element("div"), route: { page: "home" }, config: null };
+        const inv = (state == null ? void 0 : state.inventory) || findCachedInventory(scope, { page: "home", parentId: "" });
+        const s = { api, scope, root: element("div"), route: { page: ((_a2 = state == null ? void 0 : state.route) == null ? void 0 : _a2.page) || "home" }, config: null, inventory: inv };
         try {
           s.config = readConfig(api);
         } catch {
@@ -2390,7 +3030,22 @@
         } catch {
           s.client.assertCurrent();
         }
+        return s;
+      }
+      async function openUserSettings(api) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
+        const s = await buildStandaloneSettingsState(api);
         customize(s);
+      }
+      async function mountInlineSettings(host, api = window.ApiClient) {
+        var _a2;
+        if (!host || !((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
+        host.replaceChildren(element("p", "fx-status", "Loading your Discovery profile and library categories\u2026"));
+        const s = await buildStandaloneSettingsState(api);
+        host.replaceChildren();
+        host.classList.add("fx-inline-studio");
+        buildSettingsContent(s, host, false);
       }
       function syncSettings(api) {
         var _a2;
@@ -2483,7 +3138,7 @@
         }
         const key = `${scope}:${route.page}:${route.parentId}:${route.view || "home"}`;
         if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
-          if (!state.full && state.slots.length) syncNative(state, true);
+          if (!state.full && !state.failed) syncNative(state, true);
           decorateNative(state);
           return;
         }
@@ -2492,7 +3147,7 @@
         const root = element("div", "fx-discovery"), toolbar = element("div", "fx-toolbar"), list = element("div"), status = element("p", "fx-status"), footer = element("div", "fx-footer"), panel = element("div", "fx-filters"), matchCount = element("p", "fx-match-count");
         panel.hidden = true;
         status.setAttribute("role", "status");
-        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: /* @__PURE__ */ new Map(), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, shuffle: hash(String(Date.now())) };
+        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: /* @__PURE__ */ new Map(), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
         s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
         s.toggle = button(route.page === "home" ? "Normal home" : "Full library", () => setMode(s, !s.full));
         s.more = button("Load more", () => {
@@ -2706,10 +3361,17 @@
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
+        if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
+          const rh = element("script");
+          rh.defer = true;
+          rh.src = "../RequestHub/Assets/web.js";
+          rh.dataset.requesthubAsset = "browser";
+          document.head.append(rh);
+        }
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog")) && (r.type === "childList" || r.attributeName === "class");
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
@@ -2728,6 +3390,7 @@
         version: VERSION,
         restart,
         openSettings: () => openUserSettings(window.ApiClient),
+        mountSettings: (host) => mountInlineSettings(host, window.ApiClient),
         diagnostics: () => {
           var _a2, _b2;
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };

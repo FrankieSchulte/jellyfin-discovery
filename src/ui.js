@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.0';
+const VERSION = '0.4.1';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -137,17 +137,83 @@ function fillSlot(slot, s) {
   const row = slot.data;
   slot.node.replaceChildren(); slot.node.className = 'fx-shelf'; slot.node.style.height = '';
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
-  const scroll = direction => {const end=Math.max(0,track.scrollWidth-track.clientWidth);if(direction>0&&track.scrollLeft>=end-2)track.scrollLeft=0;else if(direction<0&&track.scrollLeft<=2)track.scrollLeft=end;else track.scrollBy({left:direction*Math.max(250,track.clientWidth*.85),behavior:'smooth'});};
-  track.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;const end=track.scrollWidth-track.clientWidth;if(end>0&&(e.deltaX>0&&track.scrollLeft>=end-2||e.deltaX<0&&track.scrollLeft<=2)){e.preventDefault();scroll(e.deltaX>0?1:-1);}},{passive:false});
-  let touchX;track.addEventListener('touchstart',e=>touchX=e.touches[0]?.clientX,{passive:true});track.addEventListener('touchend',e=>{const delta=touchX-e.changedTouches[0]?.clientX;if(Math.abs(delta)>40){const end=track.scrollWidth-track.clientWidth;if(end>0&&(delta>0&&track.scrollLeft>=end-2||delta<0&&track.scrollLeft<=2))scroll(delta>0?1:-1);}},{passive:true});
+  const baseCount = row.items.length;
+  const copies = row.key !== 'MyMedia' && baseCount >= 2 ? Math.max(4, Math.ceil(20 / baseCount)) : 1;
+  const cycleWidth = () => {
+    if (copies <= 1) return 0;
+    const first = track.children[0], secondCycle = track.children[baseCount];
+    return first && secondCycle && typeof secondCycle.offsetLeft === 'number' && secondCycle.offsetLeft > first.offsetLeft ? secondCycle.offsetLeft - first.offsetLeft : 0;
+  };
+  const normalizeLoop = () => {
+    const cw = cycleWidth();
+    if (!cw) return;
+    while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
+    if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
+  };
+  const scroll = direction => {
+    const cw = cycleWidth(), step = Math.max(250, track.clientWidth * 0.85);
+    if (cw > 0) {
+      if (direction > 0) {
+        while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
+        track._fxMoved = true;
+        track.scrollBy({ left: step, behavior: 'smooth' });
+      } else {
+        if (track.scrollLeft < step) track.scrollLeft += cw;
+        track._fxMoved = true;
+        track.scrollBy({ left: -step, behavior: 'smooth' });
+      }
+      return;
+    }
+    const end = Math.max(0, track.scrollWidth - track.clientWidth);
+    if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
+    else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
+    else track.scrollBy({ left: direction * step, behavior: 'smooth' });
+  };
+  track.addEventListener('scroll', () => {
+    if (track.scrollLeft > 12) track._fxMoved = true;
+    normalizeLoop();
+  }, { passive: true });
+  track.addEventListener('wheel', e => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    const cw = cycleWidth();
+    if (cw > 0) {
+      if (e.deltaX < 0 && track.scrollLeft <= 12) { track.scrollLeft += cw; track._fxMoved = true; }
+      else if (e.deltaX > 0 && track.scrollLeft >= cw * (copies - 1.5)) { track.scrollLeft -= cw; track._fxMoved = true; }
+      return;
+    }
+    const end = track.scrollWidth - track.clientWidth;
+    if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) { e.preventDefault(); scroll(e.deltaX > 0 ? 1 : -1); }
+  }, { passive: false });
+  let touchX;
+  track.addEventListener('touchstart', e => {
+    touchX = e.touches[0]?.clientX;
+    const cw = cycleWidth();
+    if (cw > 0 && track.scrollLeft <= 12) { track.scrollLeft += cw; track._fxMoved = true; }
+  }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const delta = touchX - e.changedTouches[0]?.clientX;
+    if (Math.abs(delta) > 40) {
+      const cw = cycleWidth();
+      if (cw > 0) { normalizeLoop(); return; }
+      const end = track.scrollWidth - track.clientWidth;
+      if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
+    }
+  }, { passive: true });
   const back = button('‹', () => scroll(-1)), forward = button('›', () => scroll(1));
   back.setAttribute('aria-label', `Previous ${row.title}`); forward.setAttribute('aria-label', `More ${row.title}`);
   const token = row.family === 'anchor' ? `anchor:${row.key}` : row.family === 'theme' ? row.key : `family:${row.family}`;
   const requested = s.profile.layouts?.[token] || row.layout || 'auto';
-  const portraitOnly=row.key!=='MyMedia'&&row.items.filter(i=>!i.ImageTags?.Thumb&&!i.BackdropImageTags?.length&&!i.ParentBackdropImageTags?.length&&(i.ImageTags?.Primary||i.ProviderIds?.JellyseerrPoster)&&(!i.PrimaryImageAspectRatio||i.PrimaryImageAspectRatio<1)).length>row.items.length/2;
+  const portraitOnly = row.key !== 'MyMedia' && row.items.filter(i => !i.ImageTags?.Thumb && !i.BackdropImageTags?.length && !i.ParentBackdropImageTags?.length && (i.ImageTags?.Primary || i.ProviderIds?.JellyseerrPoster) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1)).length > row.items.length / 2;
   const layout = requested === 'auto' ? (row.external || row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || portraitOnly ? 'portrait' : 'landscape') : requested;
   slot.node.dataset.layout = layout;
-  head.append(title, back, forward); row.items.forEach(item => track.append(renderCard(item, s, true, layout)));
+  head.append(title, back, forward);
+  for (let copy = 0; copy < copies; copy++) {
+    row.items.forEach(item => {
+      const cardNode = renderCard(item, s, true, layout);
+      if (copy > 0) cardNode.dataset.loopClone = String(copy);
+      track.append(cardNode);
+    });
+  }
   slot.node.append(head, track); slot.live = true;
 }
 function virtualize(s) {
@@ -252,7 +318,7 @@ function setMode(s, full, remember = true) {
   s.full = full; s.list.hidden = full; s.footer.hidden = full;
   s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
-  syncNative(s, !(full || (!s.slots.length && !s.filteredQueue)));
+  syncNative(s, !(full || s.failed));
   if (remember) { try { localStorage.setItem(prefKey(s.api, s.route.page), full ? 'native' : 'discover'); } catch { s.status.textContent = 'View preference could not be saved in this browser.'; } }
   if (!s.started) initialize(s);
   else if (!full && s.planner && !s.slots.length) loadMore(s);
@@ -301,13 +367,19 @@ async function loadMore(s, automatic = false) {
       const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' ? row.items : await s.client.hydrate(row.items);
       s.client.assertCurrent();
       if (state !== s) return;
-      if (items.length) appendRow({ ...row, items }, s);
+      if (items.length) {
+        appendRow({ ...row, items }, s);
+        if (s.slots.length === 1 && !s.full) { s.failed = false; syncNative(s, true); }
+      }
       s.pending = null;
     }
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
-    if ((s.slots.length || s.filteredQueue) && !s.full) setMode(s, false, false);
-    if (!s.slots.length) s.status.textContent = s.filteredQueue ? 'No matching titles. Clear a filter to broaden your search.' : 'No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.';
+    if ((s.slots.length || s.filteredQueue) && !s.full) { s.failed = false; setMode(s, false, false); }
+    if (!s.slots.length) {
+      if (!s.filteredQueue) { s.failed = true; syncNative(s, false); }
+      s.status.textContent = s.filteredQueue ? 'No matching titles. Clear a filter to broaden your search.' : 'No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.';
+    }
     s.more.hidden = s.finished;
     s.note.textContent = s.finished ? 'You’ve reached the available matches. Clear filters or use Restart feed to explore again.' : s.filteredQueue ? 'Filtered results load as you scroll.' : 'Keeps browsing your library; titles can return in different shelves further down.';
     virtualize(s);
@@ -319,24 +391,51 @@ async function loadMore(s, automatic = false) {
     if(state===s&&s.filterPending)applyFilters(s);
   }
 }
+function findCachedInventory(scope, route) {
+  const exactKey = `${scope}:${route.page}:${route.parentId}`;
+  const exact = snapshots.get(exactKey);
+  if (exact && Date.now() - exact.at < 5 * 60000) return exact.value;
+  if (!route.parentId && (route.page === 'movies' || route.page === 'shows')) {
+    const homeSnap = snapshots.get(`${scope}:home:`);
+    if (homeSnap && Date.now() - homeSnap.at < 5 * 60000) {
+      const wantType = route.page === 'movies' ? 'Movie' : 'Series';
+      return {
+        items: homeSnap.value.items.filter(i => i.Type === wantType),
+        seasons: route.page === 'shows' ? homeSnap.value.seasons : []
+      };
+    }
+  }
+  return null;
+}
 async function initialize(s) {
   if (s.started) return;
   s.started = true; s.status.textContent = 'Reading library metadata…';
   try {
     let localError;
     try{s.config=readConfig(s.api);}catch(e){localError=e;}
-    try {
-      const profile=await s.client.preferences();s.profileVersion=profile.version;s.syncAvailable=true;
-      if(profile.config)s.config=validateConfig(profile.config);
-    } catch { s.client.assertCurrent();s.syncAvailable=false; }
+    const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
+    const cachedInv = findCachedInventory(s.scope, s.route);
+    const prefPromise = s.client.preferences().then(profile => ({ ok: true, profile })).catch(() => ({ ok: false }));
+    const invPromise = cachedInv
+      ? Promise.resolve(cachedInv)
+      : s.client.inventory(s.route, (count, seasons) => {
+          if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons…`;
+        });
+    const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
+    s.client.assertCurrent();
+    if (prefRes.ok) {
+      s.profileVersion = prefRes.profile.version;
+      s.syncAvailable = true;
+      if (prefRes.profile.config) {
+        s.config = validateConfig(prefRes.profile.config);
+        try { localStorage.setItem(configKey(s.api), JSON.stringify(s.config)); } catch {}
+      }
+    } else {
+      s.syncAvailable = false;
+    }
     if(!s.config)throw localError||Error('No valid discovery configuration.');
     s.profile=s.config.pages[s.route.page];
-    const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
-    const cached = snapshots.get(cacheKey);
-    s.inventory = cached && Date.now() - cached.at < 5 * 60000 ? cached.value : await s.client.inventory(s.route, (count, seasons) => {
-      if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons…`;
-    });
-    s.client.assertCurrent();
+    s.inventory = inv;
     snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
     if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
     s.badges = seasonBadges(s.inventory.seasons, s.now);
@@ -352,6 +451,7 @@ async function initialize(s) {
     decorateNative(s);
   } catch {
     if (state !== s) return;
+    s.failed = true;
     s.status.textContent = 'Discovery could not start. The normal view is restored. Check Customize for invalid rules or use Restart feed to try again.';
     setMode(s, true, false);
   }
@@ -372,30 +472,45 @@ function download(name, obj) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
   const a = element('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function customize(s) {
-  closeDialog();
-  const dialog = element('dialog', 'fx-dialog'); dialog.id = 'fx-customize';
+function buildSettingsContent(s, container, isDialog = true) {
   const title = element('h2', '', 'Customize discovery');
-  const help = element('p', '', s.syncAvailable ? 'Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices.' : 'The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.');
+  const help = element('p', 'fx-dialog-lead', s.syncAvailable ? 'Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices.' : 'The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.');
   const input = element('textarea'); input.spellcheck = false; input.setAttribute('aria-label', 'Discovery configuration JSON');
   try { input.value = JSON.stringify(s.config || readConfig(s.api), null, 2); } catch { input.value = localStorage.getItem(configKey(s.api)) || JSON.stringify(DEFAULT_CONFIG, null, 2); }
-  const error = element('p'); error.setAttribute('role', 'alert');
+  const error = element('p', 'fx-editor-alert'); error.setAttribute('role', 'alert');
   const visual=element('div','fx-visual-editor');
   let initial;try{initial=validateConfig(JSON.parse(input.value));}catch{initial=DEFAULT_CONFIG;}
   const editor=createVisualEditor(visual,initial,s.route.page,s.inventory,c=>{input.value=JSON.stringify(c,null,2);},{element,button,supplied:DEFAULT_CONFIG});
+  if(!s.inventory?.items?.length&&s.client){
+    s.client.inventory({page:'home',parentId:''}).then(inv=>{
+      s.inventory=inv;
+      snapshots.set(`${s.scope}:home:`,{at:Date.now(),value:inv});
+      editor.setInventory?.(inv);
+    }).catch(()=>{});
+  }
   const advanced=element('details','fx-advanced');advanced.append(element('summary','','Advanced: JSON import / export'));
   input.addEventListener('change',()=>{try{editor.setConfig(validateConfig(JSON.parse(input.value)));error.textContent='';}catch(e){error.textContent=e.message;}});
   const actions = element('div', 'fx-dialog-actions');
   const apply = button('Apply', async () => {
     apply.disabled=true;
-    try { const config = validateConfig(JSON.parse(input.value)); if(s.syncAvailable)await s.client.savePreferences(config,s.profileVersion);localStorage.setItem(configKey(s.api), JSON.stringify(config));closeDialog();restart(true); }
+    try {
+      const config = validateConfig(JSON.parse(input.value));
+      if(s.syncAvailable){
+        const saved = await s.client.savePreferences(config,s.profileVersion);
+        if(saved?.version!==undefined)s.profileVersion=saved.version;
+      }
+      localStorage.setItem(configKey(s.api), JSON.stringify(config));
+      if(isDialog){closeDialog();restart(true);}
+      else{error.textContent='Saved to your Jellyfin profile! Reload Home, Movies, or Shows to see your updated shelves.';restart(true);}
+    }
     catch (e) { error.textContent = e?.status===409 ? 'Preferences changed on another device. Close and reopen Customize before saving.' : e?.message || 'Could not save preferences. Check the connection and try again.'; }
     finally{apply.disabled=false;}
   });
+  apply.className='fx-btn-primary';
   const reset = button('Load supplied rules', () => { input.value = JSON.stringify(DEFAULT_CONFIG, null, 2);editor.setConfig(DEFAULT_CONFIG); error.textContent = 'Review the rules, then Apply to save.'; });
   const exportButton = button('Export JSON', () => { try { download('fazfort-discovery-config.json', validateConfig(JSON.parse(input.value))); } catch (e) { error.textContent = e.message; } });
-  const device=element('div','fx-dialog-actions'),control=button(`Controls: ${controlsMode(s).mode}`,()=>controlToggle(s,control));
-  device.append(control,button('Use normal Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'native');error.textContent='Normal Home selected for this device.';}),button('Use Discovery Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'discover');error.textContent='Discovery Home selected for this device.';}),button('Reshuffle feed',()=>{closeDialog();restart(true);}));
+  const device=element('div','fx-dialog-actions fx-device-bar'),control=button(`Controls: ${controlsMode(s).mode}`,()=>controlToggle(s,control));
+  device.append(control,button('Use normal Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'native');error.textContent='Normal Home selected for this device.';}),button('Use Discovery Home',()=>{localStorage.setItem(prefKey(s.api,'home'),'discover');error.textContent='Discovery Home selected for this device.';}),button('Reshuffle feed',()=>{if(isDialog)closeDialog();restart(true);}));
   const file = element('input'); file.type = 'file'; file.accept = '.json,application/json'; file.setAttribute('aria-label', 'Import discovery configuration or old shelf rules');
   file.addEventListener('change', async () => {
     try {
@@ -412,18 +527,39 @@ function customize(s) {
       editor.setConfig(validateConfig(JSON.parse(input.value)));error.textContent = 'Imported for review. Apply to save.';
     } catch (e) { error.textContent = e.message; }
   });
-  actions.append(apply, exportButton, reset, button('Cancel', closeDialog));
   advanced.replaceChildren(element('summary','','Advanced: JSON import / export'),file,input,exportButton,reset);
-  actions.replaceChildren(apply,button('Cancel',closeDialog));
-  dialog.append(title,help,device,visual,advanced,error,actions);openDialog(dialog);
+  if(isDialog)actions.replaceChildren(apply,button('Cancel',closeDialog));
+  else actions.replaceChildren(apply);
+  container.append(title,help,device,visual,advanced,error,actions);
+}
+function customize(s) {
+  closeDialog();
+  const dialog = element('dialog', 'fx-dialog'); dialog.id = 'fx-customize';
+  buildSettingsContent(s, dialog, true);
+  openDialog(dialog);
 }
 let settingsScope='';
-async function openUserSettings(api){
-  if(!api?.getCurrentUserId?.())return;
-  const scope=scopeKey(api);const s={api,scope,root:element('div'),route:{page:'home'},config:null};try{s.config=readConfig(api);}catch{}
+async function buildStandaloneSettingsState(api){
+  const scope=scopeKey(api);
+  const inv=state?.inventory||findCachedInventory(scope,{page:'home',parentId:''});
+  const s={api,scope,root:element('div'),route:{page:state?.route?.page||'home'},config:null,inventory:inv};
+  try{s.config=readConfig(api);}catch{}
   s.client=new JellyfinClient(api,()=>scopeKey(api)===scope);
   try{const profile=await s.client.preferences();s.config=profile.config?validateConfig(profile.config):s.config;s.profileVersion=profile.version;s.syncAvailable=true;}catch{s.client.assertCurrent();}
+  return s;
+}
+async function openUserSettings(api){
+  if(!api?.getCurrentUserId?.())return;
+  const s=await buildStandaloneSettingsState(api);
   customize(s);
+}
+async function mountInlineSettings(host, api = window.ApiClient){
+  if(!host||!api?.getCurrentUserId?.())return;
+  host.replaceChildren(element('p','fx-status','Loading your Discovery profile and library categories…'));
+  const s=await buildStandaloneSettingsState(api);
+  host.replaceChildren();
+  host.classList.add('fx-inline-studio');
+  buildSettingsContent(s, host, false);
 }
 function syncSettings(api){
   const scope=api?.getCurrentUserId?.()?scopeKey(api):'';
@@ -476,12 +612,12 @@ function reconcile() {
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
-  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { if(!state.full && state.slots.length)syncNative(state,true); decorateNative(state); return; }
+  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { if(!state.full && !state.failed)syncNative(state,true); decorateNative(state); return; }
   cleanup();
   const token = generation;
   const root = element('div', 'fx-discovery'), toolbar = element('div', 'fx-toolbar'), list = element('div'), status = element('p', 'fx-status'), footer = element('div', 'fx-footer'), panel=element('div','fx-filters'),matchCount=element('p','fx-match-count');panel.hidden=true;
   status.setAttribute('role', 'status');
-  const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount,token, now: new Date(), slots: [], badges: new Map(), tracking:new Map(),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, shuffle: hash(String(Date.now())) };
+  const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount,token, now: new Date(), slots: [], badges: new Map(), tracking:new Map(),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
   s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
   s.toggle = button(route.page === 'home' ? 'Normal home' : 'Full library', () => setMode(s, !s.full));
   s.more = button('Load more', () => { s.pauseAutomatic = false; loadMore(s); });
@@ -593,8 +729,11 @@ function remoteKeyUp(event){
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
+  if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
+    const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
+  }
   observer = new MutationObserver(records => {
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
@@ -604,7 +743,7 @@ function start() {
   heartbeat = setInterval(schedule, 2000); reconcile();
 }
 window.FazFortDiscovery = {
-  version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient),
+  version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
     stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); snapshots.clear();savedFeeds.clear();

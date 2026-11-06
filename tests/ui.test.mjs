@@ -228,3 +228,35 @@ test('category arrows wrap at either horizontal edge and remote navigation loops
   shelf.querySelector('.fx-row-head button').click();assert.equal(track.scrollLeft,1000);
   f.storage.set('fazfort-discovery:controls:s:u','tv');const cards=track.querySelectorAll('.fx-card');cards[cards.length-1].focus();f.key(cards[cards.length-1],'ArrowRight',39);assert.equal(f.document.activeElement,cards[0]);f.ctx.window.FazFortDiscovery.stop();
 });
+test('default native categories are hidden immediately on mount before async inventory resolves',async()=>{
+  const f=fixture({delay:true});
+  assert.equal(f.document.querySelector('.homeSectionsContainer').getAttribute('data-fx-hero-anchor'),'true');
+  assert.equal(f.document.querySelector('.homeSectionsContainer .card').getAttribute('data-fx-native-hidden'),'true');
+  f.resolve();await f.settle();f.ctx.window.FazFortDiscovery.stop();
+});
+test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly without resetting to zero',async()=>{
+  const f=fixture();await f.settle();
+  const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track');
+  const clones=track.querySelectorAll('[data-loop-clone]');
+  assert.ok(clones.length>0);
+  [...track.children].forEach((child,idx)=>{Object.defineProperty(child,'offsetLeft',{configurable:true,value:idx*280});});
+  const baseCount=track.children.length-clones.length;
+  const cw=baseCount*280;
+  Object.defineProperties(track,{clientWidth:{value:800},scrollWidth:{value:track.children.length*280}});
+  track.scrollLeft=cw*2;
+  track.dispatchEvent(new f.ctx.document.defaultView.Event('scroll'));
+  assert.equal(track.scrollLeft,cw);
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('visual editor discovers possible categories from library metadata and toggles them on',async()=>{
+  const f=fixture();await f.settle();
+  [...f.document.querySelectorAll('.fx-toolbar button')].find(b=>b.textContent==='Customize').click();
+  const dialog=f.document.querySelector('#fx-customize');
+  const dirCard=[...dialog.querySelectorAll('.fx-candidate-card')].find(c=>c.textContent.includes('Directed by Director 0'));
+  assert.ok(dirCard);
+  const box=dirCard.querySelector('input[type="checkbox"]');
+  box.checked=true;box.dispatchEvent(new f.ctx.document.defaultView.Event('change',{bubbles:true}));
+  const draft=JSON.parse(dialog.querySelector('textarea').value);
+  assert.ok(draft.pages.home.rules.some(r=>r.Title==='Directed by Director 0'&&r.Enabled!==false));
+  f.ctx.window.FazFortDiscovery.stop();
+});

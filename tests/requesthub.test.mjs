@@ -40,3 +40,22 @@ test('sign-out removes Request Hub and all navigation links',async()=>{
 test('direct media links open an in-app title dialog without a request side effect',async()=>{
  const f=fixture({hash:'#/home?requesthub=discover&mediaType=tv&mediaId=42'});await f.settle();assert.ok(f.document.querySelector('.rh-dialog'));assert.equal(f.writes.length,0);f.stop();
 });
+
+test('SleekFin header proxy receives Discover button before separator and registers toolbar source',async()=>{
+ const f=fixture({hash:'#/home?requesthub=discover'});
+ const header=f.document.querySelector('header');
+ header.className='skinHeader';
+ const left=f.document.createElement('div');left.className='headerLeft';header.prepend(left);
+ const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
+ const homeBtn=f.document.createElement('button');homeBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:home');homeBtn.setAttribute('data-sleekfin-current','true');
+ const sep=f.document.createElement('span');sep.setAttribute('data-sleekfin-header-separator','true');
+ proxy.append(homeBtn,sep);header.append(proxy);
+ f.navigate('#/home?requesthub=discover');await f.settle();
+ assert.ok(left.querySelector('[data-rh-source="true"]'));
+ const link=proxy.querySelector('[data-rh-link="true"]');
+ assert.ok(link);
+ assert.equal(link.nextElementSibling,sep);
+ assert.equal(link.dataset.sleekfinCurrent,'true');
+ assert.equal(homeBtn.dataset.sleekfinCurrent,undefined);
+ f.stop();
+});
