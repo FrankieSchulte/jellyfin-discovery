@@ -1,12 +1,11 @@
-Jellyfin Discovery 0.4.2 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.3 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.2):
-- Fix vertical scroll jump/jank when loading additional shelves in Suggestions: batch DOM insertions across async hydration, preserve scrollRoot offset, prevent CSS scroll anchoring on footer/placeholder rows, and avoid redundant native-attribute thrashing or layout reflows during virtualization.
+Discovery (0.4.3):
+- Eliminate scroll jumpiness when loading more shelves: disable CSS scroll anchoring (`overflow-anchor: none`) across Discovery containers and shelves, remove scroll-snap and manual `scrollTop` resets that interrupted smooth compositor scrolling, lock card aspect-ratio width before image decode, and ignore SleekFin header/Request Hub mutations in the Discovery MutationObserver.
 
-Request Hub (0.4.2):
-- Exclude unreleased movies and TV shows (`releaseDate` / `firstAirDate` in the future or 0 votes without availability) across server-side and client-side Discover browsing, automatically fetching additional pages when needed so rows stay full.
-- Match SleekFin's exact `data-sleekfin-header-source-visual="true"` structure and flex alignment so the `Discover` compass icon in the header bar is properly centered and spaced like `Home`, `Movies`, `Shows`, and `Collections`.
-- Align Discover page layout with Movies and TV Shows: full-width edge-to-edge shelves (`clamp(16px, 4vw, 80px)` padding) and a clean top-left `Discover` title bar with an inline search input instead of a boxed gradient banner.
-- Replace single-row genre/studio/search results with a full multi-row responsive poster grid (`repeat(auto-fill, minmax(175px, 1fr))`) with infinite vertical scroll and a `← Back to Discover` button (plus clicking the `Discover` title/header button or pressing `Escape`/TV Back to return).
-- Remove redundant `Load more` buttons above category headers and add a 2:3 portrait `See More` card at the end of each horizontal carousel (`Trending Now`, `Popular Movies`, `Popular Series`) to open the full grid view.
-- Full TV remote directional navigation (`ArrowLeft`/`ArrowRight`/`ArrowUp`/`ArrowDown`, `Enter`, `Escape`/TV Back) across the Discover toolbar, filter chips, horizontal carousels, multi-row grid, and request modal.
+Request Hub (0.4.3):
+- Subpage title replaces `Discover` in the top-left heading (e.g., `Popular Movies`, `Adventure`, `A24`, `Netflix`), removing the `← Back to Discover` button and duplicate sub-heading.
+- De-select the `Discover` header button when viewing any Discover subpage (matching Jellyfin/SleekFin's `Collections` subpage behavior) so clicking the de-selected `Discover` header button returns directly to the main Discover overview.
+- Eliminate scroll jumpiness on the Discover page and subpages: stop toggling `<p class="rh-row-status">Loading…</p>` between `display: none` and `display: block` during horizontal/vertical scroll loads, batch newly fetched cards in a `DocumentFragment`, and set `overflow-anchor: none` across all Discover rows, tracks, and grids.
+- Replace the `Search` and `Browse all` buttons with a live search input (`"Search new movies and TV"`) featuring a faded search icon on the left that updates results as you type and returns to the Discover overview when cleared.
+- Add a `Networks` section (`Netflix`, `Disney+`, `Prime Video`, `Apple TV+`, `HBO`, `Hulu`, `Paramount+`, `Peacock`, `FX`, `AMC`, `Showtime`, `Adult Swim`) alongside `Movie Genres` and `Studios`, backed by `/api/v1/discover/tv/network/{id}`.

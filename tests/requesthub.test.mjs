@@ -61,19 +61,33 @@ test('SleekFin header proxy receives Discover button before separator and regist
  f.stop();
 });
 
-test('Discover hides unreleased titles, replaces Load more header buttons with See More portrait cards, and opens Genres in a grid with Back button',async()=>{
+test('Discover hides unreleased titles, replaces top-left title and deselects header tab on subpages, supports Networks and live search',async()=>{
  const f=fixture({hash:'#/home?requesthub=discover'});await f.settle();
  assert.equal([...f.document.querySelectorAll('.rh-card strong')].some(n=>n.textContent.includes('Unreleased Future Movie')),false);
  assert.equal([...f.document.querySelectorAll('.rh-row-head button')].some(b=>b.textContent==='Load more'),false);
+ assert.equal([...f.document.querySelectorAll('.rh-toolbar button')].length,0);
+ const searchInput=f.document.querySelector('.rh-search input');
+ assert.ok(searchInput);
+ assert.equal(searchInput.placeholder,'Search new movies and TV');
+ assert.ok(f.document.querySelector('.rh-search-icon'));
  assert.ok(f.document.querySelector('.rh-card.rh-see-more'));
+ const networkChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Netflix');
+ assert.ok(networkChip);
  const genreChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Action');
  assert.ok(genreChip);
+ const navLink=f.document.querySelector('[data-rh-link="true"]');
+ assert.equal(navLink.getAttribute('aria-current'),'page');
  genreChip.click();await f.settle();
  assert.ok(f.document.querySelector('.rh-grid'));
- const backBtn=f.document.querySelector('[data-rh-back="true"]');
- assert.ok(backBtn);
- backBtn.click();await f.settle();
+ assert.equal(f.document.querySelector('[data-rh-back="true"]'),null);
+ assert.equal(f.document.querySelector('.rh-page-title').textContent,'Action');
+ assert.equal(navLink.getAttribute('aria-current'),null);
+ assert.equal(navLink.dataset.sleekfinCurrent,undefined);
+ navLink.click();await f.settle();
  assert.equal(f.document.querySelector('.rh-grid'),null);
+ assert.equal(f.document.querySelector('.rh-page-title').textContent,'Discover');
+ assert.equal(navLink.getAttribute('aria-current'),'page');
+ assert.equal(navLink.dataset.sleekfinCurrent,'true');
  assert.ok(f.document.querySelector('.rh-row'));
  f.stop();
 });

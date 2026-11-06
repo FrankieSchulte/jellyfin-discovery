@@ -26,6 +26,7 @@ public static class HubPolicy
             "genres"=>"discover/genreslider/movie",
             "genre" when filter>0=>$"discover/movies/genre/{filter}"+suffix,
             "studio" when filter>0=>$"discover/movies/studio/{filter}"+suffix,
+            "network" when filter>0=>$"discover/tv/network/{filter}"+suffix,
             _=>throw new ArgumentException("Unsupported browse operation.")};
     }
     public static bool RequestValid(string type,int id,int[] seasons) => id>0&&type is "movie" or "tv"&&seasons.Length<=100&&seasons.Distinct().Count()==seasons.Length&&seasons.All(s=>s>=0&&s<1000)&&(type=="tv"?seasons.Length>0:seasons.Length==0);

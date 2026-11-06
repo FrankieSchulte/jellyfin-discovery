@@ -2,7 +2,7 @@
 (()=>{'use strict';
 if(!Element.prototype.replaceChildren)Element.prototype.replaceChildren=function(...nodes){while(this.firstChild)this.removeChild(this.firstChild);this.append(...nodes);};
 window.JellyfinRequestHub?.stop?.();
-let root=null,mainHost=null,searchInput=null,subviewActive=false,hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null;
+let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null;
 const el=(tag,text='',cls='')=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn,cls='')=>{const n=el('button',text,cls);n.type='button';n.onclick=fn;return n;};
 const scope=()=>{const api=window.ApiClient;return api?.getCurrentUserId?.()?`${api.serverId?.()}:${api.getCurrentUserId()}`:'';};
@@ -27,12 +27,16 @@ function restoreHidden(){
 }
 function cleanup(){
  generation++;
+ clearTimeout(searchTimer);
  clearGridScroll();
  root?.remove();
  root=null;
  mainHost=null;
+ pageTitleNode=null;
  searchInput=null;
  subviewActive=false;
+ document.documentElement?.removeAttribute('data-rh-active');
+ document.documentElement?.removeAttribute('data-rh-subview');
  restoreHidden();
 }
 const STATUS_LABELS={2:'Pending',3:'Processing',4:'Partly available',5:'Available',6:'Unavailable'};
@@ -193,24 +197,54 @@ function seeMoreCard(title,onOpen){
  n.append(frame,meta);
  return n;
 }
-function returnToOverview(){
+function syncHeaderActive(){
+ const active=isDiscoverHash();
+ const highlight=active&&!subviewActive;
+ if(active){
+  document.documentElement?.setAttribute('data-rh-active','true');
+  document.documentElement?.setAttribute('data-rh-subview',subviewActive?'true':'false');
+ }else{
+  document.documentElement?.removeAttribute('data-rh-active');
+  document.documentElement?.removeAttribute('data-rh-subview');
+ }
+ document.querySelectorAll('[data-rh-link],[data-rh-source]').forEach(n=>{
+  if(highlight){
+   n.setAttribute('aria-current','page');
+   n.dataset.sleekfinCurrent='true';
+  }else{
+   n.removeAttribute('aria-current');
+   delete n.dataset.sleekfinCurrent;
+  }
+ });
+ const proxy=document.querySelector('[data-sleekfin-header-proxy]');
+ if(proxy&&active){
+  proxy.querySelectorAll('[data-sleekfin-header-proxy-item="jellyfin:home"]').forEach(n=>{
+   delete n.dataset.sleekfinCurrent;
+   n.removeAttribute('aria-current');
+  });
+ }
+}
+function returnToOverview(clearSearch=true){
  if(!root||!mainHost)return;
+ clearTimeout(searchTimer);
  generation++;
  clearGridScroll();
  subviewActive=false;
- if(searchInput)searchInput.value='';
+ if(clearSearch&&searchInput)searchInput.value='';
+ if(pageTitleNode)pageTitleNode.textContent='Discover';
+ syncHeaderActive();
+ setTimeout(syncHeaderActive,50);
  mainHost.replaceChildren();
  home(mainHost);
 }
 async function gridView(host,title,kind,filter=null,query=null){
  clearGridScroll();
  subviewActive=true;
+ if(pageTitleNode)pageTitleNode.textContent=title;
+ syncHeaderActive();
+ setTimeout(syncHeaderActive,50);
  const token=generation;
  const sec=el('section','','rh-grid-section');
- const head=el('div','','rh-grid-head');
- const backBtn=button('← Back to Discover',()=>returnToOverview(),'rh-btn rh-back-btn');
- backBtn.dataset.rhBack='true';
- head.append(backBtn,el('h2',title,'rh-grid-heading'));
  const grid=el('div','','rh-grid');
  const status=el('p','','rh-row-status');
  status.setAttribute('role','status');
@@ -218,36 +252,43 @@ async function gridView(host,title,kind,filter=null,query=null){
  let page=0,pages=1,busy=false;
  const moreBtn=button('Load more',()=>loadBatch(),'rh-btn');
  footer.append(moreBtn);
- sec.append(head,grid,status,footer);
+ sec.append(grid,status,footer);
  host.append(sec);
 
  async function loadBatch(){
   if(busy||page>=pages||grid.children.length>=300)return;
   busy=true;
-  status.textContent='Loading…';
+  moreBtn.disabled=true;
+  moreBtn.textContent='Loading…';
   try{
    let added=0;
-   while(page<pages&&added<20&&grid.children.length<300){
+   const frag=document.createDocumentFragment();
+   while(page<pages&&added<20&&grid.children.length+added<300){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!sec.isConnected)return;
     page++;
     pages=data.pages||1;
     const items=(data.results||[]).filter(isReleased);
-    items.forEach(i=>{grid.append(card(i));added++;});
+    items.forEach(i=>{frag.append(card(i));added++;});
     if(!data.results?.length)break;
    }
+   if(added>0)grid.append(frag);
    status.textContent=grid.children.length?'':'No released titles found.';
    footer.hidden=page>=pages||grid.children.length>=300;
   }catch{
    if(sec.isConnected)status.textContent='Could not load titles. Check Request Hub configuration and your account mapping.';
   }finally{
    busy=false;
+   if(sec.isConnected){
+    moreBtn.disabled=false;
+    moreBtn.textContent='Load more';
+   }
   }
  }
  gridScrollHandler=()=>{
   if(!sec.isConnected||token!==generation){clearGridScroll();return;}
   const rect=footer.getBoundingClientRect();
-  if(rect.top<window.innerHeight+500)loadBatch();
+  if(rect.top<window.innerHeight+900)loadBatch();
  };
  window.addEventListener('scroll',gridScrollHandler,{passive:true,capture:true});
  await loadBatch();
@@ -265,24 +306,28 @@ async function rail(host,title,kind,filter=null,query=null){
  const load=async()=>{
   if(busy||page>=pages||track.querySelectorAll('.rh-card:not(.rh-see-more)').length>=160)return;
   busy=true;
-  status.textContent='Loading…';
   try{
    let added=0;
+   const frag=document.createDocumentFragment();
    while(page<pages&&added<12){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!row.isConnected)return;
     page++;pages=data.pages||1;
     const valid=(data.results||[]).filter(isReleased);
     valid.forEach(i=>{
-     const c=card(i);
-     if(tailCard.parentNode===track)track.insertBefore(c,tailCard);
-     else track.append(c);
+     frag.append(card(i));
      added++;
     });
     if(!data.results?.length)break;
    }
+   const savedLeft=track.scrollLeft;
+   if(added>0){
+    if(tailCard.parentNode===track)track.insertBefore(frag,tailCard);
+    else track.append(frag);
+   }
    const realCards=track.querySelectorAll('.rh-card:not(.rh-see-more)').length;
    if(realCards>0&&tailCard.parentNode!==track)track.append(tailCard);
+   if(track.scrollLeft!==savedLeft)track.scrollLeft=savedLeft;
    status.textContent=realCards?'':'No titles found.';
   }catch{
    if(row.isConnected)status.textContent='Could not load titles. Check Request Hub configuration and your account mapping.';
@@ -300,33 +345,49 @@ async function rail(host,title,kind,filter=null,query=null){
  heading.onclick=openFullGrid;
  heading.title=`View all ${title}`;
  head.append(heading,controls);
- track.addEventListener('scroll',()=>{if(track.scrollLeft+track.clientWidth>=track.scrollWidth-420&&track.querySelectorAll('.rh-card:not(.rh-see-more)').length<160)load();},{passive:true});
+ track.addEventListener('scroll',()=>{if(track.scrollLeft+track.clientWidth>=track.scrollWidth-520&&track.querySelectorAll('.rh-card:not(.rh-see-more)').length<160)load();},{passive:true});
  row.append(head,track,status);
  host.append(row);
  await load();
 }
 async function render(){
- const token=generation,toolbar=el('div','','rh-toolbar'),main=el('div','','rh-main'),search=el('form','','rh-search'),input=el('input');
+ const token=generation,toolbar=el('div','','rh-toolbar'),main=el('div','','rh-main'),search=el('form','','rh-search'),searchIcon=el('span','','material-icons search rh-search-icon'),input=el('input');
  mainHost=main;
  searchInput=input;
- input.type='search';input.placeholder='Search movies and TV';input.setAttribute('aria-label','Search movies and TV');
- const submit=button('Search',()=>{},'rh-btn rh-btn-primary');submit.type='submit';
- const browseAll=button('Browse all',()=>returnToOverview(),'rh-btn rh-btn-ghost');
- search.append(input,submit);
- search.onsubmit=e=>{
-  e.preventDefault();
+ searchIcon.setAttribute('aria-hidden','true');
+ input.type='search';input.placeholder='Search new movies and TV';input.setAttribute('aria-label','Search new movies and TV');input.autocomplete='off';
+ search.append(searchIcon,input);
+ const runSearch=()=>{
+  clearTimeout(searchTimer);
+  if(!root?.isConnected||!mainHost)return;
+  const q=input.value.trim();
+  if(!q){
+   if(subviewActive)returnToOverview(false);
+   return;
+  }
   generation++;
   clearGridScroll();
   main.replaceChildren();
-  const q=input.value.trim();
-  if(q)gridView(main,`Search results: "${q}"`,'search',null,q);
-  else{subviewActive=false;home(main);}
+  gridView(main,`Search: "${q}"`,'search',null,q);
+ };
+ input.addEventListener('input',()=>{
+  clearTimeout(searchTimer);
+  if(!input.value.trim()){
+   runSearch();
+   return;
+  }
+  searchTimer=setTimeout(runSearch,240);
+ });
+ search.onsubmit=e=>{
+  e.preventDefault();
+  runSearch();
  };
  const titleH1=el('h1','Discover','rh-page-title');
- titleH1.onclick=()=>returnToOverview();
+ pageTitleNode=titleH1;
+ titleH1.onclick=()=>{if(subviewActive)returnToOverview();};
  titleH1.title='Return to Discover overview';
  const actionsWrap=el('div','','rh-toolbar-right');
- actionsWrap.append(search,browseAll);
+ actionsWrap.append(search);
  toolbar.append(titleH1,actionsWrap);
  root.append(toolbar,main);
  await home(main);
@@ -336,6 +397,8 @@ async function render(){
 }
 async function home(main){
  subviewActive=false;
+ if(pageTitleNode)pageTitleNode.textContent='Discover';
+ syncHeaderActive();
  clearGridScroll();
  const token=generation;
  await rail(main,'Trending Now','trending');
@@ -356,7 +419,14 @@ async function home(main){
  });
  studios.append(studioList);
  pillGrid.append(studios);
- main.append(pillGrid);
+ const networks=el('section','','rh-pill-section');
+ networks.append(el('h2','Networks'));
+ const networkList=el('div','','rh-pills');
+ [[213,'Netflix'],[2739,'Disney+'],[1024,'Prime Video'],[2552,'Apple TV+'],[49,'HBO'],[453,'Hulu'],[4330,'Paramount+'],[3353,'Peacock'],[88,'FX'],[174,'AMC'],[67,'Showtime'],[80,'Adult Swim']].forEach(([id,name])=>{
+  networkList.append(button(name,()=>{generation++;main.replaceChildren();gridView(main,name,'network',id);},'rh-chip'));
+ });
+ networks.append(networkList);
+ pillGrid.append(networks);
  try{
   const data=await api('Browse',{kind:'genres'});
   if(token!==generation)return;
@@ -365,6 +435,7 @@ async function home(main){
   genreList.append(el('p','Genres are unavailable.','rh-muted'));
  }
  if(token!==generation)return;
+ main.append(pillGrid);
  await rail(main,'Popular Series','tv');
 }
 function openDiscoverRoute(e){
@@ -383,8 +454,8 @@ function openDiscoverRoute(e){
 function ensureNavigation(active){
  const headerLeft=document.querySelector('.skinHeader .headerLeft');
  if(headerLeft&&!headerLeft.querySelector('[data-rh-source]')){
-  const src=el('a','','headerButton headerButtonLeft rh-source-btn');
-  src.href='#/home?requesthub=discover';
+  const src=el('button','','headerButton headerButtonLeft rh-source-btn');
+  src.type='button';
   src.dataset.rhSource='true';
   src.dataset.headerLabel='Discover';
   src.title='Discover';
@@ -435,21 +506,7 @@ function ensureNavigation(active){
    nav.append(link);
   }
  }
- document.querySelectorAll('[data-rh-link]').forEach(n=>{
-  if(active){
-   n.setAttribute('aria-current','page');
-   n.dataset.sleekfinCurrent='true';
-  }else{
-   n.removeAttribute('aria-current');
-   delete n.dataset.sleekfinCurrent;
-  }
- });
- if(proxy&&active){
-  proxy.querySelectorAll('[data-sleekfin-header-proxy-item="jellyfin:home"]').forEach(n=>{
-   delete n.dataset.sleekfinCurrent;
-   n.removeAttribute('aria-current');
-  });
- }
+ syncHeaderActive();
 }
 function isDiscoverHash(){
  const h=String(location.hash||'');
@@ -556,6 +613,12 @@ const css=el('style');
 css.textContent=`
 [data-rh-hidden=true]{display:none!important}
 .rh-source-btn{display:none!important}
+html[data-rh-active="true"] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item="jellyfin:home"],
+html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy] > button[data-rh-link="true"]{
+ background:transparent!important;
+ color:var(--sleekfin-header-item-text, rgba(255,255,255,0.7))!important;
+ box-shadow:none!important;
+}
 [data-sleekfin-header-proxy] button[data-rh-link="true"] [data-sleekfin-header-source-visual="true"]{
  display:inline-flex!important;
  align-items:center!important;
@@ -577,6 +640,9 @@ css.textContent=`
 [data-sleekfin-header-proxy] button[data-rh-link="true"] [data-sleekfin-header-source-label="true"]{
  display:inline-block!important;
  line-height:1!important;
+}
+.rh-root,.rh-main,.rh-row,.rh-track,.rh-see-more,.rh-row-status,.rh-grid-section,.rh-grid,.rh-grid-footer{
+ overflow-anchor:none;
 }
 .rh-root{
  padding:calc(var(--sleekfin-header-height, 72px) + 12px) clamp(16px, 4vw, 80px) 48px;
@@ -611,20 +677,32 @@ css.textContent=`
  gap:10px;
 }
 .rh-search{
+ position:relative;
  display:flex;
  align-items:center;
- gap:8px;
+}
+.rh-search-icon{
+ position:absolute;
+ left:14px;
+ font-size:1.2rem;
+ line-height:1;
+ color:rgba(255,255,255,0.45);
+ pointer-events:none;
+ user-select:none;
 }
 .rh-search input{
- width:clamp(220px, 24vw, 340px);
+ width:clamp(240px, 26vw, 360px);
  font:inherit;
  font-size:0.92rem;
  color:#fff;
  background:#222;
  border:1px solid #555;
  border-radius:22px;
- padding:10px 16px;
+ padding:10px 16px 10px 40px;
  min-width:0;
+}
+.rh-search input::placeholder{
+ color:rgba(255,255,255,0.48);
 }
 .rh-search input:focus{
  outline:none;
@@ -723,7 +801,6 @@ a.rh-nav[aria-current=page]{
  padding:4px 3px 12px;
  scrollbar-width:none;
  -ms-overflow-style:none;
- scroll-snap-type:x proximity;
 }
 .rh-track::-webkit-scrollbar{display:none;width:0;height:0}
 .rh-card{
@@ -736,7 +813,6 @@ a.rh-nav[aria-current=page]{
  padding:0!important;
  background:transparent!important;
  border-radius:9px!important;
- scroll-snap-align:start;
  min-width:0;
 }
 .rh-poster{
@@ -866,7 +942,7 @@ a.rh-nav[aria-current=page]{
 }
 .rh-filter-sections{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+ grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
  gap:20px;
  margin:12px 0 26px;
 }
@@ -1023,7 +1099,7 @@ a.rh-nav[aria-current=page]{
 `;
 document.head.append(css);
 observer=new MutationObserver(records=>{
- if(records.some(r=>!r.target?.closest?.('.rh-root,[data-rh-link],[data-rh-source]'))){
+ if(records.some(r=>!r.target?.closest?.('.rh-root,[data-rh-link],[data-rh-source],.fx-discovery,.fx-dialog,.fx-inline-studio'))){
   clearTimeout(timer);
   timer=setTimeout(reconcile,80);
  }

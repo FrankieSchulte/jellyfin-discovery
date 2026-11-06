@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.2 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.3 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -950,23 +950,23 @@
         }
       }
     };
-    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box}
+    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
 .fx-shelf{margin:0 0 32px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:clamp(19px,1.7vw,28px);font-weight:600;margin:0 auto 0 0;border-left:3px solid #e50914;padding-left:10px}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
-.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scroll-snap-type:x proximity;scrollbar-width:thin}
-.fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);scroll-snap-align:start;min-width:0}
+.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
+.fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
 .fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}
-.fx-card-visual{position:relative;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
 .fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
 .fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
-.fx-footer{text-align:center;padding:20px;overflow-anchor:none}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row,.fx-status,.fx-toolbar{overflow-anchor:none;box-sizing:border-box}.fx-shelf:not(.fx-placeholder-row){overflow-anchor:auto}
+.fx-footer{text-align:center;padding:20px;overflow-anchor:none}.fx-footer p{color:#aaa;font-size:14px}.fx-shelf,.fx-placeholder-row,.fx-status,.fx-toolbar{overflow-anchor:none;box-sizing:border-box}
 .fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}
 .fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
 /* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
@@ -2142,7 +2142,7 @@
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.2";
+      const VERSION = "0.4.3";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -2728,11 +2728,7 @@
         const staged = [];
         const flushStaged = () => {
           if (!staged.length || state !== s || s.full) return;
-          const scrollRoot = s.slots.length ? findScrollRoot(s.root) : null;
-          const savedTop = scrollRoot ? scrollRoot.scrollTop : 0;
           while (staged.length) appendRow(staged.shift(), s);
-          virtualize(s);
-          if (scrollRoot && scrollRoot.scrollTop !== savedTop) scrollRoot.scrollTop = savedTop;
         };
         try {
           for (let n = 0; n < s.config.batchSize; n++) {
@@ -3396,7 +3392,7 @@
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio")) && (r.type === "childList" || r.attributeName === "class");
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });

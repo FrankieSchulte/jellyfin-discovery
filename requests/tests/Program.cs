@@ -10,6 +10,7 @@ Check(HubPolicy.OwnMapping(links,Guid.Empty)is null,"Empty identity fails closed
 foreach(var bad in new[]{"file:///etc/passwd","http://user:pass@host","https://host?key=secret","https://host/#f"}){try{HubPolicy.BaseUri(bad);throw new Exception("URL accepted");}catch(ArgumentException){checks++;}}
 Check(HubPolicy.BaseUri("http://host/base").AbsoluteUri=="http://host/base/api/v1/","Base URL retains path prefix");
 Check(HubPolicy.BrowsePath("search",2,"a&admin=true",null).EndsWith("query=a%26admin%3Dtrue"),"Search cannot inject upstream parameters");
+Check(HubPolicy.BrowsePath("network",1,null,213)=="discover/tv/network/213?page=1","Network browse path maps to TV network endpoint");
 try{HubPolicy.BrowsePath("../settings",1,null,null);throw new Exception("Path accepted");}catch(ArgumentException){checks++;}
 Check(HubPolicy.RequestValid("movie",1,[]),"Movie requests validate");Check(HubPolicy.RequestValid("tv",1,[1,2]),"Specific seasons validate");
 Check(!HubPolicy.RequestValid("tv",1,[]),"TV needs explicit seasons");Check(!HubPolicy.RequestValid("tv",1,[1,1]),"Duplicate seasons rejected");Check(!HubPolicy.RequestValid("person",1,[]),"Unsupported media rejected");

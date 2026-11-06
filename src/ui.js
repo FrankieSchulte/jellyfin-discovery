@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.2';
+const VERSION = '0.4.3';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -375,11 +375,7 @@ async function loadMore(s, automatic = false) {
   const staged = [];
   const flushStaged = () => {
     if (!staged.length || state !== s || s.full) return;
-    const scrollRoot = s.slots.length ? findScrollRoot(s.root) : null;
-    const savedTop = scrollRoot ? scrollRoot.scrollTop : 0;
     while (staged.length) appendRow(staged.shift(), s);
-    virtualize(s);
-    if (scrollRoot && scrollRoot.scrollTop !== savedTop) scrollRoot.scrollTop = savedTop;
   };
   try {
     for (let n = 0; n < s.config.batchSize; n++) {
@@ -765,7 +761,7 @@ function start() {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
