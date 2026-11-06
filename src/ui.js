@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.1';
+const VERSION = '0.4.2';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -135,7 +135,6 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
 }
 function fillSlot(slot, s) {
   const row = slot.data;
-  slot.node.replaceChildren(); slot.node.className = 'fx-shelf'; slot.node.style.height = '';
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
   const baseCount = row.items.length;
   const copies = row.key !== 'MyMedia' && baseCount >= 2 ? Math.max(4, Math.ceil(20 / baseCount)) : 1;
@@ -214,18 +213,22 @@ function fillSlot(slot, s) {
       track.append(cardNode);
     });
   }
-  slot.node.append(head, track); slot.live = true;
+  slot.node.replaceChildren(head, track); slot.node.className = 'fx-shelf'; slot.node.style.height = ''; slot.live = true;
+  if (slot.scrollLeft) track.scrollLeft = slot.scrollLeft;
 }
 function virtualize(s) {
   if (state !== s || !s.root.isConnected || s.full) return;
   const center = innerHeight / 2;
-  const ranked = s.slots.map(slot => ({ slot, distance: Math.abs((slot.node.getBoundingClientRect().top + slot.node.getBoundingClientRect().bottom) / 2 - center) })).sort((a, b) => a.distance - b.distance);
-  const keep = new Set(ranked.slice(0, s.config.maxLiveRows).map(x => x.slot));
-  for (const slot of s.slots) {
+  const measured = s.slots.map(slot => {
+    const r = slot.node.getBoundingClientRect();
+    return { slot, distance: Math.abs((r.top + r.bottom) / 2 - center), height: r.height };
+  });
+  const keep = new Set(measured.slice().sort((a, b) => a.distance - b.distance).slice(0, s.config.maxLiveRows).map(x => x.slot));
+  for (const { slot, height } of measured) {
     if (keep.has(slot) && !slot.live) fillSlot(slot, s);
     else if (!keep.has(slot) && slot.live && !slot.node.contains(document.activeElement)) {
-      const height = slot.node.getBoundingClientRect().height;
       if (height <= 0) continue;
+      slot.scrollLeft = slot.node.querySelector('.fx-track')?.scrollLeft || 0;
       slot.node.style.height = `${height}px`; slot.node.replaceChildren(); slot.node.className = 'fx-shelf fx-placeholder-row'; slot.live = false;
     }
   }
@@ -300,17 +303,27 @@ function restoreFeed(s, saved) {
   });
 }
 function syncNative(s, hide) {
-  s.native.removeAttribute('data-fx-native-hidden');
-  s.native.querySelectorAll('[data-fx-native-hidden]').forEach(n => n.removeAttribute('data-fx-native-hidden'));
-  s.native.removeAttribute('data-fx-hero-anchor');
-  if (!hide) return;
-  if (s.route.page !== 'home') { s.native.setAttribute('data-fx-native-hidden','true'); return; }
-  s.native.dataset.fxHeroAnchor = 'true';
+  if (!hide) {
+    s.native.removeAttribute('data-fx-native-hidden');
+    s.native.querySelectorAll('[data-fx-native-hidden]').forEach(n => n.removeAttribute('data-fx-native-hidden'));
+    s.native.removeAttribute('data-fx-hero-anchor');
+    return;
+  }
+  if (s.route.page !== 'home') {
+    if (s.native.getAttribute('data-fx-native-hidden') !== 'true') s.native.setAttribute('data-fx-native-hidden', 'true');
+    return;
+  }
+  if (s.native.dataset.fxHeroAnchor !== 'true') s.native.dataset.fxHeroAnchor = 'true';
+  if (s.native.hasAttribute('data-fx-native-hidden')) s.native.removeAttribute('data-fx-native-hidden');
   const protect = '.sleekfin-hero,.hero,#slides-container';
   const walk = parent => [...parent.children].forEach(node => {
     if (node.matches(protect) || node.closest('.fx-discovery')) return;
-    if (node.matches('.sections') || node.querySelector(`${protect},.sections`)) walk(node);
-    else node.setAttribute('data-fx-native-hidden','true');
+    if (node.matches('.sections') || node.querySelector(`${protect},.sections`)) {
+      if (node.hasAttribute('data-fx-native-hidden')) node.removeAttribute('data-fx-native-hidden');
+      walk(node);
+    } else if (node.getAttribute('data-fx-native-hidden') !== 'true') {
+      node.setAttribute('data-fx-native-hidden', 'true');
+    }
   });
   walk(s.native);
 }
@@ -359,6 +372,15 @@ async function nextRow(s) {
 async function loadMore(s, automatic = false) {
   if (state !== s || s.loading || s.full || s.finished || !s.planner || (automatic && s.pauseAutomatic)) return;
   s.loading = true; s.more.disabled = true; s.more.textContent = 'Loading…';
+  const staged = [];
+  const flushStaged = () => {
+    if (!staged.length || state !== s || s.full) return;
+    const scrollRoot = s.slots.length ? findScrollRoot(s.root) : null;
+    const savedTop = scrollRoot ? scrollRoot.scrollTop : 0;
+    while (staged.length) appendRow(staged.shift(), s);
+    virtualize(s);
+    if (scrollRoot && scrollRoot.scrollTop !== savedTop) scrollRoot.scrollTop = savedTop;
+  };
   try {
     for (let n = 0; n < s.config.batchSize; n++) {
       const row = s.pending || await nextRow(s);
@@ -368,14 +390,23 @@ async function loadMore(s, automatic = false) {
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length) {
-        appendRow({ ...row, items }, s);
-        if (s.slots.length === 1 && !s.full) { s.failed = false; syncNative(s, true); }
+        if (!s.slots.length && !staged.length && !s.full) {
+          appendRow({ ...row, items }, s);
+          s.failed = false; syncNative(s, true);
+        } else {
+          staged.push({ ...row, items });
+        }
       }
       s.pending = null;
     }
+    flushStaged();
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
-    if ((s.slots.length || s.filteredQueue) && !s.full) { s.failed = false; setMode(s, false, false); }
+    if ((s.slots.length || s.filteredQueue) && !s.full) {
+      s.failed = false;
+      s.filterToggle.disabled = !s.inventory;
+      syncNative(s, true);
+    }
     if (!s.slots.length) {
       if (!s.filteredQueue) { s.failed = true; syncNative(s, false); }
       s.status.textContent = s.filteredQueue ? 'No matching titles. Clear a filter to broaden your search.' : 'No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.';
@@ -384,6 +415,7 @@ async function loadMore(s, automatic = false) {
     s.note.textContent = s.finished ? 'You’ve reached the available matches. Clear filters or use Restart feed to explore again.' : s.filteredQueue ? 'Filtered results load as you scroll.' : 'Keeps browsing your library; titles can return in different shelves further down.';
     virtualize(s);
   } catch {
+    flushStaged();
     if (state === s) { s.pauseAutomatic = true; s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.'; }
   } finally {
     s.loading = false;

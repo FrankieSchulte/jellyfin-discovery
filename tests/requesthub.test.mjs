@@ -9,13 +9,14 @@ function fixture({deny=false,hash='#/home?requesthub=discover'}={}){
  window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollBy=function(){};
  let user='user-one';const listeners=new Map(),writes=[],reads=[];
  const location={hash};
- const item={id:42,type:'tv',title:'Series <script>untrusted</script>',overview:'Description',poster:'https://image.tmdb.org/t/p/w500/cover.jpg',status:0};
+ const item={id:42,type:'tv',title:'Series <script>untrusted</script>',overview:'Description',poster:'https://image.tmdb.org/t/p/w500/cover.jpg',status:0,releaseDate:'2024-01-15'};
+ const futureItem={id:99,type:'movie',title:'Unreleased Future Movie',overview:'Future',poster:'https://image.tmdb.org/t/p/w500/future.jpg',status:0,releaseDate:'2099-12-31'};
  const api={getCurrentUserId:()=>user,serverId:()=> 'server',getUrl:(path,query)=>({path,query}),getJSON:async ({path,query})=>{
   reads.push({path,query});if(deny)throw {status:403};if(path.endsWith('Details'))return {item,seasons:[1,2],canRequest:true};
-  if(query.kind==='genres')return {results:[{id:1,name:'Action'}],pages:1};return {results:[item],pages:1,canRequest:true};
+  if(query.kind==='genres')return {results:[{id:1,name:'Action'}],pages:1};return {results:[item,futureItem],pages:2,canRequest:true};
  },ajax:async options=>{writes.push(JSON.parse(options.data));return {message:'Submitted for approval'};}};
  const win={ApiClient:api,addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
- const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
+ const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
  vm.runInContext(source,ctx);const settle=async()=>{for(let n=0;n<100;n++)await Promise.resolve();};
  return {document,window,writes,reads,settle,stop:()=>win.JellyfinRequestHub.stop(),navigate(hash){location.hash=hash;listeners.get('hashchange')?.();},logout(){user=null;listeners.get('hashchange')?.();}};
 }
@@ -57,5 +58,22 @@ test('SleekFin header proxy receives Discover button before separator and regist
  assert.equal(link.nextElementSibling,sep);
  assert.equal(link.dataset.sleekfinCurrent,'true');
  assert.equal(homeBtn.dataset.sleekfinCurrent,undefined);
+ f.stop();
+});
+
+test('Discover hides unreleased titles, replaces Load more header buttons with See More portrait cards, and opens Genres in a grid with Back button',async()=>{
+ const f=fixture({hash:'#/home?requesthub=discover'});await f.settle();
+ assert.equal([...f.document.querySelectorAll('.rh-card strong')].some(n=>n.textContent.includes('Unreleased Future Movie')),false);
+ assert.equal([...f.document.querySelectorAll('.rh-row-head button')].some(b=>b.textContent==='Load more'),false);
+ assert.ok(f.document.querySelector('.rh-card.rh-see-more'));
+ const genreChip=[...f.document.querySelectorAll('.rh-chip')].find(b=>b.textContent==='Action');
+ assert.ok(genreChip);
+ genreChip.click();await f.settle();
+ assert.ok(f.document.querySelector('.rh-grid'));
+ const backBtn=f.document.querySelector('[data-rh-back="true"]');
+ assert.ok(backBtn);
+ backBtn.click();await f.settle();
+ assert.equal(f.document.querySelector('.rh-grid'),null);
+ assert.ok(f.document.querySelector('.rh-row'));
  f.stop();
 });

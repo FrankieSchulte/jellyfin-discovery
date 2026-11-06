@@ -26,10 +26,21 @@ public sealed class HubException(HttpStatusCode status):Exception("Upstream oper
 public static class Projection
 {
     private static string Text(JsonElement item,string field)=>item.TryGetProperty(field,out var v)&&v.ValueKind==JsonValueKind.String?(v.GetString()??""):"";
+    public static string ReleaseDate(JsonElement item)=>Text(item,"releaseDate") is {Length:>0} rd?rd:Text(item,"firstAirDate");
+    public static bool IsReleased(JsonElement item,DateOnly today)
+    {
+        var raw=ReleaseDate(item);
+        if(raw.Length<10||!DateOnly.TryParseExact(raw[..10],"yyyy-MM-dd",System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None,out var date)||date>today)return false;
+        var status=item.TryGetProperty("mediaInfo",out var media)&&media.ValueKind==JsonValueKind.Object&&media.TryGetProperty("status",out var st)&&st.TryGetInt32(out var s)?s:0;
+        if(status>=4)return true;
+        if(item.TryGetProperty("voteCount",out var vc)&&vc.TryGetInt32(out var votes)&&votes<=0)return false;
+        return true;
+    }
     public static object Item(JsonElement item,string? type=null)=>new {
         id=item.TryGetProperty("id",out var id)&&id.TryGetInt32(out var number)?number:0,
         type=type??Text(item,"mediaType"),title=Text(item,"title") is {Length:>0} t?t:Text(item,"name"),
         overview=Text(item,"overview"),poster=HubPolicy.Poster(Text(item,"posterPath")),
+        releaseDate=ReleaseDate(item),
         status=item.TryGetProperty("mediaInfo",out var media)&&media.ValueKind==JsonValueKind.Object&&media.TryGetProperty("status",out var status)&&status.TryGetInt32(out var n)?n:0
     };
 }

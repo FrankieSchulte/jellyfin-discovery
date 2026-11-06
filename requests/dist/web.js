@@ -1,13 +1,13 @@
 (() => {
   (() => {
     "use strict";
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     if (!Element.prototype.replaceChildren) Element.prototype.replaceChildren = function(...nodes) {
       while (this.firstChild) this.removeChild(this.firstChild);
       this.append(...nodes);
     };
     (_b = (_a = window.JellyfinRequestHub) == null ? void 0 : _a.stop) == null ? void 0 : _b.call(_a);
-    let root = null, hidden = [], generation = 0, session = "", timer, observer;
+    let root = null, mainHost = null, searchInput = null, subviewActive = false, hidden = [], generation = 0, session = "", timer, observer, gridScrollHandler = null;
     const el = (tag, text = "", cls = "") => {
       const n = document.createElement(tag);
       if (text) n.textContent = text;
@@ -32,6 +32,12 @@
       if (scope() !== own) throw Error("Your account changed.");
       return result;
     }
+    function clearGridScroll() {
+      if (gridScrollHandler) {
+        window.removeEventListener("scroll", gridScrollHandler, true);
+        gridScrollHandler = null;
+      }
+    }
     function restoreHidden() {
       hidden.forEach((n) => n.removeAttribute("data-rh-hidden"));
       hidden = [];
@@ -39,12 +45,28 @@
     }
     function cleanup() {
       generation++;
+      clearGridScroll();
       root == null ? void 0 : root.remove();
       root = null;
+      mainHost = null;
+      searchInput = null;
+      subviewActive = false;
       restoreHidden();
     }
     const STATUS_LABELS = { 2: "Pending", 3: "Processing", 4: "Partly available", 5: "Available", 6: "Unavailable" };
     const STATUS_CLASSES = { 2: "rh-status-pending", 3: "rh-status-processing", 4: "rh-status-partial", 5: "rh-status-available", 6: "rh-status-unavailable" };
+    function isReleased(item) {
+      if (!["movie", "tv"].includes(item == null ? void 0 : item.type)) return false;
+      if (item.status >= 4) return true;
+      if (item.voteCount !== void 0 && Number(item.voteCount) <= 0) return false;
+      if (item.releaseDate !== void 0) {
+        const d = String(item.releaseDate || "").slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+        const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+        if (d > today) return false;
+      }
+      return true;
+    }
     function poster(item) {
       const frame = el("div", "", "rh-poster");
       if (item.poster) {
@@ -185,6 +207,7 @@
         var _a2;
         if (e.key === "Escape" || [10009, 461].includes(e.keyCode)) {
           e.preventDefault();
+          e.stopPropagation();
           close();
         }
         if (e.key === "Tab") {
@@ -203,75 +226,183 @@
       n.append(poster(item), meta);
       return n;
     }
+    function seeMoreCard(title, onOpen) {
+      const n = button("", onOpen, "rh-card rh-see-more");
+      n.dataset.rhSeeMore = "true";
+      n.setAttribute("aria-label", `See more ${title}`);
+      const frame = el("div", "", "rh-poster rh-see-more-poster");
+      const icon = el("span", "\u2192", "rh-see-more-arrow");
+      const label = el("span", "See More", "rh-see-more-title");
+      const sub = el("span", title, "rh-see-more-sub");
+      frame.append(icon, label, sub);
+      const meta = el("div", "", "rh-card-body");
+      meta.append(el("strong", `All ${title}`));
+      n.append(frame, meta);
+      return n;
+    }
+    function returnToOverview() {
+      if (!root || !mainHost) return;
+      generation++;
+      clearGridScroll();
+      subviewActive = false;
+      if (searchInput) searchInput.value = "";
+      mainHost.replaceChildren();
+      home(mainHost);
+    }
+    async function gridView(host, title, kind, filter = null, query = null) {
+      clearGridScroll();
+      subviewActive = true;
+      const token = generation;
+      const sec = el("section", "", "rh-grid-section");
+      const head = el("div", "", "rh-grid-head");
+      const backBtn = button("\u2190 Back to Discover", () => returnToOverview(), "rh-btn rh-back-btn");
+      backBtn.dataset.rhBack = "true";
+      head.append(backBtn, el("h2", title, "rh-grid-heading"));
+      const grid = el("div", "", "rh-grid");
+      const status = el("p", "", "rh-row-status");
+      status.setAttribute("role", "status");
+      const footer = el("div", "", "rh-grid-footer");
+      let page = 0, pages = 1, busy = false;
+      const moreBtn = button("Load more", () => loadBatch(), "rh-btn");
+      footer.append(moreBtn);
+      sec.append(head, grid, status, footer);
+      host.append(sec);
+      async function loadBatch() {
+        var _a2;
+        if (busy || page >= pages || grid.children.length >= 300) return;
+        busy = true;
+        status.textContent = "Loading\u2026";
+        try {
+          let added = 0;
+          while (page < pages && added < 20 && grid.children.length < 300) {
+            const data = await api("Browse", { kind, page: page + 1, ...filter ? { filter } : {}, ...query ? { query } : {} });
+            if (token !== generation || !sec.isConnected) return;
+            page++;
+            pages = data.pages || 1;
+            const items = (data.results || []).filter(isReleased);
+            items.forEach((i) => {
+              grid.append(card(i));
+              added++;
+            });
+            if (!((_a2 = data.results) == null ? void 0 : _a2.length)) break;
+          }
+          status.textContent = grid.children.length ? "" : "No released titles found.";
+          footer.hidden = page >= pages || grid.children.length >= 300;
+        } catch {
+          if (sec.isConnected) status.textContent = "Could not load titles. Check Request Hub configuration and your account mapping.";
+        } finally {
+          busy = false;
+        }
+      }
+      gridScrollHandler = () => {
+        if (!sec.isConnected || token !== generation) {
+          clearGridScroll();
+          return;
+        }
+        const rect = footer.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 500) loadBatch();
+      };
+      window.addEventListener("scroll", gridScrollHandler, { passive: true, capture: true });
+      await loadBatch();
+    }
     async function rail(host, title, kind, filter = null, query = null) {
       const token = generation, row = el("section", "", "rh-row"), head = el("div", "", "rh-row-head"), controls = el("div", "", "rh-row-controls"), track = el("div", "", "rh-track"), status = el("p", "", "rh-row-status");
       status.setAttribute("role", "status");
       let page = 0, pages = 1, busy = false;
-      const moreBtn = button("Load more", () => load(), "rh-btn rh-btn-subtle rh-load-more");
+      const openFullGrid = () => {
+        generation++;
+        host.replaceChildren();
+        gridView(host, title, kind, filter, query);
+      };
+      const tailCard = seeMoreCard(title, openFullGrid);
       const load = async () => {
-        if (busy || page >= pages || track.children.length >= 200) return;
+        var _a2;
+        if (busy || page >= pages || track.querySelectorAll(".rh-card:not(.rh-see-more)").length >= 160) return;
         busy = true;
         status.textContent = "Loading\u2026";
         try {
-          const data = await api("Browse", { kind, page: page + 1, ...filter ? { filter } : {}, ...query ? { query } : {} });
-          if (token !== generation || !row.isConnected) return;
-          page++;
-          pages = data.pages || 1;
-          (data.results || []).filter((i) => ["movie", "tv"].includes(i.type)).forEach((i) => track.append(card(i)));
-          status.textContent = track.children.length ? "" : "No titles found.";
-          if (page >= pages) moreBtn.style.display = "none";
+          let added = 0;
+          while (page < pages && added < 12) {
+            const data = await api("Browse", { kind, page: page + 1, ...filter ? { filter } : {}, ...query ? { query } : {} });
+            if (token !== generation || !row.isConnected) return;
+            page++;
+            pages = data.pages || 1;
+            const valid = (data.results || []).filter(isReleased);
+            valid.forEach((i) => {
+              const c = card(i);
+              if (tailCard.parentNode === track) track.insertBefore(c, tailCard);
+              else track.append(c);
+              added++;
+            });
+            if (!((_a2 = data.results) == null ? void 0 : _a2.length)) break;
+          }
+          const realCards = track.querySelectorAll(".rh-card:not(.rh-see-more)").length;
+          if (realCards > 0 && tailCard.parentNode !== track) track.append(tailCard);
+          status.textContent = realCards ? "" : "No titles found.";
         } catch {
           if (row.isConnected) status.textContent = "Could not load titles. Check Request Hub configuration and your account mapping.";
         } finally {
           busy = false;
         }
       };
-      const prevBtn = button("\u2039", () => track.scrollBy({ left: -track.clientWidth * 0.8, behavior: "smooth" }), "rh-btn rh-btn-icon");
+      const prevBtn = button("\u2039", () => track.scrollBy({ left: -Math.max(260, track.clientWidth * 0.82), behavior: "smooth" }), "rh-row-arrow");
+      prevBtn.setAttribute("aria-label", `Previous ${title}`);
       const nextBtn = button("\u203A", async () => {
-        if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 20 && page < pages) await load();
-        track.scrollBy({ left: track.clientWidth * 0.8, behavior: "smooth" });
-      }, "rh-btn rh-btn-icon");
-      controls.append(moreBtn, prevBtn, nextBtn);
-      head.append(el("h2", title), controls);
+        if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 320 && page < pages) await load();
+        track.scrollBy({ left: Math.max(260, track.clientWidth * 0.82), behavior: "smooth" });
+      }, "rh-row-arrow");
+      nextBtn.setAttribute("aria-label", `More ${title}`);
+      controls.append(prevBtn, nextBtn);
+      const heading = el("h2", title);
+      heading.onclick = openFullGrid;
+      heading.title = `View all ${title}`;
+      head.append(heading, controls);
       track.addEventListener("scroll", () => {
-        if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 300 && track.children.length < 200) load();
+        if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 420 && track.querySelectorAll(".rh-card:not(.rh-see-more)").length < 160) load();
       }, { passive: true });
       row.append(head, track, status);
       host.append(row);
       await load();
     }
     async function render() {
-      const token = generation, hero = el("header", "", "rh-hero"), heroText = el("div", "", "rh-hero-copy"), bar = el("div", "", "rh-toolbar"), main = el("div", "", "rh-main"), search = el("form", "", "rh-search"), input = el("input");
+      const token = generation, toolbar = el("div", "", "rh-toolbar"), main = el("div", "", "rh-main"), search = el("form", "", "rh-search"), input = el("input");
+      mainHost = main;
+      searchInput = input;
       input.type = "search";
-      input.placeholder = "Search movies and TV shows to request\u2026";
+      input.placeholder = "Search movies and TV";
       input.setAttribute("aria-label", "Search movies and TV");
       const submit = button("Search", () => {
       }, "rh-btn rh-btn-primary");
       submit.type = "submit";
-      const browseAll = button("Browse all", () => {
-        generation++;
-        input.value = "";
-        main.replaceChildren();
-        home(main);
-      }, "rh-btn rh-btn-ghost");
+      const browseAll = button("Browse all", () => returnToOverview(), "rh-btn rh-btn-ghost");
       search.append(input, submit);
       search.onsubmit = (e) => {
         e.preventDefault();
         generation++;
+        clearGridScroll();
         main.replaceChildren();
-        if (input.value.trim()) rail(main, `Search: "${input.value.trim()}"`, "search", null, input.value.trim());
-        else home(main);
+        const q2 = input.value.trim();
+        if (q2) gridView(main, `Search results: "${q2}"`, "search", null, q2);
+        else {
+          subviewActive = false;
+          home(main);
+        }
       };
-      heroText.append(el("span", "Jellyseerr Integration", "rh-kicker"), el("h1", "Discover"), el("p", "Browse trending movies and series, explore studios and genres, and request titles directly into Jellyfin.", "rh-subtitle"));
-      bar.append(search, browseAll);
-      hero.append(heroText, bar);
-      root.append(hero, main);
+      const titleH1 = el("h1", "Discover", "rh-page-title");
+      titleH1.onclick = () => returnToOverview();
+      titleH1.title = "Return to Discover overview";
+      const actionsWrap = el("div", "", "rh-toolbar-right");
+      actionsWrap.append(search, browseAll);
+      toolbar.append(titleH1, actionsWrap);
+      root.append(toolbar, main);
       await home(main);
       if (token !== generation) return;
       const q = new URLSearchParams(location.hash.split("?")[1] || ""), type = q.get("mediaType"), id = Number(q.get("mediaId"));
       if (["movie", "tv"].includes(type) && id > 0) details({ type, id });
     }
     async function home(main) {
+      subviewActive = false;
+      clearGridScroll();
       const token = generation;
       await rail(main, "Trending Now", "trending");
       if (token !== generation) return;
@@ -290,7 +421,7 @@
         studioList.append(button(name, () => {
           generation++;
           main.replaceChildren();
-          rail(main, name, "studio", id);
+          gridView(main, name, "studio", id);
         }, "rh-chip"));
       });
       studios.append(studioList);
@@ -302,7 +433,7 @@
         (data.results || []).forEach((g) => genreList.append(button(g.name, () => {
           generation++;
           main.replaceChildren();
-          rail(main, g.name, "genre", g.id);
+          gridView(main, g.name, "genre", g.id);
         }, "rh-chip")));
       } catch {
         genreList.append(el("p", "Genres are unavailable.", "rh-muted"));
@@ -313,6 +444,10 @@
     function openDiscoverRoute(e) {
       var _a2;
       (_a2 = e == null ? void 0 : e.preventDefault) == null ? void 0 : _a2.call(e);
+      if (isDiscoverHash() && (root == null ? void 0 : root.isConnected) && subviewActive) {
+        returnToOverview();
+        return;
+      }
       if (location.hash !== "#/home?requesthub=discover") {
         location.hash = "#/home?requesthub=discover";
       }
@@ -321,6 +456,7 @@
       setTimeout(reconcile, 150);
     }
     function ensureNavigation(active) {
+      var _a2;
       const headerLeft = document.querySelector(".skinHeader .headerLeft");
       if (headerLeft && !headerLeft.querySelector("[data-rh-source]")) {
         const src = el("a", "", "headerButton headerButtonLeft rh-source-btn");
@@ -346,14 +482,16 @@
           nativeProxyBtn.dataset.rhLink = "true";
           nativeProxyBtn.onclick = openDiscoverRoute;
         } else if (!proxy.querySelector("[data-rh-link]")) {
+          const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
           const btn = button("", openDiscoverRoute, "rh-nav");
           btn.dataset.rhLink = "true";
           btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
           btn.dataset.sleekfinHeaderZone = "tabs";
+          btn.dataset.sleekfinHeaderDisplay = ((_a2 = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _a2.sleekfinHeaderDisplay) || "both";
           btn.title = "Discover";
           btn.setAttribute("aria-label", "Discover");
           const vis = el("span", "");
-          vis.dataset.sleekfinHeaderSourceVisual = "icon-text";
+          vis.dataset.sleekfinHeaderSourceVisual = "true";
           const icon = el("span", "", "material-icons explore");
           icon.dataset.sleekfinHeaderSourceIcon = "true";
           icon.setAttribute("aria-hidden", "true");
@@ -394,6 +532,67 @@
     function isDiscoverHash() {
       const h = String(location.hash || "");
       return /[?&]requesthub=discover(?:&|$)/i.test(h) && (/^#!?(?:\/)?home(?:\.html)?(?:[?#]|$)/i.test(h) || h.startsWith("?requesthub=discover"));
+    }
+    function handleRemoteKey(e) {
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+      if (!(root == null ? void 0 : root.isConnected)) return;
+      const key = { 37: "ArrowLeft", 38: "ArrowUp", 39: "ArrowRight", 40: "ArrowDown", 13: "Enter", 27: "Escape", 10009: "Escape", 461: "Escape" }[e.keyCode] || e.key;
+      const overlay = root.querySelector(".rh-overlay");
+      if (overlay) return;
+      const target = e.target || document.activeElement;
+      if (key === "Escape") {
+        if (subviewActive) {
+          e.preventDefault();
+          e.stopPropagation();
+          returnToOverview();
+        }
+        return;
+      }
+      if (((_a2 = target == null ? void 0 : target.matches) == null ? void 0 : _a2.call(target, "input,textarea,select")) && !["ArrowDown", "ArrowUp"].includes(key)) return;
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(key)) return;
+      if (!root.contains(target) && target !== document.body) return;
+      const focusables = [...root.querySelectorAll(".rh-toolbar input,.rh-toolbar button,.rh-back-btn,.rh-card,.rh-chip,.rh-grid-footer button")].filter((n) => !n.disabled && !n.closest("[hidden]"));
+      if (!focusables.length) return;
+      const current = focusables.includes(target) ? target : null;
+      if (!current) {
+        if (key === "ArrowDown") {
+          e.preventDefault();
+          const first = root.querySelector(".rh-card,.rh-chip") || focusables[0];
+          (_b2 = first == null ? void 0 : first.focus) == null ? void 0 : _b2.call(first, { preventScroll: true });
+          (_c2 = first == null ? void 0 : first.scrollIntoView) == null ? void 0 : _c2.call(first, { block: "nearest", inline: "nearest" });
+        }
+        return;
+      }
+      const track = (_d2 = current.closest) == null ? void 0 : _d2.call(current, ".rh-track");
+      if (track && (key === "ArrowLeft" || key === "ArrowRight")) {
+        const rowCards = [...track.querySelectorAll(".rh-card")];
+        const idx = rowCards.indexOf(current);
+        if (idx >= 0) {
+          e.preventDefault();
+          const next = rowCards[Math.max(0, Math.min(rowCards.length - 1, idx + (key === "ArrowLeft" ? -1 : 1)))];
+          (_e2 = next == null ? void 0 : next.focus) == null ? void 0 : _e2.call(next, { preventScroll: true });
+          (_f = next == null ? void 0 : next.scrollIntoView) == null ? void 0 : _f.call(next, { block: "nearest", inline: "nearest", behavior: "smooth" });
+          return;
+        }
+      }
+      if (typeof current.getBoundingClientRect === "function") {
+        const rect = current.getBoundingClientRect();
+        if (rect.width > 0 || rect.height > 0) {
+          const cx = (rect.left + rect.right) / 2, cy = (rect.top + rect.bottom) / 2;
+          const ranked = focusables.filter((n) => n !== current).map((node) => {
+            const r = node.getBoundingClientRect();
+            const nx = (r.left + r.right) / 2 - cx, ny = (r.top + r.bottom) / 2 - cy;
+            const primary = key === "ArrowLeft" ? -nx : key === "ArrowRight" ? nx : key === "ArrowUp" ? -ny : ny;
+            const cross = Math.abs(key === "ArrowLeft" || key === "ArrowRight" ? ny : nx);
+            return { node, primary, score: primary + cross * 2.6 };
+          }).filter((x) => x.primary > 4).sort((a, b) => a.score - b.score);
+          if (ranked.length) {
+            e.preventDefault();
+            (_h = (_g = ranked[0].node).focus) == null ? void 0 : _h.call(_g, { preventScroll: true });
+            (_j = (_i = ranked[0].node).scrollIntoView) == null ? void 0 : _j.call(_i, { block: "nearest", inline: "nearest", behavior: "smooth" });
+          }
+        }
+      }
     }
     function reconcile() {
       var _a2, _b2;
@@ -437,106 +636,99 @@
     css.textContent = `
 [data-rh-hidden=true]{display:none!important}
 .rh-source-btn{display:none!important}
+[data-sleekfin-header-proxy] button[data-rh-link="true"] [data-sleekfin-header-source-visual="true"]{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:0.42rem!important;
+ line-height:1!important;
+ vertical-align:middle!important;
+}
+[data-sleekfin-header-proxy] button[data-rh-link="true"] [data-sleekfin-header-source-icon="true"]{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ font-size:1.15rem!important;
+ width:1.15rem!important;
+ height:1.15rem!important;
+ line-height:1!important;
+ flex-shrink:0!important;
+}
+[data-sleekfin-header-proxy] button[data-rh-link="true"] [data-sleekfin-header-source-label="true"]{
+ display:inline-block!important;
+ line-height:1!important;
+}
 .rh-root{
- padding:calc(var(--sleekfin-header-height, 72px) + 24px) clamp(20px, 4vw, 56px) 64px;
- color:#f4f4f6;
- max-width:1680px;
- margin:0 auto;
+ padding:calc(var(--sleekfin-header-height, 72px) + 12px) clamp(16px, 4vw, 80px) 48px;
+ color:inherit;
+ width:100%;
+ clear:both;
  box-sizing:border-box;
  font-family:inherit;
-}
-.rh-hero{
- display:flex;
- flex-wrap:wrap;
- align-items:flex-end;
- justify-content:space-between;
- gap:20px;
- padding:26px 28px;
- margin-bottom:28px;
- border-radius:18px;
- background:linear-gradient(135deg, rgba(229,9,20,0.16) 0%, rgba(22,22,28,0.92) 52%, rgba(15,15,20,0.96) 100%);
- border:1px solid rgba(255,255,255,0.09);
- box-shadow:0 18px 42px rgba(0,0,0,0.38);
-}
-.rh-hero-copy{max-width:640px}
-.rh-kicker{
- display:inline-block;
- font-size:11px;
- font-weight:700;
- letter-spacing:0.12em;
- text-transform:uppercase;
- color:#ff5a64;
- background:rgba(229,9,20,0.16);
- border:1px solid rgba(229,9,20,0.35);
- padding:4px 10px;
- border-radius:999px;
- margin-bottom:8px;
-}
-.rh-hero h1{
- font-size:clamp(1.75rem, 2.6vw, 2.35rem);
- font-weight:800;
- margin:0 0 6px;
- letter-spacing:-0.02em;
- color:#fff;
-}
-.rh-subtitle{
- margin:0;
- font-size:0.95rem;
- color:rgba(255,255,255,0.72);
- line-height:1.45;
 }
 .rh-toolbar{
  display:flex;
  flex-wrap:wrap;
  align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ margin:4px 0 22px;
+}
+.rh-page-title{
+ font-size:28px;
+ font-weight:700;
+ margin:0 auto 0 0;
+ border-left:3px solid #e50914;
+ padding-left:12px;
+ color:#fff;
+ cursor:pointer;
+ user-select:none;
+}
+.rh-toolbar-right{
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
  gap:10px;
- flex:1 1 420px;
- justify-content:flex-end;
 }
 .rh-search{
  display:flex;
  align-items:center;
  gap:8px;
- flex:1 1 300px;
- max-width:480px;
 }
 .rh-search input{
- flex:1;
+ width:clamp(220px, 24vw, 340px);
  font:inherit;
- font-size:0.95rem;
+ font-size:0.92rem;
  color:#fff;
- background:rgba(10,10,14,0.78);
- border:1px solid rgba(255,255,255,0.16);
- border-radius:999px;
- padding:11px 18px;
+ background:#222;
+ border:1px solid #555;
+ border-radius:22px;
+ padding:10px 16px;
  min-width:0;
- transition:border-color .16s ease, box-shadow .16s ease;
 }
 .rh-search input:focus{
  outline:none;
  border-color:#e50914;
- box-shadow:0 0 0 3px rgba(229,9,20,0.22);
 }
 .rh-root button{
  font:inherit;
- color:#f3f4f6;
- background:rgba(255,255,255,0.07);
- border:1px solid rgba(255,255,255,0.14);
- border-radius:999px;
- min-height:40px;
- padding:8px 16px;
+ color:#fff;
+ background:#292929;
+ border:1px solid #555;
+ border-radius:22px;
+ min-height:42px;
+ padding:9px 16px;
  font-weight:600;
  font-size:0.9rem;
  cursor:pointer;
- transition:background .15s ease, border-color .15s ease, transform .15s ease;
+ touch-action:manipulation;
 }
 .rh-root button:hover:not(:disabled){
- background:rgba(255,255,255,0.14);
- border-color:rgba(255,255,255,0.28);
+ background:#454545;
 }
 .rh-root button:disabled{
- opacity:0.48;
- cursor:not-allowed;
+ opacity:0.45;
+ cursor:default;
 }
 .rh-root button.rh-btn-primary{
  background:#e50914;
@@ -546,23 +738,15 @@
 .rh-root button.rh-btn-primary:hover:not(:disabled){
  background:#f6121d;
 }
-.rh-root button.rh-btn-icon{
- width:38px;
- height:38px;
- min-height:38px;
- padding:0;
- display:inline-grid;
- place-items:center;
- font-size:1.15rem;
-}
 .rh-root button.rh-btn-xs{
- min-height:30px;
+ min-height:32px;
  padding:4px 12px;
  font-size:0.8rem;
 }
-.rh-root button:focus-visible,.rh-nav:focus-visible{
- outline:2px solid #fff;
- outline-offset:2px;
+.rh-root button:focus-visible,.rh-root .rh-card:focus,.rh-nav:focus-visible{
+ outline:3px solid #fff;
+ outline-offset:3px;
+ box-shadow:0 0 0 5px rgba(229,9,20,0.5);
 }
 a.rh-nav{
  color:inherit;
@@ -579,62 +763,111 @@ a.rh-nav[aria-current=page]{
  color:#fff;
  font-weight:700;
 }
-.rh-row{margin-bottom:32px}
+.rh-row{margin:0 0 22px;min-width:0}
 .rh-row-head{
  display:flex;
  align-items:center;
- justify-content:space-between;
- gap:12px;
- margin:22px 0 14px;
+ gap:10px;
+ margin-bottom:14px;
 }
-.rh-row-head h2,.rh-pill-section h2{
+.rh-row-head h2,.rh-pill-section h2,.rh-grid-heading{
  border-left:3px solid #e50914;
- padding-left:12px;
- margin:0;
- font-size:1.22rem;
- font-weight:700;
- letter-spacing:-0.01em;
+ padding-left:10px;
+ margin:0 auto 0 0;
+ font-size:clamp(19px, 1.7vw, 28px);
+ font-weight:600;
  color:#fff;
 }
+.rh-row-head h2{cursor:pointer}
+.rh-row-head h2:hover{text-decoration:underline}
 .rh-row-controls{
  display:flex;
  align-items:center;
- gap:8px;
+ gap:4px;
+}
+.rh-root button.rh-row-arrow{
+ padding:3px 11px;
+ font-size:22px;
+ border:0;
+ background:transparent;
+ border-radius:8px;
+ min-height:40px;
+}
+.rh-root button.rh-row-arrow:hover{
+ background:rgba(255,255,255,0.1);
 }
 .rh-track{
  display:flex;
- gap:16px;
+ gap:14px;
  overflow-x:auto;
- padding:4px 2px 10px;
+ padding:4px 3px 12px;
  scrollbar-width:none;
- scroll-behavior:smooth;
+ -ms-overflow-style:none;
+ scroll-snap-type:x proximity;
 }
-.rh-track::-webkit-scrollbar{display:none}
+.rh-track::-webkit-scrollbar{display:none;width:0;height:0}
 .rh-card{
- flex:0 0 172px;
- max-width:172px;
+ position:relative;
+ flex:0 0 clamp(135px, 14vw, 205px);
+ width:clamp(135px, 14vw, 205px);
+ max-width:clamp(135px, 14vw, 205px);
  text-align:left;
  border:0!important;
  padding:0!important;
  background:transparent!important;
- border-radius:12px!important;
- transition:transform .18s ease;
+ border-radius:9px!important;
+ scroll-snap-align:start;
+ min-width:0;
 }
-.rh-card:hover{transform:translateY(-4px)}
 .rh-poster{
  position:relative;
  aspect-ratio:2/3;
- background:linear-gradient(160deg,#1f2029,#121318);
- border-radius:12px;
+ background:#20252a;
+ border-radius:9px;
  overflow:hidden;
- border:1px solid rgba(255,255,255,0.08);
- box-shadow:0 10px 24px rgba(0,0,0,0.4);
 }
 .rh-poster img{
  height:100%;
  width:100%;
  object-fit:cover;
  display:block;
+}
+.rh-see-more-poster{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:10px;
+ padding:16px;
+ box-sizing:border-box;
+ text-align:center;
+ background:linear-gradient(155deg, rgba(229,9,20,0.22) 0%, rgba(28,30,38,0.95) 100%);
+ border:1px solid rgba(255,255,255,0.14);
+ transition:background .15s ease, border-color .15s ease;
+}
+.rh-see-more:hover .rh-see-more-poster{
+ background:linear-gradient(155deg, rgba(229,9,20,0.36) 0%, rgba(36,38,48,0.98) 100%);
+ border-color:#e50914;
+}
+.rh-see-more-arrow{
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ display:grid;
+ place-items:center;
+ font-size:24px;
+ font-weight:700;
+ background:rgba(229,9,20,0.85);
+ color:#fff;
+}
+.rh-see-more-title{
+ font-size:1rem;
+ font-weight:800;
+ color:#fff;
+}
+.rh-see-more-sub{
+ font-size:0.8rem;
+ color:rgba(255,255,255,0.68);
 }
 .rh-type,.rh-status{
  position:absolute;
@@ -649,7 +882,7 @@ a.rh-nav[aria-current=page]{
 }
 .rh-type{
  top:8px;
- background:rgba(18,22,34,0.82);
+ background:rgba(18,22,34,0.84);
  border:1px solid rgba(255,255,255,0.16);
  color:#e5e7eb;
 }
@@ -672,30 +905,56 @@ a.rh-nav[aria-current=page]{
 .rh-card-body{padding:8px 2px 0}
 .rh-card strong{
  display:block;
- font-size:0.92rem;
+ font-size:14px;
  font-weight:700;
- color:#f3f4f6;
+ color:inherit;
  white-space:nowrap;
  overflow:hidden;
  text-overflow:ellipsis;
 }
+.rh-card:hover strong{
+ color:#fff;
+ text-decoration:underline;
+}
 .rh-row-status{
  margin:6px 0 0;
  font-size:0.88rem;
- color:rgba(255,255,255,0.64);
+ color:#ccc;
 }
 .rh-row-status:empty{display:none}
+.rh-grid-section{margin-bottom:36px}
+.rh-grid-head{
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:14px;
+ margin-bottom:20px;
+}
+.rh-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill, minmax(clamp(135px, 13vw, 195px), 1fr));
+ gap:22px 16px;
+}
+.rh-grid .rh-card{
+ width:100%;
+ max-width:none;
+ flex:none;
+}
+.rh-grid-footer{
+ text-align:center;
+ padding:28px 0 12px;
+}
 .rh-filter-sections{
  display:grid;
  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
  gap:20px;
- margin:28px 0 34px;
+ margin:12px 0 26px;
 }
 .rh-pill-section{
- background:rgba(22,22,28,0.75);
- border:1px solid rgba(255,255,255,0.08);
- border-radius:16px;
- padding:20px;
+ background:rgba(24,24,28,0.72);
+ border:1px solid rgba(255,255,255,0.09);
+ border-radius:12px;
+ padding:18px 20px;
 }
 .rh-pills{
  display:flex;
@@ -704,15 +963,15 @@ a.rh-nav[aria-current=page]{
  margin-top:14px;
 }
 .rh-root button.rh-chip{
- min-height:36px;
- padding:6px 14px;
+ min-height:38px;
+ padding:7px 15px;
  font-size:0.86rem;
- background:rgba(255,255,255,0.06);
- border:1px solid rgba(255,255,255,0.12);
+ background:#242429;
+ border:1px solid #4a4a52;
 }
 .rh-root button.rh-chip:hover{
- background:rgba(229,9,20,0.18);
- border-color:rgba(229,9,20,0.5);
+ background:rgba(229,9,20,0.22);
+ border-color:#e50914;
  color:#fff;
 }
 .rh-overlay{
@@ -834,7 +1093,10 @@ a.rh-nav[aria-current=page]{
  .rh-poster img{position:absolute;top:0;left:0}
 }
 @media(max-width:640px){
- .rh-card{flex-basis:40vw;max-width:40vw}
+ .rh-root{padding:calc(var(--sleekfin-header-height, 64px) + 10px) 16px 32px}
+ .rh-card{flex-basis:38vw;width:38vw;max-width:38vw}
+ .rh-grid{grid-template-columns:repeat(auto-fill, minmax(38vw, 1fr))}
+ .rh-search input{width:100%}
  .rh-dialog-body{grid-template-columns:1fr}
  .rh-dialog .rh-poster{max-width:160px}
 }
@@ -854,10 +1116,11 @@ a.rh-nav[aria-current=page]{
     window.addEventListener("popstate", reconcile);
     (_c = document.addEventListener) == null ? void 0 : _c.call(document, "viewshow", reconcile);
     (_d = document.addEventListener) == null ? void 0 : _d.call(document, "pageshow", reconcile);
+    (_e = document.addEventListener) == null ? void 0 : _e.call(document, "keydown", handleRemoteKey, true);
     const heartbeat = setInterval(reconcile, 1500);
     window.JellyfinRequestHub = {
       stop() {
-        var _a2, _b2;
+        var _a2, _b2, _c2;
         cleanup();
         observer.disconnect();
         clearTimeout(timer);
@@ -866,6 +1129,7 @@ a.rh-nav[aria-current=page]{
         window.removeEventListener("popstate", reconcile);
         (_a2 = document.removeEventListener) == null ? void 0 : _a2.call(document, "viewshow", reconcile);
         (_b2 = document.removeEventListener) == null ? void 0 : _b2.call(document, "pageshow", reconcile);
+        (_c2 = document.removeEventListener) == null ? void 0 : _c2.call(document, "keydown", handleRemoteKey, true);
         document.querySelectorAll("[data-rh-link],[data-rh-source]").forEach((n) => n.remove());
         css.remove();
       }

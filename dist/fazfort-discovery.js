@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.1 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.2 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -966,7 +966,7 @@
 .fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
 .fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
-.fx-footer{text-align:center;padding:20px}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row{contain:strict}
+.fx-footer{text-align:center;padding:20px;overflow-anchor:none}.fx-footer p{color:#aaa;font-size:14px}.fx-placeholder-row,.fx-status,.fx-toolbar{overflow-anchor:none;box-sizing:border-box}.fx-shelf:not(.fx-placeholder-row){overflow-anchor:auto}
 .fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}
 .fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
 /* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
@@ -2142,7 +2142,7 @@
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.1";
+      const VERSION = "0.4.2";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -2372,9 +2372,6 @@
       function fillSlot(slot, s) {
         var _a2;
         const row = slot.data;
-        slot.node.replaceChildren();
-        slot.node.className = "fx-shelf";
-        slot.node.style.height = "";
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
         const copies = row.key !== "MyMedia" && baseCount >= 2 ? Math.max(4, Math.ceil(20 / baseCount)) : 1;
@@ -2473,19 +2470,26 @@
             track.append(cardNode);
           });
         }
-        slot.node.append(head, track);
+        slot.node.replaceChildren(head, track);
+        slot.node.className = "fx-shelf";
+        slot.node.style.height = "";
         slot.live = true;
+        if (slot.scrollLeft) track.scrollLeft = slot.scrollLeft;
       }
       function virtualize(s) {
+        var _a2;
         if (state !== s || !s.root.isConnected || s.full) return;
         const center = innerHeight / 2;
-        const ranked = s.slots.map((slot) => ({ slot, distance: Math.abs((slot.node.getBoundingClientRect().top + slot.node.getBoundingClientRect().bottom) / 2 - center) })).sort((a, b) => a.distance - b.distance);
-        const keep = new Set(ranked.slice(0, s.config.maxLiveRows).map((x) => x.slot));
-        for (const slot of s.slots) {
+        const measured = s.slots.map((slot) => {
+          const r = slot.node.getBoundingClientRect();
+          return { slot, distance: Math.abs((r.top + r.bottom) / 2 - center), height: r.height };
+        });
+        const keep = new Set(measured.slice().sort((a, b) => a.distance - b.distance).slice(0, s.config.maxLiveRows).map((x) => x.slot));
+        for (const { slot, height } of measured) {
           if (keep.has(slot) && !slot.live) fillSlot(slot, s);
           else if (!keep.has(slot) && slot.live && !slot.node.contains(document.activeElement)) {
-            const height = slot.node.getBoundingClientRect().height;
             if (height <= 0) continue;
+            slot.scrollLeft = ((_a2 = slot.node.querySelector(".fx-track")) == null ? void 0 : _a2.scrollLeft) || 0;
             slot.node.style.height = `${height}px`;
             slot.node.replaceChildren();
             slot.node.className = "fx-shelf fx-placeholder-row";
@@ -2631,20 +2635,27 @@
         });
       }
       function syncNative(s, hide) {
-        s.native.removeAttribute("data-fx-native-hidden");
-        s.native.querySelectorAll("[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
-        s.native.removeAttribute("data-fx-hero-anchor");
-        if (!hide) return;
-        if (s.route.page !== "home") {
-          s.native.setAttribute("data-fx-native-hidden", "true");
+        if (!hide) {
+          s.native.removeAttribute("data-fx-native-hidden");
+          s.native.querySelectorAll("[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
+          s.native.removeAttribute("data-fx-hero-anchor");
           return;
         }
-        s.native.dataset.fxHeroAnchor = "true";
+        if (s.route.page !== "home") {
+          if (s.native.getAttribute("data-fx-native-hidden") !== "true") s.native.setAttribute("data-fx-native-hidden", "true");
+          return;
+        }
+        if (s.native.dataset.fxHeroAnchor !== "true") s.native.dataset.fxHeroAnchor = "true";
+        if (s.native.hasAttribute("data-fx-native-hidden")) s.native.removeAttribute("data-fx-native-hidden");
         const protect = ".sleekfin-hero,.hero,#slides-container";
         const walk = (parent) => [...parent.children].forEach((node) => {
           if (node.matches(protect) || node.closest(".fx-discovery")) return;
-          if (node.matches(".sections") || node.querySelector(`${protect},.sections`)) walk(node);
-          else node.setAttribute("data-fx-native-hidden", "true");
+          if (node.matches(".sections") || node.querySelector(`${protect},.sections`)) {
+            if (node.hasAttribute("data-fx-native-hidden")) node.removeAttribute("data-fx-native-hidden");
+            walk(node);
+          } else if (node.getAttribute("data-fx-native-hidden") !== "true") {
+            node.setAttribute("data-fx-native-hidden", "true");
+          }
         });
         walk(s.native);
       }
@@ -2714,6 +2725,15 @@
         s.loading = true;
         s.more.disabled = true;
         s.more.textContent = "Loading\u2026";
+        const staged = [];
+        const flushStaged = () => {
+          if (!staged.length || state !== s || s.full) return;
+          const scrollRoot = s.slots.length ? findScrollRoot(s.root) : null;
+          const savedTop = scrollRoot ? scrollRoot.scrollTop : 0;
+          while (staged.length) appendRow(staged.shift(), s);
+          virtualize(s);
+          if (scrollRoot && scrollRoot.scrollTop !== savedTop) scrollRoot.scrollTop = savedTop;
+        };
         try {
           for (let n = 0; n < s.config.batchSize; n++) {
             const row = s.pending || await nextRow(s);
@@ -2726,19 +2746,23 @@
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length) {
-              appendRow({ ...row, items }, s);
-              if (s.slots.length === 1 && !s.full) {
+              if (!s.slots.length && !staged.length && !s.full) {
+                appendRow({ ...row, items }, s);
                 s.failed = false;
                 syncNative(s, true);
+              } else {
+                staged.push({ ...row, items });
               }
             }
             s.pending = null;
           }
+          flushStaged();
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
           if ((s.slots.length || s.filteredQueue) && !s.full) {
             s.failed = false;
-            setMode(s, false, false);
+            s.filterToggle.disabled = !s.inventory;
+            syncNative(s, true);
           }
           if (!s.slots.length) {
             if (!s.filteredQueue) {
@@ -2751,6 +2775,7 @@
           s.note.textContent = s.finished ? "You\u2019ve reached the available matches. Clear filters or use Restart feed to explore again." : s.filteredQueue ? "Filtered results load as you scroll." : "Keeps browsing your library; titles can return in different shelves further down.";
           virtualize(s);
         } catch {
+          flushStaged();
           if (state === s) {
             s.pauseAutomatic = true;
             s.status.textContent = "Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.";

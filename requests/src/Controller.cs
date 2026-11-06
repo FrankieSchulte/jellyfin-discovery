@@ -14,7 +14,8 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users):Contr
         string path;try{path=HubPolicy.BrowsePath(kind,page,query,filter);}catch(ArgumentException){return BadRequest();}
         using var response=await gateway.Send(link,path,null,HttpContext.RequestAborted);var root=response.RootElement;
         if(kind=="genres")return Ok(new{results=root.EnumerateArray().Select(g=>new{id=g.GetProperty("id").GetInt32(),name=g.GetProperty("name").GetString()}).ToArray(),pages=1});
-        var items=root.GetProperty("results").EnumerateArray().Where(i=>kind!="search"||i.TryGetProperty("mediaType",out var t)&&t.GetString()is "movie" or "tv").Select(i=>Projection.Item(i,kind is "movies" or "genre" or "studio"?"movie":kind=="tv"?"tv":null)).ToArray();
+        var today=DateOnly.FromDateTime(DateTime.UtcNow);
+        var items=root.GetProperty("results").EnumerateArray().Where(i=>(kind!="search"||i.TryGetProperty("mediaType",out var t)&&t.GetString()is "movie" or "tv")&&Projection.IsReleased(i,today)).Select(i=>Projection.Item(i,kind is "movies" or "genre" or "studio"?"movie":kind=="tv"?"tv":null)).ToArray();
         return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});
     });
     [HttpGet("Details")]

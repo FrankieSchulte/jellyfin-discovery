@@ -1,15 +1,12 @@
-Jellyfin Discovery 0.4.1 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.2 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.1):
-- Eliminate the brief flash of default native/HSS categories when loading Home, Movies, or TV Shows by hiding owned native sections immediately on mount and via CSS before async metadata fetches complete, while preserving fail-open restoration if initialization fails.
-- Speed up initial shelf rendering by fetching user preferences and library inventory in parallel and reusing cached Home inventory across Movies and Shows views.
-- Seamless endless horizontal carousel looping (`[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, ...]`) that continuously wraps in both directions without hitting a hard wall or teleporting back to the start.
-- Overhauled dark-theme Discovery Category Studio (available both in `Dashboard → Plugins → Jellyfin Discovery` and `Profile → Settings → Discovery settings`) with:
-  - Library-discovered **Possible Categories Explorer** to browse and toggle categories for `Directed by X`, `Starring X`, `From Studio X`, `Movies/Shows from 20XX` / `20XXs`, `Genres`, and `Themes & Tags` with live title counts and one-click `Pin to top`.
-  - Quick category templates (`+ Director Spotlight`, `+ Actor Spotlight`, `+ Studio Collection`, `+ Year / Era`, `+ Under 100m`, `+ 8.0+ Acclaimed`, `+ Seasonal`) and clickable metadata chips.
-  - Visual category reordering (`↑`/`↓`), search, and live match counts.
+Discovery (0.4.2):
+- Fix vertical scroll jump/jank when loading additional shelves in Suggestions: batch DOM insertions across async hydration, preserve scrollRoot offset, prevent CSS scroll anchoring on footer/placeholder rows, and avoid redundant native-attribute thrashing or layout reflows during virtualization.
 
-Request Hub (0.4.1):
-- SleekFin Header Bar integration: injects a properly structured `Discover` tab button into `[data-sleekfin-header-proxy]` before the toolbar separator and registers a `Discover` toolbar source in `.headerLeft` for SleekFin's Header Bar builder.
-- Reliable route mounting on `#/home?requesthub=discover` across SPA page transitions, hiding late-arriving SleekFin hero/HSS elements and dynamically loading Request Hub's browser script when navigating from cached tabs.
-- Overhauled dark-theme UI for both the Request Hub Discover view (hero search bar, genre/studio pills, 2:3 cover poster cards, two-column request modal with season chips) and `Dashboard → Plugins → Request Hub` settings (dark-theme cards, Jellyfin user dropdown selector, one-click current user mapping, and `Open Discover` launcher).
+Request Hub (0.4.2):
+- Exclude unreleased movies and TV shows (`releaseDate` / `firstAirDate` in the future or 0 votes without availability) across server-side and client-side Discover browsing, automatically fetching additional pages when needed so rows stay full.
+- Match SleekFin's exact `data-sleekfin-header-source-visual="true"` structure and flex alignment so the `Discover` compass icon in the header bar is properly centered and spaced like `Home`, `Movies`, `Shows`, and `Collections`.
+- Align Discover page layout with Movies and TV Shows: full-width edge-to-edge shelves (`clamp(16px, 4vw, 80px)` padding) and a clean top-left `Discover` title bar with an inline search input instead of a boxed gradient banner.
+- Replace single-row genre/studio/search results with a full multi-row responsive poster grid (`repeat(auto-fill, minmax(175px, 1fr))`) with infinite vertical scroll and a `← Back to Discover` button (plus clicking the `Discover` title/header button or pressing `Escape`/TV Back to return).
+- Remove redundant `Load more` buttons above category headers and add a 2:3 portrait `See More` card at the end of each horizontal carousel (`Trending Now`, `Popular Movies`, `Popular Series`) to open the full grid view.
+- Full TV remote directional navigation (`ArrowLeft`/`ArrowRight`/`ArrowUp`/`ArrowDown`, `Enter`, `Escape`/TV Back) across the Discover toolbar, filter chips, horizontal carousels, multi-row grid, and request modal.
