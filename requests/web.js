@@ -2,16 +2,39 @@
 (()=>{'use strict';
 if(!Element.prototype.replaceChildren)Element.prototype.replaceChildren=function(...nodes){while(this.firstChild)this.removeChild(this.firstChild);this.append(...nodes);};
 window.JellyfinRequestHub?.stop?.();
-let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null;
+let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null,permScope='',permAllowed=null,permPending=null;
 const el=(tag,text='',cls='')=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn,cls='')=>{const n=el('button',text,cls);n.type='button';n.onclick=fn;return n;};
 const scope=()=>{const api=window.ApiClient;return api?.getCurrentUserId?.()?`${api.serverId?.()}:${api.getCurrentUserId()}`:'';};
+function removeNavigation(){
+ document.querySelectorAll('[data-rh-link],[data-rh-source]').forEach(n=>n.remove());
+}
+function updatePermission(own,canReq){
+ if(scope()!==own)return;
+ permScope=own;
+ permAllowed=Boolean(canReq);
+ if(!permAllowed)removeNavigation();
+ else ensureNavigation(isDiscoverHash());
+}
+function checkPermission(own){
+ if(!own)return;
+ if(permScope===own&&(permAllowed!==null||permPending))return;
+ permScope=own;
+ permPending=api('Status').then(res=>{
+  permPending=null;
+  updatePermission(own,res?.canRequest===true);
+ }).catch(()=>{
+  permPending=null;
+  updatePermission(own,false);
+ });
+}
 async function api(path,query={},body=null){
  const client=window.ApiClient,own=scope();if(!own)throw Error('Sign in to Jellyfin.');
  const result=body
   ?await client.ajax({url:client.getUrl('RequestHub/'+path),type:'POST',contentType:'application/json',dataType:'json',data:JSON.stringify(body)})
   :await client.getJSON(client.getUrl('RequestHub/'+path,query));
  if(scope()!==own)throw Error('Your account changed.');
+ if(typeof result?.canRequest==='boolean')updatePermission(own,result.canRequest);
  return result;
 }
 function clearGridScroll(){
@@ -110,9 +133,11 @@ function poster(item){
   try{
    const u=new URL(item.poster);
    if(u.protocol==='https:'&&u.hostname==='image.tmdb.org'){
+    frame.classList.add('is-loading');
     const img=el('img');
-    img.src=u.href;img.alt='';img.loading='lazy';
-    img.onerror=()=>img.remove();
+    img.src=u.href;img.alt='';img.loading='lazy';img.decoding='async';
+    img.onload=()=>frame.classList.remove('is-loading');
+    img.onerror=()=>{frame.classList.remove('is-loading');img.remove();};
     frame.append(img);
    }
   }catch{}
@@ -122,6 +147,23 @@ function poster(item){
   frame.append(el('span',STATUS_LABELS[item.status]||'Requested',`rh-status ${STATUS_CLASSES[item.status]||''}`.trim()));
  }
  return frame;
+}
+function skeletonCards(count=8,media=false){
+ const frag=document.createDocumentFragment();
+ for(let i=0;i<count;i++){
+  if(media){
+   const wrap=el('div','','rh-media-card rh-skeleton-card');
+   wrap.dataset.rhSkeleton='true';
+   wrap.append(el('div','','rh-media-frame rh-skeleton-box'));
+   frag.append(wrap);
+  }else{
+   const wrap=el('div','','rh-card rh-skeleton-card');
+   wrap.dataset.rhSkeleton='true';
+   wrap.append(el('div','','rh-poster rh-skeleton-box'),el('div','','rh-skeleton-line'));
+   frag.append(wrap);
+  }
+ }
+ return frag;
 }
 async function details(item){
  const current=generation;
@@ -297,9 +339,11 @@ async function gridView(host,title,kind,filter=null,query=null){
  const token=generation;
  const sec=el('section','','rh-grid-section');
  const grid=el('div','','rh-grid');
+ grid.append(skeletonCards(12,false));
  const status=el('p','','rh-row-status');
  status.setAttribute('role','status');
  const footer=el('div','','rh-grid-footer');
+ footer.hidden=true;
  let page=0,pages=1,busy=false;
  const moreBtn=button('Load more',()=>loadBatch(),'rh-btn');
  footer.append(moreBtn);
@@ -307,14 +351,15 @@ async function gridView(host,title,kind,filter=null,query=null){
  host.append(sec);
 
  async function loadBatch(){
-  if(busy||page>=pages||grid.children.length>=300)return;
+  const realCount=()=>grid.querySelectorAll('.rh-card:not(.rh-skeleton-card)').length;
+  if(busy||page>=pages||realCount()>=300)return;
   busy=true;
   moreBtn.disabled=true;
   moreBtn.textContent='Loading…';
   try{
    let added=0;
    const frag=document.createDocumentFragment();
-   while(page<pages&&added<20&&grid.children.length+added<300){
+   while(page<pages&&added<20&&realCount()+added<300){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!sec.isConnected)return;
     page++;
@@ -323,10 +368,12 @@ async function gridView(host,title,kind,filter=null,query=null){
     items.forEach(i=>{frag.append(card(i));added++;});
     if(!data.results?.length)break;
    }
+   grid.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
    if(added>0)grid.append(frag);
-   status.textContent=grid.children.length?'':'No released titles found.';
-   footer.hidden=page>=pages||grid.children.length>=300;
+   status.textContent=realCount()?'':'No released titles found.';
+   footer.hidden=page>=pages||realCount()>=300;
   }catch{
+   grid.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
    if(sec.isConnected)status.textContent='Could not load titles. Check Request Hub configuration and your account mapping.';
   }finally{
    busy=false;
@@ -417,10 +464,12 @@ function mediaRail(host,title,cardsPromiseOrArray){
  controls.append(prevBtn,nextBtn);
  const heading=el('h2',title);
  head.append(heading,controls);
+ if(!Array.isArray(cardsPromiseOrArray))track.append(skeletonCards(6,true));
  row.append(head,track,status);
  host.append(row);
  Promise.resolve(cardsPromiseOrArray).then(nodes=>{
   if(token!==generation||!row.isConnected)return;
+  track.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
   if(nodes&&nodes.length){
    const frag=document.createDocumentFragment();
    nodes.forEach(n=>frag.append(n));
@@ -430,12 +479,14 @@ function mediaRail(host,title,cardsPromiseOrArray){
    status.textContent=`${title} are unavailable.`;
   }
  }).catch(()=>{
+  track.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
   if(row.isConnected)status.textContent=`${title} are unavailable.`;
  });
 }
 async function rail(host,title,kind,filter=null,query=null){
  const token=generation,row=el('section','','rh-row'),head=el('div','','rh-row-head'),controls=el('div','','rh-row-controls'),track=el('div','','rh-track'),status=el('p','','rh-row-status');
  status.setAttribute('role','status');
+ track.append(skeletonCards(8,false));
  let page=0,pages=1,busy=false;
  const openFullGrid=()=>{
   generation++;
@@ -444,7 +495,7 @@ async function rail(host,title,kind,filter=null,query=null){
  };
  const tailCard=seeMoreCard(title,openFullGrid);
  const load=async()=>{
-  if(busy||page>=pages||track.querySelectorAll('.rh-card:not(.rh-see-more)').length>=20)return;
+  if(busy||page>=pages||track.querySelectorAll('.rh-card:not(.rh-see-more):not(.rh-skeleton-card)').length>=20)return;
   busy=true;
   try{
    let added=0;
@@ -461,13 +512,15 @@ async function rail(host,title,kind,filter=null,query=null){
     }
     if(!data.results?.length)break;
    }
+   track.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
    if(added>0){
     frag.append(tailCard);
     track.replaceChildren(frag);
    }
-   const realCards=track.querySelectorAll('.rh-card:not(.rh-see-more)').length;
+   const realCards=track.querySelectorAll('.rh-card:not(.rh-see-more):not(.rh-skeleton-card)').length;
    status.textContent=realCards?'':'No titles found.';
   }catch{
+   track.querySelectorAll('[data-rh-skeleton="true"]').forEach(n=>n.remove());
    if(row.isConnected)status.textContent='Could not load titles. Check Request Hub configuration and your account mapping.';
   }finally{busy=false;}
  };
@@ -561,6 +614,10 @@ function openDiscoverRoute(e){
  setTimeout(reconcile,150);
 }
 function ensureNavigation(active){
+ if(permAllowed!==true){
+  removeNavigation();
+  return;
+ }
  const headerLeft=document.querySelector('.skinHeader .headerLeft');
  if(headerLeft&&!headerLeft.querySelector('[data-rh-source]')){
   const src=el('button','','headerButton headerButtonLeft rh-source-btn');
@@ -683,13 +740,22 @@ function handleRemoteKey(e){
 }
 function reconcile(){
  const own=scope();
- if(session&&own!==session)cleanup();
+ if(session&&own!==session){
+  permScope='';
+  permAllowed=null;
+  permPending=null;
+  cleanup();
+ }
  session=own;
  if(!own){
-  document.querySelectorAll('[data-rh-link],[data-rh-source]').forEach(n=>n.remove());
+  permScope='';
+  permAllowed=null;
+  permPending=null;
+  removeNavigation();
   cleanup();
   return;
  }
+ checkPermission(own);
  const active=isDiscoverHash();
  ensureNavigation(active);
  if(!active){
@@ -914,18 +980,22 @@ a.rh-nav[aria-current=page]{
 .rh-row-controls{
  display:flex;
  align-items:center;
- gap:4px;
+ gap:10px;
 }
 .rh-root button.rh-row-arrow{
+ font:inherit;
+ font-weight:400;
+ color:#fff;
  padding:3px 11px;
  font-size:22px;
+ line-height:1;
  border:0;
  background:transparent;
  border-radius:8px;
- min-height:40px;
+ min-height:44px;
 }
-.rh-root button.rh-row-arrow:hover{
- background:rgba(255,255,255,0.1);
+.rh-root button.rh-row-arrow:hover:not(:disabled){
+ background:#454545;
 }
 .rh-track{
  display:flex;
@@ -1050,6 +1120,7 @@ a.rh-nav[aria-current=page]{
  white-space:nowrap!important;
  border:0!important;
 }
+@keyframes rh-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .rh-poster{
  position:relative;
  aspect-ratio:2/3;
@@ -1057,11 +1128,29 @@ a.rh-nav[aria-current=page]{
  border-radius:9px;
  overflow:hidden;
 }
+.rh-poster.is-loading,.rh-skeleton-box,.rh-skeleton-line{
+ background:linear-gradient(90deg,#1a1d24 25%,#282c37 50%,#1a1d24 75%)!important;
+ background-size:200% 100%!important;
+ animation:rh-shimmer 1.5s infinite linear;
+}
 .rh-poster img{
  height:100%;
  width:100%;
  object-fit:cover;
  display:block;
+ transition:opacity .18s ease;
+}
+.rh-poster.is-loading img,.rh-poster.is-loading .rh-type,.rh-poster.is-loading .rh-status{
+ opacity:0;
+}
+.rh-skeleton-card{
+ pointer-events:none;
+}
+.rh-skeleton-line{
+ width:70%;
+ height:14px;
+ border-radius:4px;
+ margin:8px 2px 0;
 }
 .rh-see-more-poster{
  display:flex;

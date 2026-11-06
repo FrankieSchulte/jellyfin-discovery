@@ -87,6 +87,7 @@ export class JellyfinClient {
   }
   groupResume(items, inventory) {
     const grouped=new Map();
+    const invItems=inventory?.items||[];
     for(const item of items){
       const key=item.Type==='Episode'&&item.SeriesId?item.SeriesId:item.Id;
       const old=grouped.get(key);
@@ -96,11 +97,72 @@ export class JellyfinClient {
     }
     return [...grouped.values()].map(item=>{
       if(item.Type!=='Episode'||!item.SeriesId)return item;
-      const show=inventory.items.find(i=>i.Id===item.SeriesId);
+      const show=invItems.find(i=>i.Id===item.SeriesId);
       return {...item,Name:item.SeriesName||show?.Name||item.Name,Type:'Series',ResumeItemId:item.Id,
-        Id:item.SeriesId,ImageTags:show?.ImageTags||{},BackdropImageTags:show?.BackdropImageTags||item.ParentBackdropImageTags||[],
+        Id:item.SeriesId,ImageTags:show?.ImageTags||(item.SeriesPrimaryImageTag?{Primary:item.SeriesPrimaryImageTag}:item.ImageTags||{}),BackdropImageTags:show?.BackdropImageTags||item.ParentBackdropImageTags||[],
         SeriesName:undefined,PrimaryImageAspectRatio:show?.PrimaryImageAspectRatio};
     });
+  }
+  async fetchContinueWatching(route, inventory, limit = 16) {
+    const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+    const fields = 'DateCreated,PrimaryImageAspectRatio,ParentId';
+    const mediaTypes = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Episode' : 'Movie,Episode';
+    const tasks = [
+      this.json('Items/Resume', { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+    ];
+    if (route.page !== 'movies') {
+      tasks.push(
+        this.json('Shows/NextUp', { UserId: this.userId, Limit: limit, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+      );
+    }
+    const results = await Promise.all(tasks);
+    this.assertCurrent();
+    const combined = [...(results[0]?.Items || []), ...(results[1]?.Items || [])];
+    if (!combined.length && this.prefetchedSections.has('ContinueWatchingNextUp')) {
+      try {
+        const pref = await this.prefetchedSections.get('ContinueWatchingNextUp');
+        this.prefetchedSections.delete('ContinueWatchingNextUp');
+        if (pref?.Items?.length) return this.groupResume(pref.Items, inventory).slice(0, limit);
+      } catch {}
+    }
+    return this.groupResume(combined, inventory).slice(0, limit);
+  }
+  async fastOpening(route, config) {
+    if (route.view === 'genres' || route.view === 'library' || route.view === 'favorites') return [];
+    const limit = Math.min(config?.cardsPerShelf || 16, 16);
+    const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+    const latestParams = type => ({
+      UserId: this.userId,
+      Limit: limit,
+      IncludeItemTypes: type,
+      ...parentFilter,
+      Fields: 'DateCreated,PrimaryImageAspectRatio',
+      EnableImages: true,
+      EnableUserData: true,
+      ImageTypeLimit: 1,
+      EnableImageTypes: 'Primary,Backdrop,Thumb'
+    });
+    const normalizeLatest = list => (Array.isArray(list) ? list : list?.Items || []);
+    const tasks = [
+      this.fetchContinueWatching(route, { items: [] }, limit).then(items => items.length ? { key: 'ContinueWatchingNextUp', title: 'Continue Watching / Next Up', family: 'anchor', items } : null).catch(() => null)
+    ];
+    if (route.page === 'home' || route.page === 'movies') {
+      tasks.push(
+        this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams('Movie'))
+          .then(res => { const items = normalizeLatest(res); return items.length ? { key: 'RecentlyAddedMovies', title: 'Recently Added in Movies', family: 'anchor', items } : null; })
+          .catch(() => null)
+      );
+    }
+    if (route.page === 'home' || route.page === 'shows') {
+      tasks.push(
+        this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams('Series'))
+          .then(res => { const items = normalizeLatest(res); return items.length ? { key: 'RecentlyAddedShows', title: 'Recently Added in Shows', family: 'anchor', items } : null; })
+          .catch(() => null)
+      );
+    }
+    const settled = await Promise.all(tasks);
+    this.assertCurrent();
+    return settled.filter(Boolean);
   }
   async anchor(id, route, inventory, config) {
     const typed = list => route.page === 'home' ? list : list.filter(i => route.page === 'movies' ? i.Type === 'Movie' || i.SourceType === 'movie' : ['Series', 'Episode'].includes(i.Type) || i.SourceType === 'tv');
@@ -110,6 +172,44 @@ export class JellyfinClient {
     const title = { ContinueWatchingNextUp: 'Continue Watching / Next Up', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
     if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };
+    if (id === 'ContinueWatchingNextUp' && !this.prefetchedSections.has(id) && typeof this.api?.getUrl === 'function') {
+      try {
+        const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
+        if (items.length) {
+          let list = typed(items);
+          if (route.parentId) {
+            const allowed = new Set(inventory.items.map(i => i.Id));
+            list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));
+          }
+          return { key: id, title, family: 'anchor', items: list.slice(0, config.cardsPerShelf), external: false };
+        }
+      } catch {
+        this.assertCurrent();
+      }
+    }
+    if ((id === 'DiscoverMovies' || id === 'DiscoverTV') && !this.prefetchedSections.has(id)) {
+      try {
+        const kind = id === 'DiscoverMovies' ? 'movies' : 'tv';
+        const rh = await this.json('RequestHub/Browse', { kind, page: 1 });
+        if (Array.isArray(rh?.results) && rh.results.length) {
+          const mapped = rh.results.slice(0, config.cardsPerShelf).map(r => ({
+            Id: `rh:${kind}:${r.id}`,
+            Name: r.title || 'Untitled',
+            Type: kind === 'movies' ? 'Movie' : 'Series',
+            SourceType: r.type || (kind === 'movies' ? 'movie' : 'tv'),
+            ProductionYear: r.year,
+            ProviderIds: {
+              Jellyseerr: String(r.id),
+              JellyseerrRoot: 'https://jellyseerr.local',
+              ...(r.poster ? { JellyseerrPoster: r.poster } : {})
+            }
+          }));
+          return { key: id, title, family: 'anchor', items: mapped, external: true };
+        }
+      } catch {
+        this.assertCurrent();
+      }
+    }
     try {
       const prefetched = this.prefetchedSections.get(id);
       if (prefetched) this.prefetchedSections.delete(id);

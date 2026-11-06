@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.5 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.6 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1063,8 +1063,10 @@
         }
       }
     };
-    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+.fx-discovery:not(:has(> :not([hidden]):not(:empty))){display:none!important;padding:0!important;margin:0!important}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
+.fx-toolbar:not(:has(> :not([hidden]))){display:none!important;margin:0!important}
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
@@ -1074,8 +1076,13 @@
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
 .fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}
+@keyframes fx-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#1a1d24 25%,#282c37 50%,#1a1d24 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
+.fx-card-visual img{width:100%;height:100%;object-fit:cover;transition:opacity .18s ease}.fx-card-visual.is-loading img{opacity:0}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-card-visual.is-loading .fx-progress,.fx-card-visual.is-loading .fx-badge{opacity:0}
+.fx-skeleton-title{width:220px;height:26px;border-radius:6px;border-left:3px solid var(--sleekfin-accent,#e50914)}
+.fx-skeleton-line{width:68%;height:14px;border-radius:4px;margin:8px 2px 0}
 .fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
 .fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
@@ -1193,10 +1200,16 @@
 .fx-discovery button.fx-dropdown-item.is-selected{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.45);color:#fff;font-weight:700}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 
-/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections */
+/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections (Single Red Bar) */
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
+  display:none!important;
+  content:none!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{
   font-size:28px!important;
   line-height:34px!important;
   font-weight:700!important;
@@ -1208,13 +1221,32 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
   letter-spacing:normal!important;
   background:transparent!important;
   min-height:36px!important;
+  gap:8px!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root{
+  font-size:28px!important;
+  line-height:34px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child:hover{
   background:rgba(255,255,255,.06)!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiButton-endIcon svg{
   font-size:24px!important;
   color:rgba(255,255,255,.78)!important;
+}
+
+/* Remove Play All & Shuffle Buttons Across Library Pages (Movies -> Library, Shows -> Library, Collections -> Collections) */
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Play all" i],button[title="Shuffle" i],button[aria-label="Play all" i],button[aria-label="Shuffle" i]),
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) :is(.btnPlayAll,.btnShuffle){
+  display:none!important;
 }
 
 /* SleekFin-Styled Dropdown Menus for Page View Switchers (Movies, Shows, Live TV, Collections) & User Menu */
@@ -1309,8 +1341,44 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
   align-items:center!important;
 }
 
-/* Unify Card Sizes Across Movies, Shows, Live TV, and Collections to Match Home & Discover */
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.card[data-aspect="2/3"]){
+/* Unify Horizontal Gutter Alignment, Vertical Top Spacing & Card Sizes Across Movies, Shows, Live TV, and Collections */
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-left{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-right{
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer{
+  column-gap:14px!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardBox{
+  margin:0!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardScalable{
+  border-radius:9px!important;
+  overflow:hidden!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page,
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .pageTabContent.is-active > .itemsContainer{
+  padding-top:18px!important;
+  margin-top:0!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"]){
   width:clamp(135px,14vw,205px)!important;
   flex:0 0 clamp(135px,14vw,205px)!important;
   max-width:clamp(135px,14vw,205px)!important;
@@ -1320,7 +1388,7 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
   flex:0 0 clamp(205px,23vw,310px)!important;
   max-width:clamp(205px,23vw,310px)!important;
 }
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard){
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard,.overflowPortraitCard){
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
   gap:20px 14px!important;
@@ -1340,24 +1408,29 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
 [data-sleekfin-header="modern"] ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery),
 header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
-#moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) [data-sleekfin-media-meta]{display:none!important}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
 /* Netflix-Style Slide-Out Header Search Bar & Live Search Results Overlay */
 .fx-header-search{
-  display:inline-flex;
+  display:inline-flex!important;
   align-items:center;
-  position:relative;
+  position:fixed;
+  top:14px;
+  right:64px;
+  z-index:1200;
   overflow:hidden;
   width:0;
+  height:38px;
   opacity:0;
   pointer-events:none;
   border-radius:999px;
-  background:rgba(12,14,20,.92);
+  background:rgba(14,16,22,.96);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
   border:1px solid transparent;
   transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
-  vertical-align:middle;
+  box-sizing:border-box;
 }
 .fx-header-search.is-open{
   width:clamp(220px,24vw,340px);
@@ -1365,8 +1438,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   pointer-events:auto;
   border-color:rgba(255,255,255,.32);
   padding:4px 10px 4px 12px;
-  margin-inline:4px;
-  box-shadow:0 8px 24px rgba(0,0,0,.48);
+  box-shadow:0 12px 32px rgba(0,0,0,.65);
 }
 .fx-header-search.is-open:focus-within{
   border-color:var(--sleekfin-accent,#e50914);
@@ -1471,10 +1543,146 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   margin-top:24px;
 }
 
+/* Download Quality Dropdown Menu (Full Quality vs Condensed 1080p) */
+.fx-download-menu{
+  position:fixed;
+  z-index:100005;
+  width:min(310px,92vw);
+  padding:8px;
+  background:rgba(18,20,28,.96);
+  backdrop-filter:blur(22px) saturate(150%);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,.78);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  box-sizing:border-box;
+}
+.fx-download-option{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  width:100%;
+  text-align:left;
+  padding:10px 14px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.03);
+  color:#fff;
+  font:inherit;
+  cursor:pointer;
+  transition:background .15s ease,border-color .15s ease;
+}
+.fx-download-option:hover{
+  background:rgba(229,9,20,.2);
+  border-color:rgba(229,9,20,.5);
+}
+.fx-download-option-title{
+  font-size:.93rem;
+  font-weight:700;
+  color:#fff;
+}
+.fx-download-option-sub{
+  font-size:.78rem;
+  color:rgba(255,255,255,.64);
+  line-height:1.35;
+}
+
+/* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+  max-width:1040px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+  background:rgba(22,23,30,.92)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.sectionTitle,h1,h2.sectionTitle,h2.username){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 0 16px!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:12px!important;
+  margin:0 0 10px!important;
+  padding:10px 14px!important;
+  transition:background .15s ease,border-color .15s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover{
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.2)!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input,select.emby-select,.inputContainer input,.selectContainer select){
+  background:#0e0f14!important;
+  color:#f3f4f6!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-radius:10px!important;
+  padding:10px 12px!important;
+  min-height:42px!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input:focus,select.emby-select:focus){
+  outline:none!important;
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit,.btnSave){
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid #ff2c37!important;
+  color:#fff!important;
+  font-weight:700!important;
+  border-radius:10px!important;
+  min-height:42px!important;
+  padding:10px 20px!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
+  background:#f6121d!important;
+}
+
+/* Responsive Half-Screen Mode Polish for Jellyfin Discovery Inline Studio */
+.fx-inline-studio,.fx-visual-editor,.fx-editor-section,.fx-rule-form{
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.fx-candidate-grid{
+  grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr))!important;
+}
+.fx-editor-meta-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))!important;
+}
+.fx-explorer-search input,.fx-library-toolbar input{
+  min-width:min(180px,100%)!important;
+}
+.fx-category-main{
+  min-width:min(160px,100%)!important;
+}
+
 @media(max-width:768px){
   .fx-toolbar h1,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
   .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
   .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
   .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
@@ -1826,6 +2034,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
       groupResume(items, inventory) {
         var _a, _b;
         const grouped = /* @__PURE__ */ new Map();
+        const invItems = (inventory == null ? void 0 : inventory.items) || [];
         for (const item of items) {
           const key = item.Type === "Episode" && item.SeriesId ? item.SeriesId : item.Id;
           const old = grouped.get(key);
@@ -1838,25 +2047,91 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         }
         return [...grouped.values()].map((item) => {
           if (item.Type !== "Episode" || !item.SeriesId) return item;
-          const show = inventory.items.find((i) => i.Id === item.SeriesId);
+          const show = invItems.find((i) => i.Id === item.SeriesId);
           return {
             ...item,
             Name: item.SeriesName || (show == null ? void 0 : show.Name) || item.Name,
             Type: "Series",
             ResumeItemId: item.Id,
             Id: item.SeriesId,
-            ImageTags: (show == null ? void 0 : show.ImageTags) || {},
+            ImageTags: (show == null ? void 0 : show.ImageTags) || (item.SeriesPrimaryImageTag ? { Primary: item.SeriesPrimaryImageTag } : item.ImageTags || {}),
             BackdropImageTags: (show == null ? void 0 : show.BackdropImageTags) || item.ParentBackdropImageTags || [],
             SeriesName: void 0,
             PrimaryImageAspectRatio: show == null ? void 0 : show.PrimaryImageAspectRatio
           };
         });
       }
+      async fetchContinueWatching(route, inventory, limit = 16) {
+        var _a, _b, _c;
+        const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+        const fields = "DateCreated,PrimaryImageAspectRatio,ParentId";
+        const mediaTypes = route.page === "movies" ? "Movie" : route.page === "shows" ? "Episode" : "Movie,Episode";
+        const tasks = [
+          this.json("Items/Resume", { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+        ];
+        if (route.page !== "movies") {
+          tasks.push(
+            this.json("Shows/NextUp", { UserId: this.userId, Limit: limit, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+          );
+        }
+        const results = await Promise.all(tasks);
+        this.assertCurrent();
+        const combined = [...((_a = results[0]) == null ? void 0 : _a.Items) || [], ...((_b = results[1]) == null ? void 0 : _b.Items) || []];
+        if (!combined.length && this.prefetchedSections.has("ContinueWatchingNextUp")) {
+          try {
+            const pref = await this.prefetchedSections.get("ContinueWatchingNextUp");
+            this.prefetchedSections.delete("ContinueWatchingNextUp");
+            if ((_c = pref == null ? void 0 : pref.Items) == null ? void 0 : _c.length) return this.groupResume(pref.Items, inventory).slice(0, limit);
+          } catch {
+          }
+        }
+        return this.groupResume(combined, inventory).slice(0, limit);
+      }
+      async fastOpening(route, config) {
+        if (route.view === "genres" || route.view === "library" || route.view === "favorites") return [];
+        const limit = Math.min((config == null ? void 0 : config.cardsPerShelf) || 16, 16);
+        const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+        const latestParams = (type) => ({
+          UserId: this.userId,
+          Limit: limit,
+          IncludeItemTypes: type,
+          ...parentFilter,
+          Fields: "DateCreated,PrimaryImageAspectRatio",
+          EnableImages: true,
+          EnableUserData: true,
+          ImageTypeLimit: 1,
+          EnableImageTypes: "Primary,Backdrop,Thumb"
+        });
+        const normalizeLatest = (list) => Array.isArray(list) ? list : (list == null ? void 0 : list.Items) || [];
+        const tasks = [
+          this.fetchContinueWatching(route, { items: [] }, limit).then((items) => items.length ? { key: "ContinueWatchingNextUp", title: "Continue Watching / Next Up", family: "anchor", items } : null).catch(() => null)
+        ];
+        if (route.page === "home" || route.page === "movies") {
+          tasks.push(
+            this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams("Movie")).then((res) => {
+              const items = normalizeLatest(res);
+              return items.length ? { key: "RecentlyAddedMovies", title: "Recently Added in Movies", family: "anchor", items } : null;
+            }).catch(() => null)
+          );
+        }
+        if (route.page === "home" || route.page === "shows") {
+          tasks.push(
+            this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams("Series")).then((res) => {
+              const items = normalizeLatest(res);
+              return items.length ? { key: "RecentlyAddedShows", title: "Recently Added in Shows", family: "anchor", items } : null;
+            }).catch(() => null)
+          );
+        }
+        const settled = await Promise.all(tasks);
+        this.assertCurrent();
+        return settled.filter(Boolean);
+      }
       async anchor(id, route, inventory, config) {
+        var _a;
         const typed = (list) => route.page === "home" ? list : list.filter((i) => route.page === "movies" ? i.Type === "Movie" || i.SourceType === "movie" : ["Series", "Episode"].includes(i.Type) || i.SourceType === "tv");
         const arrival = (item) => {
-          var _a;
-          const r = (_a = inventory.tracking) == null ? void 0 : _a.get(item.Id);
+          var _a2;
+          const r = (_a2 = inventory.tracking) == null ? void 0 : _a2.get(item.Id);
           return Date.parse(kindDate(item, r)) || 0;
         };
         const kindDate = (item, r) => item.Type === "Series" ? (r == null ? void 0 : r.NewSeasonAt) || (r == null ? void 0 : r.AddedAt) : r == null ? void 0 : r.AddedAt;
@@ -1864,6 +2139,44 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const title = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
         if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
         if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
+        if (id === "ContinueWatchingNextUp" && !this.prefetchedSections.has(id) && typeof ((_a = this.api) == null ? void 0 : _a.getUrl) === "function") {
+          try {
+            const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
+            if (items.length) {
+              let list = typed(items);
+              if (route.parentId) {
+                const allowed = new Set(inventory.items.map((i) => i.Id));
+                list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
+              }
+              return { key: id, title, family: "anchor", items: list.slice(0, config.cardsPerShelf), external: false };
+            }
+          } catch {
+            this.assertCurrent();
+          }
+        }
+        if ((id === "DiscoverMovies" || id === "DiscoverTV") && !this.prefetchedSections.has(id)) {
+          try {
+            const kind = id === "DiscoverMovies" ? "movies" : "tv";
+            const rh = await this.json("RequestHub/Browse", { kind, page: 1 });
+            if (Array.isArray(rh == null ? void 0 : rh.results) && rh.results.length) {
+              const mapped = rh.results.slice(0, config.cardsPerShelf).map((r) => ({
+                Id: `rh:${kind}:${r.id}`,
+                Name: r.title || "Untitled",
+                Type: kind === "movies" ? "Movie" : "Series",
+                SourceType: r.type || (kind === "movies" ? "movie" : "tv"),
+                ProductionYear: r.year,
+                ProviderIds: {
+                  Jellyseerr: String(r.id),
+                  JellyseerrRoot: "https://jellyseerr.local",
+                  ...r.poster ? { JellyseerrPoster: r.poster } : {}
+                }
+              }));
+              return { key: id, title, family: "anchor", items: mapped, external: true };
+            }
+          } catch {
+            this.assertCurrent();
+          }
+        }
         try {
           const prefetched = this.prefetchedSections.get(id);
           if (prefetched) this.prefetchedSections.delete(id);
@@ -2561,14 +2874,14 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.5";
+      const VERSION = "0.4.6";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
       let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
       const snapshots = /* @__PURE__ */ new Map();
       const savedFeeds = /* @__PURE__ */ new Map();
-      let activeDialog = null, lastScope = "", selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null;
+      let activeDialog = null, lastScope = "", selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null;
       const element = (tag, cls, text) => {
         const n = document.createElement(tag);
         if (cls) n.className = cls;
@@ -2631,19 +2944,19 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
               const moviesEntry = list.find((x) => (x == null ? void 0 : x.path) === "/movies");
               if (moviesEntry) {
                 moviesEntry.views = [
-                  { index: 1, label: "Movies", view: "Suggestions", isDefault: true },
-                  { index: 0, label: "Library", view: "Movies" },
-                  { index: 2, label: "Favorites", view: "Favorites" },
-                  { index: 4, label: "Genres", view: "Genres" }
+                  { index: 1, label: "Movies", view: "suggestions", isDefault: true },
+                  { index: 0, label: "Library", view: "movies" },
+                  { index: 2, label: "Favorites", view: "favorites" },
+                  { index: 4, label: "Genres", view: "genres" }
                 ];
               }
               const tvEntry = list.find((x) => (x == null ? void 0 : x.path) === "/tv");
               if (tvEntry) {
                 tvEntry.views = [
-                  { index: 1, label: "TV Shows", view: "Suggestions", isDefault: true },
-                  { index: 0, label: "Library", view: "Series" },
-                  { index: 2, label: "Favorites", view: "Favorites" },
-                  { index: 3, label: "Genres", view: "Genres" }
+                  { index: 1, label: "TV Shows", view: "suggestions", isDefault: true },
+                  { index: 0, label: "Library", view: "series" },
+                  { index: 2, label: "Favorites", view: "favorites" },
+                  { index: 3, label: "Genres", view: "genres" }
                 ];
               }
             }
@@ -2651,8 +2964,40 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           if (req.m[95753]) {
             const modMap = req(95753);
             const map = modMap == null ? void 0 : modMap.A;
+            if (map == null ? void 0 : map.movies) {
+              Object.values(map.movies).forEach((v) => {
+                if (v && typeof v === "object") {
+                  v.isBtnPlayAllEnabled = false;
+                  v.isBtnShuffleEnabled = false;
+                }
+              });
+            }
             if (map == null ? void 0 : map.tvshows) {
-              map.tvshows[2] = { viewType: "Favorites", collectionType: "tvshows", itemType: ["Series"] };
+              map.tvshows[2] = {
+                viewType: "favorites",
+                collectionType: "tvshows",
+                itemType: ["Series"],
+                isBtnPlayAllEnabled: false,
+                isBtnShuffleEnabled: false,
+                isBtnFilterEnabled: true,
+                isBtnGridListEnabled: true,
+                isBtnSortEnabled: true,
+                isAlphaPickerEnabled: true
+              };
+              Object.values(map.tvshows).forEach((v) => {
+                if (v && typeof v === "object") {
+                  v.isBtnPlayAllEnabled = false;
+                  v.isBtnShuffleEnabled = false;
+                }
+              });
+            }
+            if (map == null ? void 0 : map.boxsets) {
+              Object.values(map.boxsets).forEach((v) => {
+                if (v && typeof v === "object") {
+                  v.isBtnPlayAllEnabled = false;
+                  v.isBtnShuffleEnabled = false;
+                }
+              });
             }
           }
         } catch {
@@ -2695,8 +3040,13 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const expectedLabel = isMovies ? tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "4" ? "Genres" : "Movies" : tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "3" ? "Genres" : "TV Shows";
         const btn = document.querySelector('button[aria-controls="library-view-menu"]');
         if (btn) {
-          const textNode = [...btn.childNodes].find((n) => n.nodeType === 3);
-          if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+          const typo = btn.querySelector(".MuiTypography-root");
+          if (typo) {
+            if (typo.textContent !== expectedLabel) typo.textContent = expectedLabel;
+          } else {
+            const textNode = [...btn.childNodes].find((n) => n.nodeType === 3);
+            if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+          }
         }
         const menuList = document.querySelector("#library-view-menu .MuiList-root");
         if (menuList) {
@@ -2873,9 +3223,10 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
         const visual = element("div", "fx-card-visual");
         const placeholder = element("span", "fx-placeholder", name);
-        visual.append(placeholder);
         const choices = imageChoices(item, s.api, layout);
         if (choices.length) {
+          placeholder.hidden = true;
+          visual.classList.add("is-loading");
           const img = element("img");
           img.alt = "";
           img.loading = "lazy";
@@ -2888,16 +3239,21 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           };
           img.addEventListener("load", () => {
             placeholder.hidden = true;
+            visual.classList.remove("is-loading");
+            img.classList.add("is-loaded");
           });
           img.addEventListener("error", () => {
             if (index < choices.length) use();
             else {
               img.remove();
+              visual.classList.remove("is-loading");
               placeholder.hidden = false;
             }
           });
           use();
-          visual.append(img);
+          visual.append(placeholder, img);
+        } else {
+          visual.append(placeholder);
         }
         const percent = Math.max(0, Math.min(100, Number(((_a2 = item.UserData) == null ? void 0 : _a2.PlayedPercentage) || (item.RunTimeTicks ? 100 * (((_b2 = item.UserData) == null ? void 0 : _b2.PlaybackPositionTicks) || 0) / item.RunTimeTicks : 0))));
         if (percent > 0 && percent < 100) {
@@ -3083,7 +3439,28 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           }
         }
       }
+      function renderSkeletonRows(s, count = 3) {
+        if (s.full || s.slots.length) return;
+        s.list.replaceChildren();
+        for (let r = 0; r < count; r++) {
+          const sec = element("section", "fx-shelf fx-skeleton-row");
+          sec.dataset.skeleton = "true";
+          const head = element("div", "fx-row-head");
+          head.append(element("div", "fx-skeleton-title"));
+          const track = element("div", "fx-track");
+          for (let c = 0; c < 6; c++) {
+            const entry = element("div", "fx-card-entry");
+            const vis = element("div", "fx-card-visual is-loading fx-skeleton-box");
+            const line = element("div", "fx-skeleton-line");
+            entry.append(vis, line);
+            track.append(entry);
+          }
+          sec.append(head, track);
+          s.list.append(sec);
+        }
+      }
       function appendRow(row, s, isBoot = false) {
+        s.list.querySelectorAll('[data-skeleton="true"]').forEach((n) => n.remove());
         const slot = { node: element("section", "fx-shelf"), data: row, live: false, boot: isBoot };
         if (isBoot) slot.node.dataset.bootRow = "true";
         slot.node.dataset.shelfKey = row.key;
@@ -3144,11 +3521,12 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const items = filterItems(s.inventory.items, s.filters, s.tracking);
         s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now, s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
         s.filteredQueue = s.route.view === "genres" ? s.planner.shelves.filter((r) => r.family === "genre" && r.key !== "genre:explore").sort((a, b) => a.title.localeCompare(b.title)) : null;
-        if (filtersActive(s.filters) || s.filters.sort !== "recommended") {
+        const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== "recommended";
+        if (hasActiveFilter) {
           s.filteredQueue = [];
           for (let n = 0; n < items.length; n += s.config.cardsPerShelf) s.filteredQueue.push({ key: `filtered:${n}`, title: `Matches ${n + 1}\u2013${Math.min(n + s.config.cardsPerShelf, items.length)} of ${items.length}`, family: "filtered", items: items.slice(n, n + s.config.cardsPerShelf) });
         }
-        s.matchCount.textContent = s.filteredQueue && s.route.view !== "genres" ? `${items.length} matching titles` : "";
+        s.matchCount.textContent = hasActiveFilter ? `${items.length} matching titles` : "";
       }
       function applyFilters(s) {
         if (state !== s || s.loading) {
@@ -3203,7 +3581,8 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         s.footer.hidden = s.full;
         s.more.hidden = s.finished;
         s.more.disabled = false;
-        s.matchCount.textContent = s.filteredQueue ? `${filterItems(s.inventory.items, s.filters, s.tracking).length} matching titles` : "";
+        const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== "recommended";
+        s.matchCount.textContent = hasActiveFilter ? `${filterItems(s.inventory.items, s.filters, s.tracking).length} matching titles` : "";
         s.note.textContent = s.finished ? "You\u2019ve reached the available matches." : "More shelves load as you scroll.";
         setMode(s, s.full, false);
         filterPanel(s);
@@ -3345,7 +3724,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
               break;
             }
             s.pending = row;
-            const items = row.key === "MyMedia" || row.external || row.key === "ContinueWatchingNextUp" ? row.items : await s.client.hydrate(row.items);
+            const items = row.key === "MyMedia" || row.external || row.key === "ContinueWatchingNextUp" || s.initialHydrateSkip ? row.items : await s.client.hydrate(row.items);
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length && !s.full) {
@@ -3364,6 +3743,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             s.slots = [];
             s.list.replaceChildren();
           }
+          s.list.querySelectorAll('[data-skeleton="true"]').forEach((n) => n.remove());
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
           if ((s.slots.length || s.filteredQueue) && !s.full) {
@@ -3391,6 +3771,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           }
         } finally {
           s.loading = false;
+          s.initialHydrateSkip = false;
           if (state === s) {
             s.more.disabled = false;
             s.more.textContent = s.pauseAutomatic ? "Try again" : "Load more";
@@ -3459,6 +3840,17 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             if (bootRows == null ? void 0 : bootRows.length) {
               bootRows.forEach((row) => appendRow(row, s, true));
               syncNative(s, true);
+            } else {
+              renderSkeletonRows(s, 3);
+              syncNative(s, true);
+              if (s.route.view !== "genres") {
+                s.client.fastOpening(s.route, s.config).then((fastRows) => {
+                  if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
+                  fastRows.forEach((row) => appendRow(row, s, true));
+                  syncNative(s, true);
+                }).catch(() => {
+                });
+              }
             }
           }
           if (!s.full && s.route.view !== "genres") {
@@ -3518,6 +3910,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             preparePlanner(s);
             filterPanel(s);
             s.status.textContent = "";
+            s.initialHydrateSkip = true;
             await loadMore(s);
           }
           await trackingTask;
@@ -3548,6 +3941,82 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             host.append(badge);
           }
           if (badge.textContent !== text) badge.textContent = text;
+        }
+      }
+      function closeDownloadMenu() {
+        if (downloadMenu) {
+          downloadMenu.remove();
+          downloadMenu = null;
+        }
+      }
+      function triggerUrlDownload(url) {
+        const a = element("a");
+        a.href = url;
+        a.setAttribute("download", "");
+        a.rel = "noopener noreferrer";
+        document.body.append(a);
+        a.click();
+        a.remove();
+      }
+      function openDownloadMenu(btn, itemId, api) {
+        var _a2;
+        closeDownloadMenu();
+        const token = ((_a2 = api.accessToken) == null ? void 0 : _a2.call(api)) || "";
+        const fullUrl = api.getUrl(`Items/${encodeURIComponent(itemId)}/Download`, token ? { api_key: token } : {});
+        const transcodeUrl = api.getUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+          Static: "false",
+          VideoCodec: "h264",
+          AudioCodec: "aac",
+          MaxWidth: "1920",
+          MaxHeight: "1080",
+          VideoBitRate: "4000000",
+          AudioBitRate: "192000",
+          MaxAudioChannels: "2",
+          TranscodingProtocol: "http",
+          TranscodingContainer: "mp4",
+          PlaySessionId: "fx-dl-" + Date.now(),
+          ...token ? { api_key: token } : {}
+        });
+        const menu = element("div", "fx-download-menu is-open");
+        menu.setAttribute("role", "menu");
+        menu.setAttribute("aria-label", "Download quality options");
+        const makeOption = (title, sub, onSelect) => {
+          const opt = button("", () => {
+            closeDownloadMenu();
+            onSelect();
+          });
+          opt.className = "fx-download-option";
+          opt.setAttribute("role", "menuitem");
+          const t = element("strong", "fx-download-option-title", title);
+          const s = element("span", "fx-download-option-sub", sub);
+          opt.append(t, s);
+          return opt;
+        };
+        menu.append(
+          makeOption("Full Quality (Original)", "Direct original file \xB7 Best for home & archival", () => triggerUrlDownload(fullUrl)),
+          makeOption("Condensed 1080p (Fast / Mobile)", "Transcoded H.264 MP4 (~4 Mbps) \xB7 Smaller file for flights & phones", () => triggerUrlDownload(transcodeUrl))
+        );
+        document.body.append(menu);
+        downloadMenu = menu;
+        const rect = typeof btn.getBoundingClientRect === "function" ? btn.getBoundingClientRect() : null;
+        if (rect && (rect.width > 0 || rect.height > 0)) {
+          const top = Math.min((window.innerHeight || 800) - 150, Math.max(12, Math.round(rect.bottom + 8)));
+          const left = Math.min((window.innerWidth || 1280) - 290, Math.max(12, Math.round(rect.left)));
+          menu.style.top = `${top}px`;
+          menu.style.left = `${left}px`;
+        } else {
+          menu.style.top = "120px";
+          menu.style.left = "80px";
+        }
+      }
+      function positionHeaderSearch() {
+        if (!headerSearchWrap || !(headerSearchBtn == null ? void 0 : headerSearchBtn.isConnected) || typeof headerSearchBtn.getBoundingClientRect !== "function") return;
+        const r = headerSearchBtn.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.top < 250) {
+          const top = Math.max(8, Math.round(r.top + (r.height - 38) / 2));
+          const right = Math.max(12, Math.round((window.innerWidth || 1280) - r.right));
+          headerSearchWrap.style.top = `${top}px`;
+          headerSearchWrap.style.right = `${right}px`;
         }
       }
       function closeHeaderSearch(restoreButton = true) {
@@ -3696,7 +4165,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
         if (!btn) return;
         headerSearchBtn = btn;
-        if (!headerSearchWrap || !headerSearchWrap.isConnected || headerSearchWrap.nextElementSibling !== btn) {
+        if (!headerSearchWrap || !headerSearchWrap.isConnected) {
           headerSearchWrap == null ? void 0 : headerSearchWrap.remove();
           const wrap = element("div", "fx-header-search");
           const icon = element("span", "material-icons search fx-header-search-icon");
@@ -3740,9 +4209,10 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             }, 160);
           });
           wrap.append(icon, input, clear);
-          btn.before(wrap);
+          document.body.append(wrap);
           headerSearchWrap = wrap;
         }
+        positionHeaderSearch();
       }
       function download(name, obj) {
         const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" }));
@@ -4089,7 +4559,6 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           titlePicker.append(heading, modeLabel, switcher);
           titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
           toolbar.prepend(titlePicker);
-          if (route.view !== "library") toolbar.append(s.filterToggle);
         }
         footer.append(s.more, s.note);
         root.append(toolbar, panel, matchCount, status, list, footer);
@@ -4139,22 +4608,43 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         });
       }
       function navSuggestions(event) {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
-        const searchTrigger = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
-        if (searchTrigger && ((_d2 = (_c2 = window.ApiClient) == null ? void 0 : _c2.getCurrentUserId) == null ? void 0 : _d2.call(_c2))) {
-          ensureHeaderSearch(window.ApiClient);
-          if (headerSearchWrap) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+        if (downloadMenu && !((_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-download-menu"))) {
+          closeDownloadMenu();
+        }
+        const dlBtn = (_d2 = (_c2 = event.target).closest) == null ? void 0 : _d2.call(_c2, 'button.btnDownload, button.sleekfin-details-episode-download, button[data-sleekfin-details-action="download"], button[data-id="download"], button[title="Download" i], button[aria-label="Download" i]');
+        if (dlBtn && !dlBtn.closest(".fx-download-menu") && ((_f = (_e2 = window.ApiClient) == null ? void 0 : _e2.getCurrentUserId) == null ? void 0 : _f.call(_e2))) {
+          const rawSelfId = dlBtn.getAttribute("data-item-id") || ((_g = dlBtn.dataset) == null ? void 0 : _g.itemId) || dlBtn.getAttribute("data-id") || ((_h = dlBtn.dataset) == null ? void 0 : _h.id);
+          const parentIdNode = (_j = (_i = dlBtn.parentElement) == null ? void 0 : _i.closest) == null ? void 0 : _j.call(_i, "[data-item-id],[data-itemid],[data-id]");
+          const parentId = (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-item-id")) || (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-itemid")) || (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-id"));
+          const hashId = new URLSearchParams(location.hash.split("?")[1] || "").get("id");
+          const itemId = (rawSelfId && rawSelfId.toLowerCase() !== "download" ? rawSelfId : "") || parentId || hashId;
+          if (itemId) {
             event.preventDefault();
-            (_e2 = event.stopImmediatePropagation) == null ? void 0 : _e2.call(event);
+            (_k = event.stopImmediatePropagation) == null ? void 0 : _k.call(event);
             event.stopPropagation();
-            headerSearchWrap.classList.add("is-open");
-            searchTrigger.style.display = "none";
-            const inp = headerSearchWrap.querySelector("input");
-            (_f = inp == null ? void 0 : inp.focus) == null ? void 0 : _f.call(inp);
+            openDownloadMenu(dlBtn, itemId, window.ApiClient);
             return;
           }
         }
-        const target = (_h = (_g = event.target).closest) == null ? void 0 : _h.call(_g, "[data-sleekfin-header-proxy-item],a[href]");
+        const searchTrigger = (_m = (_l = event.target).closest) == null ? void 0 : _m.call(_l, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        if (searchTrigger && ((_o = (_n = window.ApiClient) == null ? void 0 : _n.getCurrentUserId) == null ? void 0 : _o.call(_n))) {
+          ensureHeaderSearch(window.ApiClient);
+          if (headerSearchWrap) {
+            event.preventDefault();
+            (_p = event.stopImmediatePropagation) == null ? void 0 : _p.call(event);
+            event.stopPropagation();
+            positionHeaderSearch();
+            headerSearchWrap.classList.add("is-open");
+            const inp = headerSearchWrap.querySelector("input");
+            (_q = inp == null ? void 0 : inp.focus) == null ? void 0 : _q.call(inp);
+            return;
+          }
+        }
+        if ((headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) && !((_s = (_r = event.target).closest) == null ? void 0 : _s.call(_r, ".fx-header-search,.fx-search-overlay"))) {
+          closeHeaderSearch(true);
+        }
+        const target = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, "[data-sleekfin-header-proxy-item],a[href]");
         if (!target) return;
         if (searchOverlay && !searchOverlay.hidden && !target.closest(".fx-search-overlay,.fx-header-search")) {
           closeHeaderSearch(true);
@@ -4185,7 +4675,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           const [path, raw = ""] = normalized.split("?"), q = new URLSearchParams(raw);
           q.set("tab", "1");
           event.preventDefault();
-          (_i = event.stopImmediatePropagation) == null ? void 0 : _i.call(event);
+          (_v = event.stopImmediatePropagation) == null ? void 0 : _v.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = path + "?" + q;
@@ -4195,7 +4685,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         }
         if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home") {
           event.preventDefault();
-          (_j = event.stopImmediatePropagation) == null ? void 0 : _j.call(event);
+          (_w = event.stopImmediatePropagation) == null ? void 0 : _w.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = normalized;
@@ -4213,6 +4703,12 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const s = state;
         const key = { 37: "ArrowLeft", 38: "ArrowUp", 39: "ArrowRight", 40: "ArrowDown", 13: "Enter", 27: "Escape", 10009: "Escape", 461: "Escape", 457: "ContextMenu" }[event.keyCode] || event.key;
         const target = event.target || document.activeElement;
+        if (downloadMenu && (key === "Escape" || event.keyCode === 10009)) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeDownloadMenu();
+          return;
+        }
         if (activeDialog) {
           if (key === "Escape" || event.keyCode === 10009) {
             event.preventDefault();
@@ -4338,7 +4834,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
@@ -4371,6 +4867,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           observer == null ? void 0 : observer.disconnect();
           cleanup(false);
           closeHeaderSearch(true);
+          closeDownloadMenu();
           headerSearchWrap == null ? void 0 : headerSearchWrap.remove();
           headerSearchWrap = null;
           searchOverlay == null ? void 0 : searchOverlay.remove();

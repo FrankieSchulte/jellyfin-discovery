@@ -9,6 +9,8 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users):Contr
 {
     private UserLink? Link(){var c=Plugin.Instance.Configuration;if(!c.Enabled)return null;var claim=User.Claims.FirstOrDefault(c=>c.Type.Equals("Jellyfin-UserId",StringComparison.OrdinalIgnoreCase))?.Value;return Guid.TryParse(claim,out var id)&&users.GetUserById(id)is not null?HubPolicy.OwnMapping(c.Users,id):null;}
     private async Task<IActionResult> Run(Func<UserLink,Task<IActionResult>> action){var link=Link();if(link is null)return StatusCode(403,new{error="Request Hub is disabled or your account has not been mapped by the administrator."});try{return await action(link);}catch(HubException e){return StatusCode(e.Status is 403 or 409 or 429?e.Status:502,new{error=e.Status==403?"Jellyseerr denied this operation. Check account permissions and request quota.":e.Status==409?"This title or season has already been requested.":"Jellyseerr could not complete the operation. Try again later."});}catch(Exception e)when(e is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException or KeyNotFoundException){return StatusCode(502,new{error="Jellyseerr is unavailable or returned an unsupported response."});}}
+    [HttpGet("Status")]
+    public IActionResult Status(){var link=Link();return Ok(new{enabled=link is not null,canRequest=link?.AllowRequests==true});}
     [HttpGet("Browse")]
     public Task<IActionResult> Browse(string kind="trending",int page=1,string? query=null,int? filter=null)=>Run(async link=>{
         string path;try{path=HubPolicy.BrowsePath(kind,page,query,filter);}catch(ArgumentException){return BadRequest();}

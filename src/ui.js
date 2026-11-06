@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.5';
+const VERSION = '0.4.6';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -7,7 +7,7 @@ window.FazFortHomeFeed?.stop?.();
 let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
 const snapshots = new Map();
 const savedFeeds = new Map();
-let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null;
+let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
 const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrentUserId()}`;
@@ -53,19 +53,19 @@ function applyWebpackViewPatch(req) {
         const moviesEntry = list.find(x => x?.path === '/movies');
         if (moviesEntry) {
           moviesEntry.views = [
-            { index: 1, label: 'Movies', view: 'Suggestions', isDefault: true },
-            { index: 0, label: 'Library', view: 'Movies' },
-            { index: 2, label: 'Favorites', view: 'Favorites' },
-            { index: 4, label: 'Genres', view: 'Genres' }
+            { index: 1, label: 'Movies', view: 'suggestions', isDefault: true },
+            { index: 0, label: 'Library', view: 'movies' },
+            { index: 2, label: 'Favorites', view: 'favorites' },
+            { index: 4, label: 'Genres', view: 'genres' }
           ];
         }
         const tvEntry = list.find(x => x?.path === '/tv');
         if (tvEntry) {
           tvEntry.views = [
-            { index: 1, label: 'TV Shows', view: 'Suggestions', isDefault: true },
-            { index: 0, label: 'Library', view: 'Series' },
-            { index: 2, label: 'Favorites', view: 'Favorites' },
-            { index: 3, label: 'Genres', view: 'Genres' }
+            { index: 1, label: 'TV Shows', view: 'suggestions', isDefault: true },
+            { index: 0, label: 'Library', view: 'series' },
+            { index: 2, label: 'Favorites', view: 'favorites' },
+            { index: 3, label: 'Genres', view: 'genres' }
           ];
         }
       }
@@ -73,8 +73,40 @@ function applyWebpackViewPatch(req) {
     if (req.m[95753]) {
       const modMap = req(95753);
       const map = modMap?.A;
+      if (map?.movies) {
+        Object.values(map.movies).forEach(v => {
+          if (v && typeof v === 'object') {
+            v.isBtnPlayAllEnabled = false;
+            v.isBtnShuffleEnabled = false;
+          }
+        });
+      }
       if (map?.tvshows) {
-        map.tvshows[2] = { viewType: 'Favorites', collectionType: 'tvshows', itemType: ['Series'] };
+        map.tvshows[2] = {
+          viewType: 'favorites',
+          collectionType: 'tvshows',
+          itemType: ['Series'],
+          isBtnPlayAllEnabled: false,
+          isBtnShuffleEnabled: false,
+          isBtnFilterEnabled: true,
+          isBtnGridListEnabled: true,
+          isBtnSortEnabled: true,
+          isAlphaPickerEnabled: true
+        };
+        Object.values(map.tvshows).forEach(v => {
+          if (v && typeof v === 'object') {
+            v.isBtnPlayAllEnabled = false;
+            v.isBtnShuffleEnabled = false;
+          }
+        });
+      }
+      if (map?.boxsets) {
+        Object.values(map.boxsets).forEach(v => {
+          if (v && typeof v === 'object') {
+            v.isBtnPlayAllEnabled = false;
+            v.isBtnShuffleEnabled = false;
+          }
+        });
       }
     }
   } catch {}
@@ -116,8 +148,13 @@ function syncLibraryViewMenu() {
     : (tab === '0' ? 'Library' : tab === '2' ? 'Favorites' : tab === '3' ? 'Genres' : 'TV Shows');
   const btn = document.querySelector('button[aria-controls="library-view-menu"]');
   if (btn) {
-    const textNode = [...btn.childNodes].find(n => n.nodeType === 3);
-    if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+    const typo = btn.querySelector('.MuiTypography-root');
+    if (typo) {
+      if (typo.textContent !== expectedLabel) typo.textContent = expectedLabel;
+    } else {
+      const textNode = [...btn.childNodes].find(n => n.nodeType === 3);
+      if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+    }
   }
   const menuList = document.querySelector('#library-view-menu .MuiList-root');
   if (menuList) {
@@ -247,15 +284,19 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   if (/^https?:/i.test(card.getAttribute('href'))) card.rel = 'noopener noreferrer';
   const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
   const visual = element('div', 'fx-card-visual');
-  const placeholder = element('span', 'fx-placeholder', name); visual.append(placeholder);
+  const placeholder = element('span', 'fx-placeholder', name);
   const choices = imageChoices(item, s.api, layout);
   if (choices.length) {
+    placeholder.hidden = true;
+    visual.classList.add('is-loading');
     const img = element('img'); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
     let index = 0;
     const use = () => { const choice = choices[index++]; img.className = choice.poster ? 'fx-poster' : ''; img.src = choice.url; };
-    img.addEventListener('load', () => { placeholder.hidden = true; });
-    img.addEventListener('error', () => { if (index < choices.length) use(); else { img.remove(); placeholder.hidden = false; } });
-    use(); visual.append(img);
+    img.addEventListener('load', () => { placeholder.hidden = true; visual.classList.remove('is-loading'); img.classList.add('is-loaded'); });
+    img.addEventListener('error', () => { if (index < choices.length) use(); else { img.remove(); visual.classList.remove('is-loading'); placeholder.hidden = false; } });
+    use(); visual.append(placeholder, img);
+  } else {
+    visual.append(placeholder);
   }
   const percent = Math.max(0, Math.min(100, Number(item.UserData?.PlayedPercentage || (item.RunTimeTicks ? 100 * (item.UserData?.PlaybackPositionTicks || 0) / item.RunTimeTicks : 0))));
   if (percent > 0 && percent < 100) { const progress = element('div', 'fx-progress'); const fill = element('span'); fill.style.width = percent + '%'; progress.append(fill); visual.append(progress); }
@@ -397,7 +438,28 @@ function virtualize(s) {
     }
   }
 }
+function renderSkeletonRows(s, count = 3) {
+  if (s.full || s.slots.length) return;
+  s.list.replaceChildren();
+  for (let r = 0; r < count; r++) {
+    const sec = element('section', 'fx-shelf fx-skeleton-row');
+    sec.dataset.skeleton = 'true';
+    const head = element('div', 'fx-row-head');
+    head.append(element('div', 'fx-skeleton-title'));
+    const track = element('div', 'fx-track');
+    for (let c = 0; c < 6; c++) {
+      const entry = element('div', 'fx-card-entry');
+      const vis = element('div', 'fx-card-visual is-loading fx-skeleton-box');
+      const line = element('div', 'fx-skeleton-line');
+      entry.append(vis, line);
+      track.append(entry);
+    }
+    sec.append(head, track);
+    s.list.append(sec);
+  }
+}
 function appendRow(row, s, isBoot = false) {
+  s.list.querySelectorAll('[data-skeleton="true"]').forEach(n => n.remove());
   const slot = { node: element('section', 'fx-shelf'), data: row, live: false, boot: isBoot };
   if (isBoot) slot.node.dataset.bootRow = 'true';
   slot.node.dataset.shelfKey = row.key; s.list.append(slot.node); s.slots.push(slot); fillSlot(slot, s);
@@ -427,11 +489,12 @@ function preparePlanner(s) {
   const items = filterItems(s.inventory.items, s.filters, s.tracking);
   s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now,s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
   s.filteredQueue = s.route.view==='genres'?s.planner.shelves.filter(r=>r.family==='genre'&&r.key!=='genre:explore').sort((a,b)=>a.title.localeCompare(b.title)):null;
-  if (filtersActive(s.filters) || s.filters.sort !== 'recommended') {
+  const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== 'recommended';
+  if (hasActiveFilter) {
     s.filteredQueue = [];
     for (let n=0;n<items.length;n+=s.config.cardsPerShelf) s.filteredQueue.push({key:`filtered:${n}`,title:`Matches ${n+1}–${Math.min(n+s.config.cardsPerShelf,items.length)} of ${items.length}`,family:'filtered',items:items.slice(n,n+s.config.cardsPerShelf)});
   }
-  s.matchCount.textContent = s.filteredQueue && s.route.view!=='genres' ? `${items.length} matching titles` : '';
+  s.matchCount.textContent = hasActiveFilter ? `${items.length} matching titles` : '';
 }
 function applyFilters(s) {
   if (state!==s || s.loading) { s.filterPending=true; return; }
@@ -456,7 +519,8 @@ function restoreFeed(s, saved) {
   s.filters=cloneJson(saved.filters);s.planner=saved.planner;s.pending=saved.pending;s.filteredQueue=saved.filteredQueue?.slice()||null;s.openingIndex=saved.openingIndex||0;s.anchorIndex=saved.anchorIndex;s.anchorTurn=saved.anchorTurn;s.finished=saved.finished;s.shuffle=saved.shuffle;s.lastFocus=saved.focus;
   saved.rows.forEach(row=>appendRow(row,s));
   s.footer.hidden=s.full; s.more.hidden=s.finished; s.more.disabled=false;
-  s.matchCount.textContent=s.filteredQueue?`${filterItems(s.inventory.items,s.filters,s.tracking).length} matching titles`:'';
+  const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== 'recommended';
+  s.matchCount.textContent=hasActiveFilter?`${filterItems(s.inventory.items,s.filters,s.tracking).length} matching titles`:'';
   s.note.textContent=s.finished?'You’ve reached the available matches.':'More shelves load as you scroll.';
   setMode(s,s.full,false);filterPanel(s);
   requestAnimationFrame(()=>{
@@ -564,7 +628,7 @@ async function loadMore(s, automatic = false) {
       const row = s.pending || await nextRow(s);
       if (!row) { s.finished = true; break; }
       s.pending = row;
-      const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' ? row.items : await s.client.hydrate(row.items);
+      const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' || s.initialHydrateSkip ? row.items : await s.client.hydrate(row.items);
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length && !s.full) {
@@ -583,6 +647,7 @@ async function loadMore(s, automatic = false) {
       s.slots = [];
       s.list.replaceChildren();
     }
+    s.list.querySelectorAll('[data-skeleton="true"]').forEach(n => n.remove());
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
     if ((s.slots.length || s.filteredQueue) && !s.full) {
@@ -603,6 +668,7 @@ async function loadMore(s, automatic = false) {
     if (state === s) { s.pauseAutomatic = true; s.footer.hidden = s.full; s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.'; }
   } finally {
     s.loading = false;
+    s.initialHydrateSkip = false;
     if (state === s) { s.more.disabled = false; s.more.textContent = s.pauseAutomatic ? 'Try again' : 'Load more'; }
     if(state===s&&s.filterPending)applyFilters(s);
   }
@@ -656,6 +722,16 @@ async function initialize(s) {
       if (bootRows?.length) {
         bootRows.forEach(row => appendRow(row, s, true));
         syncNative(s, true);
+      } else {
+        renderSkeletonRows(s, 3);
+        syncNative(s, true);
+        if (s.route.view !== 'genres') {
+          s.client.fastOpening(s.route, s.config).then(fastRows => {
+            if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
+            fastRows.forEach(row => appendRow(row, s, true));
+            syncNative(s, true);
+          }).catch(() => {});
+        }
       }
     }
     if (!s.full && s.route.view !== 'genres') {
@@ -707,7 +783,7 @@ async function initialize(s) {
     });
     const saved=savedFeeds.get(s.key);
     if(saved&&Date.now()-saved.at<30*60000&&saved.config===JSON.stringify(s.config)){restoreFeed(s,saved);s.status.textContent=[...s.warnings].join(' ');}
-    else{preparePlanner(s);filterPanel(s);s.status.textContent='';await loadMore(s);}
+    else{preparePlanner(s);filterPanel(s);s.status.textContent='';s.initialHydrateSkip=true;await loadMore(s);}
     await trackingTask;
   } catch {
     if (state !== s) return;
@@ -728,6 +804,83 @@ function decorateNative(s) {
     if (!text) { badge?.remove(); continue; }
     if (!badge) { badge = element('span', 'fx-badge'); badge.dataset.fxNativeBadge = ''; host.dataset.fxBadgeHost = ''; host.append(badge); }
     if (badge.textContent !== text) badge.textContent = text;
+  }
+}
+function closeDownloadMenu() {
+  if (downloadMenu) {
+    downloadMenu.remove();
+    downloadMenu = null;
+  }
+}
+function triggerUrlDownload(url) {
+  const a = element('a');
+  a.href = url;
+  a.setAttribute('download', '');
+  a.rel = 'noopener noreferrer';
+  document.body.append(a);
+  a.click();
+  a.remove();
+}
+function openDownloadMenu(btn, itemId, api) {
+  closeDownloadMenu();
+  const token = api.accessToken?.() || '';
+  const fullUrl = api.getUrl(`Items/${encodeURIComponent(itemId)}/Download`, token ? { api_key: token } : {});
+  const transcodeUrl = api.getUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+    Static: 'false',
+    VideoCodec: 'h264',
+    AudioCodec: 'aac',
+    MaxWidth: '1920',
+    MaxHeight: '1080',
+    VideoBitRate: '4000000',
+    AudioBitRate: '192000',
+    MaxAudioChannels: '2',
+    TranscodingProtocol: 'http',
+    TranscodingContainer: 'mp4',
+    PlaySessionId: 'fx-dl-' + Date.now(),
+    ...(token ? { api_key: token } : {})
+  });
+  const menu = element('div', 'fx-download-menu is-open');
+  menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', 'Download quality options');
+
+  const makeOption = (title, sub, onSelect) => {
+    const opt = button('', () => {
+      closeDownloadMenu();
+      onSelect();
+    });
+    opt.className = 'fx-download-option';
+    opt.setAttribute('role', 'menuitem');
+    const t = element('strong', 'fx-download-option-title', title);
+    const s = element('span', 'fx-download-option-sub', sub);
+    opt.append(t, s);
+    return opt;
+  };
+
+  menu.append(
+    makeOption('Full Quality (Original)', 'Direct original file · Best for home & archival', () => triggerUrlDownload(fullUrl)),
+    makeOption('Condensed 1080p (Fast / Mobile)', 'Transcoded H.264 MP4 (~4 Mbps) · Smaller file for flights & phones', () => triggerUrlDownload(transcodeUrl))
+  );
+  document.body.append(menu);
+  downloadMenu = menu;
+  const rect = typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null;
+  if (rect && (rect.width > 0 || rect.height > 0)) {
+    const top = Math.min((window.innerHeight || 800) - 150, Math.max(12, Math.round(rect.bottom + 8)));
+    const left = Math.min((window.innerWidth || 1280) - 290, Math.max(12, Math.round(rect.left)));
+    menu.style.top = `${top}px`;
+    menu.style.left = `${left}px`;
+  } else {
+    menu.style.top = '120px';
+    menu.style.left = '80px';
+  }
+}
+function positionHeaderSearch() {
+  if (!headerSearchWrap || !headerSearchBtn?.isConnected || typeof headerSearchBtn.getBoundingClientRect !== 'function') return;
+  const r = headerSearchBtn.getBoundingClientRect();
+  if (r.width > 0 && r.height > 0 && r.top < 250) {
+    const top = Math.max(8, Math.round(r.top + (r.height - 38) / 2));
+    const right = Math.max(12, Math.round((window.innerWidth || 1280) - r.right));
+    headerSearchWrap.style.top = `${top}px`;
+    headerSearchWrap.style.right = `${right}px`;
   }
 }
 function closeHeaderSearch(restoreButton = true) {
@@ -859,7 +1012,7 @@ function ensureHeaderSearch(api) {
   const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (!btn) return;
   headerSearchBtn = btn;
-  if (!headerSearchWrap || !headerSearchWrap.isConnected || headerSearchWrap.nextElementSibling !== btn) {
+  if (!headerSearchWrap || !headerSearchWrap.isConnected) {
     headerSearchWrap?.remove();
     const wrap = element('div', 'fx-header-search');
     const icon = element('span', 'material-icons search fx-header-search-icon');
@@ -900,9 +1053,10 @@ function ensureHeaderSearch(api) {
       }, 160);
     });
     wrap.append(icon, input, clear);
-    btn.before(wrap);
+    document.body.append(wrap);
     headerSearchWrap = wrap;
   }
+  positionHeaderSearch();
 }
 function download(name, obj) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
@@ -1106,7 +1260,6 @@ function reconcile() {
     titlePicker.append(heading,modeLabel,switcher);
     titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
     toolbar.prepend(titlePicker);
-    if(route.view!=='library')toolbar.append(s.filterToggle);
   }
   footer.append(s.more, s.note); root.append(toolbar,panel,matchCount,status,list,footer);
   if(route.page==='home') target.native.after(root);
@@ -1140,6 +1293,24 @@ function closeDrawers(){
   });
 }
 function navSuggestions(event){
+  if (downloadMenu && !event.target.closest?.('.fx-download-menu')) {
+    closeDownloadMenu();
+  }
+  const dlBtn = event.target.closest?.('button.btnDownload, button.sleekfin-details-episode-download, button[data-sleekfin-details-action="download"], button[data-id="download"], button[title="Download" i], button[aria-label="Download" i]');
+  if (dlBtn && !dlBtn.closest('.fx-download-menu') && window.ApiClient?.getCurrentUserId?.()) {
+    const rawSelfId = dlBtn.getAttribute('data-item-id') || dlBtn.dataset?.itemId || dlBtn.getAttribute('data-id') || dlBtn.dataset?.id;
+    const parentIdNode = dlBtn.parentElement?.closest?.('[data-item-id],[data-itemid],[data-id]');
+    const parentId = parentIdNode?.getAttribute('data-item-id') || parentIdNode?.getAttribute('data-itemid') || parentIdNode?.getAttribute('data-id');
+    const hashId = new URLSearchParams(location.hash.split('?')[1] || '').get('id');
+    const itemId = (rawSelfId && rawSelfId.toLowerCase() !== 'download' ? rawSelfId : '') || parentId || hashId;
+    if (itemId) {
+      event.preventDefault();
+      event.stopImmediatePropagation?.();
+      event.stopPropagation();
+      openDownloadMenu(dlBtn, itemId, window.ApiClient);
+      return;
+    }
+  }
   const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
     ensureHeaderSearch(window.ApiClient);
@@ -1147,12 +1318,15 @@ function navSuggestions(event){
       event.preventDefault();
       event.stopImmediatePropagation?.();
       event.stopPropagation();
+      positionHeaderSearch();
       headerSearchWrap.classList.add('is-open');
-      searchTrigger.style.display = 'none';
       const inp = headerSearchWrap.querySelector('input');
       inp?.focus?.();
       return;
     }
+  }
+  if (headerSearchWrap?.classList.contains('is-open') && !event.target.closest?.('.fx-header-search,.fx-search-overlay')) {
+    closeHeaderSearch(true);
   }
   const target=event.target.closest?.('[data-sleekfin-header-proxy-item],a[href]');if(!target)return;
   if (searchOverlay && !searchOverlay.hidden && !target.closest('.fx-search-overlay,.fx-header-search')) {
@@ -1206,6 +1380,12 @@ function remoteKey(event) {
   const s=state;
   const key=({37:'ArrowLeft',38:'ArrowUp',39:'ArrowRight',40:'ArrowDown',13:'Enter',27:'Escape',10009:'Escape',461:'Escape',457:'ContextMenu'}[event.keyCode])||event.key;
   const target=event.target||document.activeElement;
+  if (downloadMenu && (key === 'Escape' || event.keyCode === 10009)) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeDownloadMenu();
+    return;
+  }
   if(activeDialog){
     if(key==='Escape'||event.keyCode===10009){event.preventDefault();event.stopPropagation();closeDialog();return;}
     if(key==='Tab'){
@@ -1268,7 +1448,7 @@ function start() {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
@@ -1281,7 +1461,7 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); clearTimeout(headerSearchTimer); observer?.disconnect(); cleanup(false); closeHeaderSearch(true); headerSearchWrap?.remove(); headerSearchWrap = null; searchOverlay?.remove(); searchOverlay = null; snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearInterval(heartbeat); clearTimeout(headerSearchTimer); observer?.disconnect(); cleanup(false); closeHeaderSearch(true); closeDownloadMenu(); headerSearchWrap?.remove(); headerSearchWrap = null; searchOverlay?.remove(); searchOverlay = null; snapshots.clear();savedFeeds.clear();
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
     document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;

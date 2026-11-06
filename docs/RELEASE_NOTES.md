@@ -1,11 +1,11 @@
-Jellyfin Discovery 0.4.5 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.6 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.5):
-- Instant opening shelf rendering on Home, Movies, and Shows via persistent boot cache (`fazfort-discovery:boot:v1:...`), eliminating the "Reading metadata..." loading screen and empty "Load more" footer on refresh.
-- Support Jellyfin 12.4.0's React `#moviesPage` and `#tvshowsPage` containers without `.pageTabContent` children, and unify header (`28px/34px`), category title (`24px/32px`), and card sizes across Home, Movies, Shows, Live TV, and Collections (including Genres).
-- SleekFin-styled dropdown menus for view switchers and user profile menus, plus customized view options for Movies (`Movies`, `Library`, `Favorites`, `Genres`) and Shows (`TV Shows`, `Library`, `Favorites`, `Genres`).
-- Netflix-style slide-out header search bar with live `"More to explore:"` suggestions and backdrop results grid, plus card-aligned horizontal arrow scrolling.
+Discovery (0.4.6):
+- Cold-start instant opening shelves (`Continue Watching / Next Up`, `Recently Added Movies`, `Recently Added Series`) and Netflix-style gray shimmer skeleton rows so first-time users never wait for full library scans.
+- Fix header search bar popup disappearing on click, fix `Shows -> Favorites` endless loading spinner (`viewType: 'favorites'`), and remove `Filters`, `Play All`, `Shuffle`, and `"### matching titles"` clutter across Movies, Shows, and Collections.
+- Unify single red bar (`3px`), bold `28px/34px` page titles, `18px` top vertical spacing, `.overflowPortraitCard` poster sizing, `#boxsetsPage` / `#liveTvPage` horizontal alignment, and SleekFin-styled Profile & User Settings pages.
+- Add Download quality dropdown (`Full Quality` original file vs `Condensed 1080p` H.264/AAC stream) on movie/episode detail download buttons.
 
-Request Hub (0.4.5):
-- Eliminate the Discover top gap and `sleekfin-hero` spacer vertical jump by hiding `header.MuiAppBar-root + div[aria-hidden="true"]` and matching `.rh-root` / `.rh-toolbar` top and horizontal offsets to Movies, Shows, Live TV, and Collections.
-- Limit `Trending Now`, `Popular Movies`, and `Popular Series` rails to 20 released titles loaded once up front with the `See More` card at the end, and snap horizontal arrow scrolling to card left edges.
+Request Hub (0.4.6):
+- Hide the `Discover` header tab for users without request permissions via `RequestHub/Status`, standardize row arrow buttons (`‹` / `›`) to match Home/Movies/Shows, and add Netflix gray shimmer placeholders while posters load.
+- Make Request Hub and Jellyfin Discovery plugin settings pages responsive in half-screen mode.

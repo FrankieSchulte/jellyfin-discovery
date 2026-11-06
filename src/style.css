@@ -1,5 +1,7 @@
-.fx-discovery{color:inherit;padding:12px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+.fx-discovery{color:inherit;padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+.fx-discovery:not(:has(> :not([hidden]):not(:empty))){display:none!important;padding:0!important;margin:0!important}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
+.fx-toolbar:not(:has(> :not([hidden]))){display:none!important;margin:0!important}
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
@@ -9,8 +11,13 @@
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
 .fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}
+@keyframes fx-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.fx-card-visual img{width:100%;height:100%;object-fit:cover}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#1a1d24 25%,#282c37 50%,#1a1d24 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
+.fx-card-visual img{width:100%;height:100%;object-fit:cover;transition:opacity .18s ease}.fx-card-visual.is-loading img{opacity:0}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-card-visual.is-loading .fx-progress,.fx-card-visual.is-loading .fx-badge{opacity:0}
+.fx-skeleton-title{width:220px;height:26px;border-radius:6px;border-left:3px solid var(--sleekfin-accent,#e50914)}
+.fx-skeleton-line{width:68%;height:14px;border-radius:4px;margin:8px 2px 0}
 .fx-placeholder{position:absolute;padding:18px;text-align:center;color:#bbb}.fx-name{display:block;margin:8px 2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
 .fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
 .fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
@@ -128,10 +135,16 @@
 .fx-discovery button.fx-dropdown-item.is-selected{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.45);color:#fff;font-weight:700}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 
-/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections */
+/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections (Single Red Bar) */
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
+  display:none!important;
+  content:none!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{
   font-size:28px!important;
   line-height:34px!important;
   font-weight:700!important;
@@ -143,13 +156,32 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
   letter-spacing:normal!important;
   background:transparent!important;
   min-height:36px!important;
+  gap:8px!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root{
+  font-size:28px!important;
+  line-height:34px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child:hover{
   background:rgba(255,255,255,.06)!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg{
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg,
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiButton-endIcon svg{
   font-size:24px!important;
   color:rgba(255,255,255,.78)!important;
+}
+
+/* Remove Play All & Shuffle Buttons Across Library Pages (Movies -> Library, Shows -> Library, Collections -> Collections) */
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Play all" i],button[title="Shuffle" i],button[aria-label="Play all" i],button[aria-label="Shuffle" i]),
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) :is(.btnPlayAll,.btnShuffle){
+  display:none!important;
 }
 
 /* SleekFin-Styled Dropdown Menus for Page View Switchers (Movies, Shows, Live TV, Collections) & User Menu */
@@ -244,8 +276,44 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
   align-items:center!important;
 }
 
-/* Unify Card Sizes Across Movies, Shows, Live TV, and Collections to Match Home & Discover */
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.card[data-aspect="2/3"]){
+/* Unify Horizontal Gutter Alignment, Vertical Top Spacing & Card Sizes Across Movies, Shows, Live TV, and Collections */
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-left{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-right{
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer{
+  column-gap:14px!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardBox{
+  margin:0!important;
+}
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardScalable{
+  border-radius:9px!important;
+  overflow:hidden!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page,
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .pageTabContent.is-active > .itemsContainer{
+  padding-top:18px!important;
+  margin-top:0!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"]){
   width:clamp(135px,14vw,205px)!important;
   flex:0 0 clamp(135px,14vw,205px)!important;
   max-width:clamp(135px,14vw,205px)!important;
@@ -255,7 +323,7 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
   flex:0 0 clamp(205px,23vw,310px)!important;
   max-width:clamp(205px,23vw,310px)!important;
 }
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard){
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard,.overflowPortraitCard){
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
   gap:20px 14px!important;
@@ -275,24 +343,29 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls
 [data-sleekfin-header="modern"] ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery),
 header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
-#moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) [data-sleekfin-media-meta]{display:none!important}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
 /* Netflix-Style Slide-Out Header Search Bar & Live Search Results Overlay */
 .fx-header-search{
-  display:inline-flex;
+  display:inline-flex!important;
   align-items:center;
-  position:relative;
+  position:fixed;
+  top:14px;
+  right:64px;
+  z-index:1200;
   overflow:hidden;
   width:0;
+  height:38px;
   opacity:0;
   pointer-events:none;
   border-radius:999px;
-  background:rgba(12,14,20,.92);
+  background:rgba(14,16,22,.96);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
   border:1px solid transparent;
   transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
-  vertical-align:middle;
+  box-sizing:border-box;
 }
 .fx-header-search.is-open{
   width:clamp(220px,24vw,340px);
@@ -300,8 +373,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   pointer-events:auto;
   border-color:rgba(255,255,255,.32);
   padding:4px 10px 4px 12px;
-  margin-inline:4px;
-  box-shadow:0 8px 24px rgba(0,0,0,.48);
+  box-shadow:0 12px 32px rgba(0,0,0,.65);
 }
 .fx-header-search.is-open:focus-within{
   border-color:var(--sleekfin-accent,#e50914);
@@ -406,10 +478,146 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   margin-top:24px;
 }
 
+/* Download Quality Dropdown Menu (Full Quality vs Condensed 1080p) */
+.fx-download-menu{
+  position:fixed;
+  z-index:100005;
+  width:min(310px,92vw);
+  padding:8px;
+  background:rgba(18,20,28,.96);
+  backdrop-filter:blur(22px) saturate(150%);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,.78);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  box-sizing:border-box;
+}
+.fx-download-option{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  width:100%;
+  text-align:left;
+  padding:10px 14px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.03);
+  color:#fff;
+  font:inherit;
+  cursor:pointer;
+  transition:background .15s ease,border-color .15s ease;
+}
+.fx-download-option:hover{
+  background:rgba(229,9,20,.2);
+  border-color:rgba(229,9,20,.5);
+}
+.fx-download-option-title{
+  font-size:.93rem;
+  font-weight:700;
+  color:#fff;
+}
+.fx-download-option-sub{
+  font-size:.78rem;
+  color:rgba(255,255,255,.64);
+  line-height:1.35;
+}
+
+/* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+  max-width:1040px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+  background:rgba(22,23,30,.92)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.sectionTitle,h1,h2.sectionTitle,h2.username){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 0 16px!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:12px!important;
+  margin:0 0 10px!important;
+  padding:10px 14px!important;
+  transition:background .15s ease,border-color .15s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover{
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.2)!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input,select.emby-select,.inputContainer input,.selectContainer select){
+  background:#0e0f14!important;
+  color:#f3f4f6!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-radius:10px!important;
+  padding:10px 12px!important;
+  min-height:42px!important;
+  box-sizing:border-box!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input:focus,select.emby-select:focus){
+  outline:none!important;
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit,.btnSave){
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid #ff2c37!important;
+  color:#fff!important;
+  font-weight:700!important;
+  border-radius:10px!important;
+  min-height:42px!important;
+  padding:10px 20px!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
+  background:#f6121d!important;
+}
+
+/* Responsive Half-Screen Mode Polish for Jellyfin Discovery Inline Studio */
+.fx-inline-studio,.fx-visual-editor,.fx-editor-section,.fx-rule-form{
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.fx-candidate-grid{
+  grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr))!important;
+}
+.fx-editor-meta-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))!important;
+}
+.fx-explorer-search input,.fx-library-toolbar input{
+  min-width:min(180px,100%)!important;
+}
+.fx-category-main{
+  min-width:min(160px,100%)!important;
+}
+
 @media(max-width:768px){
   .fx-toolbar h1,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
   .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
   .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
   .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}

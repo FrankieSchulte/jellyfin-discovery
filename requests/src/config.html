@@ -8,10 +8,12 @@
  <style>
   #requestHubConfig .rh-cfg-wrap {
    max-width: 960px;
+   width: 100%;
    margin: 0 auto;
-   padding: 16px 0 48px;
+   padding: 16px clamp(14px, 3vw, 28px) 48px;
    color: #f3f4f6;
    font-family: inherit;
+   box-sizing: border-box;
   }
   #requestHubConfig .rh-cfg-hero {
    display: flex;
@@ -25,6 +27,7 @@
    background: linear-gradient(135deg, rgba(229,9,20,0.16) 0%, rgba(24,25,32,0.95) 60%, rgba(16,17,22,0.98) 100%);
    border: 1px solid rgba(255,255,255,0.1);
    box-shadow: 0 16px 36px rgba(0,0,0,0.35);
+   box-sizing: border-box;
   }
   #requestHubConfig .rh-cfg-hero h2 {
    margin: 0 0 8px;
@@ -47,6 +50,8 @@
    padding: 22px 24px;
    margin-bottom: 20px;
    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+   box-sizing: border-box;
+   overflow: hidden;
   }
   #requestHubConfig .rh-cfg-card h3 {
    margin: 0 0 6px;
@@ -91,13 +96,14 @@
   }
   #requestHubConfig .rh-cfg-grid {
    display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+   grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
    gap: 16px;
   }
   #requestHubConfig .rh-cfg-field {
    display: flex;
    flex-direction: column;
    gap: 6px;
+   min-width: 0;
   }
   #requestHubConfig .rh-cfg-field span {
    font-size: 0.84rem;
@@ -110,6 +116,8 @@
   #requestHubConfig input:not([type]),
   #requestHubConfig select {
    width: 100%;
+   max-width: 100%;
+   min-width: 0;
    box-sizing: border-box;
    font: inherit;
    font-size: 0.92rem;
@@ -134,14 +142,24 @@
    margin-bottom: 16px;
   }
   #requestHubConfig .rh-mapping-row {
-   display: grid;
-   grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.5fr) minmax(130px, 0.7fr) auto auto;
+   display: flex;
+   flex-wrap: wrap;
    gap: 12px;
-   align-items: end;
+   align-items: flex-end;
    padding: 14px 16px;
    border-radius: 12px;
    background: rgba(255,255,255,0.035);
    border: 1px solid rgba(255,255,255,0.08);
+   box-sizing: border-box;
+  }
+  #requestHubConfig .rh-mapping-row > .rh-cfg-field:nth-child(1) {
+   flex: 1 1 180px;
+  }
+  #requestHubConfig .rh-mapping-row > .rh-cfg-field:nth-child(2) {
+   flex: 2 1 240px;
+  }
+  #requestHubConfig .rh-mapping-row > .rh-cfg-field:nth-child(3) {
+   flex: 0 1 150px;
   }
   #requestHubConfig .rh-mapping-check {
    display: inline-flex;

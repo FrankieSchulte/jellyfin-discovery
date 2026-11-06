@@ -299,13 +299,21 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.deepEqual(options,['TV Shows','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/movies').views.map(v=>v.label)],['Movies','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/tv').views.map(v=>v.label)],['TV Shows','Library','Favorites','Genres']);
-  assert.equal(mapMod.A.tvshows[2].viewType,'Favorites');
+  assert.equal(mapMod.A.tvshows[2].viewType,'favorites');
   assert.equal(mapMod.A.tvshows[2].collectionType,'tvshows');
   assert.deepEqual([...mapMod.A.tvshows[2].itemType],['Series']);
+  assert.equal(mapMod.A.tvshows[2].isBtnPlayAllEnabled,false);
+  assert.equal(mapMod.A.tvshows[2].isBtnShuffleEnabled,false);
+
+  const dlBtn=f.document.createElement('button');dlBtn.className='btnDownload';dlBtn.setAttribute('data-id','movie-1');
+  f.document.body.append(dlBtn);
+  dlBtn.click();
+  assert.ok(f.document.querySelector('.fx-download-menu.is-open'));
 
   searchBtn.click();
   const wrap=f.document.querySelector('.fx-header-search.is-open');
   assert.ok(wrap);
+  assert.notEqual(searchBtn.style.display,'none');
   const input=wrap.querySelector('.fx-header-search-input');
   input.value='Movie 1';
   input.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));

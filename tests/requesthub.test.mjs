@@ -31,8 +31,8 @@ test('series requests require explicit seasons and a confirmation click',async()
  const season=dialog.querySelector('input');season.checked=true;season.dispatchEvent(new f.window.Event('change',{bubbles:true}));confirm.click();await f.settle();
  assert.deepEqual(f.writes,[{type:'tv',id:42,seasons:[1]}]);assert.ok(dialog.textContent.includes('Submitted for approval'));f.stop();
 });
-test('unmapped account errors do not show request controls or credentials',async()=>{
- const f=fixture({deny:true});await f.settle();assert.equal(f.document.querySelector('.rh-card'),null);assert.ok(f.document.querySelector('.rh-root').textContent.includes('account mapping'));assert.equal(f.writes.length,0);f.stop();
+test('unmapped account errors do not show request controls, credentials, or header Discover tab',async()=>{
+ const f=fixture({deny:true});await f.settle();assert.equal(f.document.querySelector('.rh-card'),null);assert.equal(f.document.querySelector('[data-rh-link]'),null);assert.ok(f.document.querySelector('.rh-root').textContent.includes('account mapping'));assert.equal(f.writes.length,0);f.stop();
 });
 test('sign-out removes Request Hub and all navigation links',async()=>{
  const f=fixture();await f.settle();f.logout();assert.equal(f.document.querySelector('.rh-root'),null);assert.equal(f.document.querySelector('[data-rh-link]'),null);assert.equal(f.document.querySelector('[data-rh-hidden]'),null);f.stop();
