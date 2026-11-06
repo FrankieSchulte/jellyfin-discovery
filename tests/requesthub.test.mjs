@@ -58,6 +58,10 @@ test('SleekFin header proxy receives Discover button before separator and regist
  assert.equal(link.nextElementSibling,sep);
  assert.equal(link.dataset.sleekfinCurrent,'true');
  assert.equal(homeBtn.dataset.sleekfinCurrent,undefined);
+ const firstTrack=f.document.querySelector('.rh-row:not(.rh-media-row) .rh-track');
+ assert.ok(firstTrack);
+ assert.ok(firstTrack.querySelectorAll('.rh-card:not(.rh-see-more)').length<=20);
+ assert.equal(firstTrack.lastElementChild?.classList.contains('rh-see-more'),true);
  f.stop();
 });
 
@@ -96,5 +100,9 @@ test('Discover hides unreleased titles, replaces top-left title and deselects he
  assert.equal(navLink.getAttribute('aria-current'),'page');
  assert.equal(navLink.dataset.sleekfinCurrent,'true');
  assert.ok(f.document.querySelector('.rh-row'));
+ const firstTrack=f.document.querySelector('.rh-row:not(.rh-media-row) .rh-track');
+ assert.ok(firstTrack);
+ assert.ok(firstTrack.querySelectorAll('.rh-card:not(.rh-see-more)').length<=20);
+ assert.equal(firstTrack.lastElementChild?.classList.contains('rh-see-more'),true);
  f.stop();
 });

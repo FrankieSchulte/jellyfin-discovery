@@ -387,21 +387,32 @@ function logoCard(name,logoPath,onOpen){
  n.append(frame);
  return n;
 }
+function snapTrackScroll(track,direction){
+ const step=Math.max(260,Math.round(track.clientWidth*0.82));
+ const maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
+ if(maxScroll<=0){track.scrollBy({left:direction*step,behavior:'smooth'});return;}
+ if(direction>0&&track.scrollLeft>=maxScroll-4){track.scrollBy({left:-maxScroll,behavior:'smooth'});return;}
+ if(direction<0&&track.scrollLeft<=4){track.scrollBy({left:maxScroll,behavior:'smooth'});return;}
+ const children=[...track.children];
+ const base=typeof children[0]?.offsetLeft==='number'?children[0].offsetLeft:0;
+ const snaps=children.map(c=>typeof c.offsetLeft==='number'?c.offsetLeft-base:0);
+ if(!snaps.some(x=>x>0)){track.scrollBy({left:direction*step,behavior:'smooth'});return;}
+ const current=track.scrollLeft;
+ if(direction>0&&current+step>=maxScroll-8){track.scrollBy({left:maxScroll-current,behavior:'smooth'});return;}
+ if(direction<0&&current-step<=8){track.scrollBy({left:-current,behavior:'smooth'});return;}
+ const desired=current+direction*step;
+ const candidates=snaps.filter(pos=>direction>0?(pos>current+8&&pos<=maxScroll):pos<current-8);
+ if(!candidates.length){track.scrollBy({left:direction*step,behavior:'smooth'});return;}
+ let best=candidates[0];
+ for(const pos of candidates){if(Math.abs(pos-desired)<Math.abs(best-desired))best=pos;}
+ track.scrollBy({left:best-current,behavior:'smooth'});
+}
 function mediaRail(host,title,cardsPromiseOrArray){
  const token=generation,row=el('section','','rh-row rh-media-row'),head=el('div','','rh-row-head'),controls=el('div','','rh-row-controls'),track=el('div','','rh-track rh-media-track'),status=el('p','','rh-row-status');
  status.setAttribute('role','status');
- const stepWidth=()=>Math.max(260,Math.round(track.clientWidth*0.82));
- const prevBtn=button('‹',()=>{
-  const step=stepWidth(),maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
-  if(maxScroll>0&&track.scrollLeft<=4)track.scrollBy({left:maxScroll,behavior:'smooth'});
-  else track.scrollBy({left:-step,behavior:'smooth'});
- },'rh-row-arrow');
+ const prevBtn=button('‹',()=>snapTrackScroll(track,-1),'rh-row-arrow');
  prevBtn.setAttribute('aria-label',`Previous ${title}`);
- const nextBtn=button('›',()=>{
-  const step=stepWidth(),maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
-  if(maxScroll>0&&track.scrollLeft>=maxScroll-4)track.scrollBy({left:-maxScroll,behavior:'smooth'});
-  else track.scrollBy({left:step,behavior:'smooth'});
- },'rh-row-arrow');
+ const nextBtn=button('›',()=>snapTrackScroll(track,1),'rh-row-arrow');
  nextBtn.setAttribute('aria-label',`More ${title}`);
  controls.append(prevBtn,nextBtn);
  const heading=el('h2',title);
@@ -433,53 +444,42 @@ async function rail(host,title,kind,filter=null,query=null){
  };
  const tailCard=seeMoreCard(title,openFullGrid);
  const load=async()=>{
-  if(busy||page>=pages||track.querySelectorAll('.rh-card:not(.rh-see-more)').length>=160)return;
+  if(busy||page>=pages||track.querySelectorAll('.rh-card:not(.rh-see-more)').length>=20)return;
   busy=true;
   try{
    let added=0;
    const frag=document.createDocumentFragment();
-   while(page<pages&&added<12){
+   while(page<pages&&added<20&&page<4){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!row.isConnected)return;
     page++;pages=data.pages||1;
     const valid=(data.results||[]).filter(isReleased);
-    valid.forEach(i=>{
+    for(const i of valid){
+     if(added>=20)break;
      frag.append(card(i));
      added++;
-    });
+    }
     if(!data.results?.length)break;
    }
    if(added>0){
-    if(tailCard.parentNode===track)track.insertBefore(frag,tailCard);
-    else track.append(frag);
+    frag.append(tailCard);
+    track.replaceChildren(frag);
    }
    const realCards=track.querySelectorAll('.rh-card:not(.rh-see-more)').length;
-   if(realCards>0&&tailCard.parentNode!==track)track.append(tailCard);
    status.textContent=realCards?'':'No titles found.';
   }catch{
    if(row.isConnected)status.textContent='Could not load titles. Check Request Hub configuration and your account mapping.';
   }finally{busy=false;}
  };
- const stepWidth=()=>Math.max(260,Math.round(track.clientWidth*0.82));
- const prevBtn=button('‹',()=>{
-  const step=stepWidth(),maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
-  if(maxScroll>0&&track.scrollLeft<=4)track.scrollBy({left:maxScroll,behavior:'smooth'});
-  else track.scrollBy({left:-step,behavior:'smooth'});
- },'rh-row-arrow');
+ const prevBtn=button('‹',()=>snapTrackScroll(track,-1),'rh-row-arrow');
  prevBtn.setAttribute('aria-label',`Previous ${title}`);
- const nextBtn=button('›',async()=>{
-  if(track.scrollLeft+track.clientWidth>=track.scrollWidth-380&&page<pages)await load();
-  const step=stepWidth(),maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
-  if(maxScroll>0&&track.scrollLeft>=maxScroll-4&&page>=pages)track.scrollBy({left:-maxScroll,behavior:'smooth'});
-  else track.scrollBy({left:step,behavior:'smooth'});
- },'rh-row-arrow');
+ const nextBtn=button('›',()=>snapTrackScroll(track,1),'rh-row-arrow');
  nextBtn.setAttribute('aria-label',`More ${title}`);
  controls.append(prevBtn,nextBtn);
  const heading=el('h2',title);
  heading.onclick=openFullGrid;
  heading.title=`View all ${title}`;
  head.append(heading,controls);
- track.addEventListener('scroll',()=>{if(track.scrollLeft+track.clientWidth>=track.scrollWidth-520&&track.querySelectorAll('.rh-card:not(.rh-see-more)').length<160)load();},{passive:true});
  row.append(head,track,status);
  host.append(row);
  return load();
@@ -727,9 +727,18 @@ html[data-rh-active="true"] #indexPage.homePage.libraryPage,
 #indexPage:has(.rh-root),
 #indexPage.homePage.libraryPage:has(.rh-root){
  padding-top:0!important;
+ margin-top:0!important;
 }
-html[data-rh-active="true"] .sleekfin-hero{
+html[data-rh-active="true"] header.MuiAppBar-root + div[aria-hidden="true"],
+html[data-rh-active="true"] .sleekfin-hero,
+html[data-rh-active="true"] .sleekfin-hero-skeleton,
+#indexPage:has(.rh-root) .sleekfin-hero,
+#indexPage:has(.rh-root) .sleekfin-hero-skeleton{
  display:none!important;
+ height:0!important;
+ min-height:0!important;
+ margin:0!important;
+ padding:0!important;
 }
 html[data-rh-active="true"] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item="jellyfin:home"],
 html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy] > button[data-rh-link="true"]{
@@ -763,7 +772,7 @@ html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy]
  overflow-anchor:none;
 }
 .rh-root{
- padding:calc(var(--sleekfin-header-height, 80px) + 4px) clamp(16px, 4vw, 80px) 48px;
+ padding:var(--sleekfin-header-height, 72px) var(--sleekfin-page-gutter, clamp(16px, 4vw, 80px)) 48px;
  color:inherit;
  width:100%;
  clear:both;
@@ -776,7 +785,9 @@ html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy]
  align-items:center;
  justify-content:space-between;
  gap:14px;
- margin:4px 0 22px;
+ min-height:48px;
+ margin:0 0 18px;
+ box-sizing:border-box;
 }
 .rh-page-title{
  font-size:28px;
@@ -921,12 +932,13 @@ a.rh-nav[aria-current=page]{
  gap:14px;
  overflow-x:auto;
  padding:4px 3px 12px;
- min-height:210px;
+ min-height:calc(clamp(135px, 14vw, 205px) * 1.5 + 43px);
+ box-sizing:border-box;
  scrollbar-width:none;
  -ms-overflow-style:none;
 }
 .rh-track.rh-media-track{
- min-height:115px;
+ min-height:calc(clamp(210px, 18.5vw, 268px) * 0.5 + 16px);
 }
 .rh-track::-webkit-scrollbar{display:none;width:0;height:0}
 .rh-card{

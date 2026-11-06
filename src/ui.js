@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.4';
+const VERSION = '0.4.5';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -7,12 +7,141 @@ window.FazFortHomeFeed?.stop?.();
 let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
 const snapshots = new Map();
 const savedFeeds = new Map();
-let activeDialog = null, lastScope = '', selectHold = null;
+let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
 const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrentUserId()}`;
 const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
+const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v1:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
+function readBootRows(s, configStr) {
+  if (s.full || s.route.view === 'genres') return null;
+  try {
+    const raw = localStorage.getItem(bootRowsKey(s.scope, s.route));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
+    if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1000) return null;
+    return parsed.rows;
+  } catch { return null; }
+}
+function writeBootRows(s) {
+  if (s.full || s.route.view === 'genres' || filtersActive(s.filters) || s.filters.sort !== 'recommended' || !s.slots.length || !s.config) return;
+  try {
+    const rows = s.slots.filter(slot => !slot.boot).slice(0, 4).map(slot => slot.data);
+    if (!rows.length) return;
+    localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), config: JSON.stringify(s.config), rows }));
+  } catch {}
+}
+function clearBootRows(scope) {
+  if (!scope) return;
+  try {
+    for (const page of ['home', 'movies', 'shows']) {
+      for (const view of ['home', 'suggestions']) {
+        localStorage.removeItem(bootRowsKey(scope, { page, parentId: '', view }));
+      }
+    }
+  } catch {}
+}
+function applyWebpackViewPatch(req) {
+  if (!req?.m) return;
+  try {
+    if (req.m[57826]) {
+      const modViews = req(57826);
+      const list = modViews?.u;
+      if (Array.isArray(list)) {
+        const moviesEntry = list.find(x => x?.path === '/movies');
+        if (moviesEntry) {
+          moviesEntry.views = [
+            { index: 1, label: 'Movies', view: 'Suggestions', isDefault: true },
+            { index: 0, label: 'Library', view: 'Movies' },
+            { index: 2, label: 'Favorites', view: 'Favorites' },
+            { index: 4, label: 'Genres', view: 'Genres' }
+          ];
+        }
+        const tvEntry = list.find(x => x?.path === '/tv');
+        if (tvEntry) {
+          tvEntry.views = [
+            { index: 1, label: 'TV Shows', view: 'Suggestions', isDefault: true },
+            { index: 0, label: 'Library', view: 'Series' },
+            { index: 2, label: 'Favorites', view: 'Favorites' },
+            { index: 3, label: 'Genres', view: 'Genres' }
+          ];
+        }
+      }
+    }
+    if (req.m[95753]) {
+      const modMap = req(95753);
+      const map = modMap?.A;
+      if (map?.tvshows) {
+        map.tvshows[2] = { viewType: 'Favorites', collectionType: 'tvshows', itemType: ['Series'] };
+      }
+    }
+  } catch {}
+}
+function patchLibraryViews() {
+  const chunks = window.webpackChunk;
+  if (!chunks || typeof chunks.push !== 'function') return;
+  try {
+    if (!chunks._fxHooked) {
+      chunks.push([['fx-discovery-views-' + Date.now()], {}, req => {
+        window._fxWebpackReq = req;
+        applyWebpackViewPatch(req);
+      }]);
+      const origPush = chunks.push.bind(chunks);
+      chunks.push = function(...args) {
+        const res = origPush(...args);
+        if (window._fxWebpackReq) applyWebpackViewPatch(window._fxWebpackReq);
+        return res;
+      };
+      chunks._fxHooked = true;
+    } else if (window._fxWebpackReq) {
+      applyWebpackViewPatch(window._fxWebpackReq);
+    }
+  } catch {}
+}
+function syncLibraryViewMenu() {
+  patchLibraryViews();
+  const h = String(location.hash || '').replace(/^#!?\/?/, '').replace(/^\//, '');
+  const [path, query = ''] = h.split('?');
+  const name = path.replace(/\.html$/, '').toLowerCase();
+  const p = new URLSearchParams(query);
+  const col = p.get('collectionType')?.toLowerCase();
+  const isMovies = name === 'movies' || (name === 'list' && col === 'movies');
+  const isTv = name === 'tv' || name === 'tvshows' || (name === 'list' && col === 'tvshows');
+  if (!isMovies && !isTv) return;
+  const tab = p.get('tab') || '1';
+  const expectedLabel = isMovies
+    ? (tab === '0' ? 'Library' : tab === '2' ? 'Favorites' : tab === '4' ? 'Genres' : 'Movies')
+    : (tab === '0' ? 'Library' : tab === '2' ? 'Favorites' : tab === '3' ? 'Genres' : 'TV Shows');
+  const btn = document.querySelector('button[aria-controls="library-view-menu"]');
+  if (btn) {
+    const textNode = [...btn.childNodes].find(n => n.nodeType === 3);
+    if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+  }
+  const menuList = document.querySelector('#library-view-menu .MuiList-root');
+  if (menuList) {
+    const items = [...menuList.querySelectorAll('.MuiMenuItem-root')];
+    const removeLabels = new Set(['studios', 'playlists', 'collections', 'tv networks', 'networks', 'upcoming', 'episodes']);
+    items.forEach((item, idx) => {
+      const txt = (item.textContent || '').trim();
+      const lower = txt.toLowerCase();
+      if (removeLabels.has(lower)) {
+        item.style.display = 'none';
+        return;
+      }
+      if (lower === 'suggestions') {
+        const tn = [...item.childNodes].find(n => n.nodeType === 3);
+        if (tn) tn.nodeValue = isMovies ? 'Movies' : 'TV Shows';
+        else item.textContent = isMovies ? 'Movies' : 'TV Shows';
+      } else if ((isMovies && lower === 'movies' && idx > 0) || (isTv && (lower === 'shows' || lower === 'series'))) {
+        const tn = [...item.childNodes].find(n => n.nodeType === 3);
+        if (tn) tn.nodeValue = 'Library';
+        else item.textContent = 'Library';
+      }
+    });
+  }
+}
 function readConfig(api) {
   try { const raw = localStorage.getItem(configKey(api)); return validateConfig(raw ? JSON.parse(raw) : cloneJson(DEFAULT_CONFIG)); }
   catch { throw Error('Saved discovery rules are invalid. Open Customize to repair them, or reset to the supplied rules.'); }
@@ -106,7 +235,14 @@ function itemHref(item, api) {
 function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   const card = element('a', 'fx-card'); card.href = itemHref(item, s.api) || '#';
   card.dataset.itemId = item.Id || '';
-  card.addEventListener('click', () => { s.lastFocus = { row: s.slots.findIndex(slot => slot.node.contains(card)), id: item.Id }; saveFeed(s); if (activeDialog) closeDialog(); });
+  card.addEventListener('click', () => {
+    if (s.slots?.length) {
+      s.lastFocus = { row: s.slots.findIndex(slot => slot.node.contains(card)), id: item.Id };
+      saveFeed(s);
+    }
+    if (activeDialog) closeDialog();
+    if (searchOverlay && !searchOverlay.hidden) closeHeaderSearch(false);
+  });
   // Same-context navigation works in mobile web wrappers and TV browser shells.
   if (/^https?:/i.test(card.getAttribute('href'))) card.rel = 'noopener noreferrer';
   const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
@@ -127,11 +263,27 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   if (badge) visual.append(element('span', 'fx-badge', badge));
   card.append(visual, element('span', 'fx-name', name)); card.title = name;
   const entry = element('div', `fx-card-entry fx-card-${layout}`); entry.append(card);
-  if (withSimilar && ['Movie', 'Series'].includes(item.Type) && s.inventory.items.some(i => i.Id === item.Id)) {
+  if (withSimilar && ['Movie', 'Series'].includes(item.Type) && s.inventory?.items?.some(i => i.Id === item.Id)) {
     const more = button('⋯', () => moreLikeThis(item, s)); more.className = 'fx-card-more'; more.title='More like this';more.setAttribute('aria-label', `More like ${name}`); entry.append(more);
     card.addEventListener('contextmenu', event => { event.preventDefault(); moreLikeThis(item, s); });
   }
   return entry;
+}
+function snapScrollDelta(track, direction, fallbackStep) {
+  const children = [...track.children];
+  if (children.length < 2) return direction * fallbackStep;
+  const base = typeof children[0]?.offsetLeft === 'number' ? children[0].offsetLeft : 0;
+  const snaps = children.map(c => (typeof c.offsetLeft === 'number' ? c.offsetLeft - base : 0));
+  if (!snaps.some(x => x > 0)) return direction * fallbackStep;
+  const current = track.scrollLeft;
+  const desired = current + direction * fallbackStep;
+  const candidates = snaps.filter(pos => direction > 0 ? pos > current + 8 : pos < current - 8);
+  if (!candidates.length) return direction * fallbackStep;
+  let best = candidates[0];
+  for (const pos of candidates) {
+    if (Math.abs(pos - desired) < Math.abs(best - desired)) best = pos;
+  }
+  return best - current;
 }
 function fillSlot(slot, s) {
   const row = slot.data;
@@ -164,7 +316,8 @@ function fillSlot(slot, s) {
       }
       track.style.scrollBehavior = prevBehavior;
       track._fxMoved = true;
-      track.scrollBy({ left: direction * step, behavior: 'smooth' });
+      const delta = snapScrollDelta(track, direction, step);
+      track.scrollBy({ left: delta, behavior: 'smooth' });
       track._fxScrollTimer = setTimeout(() => {
         track._fxProgrammatic = false;
         normalizeLoop();
@@ -174,7 +327,10 @@ function fillSlot(slot, s) {
     const end = Math.max(0, track.scrollWidth - track.clientWidth);
     if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
     else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
-    else track.scrollBy({ left: direction * step, behavior: 'smooth' });
+    else {
+      const delta = snapScrollDelta(track, direction, step);
+      track.scrollBy({ left: delta, behavior: 'smooth' });
+    }
   };
   track.addEventListener('scroll', () => {
     if (track.scrollLeft > 12) track._fxMoved = true;
@@ -209,7 +365,7 @@ function fillSlot(slot, s) {
   const back = button('‹', () => scroll(-1)), forward = button('›', () => scroll(1));
   back.setAttribute('aria-label', `Previous ${row.title}`); forward.setAttribute('aria-label', `More ${row.title}`);
   const token = row.family === 'anchor' ? `anchor:${row.key}` : row.family === 'theme' ? row.key : `family:${row.family}`;
-  const requested = s.profile.layouts?.[token] || row.layout || 'auto';
+  const requested = s.profile?.layouts?.[token] || row.layout || 'auto';
   const portraitOnly = row.key !== 'MyMedia' && row.items.filter(i => !i.ImageTags?.Thumb && !i.BackdropImageTags?.length && !i.ParentBackdropImageTags?.length && (i.ImageTags?.Primary || i.ProviderIds?.JellyseerrPoster) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1)).length > row.items.length / 2;
   const layout = s.route.view === 'genres' ? 'landscape' : requested === 'auto' ? (row.external || row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || portraitOnly ? 'portrait' : 'landscape') : requested;
   slot.node.dataset.layout = layout;
@@ -241,8 +397,9 @@ function virtualize(s) {
     }
   }
 }
-function appendRow(row, s) {
-  const slot = { node: element('section', 'fx-shelf'), data: row, live: false };
+function appendRow(row, s, isBoot = false) {
+  const slot = { node: element('section', 'fx-shelf'), data: row, live: false, boot: isBoot };
+  if (isBoot) slot.node.dataset.bootRow = 'true';
   slot.node.dataset.shelfKey = row.key; s.list.append(slot.node); s.slots.push(slot); fillSlot(slot, s);
 }
 function filterPanel(s) {
@@ -291,13 +448,14 @@ function findScrollRoot(node) {
 function saveFeed(s) {
   if (!s.inventory || !s.config || !s.planner) return;
   const root=findScrollRoot(s.root);
-  savedFeeds.set(s.key,{config:JSON.stringify(s.config),inventory:s.inventory,tracking:s.tracking,filters:cloneJson(s.filters),planner:s.planner,pending:s.pending,filteredQueue:s.filteredQueue?.slice()||null,rows:s.slots.map(slot=>slot.data),openingIndex:s.openingIndex||0,anchorIndex:s.anchorIndex,anchorTurn:s.anchorTurn,finished:s.finished,shuffle:s.shuffle,focus:s.lastFocus,scrollTop:root.scrollTop||0,tracks:s.slots.map(slot=>slot.node.querySelector('.fx-track')?.scrollLeft||0),at:Date.now()});
+  savedFeeds.set(s.key,{config:JSON.stringify(s.config),inventory:s.inventory,tracking:s.tracking,filters:cloneJson(s.filters),planner:s.planner,pending:s.pending,filteredQueue:s.filteredQueue?.slice()||null,rows:s.slots.filter(slot=>!slot.boot).map(slot=>slot.data),openingIndex:s.openingIndex||0,anchorIndex:s.anchorIndex,anchorTurn:s.anchorTurn,finished:s.finished,shuffle:s.shuffle,focus:s.lastFocus,scrollTop:root.scrollTop||0,tracks:s.slots.filter(slot=>!slot.boot).map(slot=>slot.node.querySelector('.fx-track')?.scrollLeft||0),at:Date.now()});
   if(savedFeeds.size>6)savedFeeds.delete(savedFeeds.keys().next().value);
 }
 function restoreFeed(s, saved) {
+  s.slots=[];s.list.replaceChildren();
   s.filters=cloneJson(saved.filters);s.planner=saved.planner;s.pending=saved.pending;s.filteredQueue=saved.filteredQueue?.slice()||null;s.openingIndex=saved.openingIndex||0;s.anchorIndex=saved.anchorIndex;s.anchorTurn=saved.anchorTurn;s.finished=saved.finished;s.shuffle=saved.shuffle;s.lastFocus=saved.focus;
   saved.rows.forEach(row=>appendRow(row,s));
-  s.more.hidden=s.finished; s.more.disabled=false;
+  s.footer.hidden=s.full; s.more.hidden=s.finished; s.more.disabled=false;
   s.matchCount.textContent=s.filteredQueue?`${filterItems(s.inventory.items,s.filters,s.tracking).length} matching titles`:'';
   s.note.textContent=s.finished?'You’ve reached the available matches.':'More shelves load as you scroll.';
   setMode(s,s.full,false);filterPanel(s);
@@ -313,6 +471,8 @@ function restoreFeed(s, saved) {
 function syncNative(s, hide) {
   if (!hide) {
     s.native.removeAttribute('data-fx-native-hidden');
+    s.native.removeAttribute('data-fx-react-host');
+    s.page?.removeAttribute?.('data-fx-react-host');
     s.native.querySelectorAll('[data-fx-native-hidden]').forEach(n => n.removeAttribute('data-fx-native-hidden'));
     s.page?.querySelectorAll?.('[data-fx-native-hidden]').forEach(n => n.removeAttribute('data-fx-native-hidden'));
     s.native.removeAttribute('data-fx-hero-anchor');
@@ -325,6 +485,15 @@ function syncNative(s, hide) {
     return;
   }
   if (s.route.page !== 'home') {
+    if (s.native === s.page) {
+      if (s.page.getAttribute('data-fx-react-host') !== 'true') s.page.setAttribute('data-fx-react-host', 'true');
+      [...s.page.children].forEach(child => {
+        if (!child.classList.contains('fx-discovery') && child.getAttribute('data-fx-native-hidden') !== 'true') {
+          child.setAttribute('data-fx-native-hidden', 'true');
+        }
+      });
+      return;
+    }
     if (s.native.getAttribute('data-fx-native-hidden') !== 'true') s.native.setAttribute('data-fx-native-hidden', 'true');
     s.page?.querySelectorAll?.('.pageTabContent').forEach(tab => {
       if (tab.getAttribute('data-fx-native-hidden') !== 'true') tab.setAttribute('data-fx-native-hidden', 'true');
@@ -346,13 +515,13 @@ function syncNative(s, hide) {
   walk(s.native);
 }
 function setMode(s, full, remember = true) {
-  s.full = full; s.list.hidden = full; s.footer.hidden = full;
+  s.full = full; s.list.hidden = full; s.footer.hidden = full || (!s.slots.length && !s.finished);
   s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
   syncNative(s, !(full || s.failed));
   if (remember) { try { localStorage.setItem(prefKey(s.api, s.route.page), full ? 'native' : 'discover'); } catch { s.status.textContent = 'View preference could not be saved in this browser.'; } }
   if (!s.started) initialize(s);
-  else if (!full && s.planner && !s.slots.length) loadMore(s);
+  else if (!full && s.planner && !s.slots.filter(slot => !slot.boot).length) loadMore(s);
   if (!full) scheduleScroll();
 }
 async function nextRow(s) {
@@ -380,7 +549,7 @@ async function nextRow(s) {
       } catch { s.client.assertCurrent(); s.warnings.add(`Couldn't load ${id}. Check HSS/Jellyseerr, then restart this feed.`); }
     } else {
       s.anchorTurn = true;
-      const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.length < s.profile.anchors.length * 2 ? 'theme' : null);
+      const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.filter(slot => !slot.boot).length < s.profile.anchors.length * 2 ? 'theme' : null);
       if (row) return row;
       if (s.anchorIndex >= s.profile.anchors.length) return null;
     }
@@ -399,18 +568,29 @@ async function loadMore(s, automatic = false) {
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length && !s.full) {
+        if (s.slots.some(slot => slot.boot)) {
+          s.slots = [];
+          s.list.replaceChildren();
+        }
         appendRow({ ...row, items }, s);
         s.failed = false;
+        s.footer.hidden = s.full;
         syncNative(s, true);
       }
       s.pending = null;
+    }
+    if (s.slots.some(slot => slot.boot)) {
+      s.slots = [];
+      s.list.replaceChildren();
     }
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
     if ((s.slots.length || s.filteredQueue) && !s.full) {
       s.failed = false;
       s.filterToggle.disabled = !s.inventory;
+      s.footer.hidden = s.full;
       syncNative(s, true);
+      writeBootRows(s);
     }
     if (!s.slots.length) {
       if (!s.filteredQueue) { s.failed = true; syncNative(s, false); }
@@ -420,7 +600,7 @@ async function loadMore(s, automatic = false) {
     s.note.textContent = s.finished ? 'You’ve reached the available matches. Clear filters or use Restart feed to explore again.' : s.filteredQueue ? 'Filtered results load as you scroll.' : 'Keeps browsing your library; titles can return in different shelves further down.';
     virtualize(s);
   } catch {
-    if (state === s) { s.pauseAutomatic = true; s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.'; }
+    if (state === s) { s.pauseAutomatic = true; s.footer.hidden = s.full; s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.'; }
   } finally {
     s.loading = false;
     if (state === s) { s.more.disabled = false; s.more.textContent = s.pauseAutomatic ? 'Try again' : 'Load more'; }
@@ -466,10 +646,18 @@ function refreshSlotBadges(s) {
 }
 async function initialize(s) {
   if (s.started) return;
-  s.started = true; s.status.textContent = 'Reading library metadata…';
+  s.started = true; s.status.textContent = ''; s.footer.hidden = true;
   try {
     let localError;
     try{s.config=readConfig(s.api);}catch(e){localError=e;}
+    if (s.config && !s.full) {
+      s.profile = s.config.pages[s.route.page];
+      const bootRows = readBootRows(s, JSON.stringify(s.config));
+      if (bootRows?.length) {
+        bootRows.forEach(row => appendRow(row, s, true));
+        syncNative(s, true);
+      }
+    }
     if (!s.full && s.route.view !== 'genres') {
       const p = s.client.json('HomeScreen/Section/ContinueWatchingNextUp', { UserId: s.client.userId });
       p.catch(() => {});
@@ -480,9 +668,7 @@ async function initialize(s) {
     const prefPromise = s.client.preferences().then(profile => ({ ok: true, profile })).catch(() => ({ ok: false }));
     const invPromise = cachedInv
       ? Promise.resolve(cachedInv)
-      : s.client.inventory(s.route, (count, seasons) => {
-          if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons…`;
-        });
+      : s.client.inventory(s.route);
     const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
     s.client.assertCurrent();
     if (prefRes.ok) {
@@ -525,6 +711,8 @@ async function initialize(s) {
     await trackingTask;
   } catch {
     if (state !== s) return;
+    s.slots = [];
+    s.list.replaceChildren();
     s.failed = true;
     s.status.textContent = 'Discovery could not start. The normal view is restored. Check Customize for invalid rules or use Restart feed to try again.';
     setMode(s, true, false);
@@ -540,6 +728,180 @@ function decorateNative(s) {
     if (!text) { badge?.remove(); continue; }
     if (!badge) { badge = element('span', 'fx-badge'); badge.dataset.fxNativeBadge = ''; host.dataset.fxBadgeHost = ''; host.append(badge); }
     if (badge.textContent !== text) badge.textContent = text;
+  }
+}
+function closeHeaderSearch(restoreButton = true) {
+  clearTimeout(headerSearchTimer);
+  if (headerSearchWrap) {
+    headerSearchWrap.classList.remove('is-open');
+    const inp = headerSearchWrap.querySelector('input');
+    if (inp) inp.value = '';
+  }
+  if (restoreButton && headerSearchBtn) {
+    headerSearchBtn.style.display = '';
+  }
+  if (searchOverlay) {
+    searchOverlay.hidden = true;
+    searchOverlay.replaceChildren();
+  }
+}
+async function executeHeaderSearch(api, rawQuery) {
+  const q = normalize(rawQuery);
+  if (!q) {
+    if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
+    return;
+  }
+  if (!searchOverlay) {
+    searchOverlay = element('div', 'fx-search-overlay');
+    searchOverlay.setAttribute('role', 'region');
+    searchOverlay.setAttribute('aria-label', 'Search results');
+    document.body.append(searchOverlay);
+  }
+  searchOverlay.hidden = false;
+  const scope = scopeKey(api);
+  let inv = state?.inventory || findCachedInventory(scope, { page: 'home', parentId: '' });
+  if (!inv) {
+    try {
+      const client = new JellyfinClient(api, () => scopeKey(api) === scope);
+      inv = await client.inventory({ page: 'home', parentId: '' });
+      snapshots.set(`${scope}:home:`, { at: Date.now(), value: inv });
+    } catch {
+      if (searchOverlay) searchOverlay.replaceChildren(element('p', 'fx-search-empty', 'Could not search library right now.'));
+      return;
+    }
+  }
+  if (!headerSearchWrap?.classList.contains('is-open') || normalize(headerSearchWrap.querySelector('input')?.value) !== q) return;
+  const allItems = inv.items || [];
+  const scored = [];
+  const exploreCandidates = new Map();
+  const addExplore = (term, weight) => {
+    if (!term) return;
+    const norm = normalize(term);
+    if (!norm.includes(q)) return;
+    const boost = norm.startsWith(q) ? weight + 10 : weight;
+    if ((exploreCandidates.get(term) || 0) < boost) exploreCandidates.set(term, boost);
+  };
+  for (const item of allItems) {
+    const nameNorm = normalize(item.Name);
+    const people = (item.People || []).map(p => p.Name).filter(Boolean);
+    const genres = item.Genres || [];
+    const tags = item.Tags || [];
+    const studios = (item.Studios || []).map(st => st.Name).filter(Boolean);
+    let score = 0;
+    if (nameNorm === q) score += 100;
+    else if (nameNorm.startsWith(q)) score += 70;
+    else if (nameNorm.includes(q)) score += 45;
+    for (const g of genres) {
+      const gn = normalize(g);
+      if (gn.includes(q)) { score = Math.max(score, gn.startsWith(q) ? 38 : 28); addExplore(g, 30); }
+    }
+    for (const p of people) {
+      const pn = normalize(p);
+      if (pn.includes(q)) { score = Math.max(score, pn.startsWith(q) ? 42 : 32); addExplore(p, 28); }
+    }
+    for (const t of tags) {
+      const tn = normalize(t);
+      if (tn.includes(q)) { score = Math.max(score, tn.startsWith(q) ? 34 : 24); addExplore(t, 22); }
+    }
+    for (const st of studios) {
+      const sn = normalize(st);
+      if (sn.includes(q)) { score = Math.max(score, sn.startsWith(q) ? 34 : 24); addExplore(st, 20); }
+    }
+    if (score > 0) {
+      if (nameNorm.includes(q)) addExplore(item.Name, 25);
+      scored.push({ item, score: score + (Number(item.CommunityRating) || 0) * 0.4 });
+    }
+  }
+  scored.sort((a, b) => b.score - a.score || String(a.item.Name || '').localeCompare(String(b.item.Name || '')));
+  const exploreTerms = [...exploreCandidates.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([term]) => term);
+  searchOverlay.replaceChildren();
+  if (exploreTerms.length) {
+    const exploreRow = element('div', 'fx-search-explore');
+    exploreRow.append(element('span', 'fx-search-explore-label', 'More to explore:'));
+    exploreTerms.forEach((term, idx) => {
+      if (idx > 0) exploreRow.append(element('span', 'fx-search-explore-sep', '|'));
+      const chip = button(term, () => {
+        const inp = headerSearchWrap?.querySelector('input');
+        if (inp) {
+          inp.value = term;
+          inp.focus();
+          executeHeaderSearch(api, term);
+        }
+      });
+      chip.className = 'fx-search-explore-chip';
+      exploreRow.append(chip);
+    });
+    searchOverlay.append(exploreRow);
+  }
+  if (!scored.length) {
+    searchOverlay.append(element('p', 'fx-search-empty', `No matches found for "${rawQuery}".`));
+    return;
+  }
+  const grid = element('div', 'fx-search-grid');
+  const renderCtx = state || {
+    api,
+    scope,
+    inventory: inv,
+    badges: seasonBadges(inv.seasons || [], new Date()),
+    tracking: inv.tracking || new Map(),
+    now: new Date(),
+    config: DEFAULT_CONFIG,
+    filters: cloneJson(DEFAULT_FILTERS),
+    slots: []
+  };
+  scored.slice(0, 40).forEach(({ item }) => {
+    grid.append(renderCard(item, renderCtx, true, 'landscape'));
+  });
+  searchOverlay.append(grid);
+}
+function ensureHeaderSearch(api) {
+  if (!api?.getCurrentUserId?.()) return;
+  const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+  if (!btn) return;
+  headerSearchBtn = btn;
+  if (!headerSearchWrap || !headerSearchWrap.isConnected || headerSearchWrap.nextElementSibling !== btn) {
+    headerSearchWrap?.remove();
+    const wrap = element('div', 'fx-header-search');
+    const icon = element('span', 'material-icons search fx-header-search-icon');
+    icon.setAttribute('aria-hidden', 'true');
+    const input = element('input', 'fx-header-search-input');
+    input.type = 'search';
+    input.placeholder = 'Titles, people, genres';
+    input.setAttribute('aria-label', 'Search titles, people, genres');
+    input.autocomplete = 'off';
+    const clear = button('✕', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeHeaderSearch(true);
+    });
+    clear.className = 'fx-header-search-clear';
+    clear.setAttribute('aria-label', 'Close search');
+    input.addEventListener('input', () => {
+      clearTimeout(headerSearchTimer);
+      const val = input.value.trim();
+      if (!val) {
+        if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
+        return;
+      }
+      headerSearchTimer = setTimeout(() => executeHeaderSearch(api, val), 120);
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeHeaderSearch(true);
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (headerSearchWrap?.classList.contains('is-open') && !input.value.trim() && !headerSearchWrap.contains(document.activeElement)) {
+          closeHeaderSearch(true);
+        }
+      }, 160);
+    });
+    wrap.append(icon, input, clear);
+    btn.before(wrap);
+    headerSearchWrap = wrap;
   }
 }
 function download(name, obj) {
@@ -654,7 +1016,7 @@ function locate(route) {
     const wantIndex = route.view === 'genres' ? (route.page === 'movies' ? 4 : 3) : route.view === 'library' ? 0 : (new URLSearchParams(location.hash.split('?')[1] || '').get('tab') || 1);
     const native = route.page === 'home'
       ? page.querySelector('.homeSectionsContainer')
-      : (page.querySelector(`.pageTabContent[data-index="${wantIndex}"]`) || page.querySelector('.pageTabContent.is-active, .pageTabContent'));
+      : (page.querySelector(`.pageTabContent[data-index="${wantIndex}"]`) || page.querySelector('.pageTabContent.is-active, .pageTabContent') || page);
     if (native && !native.closest('.fx-discovery')) return { page, native };
   }
   return null;
@@ -673,7 +1035,11 @@ function cleanup(preserve=true) {
 }
 function restart(clearCache = false) {
   const key=state?.key;
-  if (clearCache) snapshots.clear();
+  const scope=state?.scope || (window.ApiClient?.getCurrentUserId?.() ? scopeKey(window.ApiClient) : '');
+  if (clearCache) {
+    snapshots.clear();
+    clearBootRows(scope);
+  }
   cleanup(false);if(key)savedFeeds.delete(key);reconcile();
 }
 function reconcile() {
@@ -681,7 +1047,9 @@ function reconcile() {
   if (stopped) return;
   const api = window.ApiClient, route = routeInfo(location.hash);
   syncSettings(api);
-  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
+  syncLibraryViewMenu();
+  ensureHeaderSearch(api);
+  if (!api?.getCurrentUserId?.()) {cleanup(false);closeHeaderSearch(true);savedFeeds.clear();snapshots.clear();lastScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
@@ -689,7 +1057,13 @@ function reconcile() {
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
-  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) { if(!state.full && !state.failed)syncNative(state,true); decorateNative(state); return; }
+  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+    const titlePicker = state.root.querySelector('.fx-title-picker');
+    if (titlePicker) titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
+    if(!state.full && !state.failed)syncNative(state,true);
+    decorateNative(state);
+    return;
+  }
   cleanup();
   const token = generation;
   const root = element('div', 'fx-discovery'), toolbar = element('div', 'fx-toolbar'), list = element('div'), status = element('p', 'fx-status'), footer = element('div', 'fx-footer'), panel=element('div','fx-filters'),matchCount=element('p','fx-match-count');panel.hidden=true;
@@ -707,24 +1081,38 @@ function reconcile() {
   if(route.page==='home')toolbar.hidden=true;
   else {
     menu.hidden=true;
+    const defaultLabel = route.page==='movies'?'Movies':'TV Shows';
+    const currentLabel = route.view==='library'?'Library':route.view==='genres'?'Genres':defaultLabel;
     const titlePicker=element('div','fx-title-picker');
-    const heading=element('h1','',route.page==='movies'?'Movies':'TV Shows');
-    const modeLabel=element('span','fx-title-mode',`${route.view==='library'?'Library':route.view==='genres'?'Genres':'Suggestions'} ▾`);
+    const heading=element('h1','',defaultLabel);
+    const modeLabel=element('span','fx-title-mode',`${currentLabel} ▾`);
     const switcher=element('select','fx-title-select');switcher.setAttribute('aria-label','Browse mode');
-    for(const [value,label] of [['suggestions','Suggestions'],['library','Library'],['genres','Genres']]){const option=element('option','',label);option.value=value;option.selected=route.view===value;switcher.append(option);}
-    switcher.addEventListener('change',()=>{
-      modeLabel.textContent=`${switcher.value==='library'?'Library':switcher.value==='genres'?'Genres':'Suggestions'} ▾`;
-      const q=new URLSearchParams(location.hash.split('?')[1]||'');
-      q.set('tab',switcher.value==='library'?'0':switcher.value==='genres'?(route.page==='movies'?'4':'3'):'1');
-      location.hash=location.hash.split('?')[0]+'?'+q;
+    const viewOptions = [
+      ['suggestions', defaultLabel],
+      ['library', 'Library'],
+      ['favorites', 'Favorites'],
+      ['genres', 'Genres']
+    ];
+    for(const [value,label] of viewOptions){const option=element('option','',label);option.value=value;option.selected=route.view===value;switcher.append(option);}
+    const applySwitch = val => {
+      const chosen = viewOptions.find(([v]) => v === val)?.[1] || defaultLabel;
+      modeLabel.textContent = `${chosen} ▾`;
+      const q = new URLSearchParams(location.hash.split('?')[1] || '');
+      q.set('tab', val === 'library' ? '0' : val === 'favorites' ? '2' : val === 'genres' ? (route.page === 'movies' ? '4' : '3') : '1');
+      location.hash = location.hash.split('?')[0] + '?' + q;
       schedule();
-    });
+    };
+    switcher.addEventListener('change',()=>applySwitch(switcher.value));
     titlePicker.append(heading,modeLabel,switcher);
+    titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
     toolbar.prepend(titlePicker);
     if(route.view!=='library')toolbar.append(s.filterToggle);
   }
   footer.append(s.more, s.note); root.append(toolbar,panel,matchCount,status,list,footer);
-  if(route.page==='home') target.native.after(root); else target.native.before(root); state = s;
+  if(route.page==='home') target.native.after(root);
+  else if(target.native===target.page) target.page.prepend(root);
+  else target.native.before(root);
+  state = s;
   let full = route.view==='library'; try { if(route.page==='home')full = localStorage.getItem(prefKey(api, route.page)) === 'native'; } catch { /* A private browser can still use the unsaved view. */ }
   if (typeof IntersectionObserver === 'function') {
     s.io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) loadMore(s, true); }, { rootMargin: '600px 0px' }); s.io.observe(footer);
@@ -752,7 +1140,24 @@ function closeDrawers(){
   });
 }
 function navSuggestions(event){
+  const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+  if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
+    ensureHeaderSearch(window.ApiClient);
+    if (headerSearchWrap) {
+      event.preventDefault();
+      event.stopImmediatePropagation?.();
+      event.stopPropagation();
+      headerSearchWrap.classList.add('is-open');
+      searchTrigger.style.display = 'none';
+      const inp = headerSearchWrap.querySelector('input');
+      inp?.focus?.();
+      return;
+    }
+  }
   const target=event.target.closest?.('[data-sleekfin-header-proxy-item],a[href]');if(!target)return;
+  if (searchOverlay && !searchOverlay.hidden && !target.closest('.fx-search-overlay,.fx-header-search')) {
+    closeHeaderSearch(true);
+  }
   const proxy=target.getAttribute('data-sleekfin-header-proxy-item')||'';
   let route=null;
   if(proxy==='jellyfin:movies')route='#/movies';
@@ -858,11 +1263,12 @@ function remoteKeyUp(event){
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
+  patchLibraryViews();
   if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
@@ -875,7 +1281,7 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearInterval(heartbeat); clearTimeout(headerSearchTimer); observer?.disconnect(); cleanup(false); closeHeaderSearch(true); headerSearchWrap?.remove(); headerSearchWrap = null; searchOverlay?.remove(); searchOverlay = null; snapshots.clear();savedFeeds.clear();
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
     document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;

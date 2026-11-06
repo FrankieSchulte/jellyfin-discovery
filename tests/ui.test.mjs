@@ -266,7 +266,51 @@ test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly 
   track.scrollLeft=cw*2+40;
   shelf.querySelectorAll('.fx-row-head button')[1].click();
   assert.equal(track.scrollLeft,cw+40);
-  assert.equal(lastScrollBy?.left,Math.round(800*0.85));
+  assert.equal((track.scrollLeft + lastScrollBy.left) % 280, 0);
+  f.ctx.window.FazFortDiscovery.stop();
+});
+test('React library pages without pageTabContent mount discovery, customize dropdown views, and support header live search and instant boot rows',async()=>{
+  const f=fixture();await f.settle();
+  const bootRaw=f.storage.get('fazfort-discovery:boot:v1:s:u:home::home');
+  assert.ok(bootRaw);
+  assert.ok(JSON.parse(bootRaw).rows.length>=3);
+
+  const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
+  const searchBtn=f.document.createElement('button');searchBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:search');
+  proxy.append(searchBtn);f.document.body.prepend(proxy);
+
+  const viewsMod={u:[{path:'/movies',views:[{index:0,label:'Movies',view:'Movies'}]},{path:'/tv',views:[{index:0,label:'Series',view:'Series'}]}]};
+  const mapMod={A:{movies:{},tvshows:{}}};
+  const fakeReq=id=>id===57826?viewsMod:id===95753?mapMod:null;
+  fakeReq.m={57826:true,95753:true};
+  f.ctx.window.webpackChunk={push:([_id,_mods,cb])=>cb?.(fakeReq)};
+
+  const tvPage=f.document.getElementById('tvshowsPage');
+  tvPage.replaceChildren();
+  const reactNative=f.document.createElement('div');reactNative.className='nativeReactGrid';reactNative.textContent='React TV Grid';
+  tvPage.append(reactNative);
+  f.document.getElementById('indexPage').classList.add('hide');
+  tvPage.classList.remove('hide');
+  f.navigate('#/tv?tab=1');await f.settle();
+
+  assert.equal(tvPage.getAttribute('data-fx-react-host'),'true');
+  assert.equal(reactNative.getAttribute('data-fx-native-hidden'),'true');
+  const options=[...tvPage.querySelectorAll('.fx-title-select option')].map(o=>o.textContent);
+  assert.deepEqual(options,['TV Shows','Library','Favorites','Genres']);
+  assert.deepEqual([...viewsMod.u.find(x=>x.path==='/movies').views.map(v=>v.label)],['Movies','Library','Favorites','Genres']);
+  assert.deepEqual([...viewsMod.u.find(x=>x.path==='/tv').views.map(v=>v.label)],['TV Shows','Library','Favorites','Genres']);
+  assert.equal(mapMod.A.tvshows[2].viewType,'Favorites');
+  assert.equal(mapMod.A.tvshows[2].collectionType,'tvshows');
+  assert.deepEqual([...mapMod.A.tvshows[2].itemType],['Series']);
+
+  searchBtn.click();
+  const wrap=f.document.querySelector('.fx-header-search.is-open');
+  assert.ok(wrap);
+  const input=wrap.querySelector('.fx-header-search-input');
+  input.value='Movie 1';
+  input.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
+  f.navigate('#/tv?tab=1');
+  await f.settle();
   f.ctx.window.FazFortDiscovery.stop();
 });
 test('visual editor discovers possible categories from library metadata and toggles them on',async()=>{

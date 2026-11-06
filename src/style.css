@@ -1,4 +1,4 @@
-.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+.fx-discovery{color:inherit;padding:12px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -19,11 +19,12 @@
 .fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
 /* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
 [data-fx-native-hidden="true"]{display:none!important}
+[data-fx-react-host="true"] > :not(.fx-discovery){display:none!important}
 .fx-discovery [hidden]{display:none!important}
 .cardScalable[data-fx-badge-host]{position:relative}
-.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#181818;border:1px solid #444;border-radius:10px;margin-bottom:18px}
+.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:rgba(18,20,28,.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:14px;margin-bottom:18px}
 .fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}
-.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:44px;border-radius:6px;border:1px solid #666;background:#242424;color:#fff;padding:8px;max-width:100%;box-sizing:border-box}
+.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;padding:8px 12px;max-width:100%;box-sizing:border-box}
 .fx-match-count{color:#ccc}.fx-match-count:empty{display:none}
 .fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}
 .fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
@@ -42,7 +43,7 @@
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:#181818;border:1px solid #555;border-radius:12px;box-shadow:0 12px 40px #000a;min-width:190px;z-index:10}
+.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:rgba(18,20,28,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.14);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.72);min-width:190px;z-index:10}
 .fx-feed-menu:not([open])>.fx-feed-menu-actions{display:none}
 .fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
 .fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
@@ -116,15 +117,300 @@
 .fx-title-picker:hover{background:rgba(255,255,255,.06)}
 .fx-title-picker:focus-within{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 5px rgba(229,9,20,.5)}
 .fx-toolbar h1{font-size:28px;line-height:34px;font-weight:700;margin:0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
-.fx-title-mode{display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.88rem;font-weight:600;color:#e5e7eb}
-.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#1a1b22}
-.fx-title-select option{background:#1a1b22;color:#fff}
+.fx-title-mode{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(18,20,28,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);font-size:.9rem;font-weight:600;color:#f3f4f6;transition:background .15s ease,border-color .15s ease}
+.fx-title-picker:hover .fx-title-mode{background:rgba(229,9,20,.18);border-color:rgba(229,9,20,.5);color:#fff}
+.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#14151b}
+.fx-title-select option{background:#14151b;color:#fff;padding:8px 12px}
+.fx-dropdown-menu{position:absolute;left:0;top:calc(100% + 8px);min-width:210px;padding:8px;background:rgba(18,20,28,.96);backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.14);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.75);display:flex;flex-direction:column;gap:4px;z-index:1000}
+.fx-dropdown-menu[hidden]{display:none!important}
+.fx-discovery button.fx-dropdown-item{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:10px 14px;min-height:40px;border-radius:10px;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.86);font-size:.93rem;font-weight:600}
+.fx-discovery button.fx-dropdown-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.fx-discovery button.fx-dropdown-item.is-selected{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.45);color:#fff;font-weight:700}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
-#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,80px) + 4px)!important}
+
+/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections */
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
+  font-size:28px!important;
+  line-height:34px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding:2px 12px 2px 10px!important;
+  border-radius:0 10px 10px 0!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+  background:transparent!important;
+  min-height:36px!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
+  background:rgba(255,255,255,.06)!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg{
+  font-size:24px!important;
+  color:rgba(255,255,255,.78)!important;
+}
+
+/* SleekFin-Styled Dropdown Menus for Page View Switchers (Movies, Shows, Live TV, Collections) & User Menu */
+.MuiPopover-root .MuiPaper-root,
+.MuiMenu-paper,
+#library-view-menu .MuiPaper-root,
+#app-user-menu .MuiPaper-root,
+.dialog.actionSheet{
+  background:rgba(18,20,28,.95)!important;
+  backdrop-filter:blur(22px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  border-radius:16px!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.76)!important;
+  color:#f3f4f6!important;
+  padding:6px!important;
+  overflow:hidden!important;
+}
+.MuiPopover-root .MuiList-root,
+#library-view-menu .MuiList-root,
+#app-user-menu .MuiList-root{
+  padding:2px!important;
+}
+.MuiPopover-root .MuiMenuItem-root,
+#library-view-menu .MuiMenuItem-root,
+#app-user-menu .MuiMenuItem-root,
+.dialog.actionSheet .listItem{
+  border-radius:10px!important;
+  margin:2px 0!important;
+  padding:9px 14px!important;
+  font-size:.93rem!important;
+  font-weight:600!important;
+  color:rgba(255,255,255,.86)!important;
+  min-height:40px!important;
+  transition:background .14s ease,color .14s ease!important;
+}
+.MuiPopover-root .MuiMenuItem-root:hover,
+#library-view-menu .MuiMenuItem-root:hover,
+#app-user-menu .MuiMenuItem-root:hover,
+.dialog.actionSheet .listItem:hover{
+  background:rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+.MuiPopover-root .MuiMenuItem-root.Mui-selected,
+#library-view-menu .MuiMenuItem-root.Mui-selected,
+#app-user-menu .MuiMenuItem-root.Mui-selected{
+  background:rgba(229,9,20,.22)!important;
+  border:1px solid rgba(229,9,20,.45)!important;
+  color:#fff!important;
+  font-weight:700!important;
+}
+.MuiPopover-root .MuiMenuItem-root.Mui-selected:hover,
+#library-view-menu .MuiMenuItem-root.Mui-selected:hover{
+  background:rgba(229,9,20,.32)!important;
+}
+.MuiPopover-root .MuiDivider-root,
+#app-user-menu .MuiDivider-root{
+  border-color:rgba(255,255,255,.1)!important;
+  margin:6px 4px!important;
+}
+#app-user-menu .MuiListItemIcon-root{
+  color:rgba(255,255,255,.78)!important;
+  min-width:34px!important;
+}
+
+/* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:600!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 auto 0 0!important;
+  color:#fff!important;
+  opacity:1!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton{
+  padding:0!important;
+  margin:0 auto 0 0!important;
+  background:transparent!important;
+  color:#fff!important;
+  opacity:1!important;
+  text-decoration:none!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton > .material-icons{
+  color:rgba(255,255,255,.75)!important;
+  opacity:1!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+  margin-bottom:14px!important;
+  display:flex!important;
+  align-items:center!important;
+}
+
+/* Unify Card Sizes Across Movies, Shows, Live TV, and Collections to Match Home & Discover */
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.card[data-aspect="2/3"]){
+  width:clamp(135px,14vw,205px)!important;
+  flex:0 0 clamp(135px,14vw,205px)!important;
+  max-width:clamp(135px,14vw,205px)!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+  width:clamp(205px,23vw,310px)!important;
+  flex:0 0 clamp(205px,23vw,310px)!important;
+  max-width:clamp(205px,23vw,310px)!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
+  gap:20px 14px!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(205px,23vw,310px),1fr))!important;
+  gap:20px 14px!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap > .card{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+}
+
+#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
+[data-sleekfin-header="modern"] ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery),
+header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 #moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
-#moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
-#moviesPage .cardText-secondary,#tvshowsPage .cardText-secondary,#tvRecommendedPage .cardText-secondary,#moviesPage [data-sleekfin-media-meta],#tvshowsPage [data-sleekfin-media-meta],#tvRecommendedPage [data-sleekfin-media-meta]{display:none!important}
-#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:24px!important;line-height:32px!important;font-weight:600!important;border-left:3px solid var(--sleekfin-accent,#e50914)!important;padding-left:10px!important;margin:0 auto 14px 0!important;color:#fff!important}
-#moviesPage .sectionTitleContainer,#tvshowsPage .sectionTitleContainer,#tvRecommendedPage .sectionTitleContainer{margin-bottom:14px!important}
-@media(max-width:768px){.fx-toolbar h1{font-size:24px;line-height:30px}.fx-row-head h2,#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:20px!important;line-height:28px!important}}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) [data-sleekfin-media-meta]{display:none!important}
+
+/* Netflix-Style Slide-Out Header Search Bar & Live Search Results Overlay */
+.fx-header-search{
+  display:inline-flex;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  width:0;
+  opacity:0;
+  pointer-events:none;
+  border-radius:999px;
+  background:rgba(12,14,20,.92);
+  border:1px solid transparent;
+  transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
+  vertical-align:middle;
+}
+.fx-header-search.is-open{
+  width:clamp(220px,24vw,340px);
+  opacity:1;
+  pointer-events:auto;
+  border-color:rgba(255,255,255,.32);
+  padding:4px 10px 4px 12px;
+  margin-inline:4px;
+  box-shadow:0 8px 24px rgba(0,0,0,.48);
+}
+.fx-header-search.is-open:focus-within{
+  border-color:var(--sleekfin-accent,#e50914);
+}
+.fx-header-search-icon{
+  font-size:18px;
+  color:rgba(255,255,255,.72);
+  margin-right:8px;
+  flex-shrink:0;
+  user-select:none;
+}
+.fx-header-search-input{
+  flex:1;
+  min-width:0;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#fff!important;
+  font:inherit;
+  font-size:.9rem;
+  line-height:1.3;
+  padding:4px 0;
+}
+.fx-header-search-input::placeholder{
+  color:rgba(255,255,255,.5);
+}
+.fx-header-search-clear{
+  border:0!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:15px!important;
+  line-height:1!important;
+  padding:4px 6px!important;
+  min-height:24px!important;
+  min-width:24px!important;
+  border-radius:50%!important;
+  cursor:pointer;
+}
+.fx-header-search-clear:hover{
+  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+}
+.fx-search-overlay{
+  position:fixed;
+  top:var(--sleekfin-header-height,72px);
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:1080;
+  background:#0b0c10;
+  overflow-y:auto;
+  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 64px;
+  box-sizing:border-box;
+}
+.fx-search-overlay[hidden]{display:none!important}
+.fx-search-explore{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:0 0 22px;
+  font-size:.92rem;
+  color:rgba(255,255,255,.55);
+}
+.fx-search-explore-label{
+  color:rgba(255,255,255,.5);
+  margin-right:4px;
+}
+.fx-search-explore-chip{
+  border:0!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.9)!important;
+  font:inherit;
+  font-size:.92rem;
+  font-weight:500;
+  padding:2px 8px!important;
+  min-height:28px!important;
+  border-radius:6px!important;
+  cursor:pointer;
+}
+.fx-search-explore-chip:hover{
+  color:#fff!important;
+  text-decoration:underline;
+  background:rgba(255,255,255,.08)!important;
+}
+.fx-search-explore-sep{
+  color:rgba(255,255,255,.28);
+  user-select:none;
+}
+.fx-search-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(210px,18vw,290px),1fr));
+  gap:22px 14px;
+}
+.fx-search-grid .fx-card-entry{
+  width:100%!important;
+  flex-basis:auto!important;
+}
+.fx-search-empty{
+  color:rgba(255,255,255,.68);
+  font-size:1rem;
+  margin-top:24px;
+}
+
+@media(max-width:768px){
+  .fx-toolbar h1,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
+  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
+  .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
+  .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
+}

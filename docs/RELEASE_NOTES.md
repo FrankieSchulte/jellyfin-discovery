@@ -1,12 +1,11 @@
-Jellyfin Discovery 0.4.4 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.5 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.4):
-- Progressive category-by-category loading: pre-fetch the opening Continue Watching row in parallel with library metadata, parallelize library inventory reads (`Limit: 500`), append each shelf immediately as it hydrates, and resolve arrival-tracking badges asynchronously in the background without blocking initial shelf rendering.
-- Overhaul Movies and TV Shows pages: intercept SleekFin `jellyfin:view:<guid>` header tab clicks in capture phase so switching tabs lands on Suggestions without opening the left side drawer, hide inactive/active native tab content when viewing Suggestions or Genres, make the top-left `Movies` / `TV Shows` heading itself open the view mode dropdown (`Suggestions`, `Library`, `Genres`), use landscape cards on Genres without SleekFin metadata clutter below posters, and include both movie-specific and show-specific categories in the default profile.
-- Smooth, even horizontal arrow scrolling across loop boundaries: pre-normalize `scrollLeft` before starting `scrollBy({ behavior: 'smooth' })` and guard `normalizeLoop` during programmatic smooth scrolling so arrow clicks never stop at loop boundaries.
-- Standardize page title (`28px/34px`) and category header (`24px/32px`) typography, red accent bar (`3px`), `10px` left gap, and `14px` bottom margin across all pages.
+Discovery (0.4.5):
+- Instant opening shelf rendering on Home, Movies, and Shows via persistent boot cache (`fazfort-discovery:boot:v1:...`), eliminating the "Reading metadata..." loading screen and empty "Load more" footer on refresh.
+- Support Jellyfin 12.4.0's React `#moviesPage` and `#tvshowsPage` containers without `.pageTabContent` children, and unify header (`28px/34px`), category title (`24px/32px`), and card sizes across Home, Movies, Shows, Live TV, and Collections (including Genres).
+- SleekFin-styled dropdown menus for view switchers and user profile menus, plus customized view options for Movies (`Movies`, `Library`, `Favorites`, `Genres`) and Shows (`TV Shows`, `Library`, `Favorites`, `Genres`).
+- Netflix-style slide-out header search bar with live `"More to explore:"` suggestions and backdrop results grid, plus card-aligned horizontal arrow scrolling.
 
-Request Hub (0.4.4):
-- Eliminate the Discover top gap and vertical jumpiness by locking `#indexPage.homePage.libraryPage { padding-top: 0 !important }` while `data-rh-active="true"`, preventing `sleekfin-hero`'s loading state toggles from shifting the page height.
-- Replace the `Movie Genres`, `Studios`, and `Networks` text chip boxes with horizontal scrollable Jellyseerr-style `2:1` visual media card carousels using TMDB duotone backdrops and studio/network logos.
-- Update the Discover live search placeholder to `"Search new content"` and match header/subheader typography and red bar spacing with Discovery.
+Request Hub (0.4.5):
+- Eliminate the Discover top gap and `sleekfin-hero` spacer vertical jump by hiding `header.MuiAppBar-root + div[aria-hidden="true"]` and matching `.rh-root` / `.rh-toolbar` top and horizontal offsets to Movies, Shows, Live TV, and Collections.
+- Limit `Trending Now`, `Popular Movies`, and `Popular Series` rails to 20 released titles loaded once up front with the `See More` card at the end, and snap horizontal arrow scrolling to card left edges.

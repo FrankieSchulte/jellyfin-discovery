@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.4 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.5 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1063,7 +1063,7 @@
         }
       }
     };
-    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px clamp(16px,4vw,80px) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+    const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:12px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
 .fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
 .fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -1084,11 +1084,12 @@
 .fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
 /* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
 [data-fx-native-hidden="true"]{display:none!important}
+[data-fx-react-host="true"] > :not(.fx-discovery){display:none!important}
 .fx-discovery [hidden]{display:none!important}
 .cardScalable[data-fx-badge-host]{position:relative}
-.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#181818;border:1px solid #444;border-radius:10px;margin-bottom:18px}
+.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:rgba(18,20,28,.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:14px;margin-bottom:18px}
 .fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}
-.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:44px;border-radius:6px;border:1px solid #666;background:#242424;color:#fff;padding:8px;max-width:100%;box-sizing:border-box}
+.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;padding:8px 12px;max-width:100%;box-sizing:border-box}
 .fx-match-count{color:#ccc}.fx-match-count:empty{display:none}
 .fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}
 .fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
@@ -1107,7 +1108,7 @@
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:#181818;border:1px solid #555;border-radius:12px;box-shadow:0 12px 40px #000a;min-width:190px;z-index:10}
+.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:rgba(18,20,28,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.14);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.72);min-width:190px;z-index:10}
 .fx-feed-menu:not([open])>.fx-feed-menu-actions{display:none}
 .fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
 .fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
@@ -1181,18 +1182,303 @@
 .fx-title-picker:hover{background:rgba(255,255,255,.06)}
 .fx-title-picker:focus-within{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 5px rgba(229,9,20,.5)}
 .fx-toolbar h1{font-size:28px;line-height:34px;font-weight:700;margin:0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
-.fx-title-mode{display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.88rem;font-weight:600;color:#e5e7eb}
-.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#1a1b22}
-.fx-title-select option{background:#1a1b22;color:#fff}
+.fx-title-mode{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(18,20,28,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);font-size:.9rem;font-weight:600;color:#f3f4f6;transition:background .15s ease,border-color .15s ease}
+.fx-title-picker:hover .fx-title-mode{background:rgba(229,9,20,.18);border-color:rgba(229,9,20,.5);color:#fff}
+.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#14151b}
+.fx-title-select option{background:#14151b;color:#fff;padding:8px 12px}
+.fx-dropdown-menu{position:absolute;left:0;top:calc(100% + 8px);min-width:210px;padding:8px;background:rgba(18,20,28,.96);backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.14);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.75);display:flex;flex-direction:column;gap:4px;z-index:1000}
+.fx-dropdown-menu[hidden]{display:none!important}
+.fx-discovery button.fx-dropdown-item{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:10px 14px;min-height:40px;border-radius:10px;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.86);font-size:.93rem;font-weight:600}
+.fx-discovery button.fx-dropdown-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.fx-discovery button.fx-dropdown-item.is-selected{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.45);color:#fff;font-weight:700}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
-#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,80px) + 4px)!important}
+
+/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections */
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{
+  font-size:28px!important;
+  line-height:34px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding:2px 12px 2px 10px!important;
+  border-radius:0 10px 10px 0!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+  background:transparent!important;
+  min-height:36px!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
+  background:rgba(255,255,255,.06)!important;
+}
+header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiButton-endIcon svg{
+  font-size:24px!important;
+  color:rgba(255,255,255,.78)!important;
+}
+
+/* SleekFin-Styled Dropdown Menus for Page View Switchers (Movies, Shows, Live TV, Collections) & User Menu */
+.MuiPopover-root .MuiPaper-root,
+.MuiMenu-paper,
+#library-view-menu .MuiPaper-root,
+#app-user-menu .MuiPaper-root,
+.dialog.actionSheet{
+  background:rgba(18,20,28,.95)!important;
+  backdrop-filter:blur(22px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  border-radius:16px!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.76)!important;
+  color:#f3f4f6!important;
+  padding:6px!important;
+  overflow:hidden!important;
+}
+.MuiPopover-root .MuiList-root,
+#library-view-menu .MuiList-root,
+#app-user-menu .MuiList-root{
+  padding:2px!important;
+}
+.MuiPopover-root .MuiMenuItem-root,
+#library-view-menu .MuiMenuItem-root,
+#app-user-menu .MuiMenuItem-root,
+.dialog.actionSheet .listItem{
+  border-radius:10px!important;
+  margin:2px 0!important;
+  padding:9px 14px!important;
+  font-size:.93rem!important;
+  font-weight:600!important;
+  color:rgba(255,255,255,.86)!important;
+  min-height:40px!important;
+  transition:background .14s ease,color .14s ease!important;
+}
+.MuiPopover-root .MuiMenuItem-root:hover,
+#library-view-menu .MuiMenuItem-root:hover,
+#app-user-menu .MuiMenuItem-root:hover,
+.dialog.actionSheet .listItem:hover{
+  background:rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+.MuiPopover-root .MuiMenuItem-root.Mui-selected,
+#library-view-menu .MuiMenuItem-root.Mui-selected,
+#app-user-menu .MuiMenuItem-root.Mui-selected{
+  background:rgba(229,9,20,.22)!important;
+  border:1px solid rgba(229,9,20,.45)!important;
+  color:#fff!important;
+  font-weight:700!important;
+}
+.MuiPopover-root .MuiMenuItem-root.Mui-selected:hover,
+#library-view-menu .MuiMenuItem-root.Mui-selected:hover{
+  background:rgba(229,9,20,.32)!important;
+}
+.MuiPopover-root .MuiDivider-root,
+#app-user-menu .MuiDivider-root{
+  border-color:rgba(255,255,255,.1)!important;
+  margin:6px 4px!important;
+}
+#app-user-menu .MuiListItemIcon-root{
+  color:rgba(255,255,255,.78)!important;
+  min-width:34px!important;
+}
+
+/* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:600!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 auto 0 0!important;
+  color:#fff!important;
+  opacity:1!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton{
+  padding:0!important;
+  margin:0 auto 0 0!important;
+  background:transparent!important;
+  color:#fff!important;
+  opacity:1!important;
+  text-decoration:none!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton > .material-icons{
+  color:rgba(255,255,255,.75)!important;
+  opacity:1!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+  margin-bottom:14px!important;
+  display:flex!important;
+  align-items:center!important;
+}
+
+/* Unify Card Sizes Across Movies, Shows, Live TV, and Collections to Match Home & Discover */
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.portraitCard,.card[data-aspect="2/3"]){
+  width:clamp(135px,14vw,205px)!important;
+  flex:0 0 clamp(135px,14vw,205px)!important;
+  max-width:clamp(135px,14vw,205px)!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer > :is(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+  width:clamp(205px,23vw,310px)!important;
+  flex:0 0 clamp(205px,23vw,310px)!important;
+  max-width:clamp(205px,23vw,310px)!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
+  gap:20px 14px!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(205px,23vw,310px),1fr))!important;
+  gap:20px 14px!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap > .card{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+}
+
+#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
+[data-sleekfin-header="modern"] ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery),
+header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 #moviesPage .btnPlayAll,#moviesPage .btnShuffle,#tvshowsPage .btnPlayAll,#tvshowsPage .btnShuffle,#tvRecommendedPage .btnPlayAll,#tvRecommendedPage .btnShuffle{display:none!important}
-#moviesPage .cardText-first,#tvshowsPage .cardText-first,#tvRecommendedPage .cardText-first{font-weight:700}
-#moviesPage .cardText-secondary,#tvshowsPage .cardText-secondary,#tvRecommendedPage .cardText-secondary,#moviesPage [data-sleekfin-media-meta],#tvshowsPage [data-sleekfin-media-meta],#tvRecommendedPage [data-sleekfin-media-meta]{display:none!important}
-#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:24px!important;line-height:32px!important;font-weight:600!important;border-left:3px solid var(--sleekfin-accent,#e50914)!important;padding-left:10px!important;margin:0 auto 14px 0!important;color:#fff!important}
-#moviesPage .sectionTitleContainer,#tvshowsPage .sectionTitleContainer,#tvRecommendedPage .sectionTitleContainer{margin-bottom:14px!important}
-@media(max-width:768px){.fx-toolbar h1{font-size:24px;line-height:30px}.fx-row-head h2,#moviesPage .sectionTitle,#tvshowsPage .sectionTitle,#tvRecommendedPage .sectionTitle{font-size:20px!important;line-height:28px!important}}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage) [data-sleekfin-media-meta]{display:none!important}
+
+/* Netflix-Style Slide-Out Header Search Bar & Live Search Results Overlay */
+.fx-header-search{
+  display:inline-flex;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  width:0;
+  opacity:0;
+  pointer-events:none;
+  border-radius:999px;
+  background:rgba(12,14,20,.92);
+  border:1px solid transparent;
+  transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
+  vertical-align:middle;
+}
+.fx-header-search.is-open{
+  width:clamp(220px,24vw,340px);
+  opacity:1;
+  pointer-events:auto;
+  border-color:rgba(255,255,255,.32);
+  padding:4px 10px 4px 12px;
+  margin-inline:4px;
+  box-shadow:0 8px 24px rgba(0,0,0,.48);
+}
+.fx-header-search.is-open:focus-within{
+  border-color:var(--sleekfin-accent,#e50914);
+}
+.fx-header-search-icon{
+  font-size:18px;
+  color:rgba(255,255,255,.72);
+  margin-right:8px;
+  flex-shrink:0;
+  user-select:none;
+}
+.fx-header-search-input{
+  flex:1;
+  min-width:0;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#fff!important;
+  font:inherit;
+  font-size:.9rem;
+  line-height:1.3;
+  padding:4px 0;
+}
+.fx-header-search-input::placeholder{
+  color:rgba(255,255,255,.5);
+}
+.fx-header-search-clear{
+  border:0!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:15px!important;
+  line-height:1!important;
+  padding:4px 6px!important;
+  min-height:24px!important;
+  min-width:24px!important;
+  border-radius:50%!important;
+  cursor:pointer;
+}
+.fx-header-search-clear:hover{
+  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+}
+.fx-search-overlay{
+  position:fixed;
+  top:var(--sleekfin-header-height,72px);
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:1080;
+  background:#0b0c10;
+  overflow-y:auto;
+  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 64px;
+  box-sizing:border-box;
+}
+.fx-search-overlay[hidden]{display:none!important}
+.fx-search-explore{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:0 0 22px;
+  font-size:.92rem;
+  color:rgba(255,255,255,.55);
+}
+.fx-search-explore-label{
+  color:rgba(255,255,255,.5);
+  margin-right:4px;
+}
+.fx-search-explore-chip{
+  border:0!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.9)!important;
+  font:inherit;
+  font-size:.92rem;
+  font-weight:500;
+  padding:2px 8px!important;
+  min-height:28px!important;
+  border-radius:6px!important;
+  cursor:pointer;
+}
+.fx-search-explore-chip:hover{
+  color:#fff!important;
+  text-decoration:underline;
+  background:rgba(255,255,255,.08)!important;
+}
+.fx-search-explore-sep{
+  color:rgba(255,255,255,.28);
+  user-select:none;
+}
+.fx-search-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(210px,18vw,290px),1fr));
+  gap:22px 14px;
+}
+.fx-search-grid .fx-card-entry{
+  width:100%!important;
+  flex-basis:auto!important;
+}
+.fx-search-empty{
+  color:rgba(255,255,255,.68);
+  font-size:1rem;
+  margin-top:24px;
+}
+
+@media(max-width:768px){
+  .fx-toolbar h1,
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
+  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
+  .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
+  .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
+}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
@@ -2275,14 +2561,14 @@
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.4";
+      const VERSION = "0.4.5";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
       let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
       const snapshots = /* @__PURE__ */ new Map();
       const savedFeeds = /* @__PURE__ */ new Map();
-      let activeDialog = null, lastScope = "", selectHold = null;
+      let activeDialog = null, lastScope = "", selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null;
       const element = (tag, cls, text) => {
         const n = document.createElement(tag);
         if (cls) n.className = cls;
@@ -2301,6 +2587,140 @@
       };
       const configKey = (api) => `fazfort-discovery:config:v1:${scopeKey(api)}`;
       const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
+      const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v1:${scope}:${route.page}:${route.parentId || ""}:${route.view || "home"}`;
+      function readBootRows(s, configStr) {
+        if (s.full || s.route.view === "genres") return null;
+        try {
+          const raw = localStorage.getItem(bootRowsKey(s.scope, s.route));
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
+          if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1e3) return null;
+          return parsed.rows;
+        } catch {
+          return null;
+        }
+      }
+      function writeBootRows(s) {
+        if (s.full || s.route.view === "genres" || filtersActive(s.filters) || s.filters.sort !== "recommended" || !s.slots.length || !s.config) return;
+        try {
+          const rows = s.slots.filter((slot) => !slot.boot).slice(0, 4).map((slot) => slot.data);
+          if (!rows.length) return;
+          localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), config: JSON.stringify(s.config), rows }));
+        } catch {
+        }
+      }
+      function clearBootRows(scope) {
+        if (!scope) return;
+        try {
+          for (const page of ["home", "movies", "shows"]) {
+            for (const view of ["home", "suggestions"]) {
+              localStorage.removeItem(bootRowsKey(scope, { page, parentId: "", view }));
+            }
+          }
+        } catch {
+        }
+      }
+      function applyWebpackViewPatch(req) {
+        if (!(req == null ? void 0 : req.m)) return;
+        try {
+          if (req.m[57826]) {
+            const modViews = req(57826);
+            const list = modViews == null ? void 0 : modViews.u;
+            if (Array.isArray(list)) {
+              const moviesEntry = list.find((x) => (x == null ? void 0 : x.path) === "/movies");
+              if (moviesEntry) {
+                moviesEntry.views = [
+                  { index: 1, label: "Movies", view: "Suggestions", isDefault: true },
+                  { index: 0, label: "Library", view: "Movies" },
+                  { index: 2, label: "Favorites", view: "Favorites" },
+                  { index: 4, label: "Genres", view: "Genres" }
+                ];
+              }
+              const tvEntry = list.find((x) => (x == null ? void 0 : x.path) === "/tv");
+              if (tvEntry) {
+                tvEntry.views = [
+                  { index: 1, label: "TV Shows", view: "Suggestions", isDefault: true },
+                  { index: 0, label: "Library", view: "Series" },
+                  { index: 2, label: "Favorites", view: "Favorites" },
+                  { index: 3, label: "Genres", view: "Genres" }
+                ];
+              }
+            }
+          }
+          if (req.m[95753]) {
+            const modMap = req(95753);
+            const map = modMap == null ? void 0 : modMap.A;
+            if (map == null ? void 0 : map.tvshows) {
+              map.tvshows[2] = { viewType: "Favorites", collectionType: "tvshows", itemType: ["Series"] };
+            }
+          }
+        } catch {
+        }
+      }
+      function patchLibraryViews() {
+        const chunks = window.webpackChunk;
+        if (!chunks || typeof chunks.push !== "function") return;
+        try {
+          if (!chunks._fxHooked) {
+            chunks.push([["fx-discovery-views-" + Date.now()], {}, (req) => {
+              window._fxWebpackReq = req;
+              applyWebpackViewPatch(req);
+            }]);
+            const origPush = chunks.push.bind(chunks);
+            chunks.push = function(...args) {
+              const res = origPush(...args);
+              if (window._fxWebpackReq) applyWebpackViewPatch(window._fxWebpackReq);
+              return res;
+            };
+            chunks._fxHooked = true;
+          } else if (window._fxWebpackReq) {
+            applyWebpackViewPatch(window._fxWebpackReq);
+          }
+        } catch {
+        }
+      }
+      function syncLibraryViewMenu() {
+        var _a2;
+        patchLibraryViews();
+        const h = String(location.hash || "").replace(/^#!?\/?/, "").replace(/^\//, "");
+        const [path, query = ""] = h.split("?");
+        const name = path.replace(/\.html$/, "").toLowerCase();
+        const p = new URLSearchParams(query);
+        const col = (_a2 = p.get("collectionType")) == null ? void 0 : _a2.toLowerCase();
+        const isMovies = name === "movies" || name === "list" && col === "movies";
+        const isTv = name === "tv" || name === "tvshows" || name === "list" && col === "tvshows";
+        if (!isMovies && !isTv) return;
+        const tab = p.get("tab") || "1";
+        const expectedLabel = isMovies ? tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "4" ? "Genres" : "Movies" : tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "3" ? "Genres" : "TV Shows";
+        const btn = document.querySelector('button[aria-controls="library-view-menu"]');
+        if (btn) {
+          const textNode = [...btn.childNodes].find((n) => n.nodeType === 3);
+          if (textNode && textNode.nodeValue !== expectedLabel) textNode.nodeValue = expectedLabel;
+        }
+        const menuList = document.querySelector("#library-view-menu .MuiList-root");
+        if (menuList) {
+          const items = [...menuList.querySelectorAll(".MuiMenuItem-root")];
+          const removeLabels = /* @__PURE__ */ new Set(["studios", "playlists", "collections", "tv networks", "networks", "upcoming", "episodes"]);
+          items.forEach((item, idx) => {
+            const txt = (item.textContent || "").trim();
+            const lower = txt.toLowerCase();
+            if (removeLabels.has(lower)) {
+              item.style.display = "none";
+              return;
+            }
+            if (lower === "suggestions") {
+              const tn = [...item.childNodes].find((n) => n.nodeType === 3);
+              if (tn) tn.nodeValue = isMovies ? "Movies" : "TV Shows";
+              else item.textContent = isMovies ? "Movies" : "TV Shows";
+            } else if (isMovies && lower === "movies" && idx > 0 || isTv && (lower === "shows" || lower === "series")) {
+              const tn = [...item.childNodes].find((n) => n.nodeType === 3);
+              if (tn) tn.nodeValue = "Library";
+              else item.textContent = "Library";
+            }
+          });
+        }
+      }
       function readConfig(api) {
         try {
           const raw = localStorage.getItem(configKey(api));
@@ -2436,14 +2856,18 @@
         return item.Id ? `#/details?${q}` : "";
       }
       function renderCard(item, s, withSimilar = true, layout = "landscape") {
-        var _a2, _b2;
+        var _a2, _b2, _c2, _d2;
         const card = element("a", "fx-card");
         card.href = itemHref(item, s.api) || "#";
         card.dataset.itemId = item.Id || "";
         card.addEventListener("click", () => {
-          s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: item.Id };
-          saveFeed(s);
+          var _a3;
+          if ((_a3 = s.slots) == null ? void 0 : _a3.length) {
+            s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: item.Id };
+            saveFeed(s);
+          }
           if (activeDialog) closeDialog();
+          if (searchOverlay && !searchOverlay.hidden) closeHeaderSearch(false);
         });
         if (/^https?:/i.test(card.getAttribute("href"))) card.rel = "noopener noreferrer";
         const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
@@ -2489,7 +2913,7 @@
         card.title = name;
         const entry = element("div", `fx-card-entry fx-card-${layout}`);
         entry.append(card);
-        if (withSimilar && ["Movie", "Series"].includes(item.Type) && s.inventory.items.some((i) => i.Id === item.Id)) {
+        if (withSimilar && ["Movie", "Series"].includes(item.Type) && ((_d2 = (_c2 = s.inventory) == null ? void 0 : _c2.items) == null ? void 0 : _d2.some((i) => i.Id === item.Id))) {
           const more = button("\u22EF", () => moreLikeThis(item, s));
           more.className = "fx-card-more";
           more.title = "More like this";
@@ -2502,8 +2926,25 @@
         }
         return entry;
       }
-      function fillSlot(slot, s) {
+      function snapScrollDelta(track, direction, fallbackStep) {
         var _a2;
+        const children = [...track.children];
+        if (children.length < 2) return direction * fallbackStep;
+        const base = typeof ((_a2 = children[0]) == null ? void 0 : _a2.offsetLeft) === "number" ? children[0].offsetLeft : 0;
+        const snaps = children.map((c) => typeof c.offsetLeft === "number" ? c.offsetLeft - base : 0);
+        if (!snaps.some((x) => x > 0)) return direction * fallbackStep;
+        const current = track.scrollLeft;
+        const desired = current + direction * fallbackStep;
+        const candidates = snaps.filter((pos) => direction > 0 ? pos > current + 8 : pos < current - 8);
+        if (!candidates.length) return direction * fallbackStep;
+        let best = candidates[0];
+        for (const pos of candidates) {
+          if (Math.abs(pos - desired) < Math.abs(best - desired)) best = pos;
+        }
+        return best - current;
+      }
+      function fillSlot(slot, s) {
+        var _a2, _b2;
         const row = slot.data;
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
@@ -2534,7 +2975,8 @@
             }
             track.style.scrollBehavior = prevBehavior;
             track._fxMoved = true;
-            track.scrollBy({ left: direction * step, behavior: "smooth" });
+            const delta = snapScrollDelta(track, direction, step);
+            track.scrollBy({ left: delta, behavior: "smooth" });
             track._fxScrollTimer = setTimeout(() => {
               track._fxProgrammatic = false;
               normalizeLoop();
@@ -2544,7 +2986,10 @@
           const end = Math.max(0, track.scrollWidth - track.clientWidth);
           if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
           else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
-          else track.scrollBy({ left: direction * step, behavior: "smooth" });
+          else {
+            const delta = snapScrollDelta(track, direction, step);
+            track.scrollBy({ left: delta, behavior: "smooth" });
+          }
         };
         track.addEventListener("scroll", () => {
           if (track.scrollLeft > 12) track._fxMoved = true;
@@ -2596,10 +3041,10 @@
         back.setAttribute("aria-label", `Previous ${row.title}`);
         forward.setAttribute("aria-label", `More ${row.title}`);
         const token = row.family === "anchor" ? `anchor:${row.key}` : row.family === "theme" ? row.key : `family:${row.family}`;
-        const requested = ((_a2 = s.profile.layouts) == null ? void 0 : _a2[token]) || row.layout || "auto";
+        const requested = ((_b2 = (_a2 = s.profile) == null ? void 0 : _a2.layouts) == null ? void 0 : _b2[token]) || row.layout || "auto";
         const portraitOnly = row.key !== "MyMedia" && row.items.filter((i) => {
-          var _a3, _b2, _c2, _d2, _e2;
-          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b2 = i.BackdropImageTags) == null ? void 0 : _b2.length) && !((_c2 = i.ParentBackdropImageTags) == null ? void 0 : _c2.length) && (((_d2 = i.ImageTags) == null ? void 0 : _d2.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
+          var _a3, _b3, _c2, _d2, _e2;
+          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b3 = i.BackdropImageTags) == null ? void 0 : _b3.length) && !((_c2 = i.ParentBackdropImageTags) == null ? void 0 : _c2.length) && (((_d2 = i.ImageTags) == null ? void 0 : _d2.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
         }).length > row.items.length / 2;
         const layout = s.route.view === "genres" ? "landscape" : requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
         slot.node.dataset.layout = layout;
@@ -2638,8 +3083,9 @@
           }
         }
       }
-      function appendRow(row, s) {
-        const slot = { node: element("section", "fx-shelf"), data: row, live: false };
+      function appendRow(row, s, isBoot = false) {
+        const slot = { node: element("section", "fx-shelf"), data: row, live: false, boot: isBoot };
+        if (isBoot) slot.node.dataset.bootRow = "true";
         slot.node.dataset.shelfKey = row.key;
         s.list.append(slot.node);
         s.slots.push(slot);
@@ -2733,7 +3179,7 @@
         var _a2;
         if (!s.inventory || !s.config || !s.planner) return;
         const root = findScrollRoot(s.root);
-        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.map((slot) => slot.data), openingIndex: s.openingIndex || 0, anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.map((slot) => {
+        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.filter((slot) => !slot.boot).map((slot) => slot.data), openingIndex: s.openingIndex || 0, anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.filter((slot) => !slot.boot).map((slot) => {
           var _a3;
           return ((_a3 = slot.node.querySelector(".fx-track")) == null ? void 0 : _a3.scrollLeft) || 0;
         }), at: Date.now() });
@@ -2741,6 +3187,8 @@
       }
       function restoreFeed(s, saved) {
         var _a2;
+        s.slots = [];
+        s.list.replaceChildren();
         s.filters = cloneJson(saved.filters);
         s.planner = saved.planner;
         s.pending = saved.pending;
@@ -2752,6 +3200,7 @@
         s.shuffle = saved.shuffle;
         s.lastFocus = saved.focus;
         saved.rows.forEach((row) => appendRow(row, s));
+        s.footer.hidden = s.full;
         s.more.hidden = s.finished;
         s.more.disabled = false;
         s.matchCount.textContent = s.filteredQueue ? `${filterItems(s.inventory.items, s.filters, s.tracking).length} matching titles` : "";
@@ -2776,11 +3225,13 @@
         });
       }
       function syncNative(s, hide) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f;
         if (!hide) {
           s.native.removeAttribute("data-fx-native-hidden");
+          s.native.removeAttribute("data-fx-react-host");
+          (_b2 = (_a2 = s.page) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-react-host");
           s.native.querySelectorAll("[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
-          (_b2 = (_a2 = s.page) == null ? void 0 : _a2.querySelectorAll) == null ? void 0 : _b2.call(_a2, "[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
+          (_d2 = (_c2 = s.page) == null ? void 0 : _c2.querySelectorAll) == null ? void 0 : _d2.call(_c2, "[data-fx-native-hidden]").forEach((n) => n.removeAttribute("data-fx-native-hidden"));
           s.native.removeAttribute("data-fx-hero-anchor");
           if (s.route.page !== "home" && s.page) {
             const tabs = [...s.page.querySelectorAll(".pageTabContent")];
@@ -2791,8 +3242,17 @@
           return;
         }
         if (s.route.page !== "home") {
+          if (s.native === s.page) {
+            if (s.page.getAttribute("data-fx-react-host") !== "true") s.page.setAttribute("data-fx-react-host", "true");
+            [...s.page.children].forEach((child) => {
+              if (!child.classList.contains("fx-discovery") && child.getAttribute("data-fx-native-hidden") !== "true") {
+                child.setAttribute("data-fx-native-hidden", "true");
+              }
+            });
+            return;
+          }
           if (s.native.getAttribute("data-fx-native-hidden") !== "true") s.native.setAttribute("data-fx-native-hidden", "true");
-          (_d2 = (_c2 = s.page) == null ? void 0 : _c2.querySelectorAll) == null ? void 0 : _d2.call(_c2, ".pageTabContent").forEach((tab) => {
+          (_f = (_e2 = s.page) == null ? void 0 : _e2.querySelectorAll) == null ? void 0 : _f.call(_e2, ".pageTabContent").forEach((tab) => {
             if (tab.getAttribute("data-fx-native-hidden") !== "true") tab.setAttribute("data-fx-native-hidden", "true");
           });
           return;
@@ -2814,7 +3274,7 @@
       function setMode(s, full, remember = true) {
         s.full = full;
         s.list.hidden = full;
-        s.footer.hidden = full;
+        s.footer.hidden = full || !s.slots.length && !s.finished;
         s.filterToggle.disabled = full || !s.inventory;
         s.matchCount.hidden = full;
         if (full) s.panel.hidden = true;
@@ -2828,7 +3288,7 @@
           }
         }
         if (!s.started) initialize(s);
-        else if (!full && s.planner && !s.slots.length) loadMore(s);
+        else if (!full && s.planner && !s.slots.filter((slot) => !slot.boot).length) loadMore(s);
         if (!full) scheduleScroll();
       }
       async function nextRow(s) {
@@ -2865,7 +3325,7 @@
             }
           } else {
             s.anchorTurn = true;
-            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.length < s.profile.anchors.length * 2 ? "theme" : null);
+            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.filter((slot) => !slot.boot).length < s.profile.anchors.length * 2 ? "theme" : null);
             if (row) return row;
             if (s.anchorIndex >= s.profile.anchors.length) return null;
           }
@@ -2889,18 +3349,29 @@
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length && !s.full) {
+              if (s.slots.some((slot) => slot.boot)) {
+                s.slots = [];
+                s.list.replaceChildren();
+              }
               appendRow({ ...row, items }, s);
               s.failed = false;
+              s.footer.hidden = s.full;
               syncNative(s, true);
             }
             s.pending = null;
+          }
+          if (s.slots.some((slot) => slot.boot)) {
+            s.slots = [];
+            s.list.replaceChildren();
           }
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
           if ((s.slots.length || s.filteredQueue) && !s.full) {
             s.failed = false;
             s.filterToggle.disabled = !s.inventory;
+            s.footer.hidden = s.full;
             syncNative(s, true);
+            writeBootRows(s);
           }
           if (!s.slots.length) {
             if (!s.filteredQueue) {
@@ -2915,6 +3386,7 @@
         } catch {
           if (state === s) {
             s.pauseAutomatic = true;
+            s.footer.hidden = s.full;
             s.status.textContent = "Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.";
           }
         } finally {
@@ -2972,13 +3444,22 @@
       async function initialize(s) {
         if (s.started) return;
         s.started = true;
-        s.status.textContent = "Reading library metadata\u2026";
+        s.status.textContent = "";
+        s.footer.hidden = true;
         try {
           let localError;
           try {
             s.config = readConfig(s.api);
           } catch (e) {
             localError = e;
+          }
+          if (s.config && !s.full) {
+            s.profile = s.config.pages[s.route.page];
+            const bootRows = readBootRows(s, JSON.stringify(s.config));
+            if (bootRows == null ? void 0 : bootRows.length) {
+              bootRows.forEach((row) => appendRow(row, s, true));
+              syncNative(s, true);
+            }
           }
           if (!s.full && s.route.view !== "genres") {
             const p = s.client.json("HomeScreen/Section/ContinueWatchingNextUp", { UserId: s.client.userId });
@@ -2989,9 +3470,7 @@
           const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
           const cachedInv = findCachedInventory(s.scope, s.route);
           const prefPromise = s.client.preferences().then((profile) => ({ ok: true, profile })).catch(() => ({ ok: false }));
-          const invPromise = cachedInv ? Promise.resolve(cachedInv) : s.client.inventory(s.route, (count, seasons) => {
-            if (state === s) s.status.textContent = `Reading metadata: ${count} movies/shows, ${seasons} seasons\u2026`;
-          });
+          const invPromise = cachedInv ? Promise.resolve(cachedInv) : s.client.inventory(s.route);
           const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
           s.client.assertCurrent();
           if (prefRes.ok) {
@@ -3044,6 +3523,8 @@
           await trackingTask;
         } catch {
           if (state !== s) return;
+          s.slots = [];
+          s.list.replaceChildren();
           s.failed = true;
           s.status.textContent = "Discovery could not start. The normal view is restored. Check Customize for invalid rules or use Restart feed to try again.";
           setMode(s, true, false);
@@ -3067,6 +3548,200 @@
             host.append(badge);
           }
           if (badge.textContent !== text) badge.textContent = text;
+        }
+      }
+      function closeHeaderSearch(restoreButton = true) {
+        clearTimeout(headerSearchTimer);
+        if (headerSearchWrap) {
+          headerSearchWrap.classList.remove("is-open");
+          const inp = headerSearchWrap.querySelector("input");
+          if (inp) inp.value = "";
+        }
+        if (restoreButton && headerSearchBtn) {
+          headerSearchBtn.style.display = "";
+        }
+        if (searchOverlay) {
+          searchOverlay.hidden = true;
+          searchOverlay.replaceChildren();
+        }
+      }
+      async function executeHeaderSearch(api, rawQuery) {
+        var _a2;
+        const q = normalize(rawQuery);
+        if (!q) {
+          if (searchOverlay) {
+            searchOverlay.hidden = true;
+            searchOverlay.replaceChildren();
+          }
+          return;
+        }
+        if (!searchOverlay) {
+          searchOverlay = element("div", "fx-search-overlay");
+          searchOverlay.setAttribute("role", "region");
+          searchOverlay.setAttribute("aria-label", "Search results");
+          document.body.append(searchOverlay);
+        }
+        searchOverlay.hidden = false;
+        const scope = scopeKey(api);
+        let inv = (state == null ? void 0 : state.inventory) || findCachedInventory(scope, { page: "home", parentId: "" });
+        if (!inv) {
+          try {
+            const client = new JellyfinClient(api, () => scopeKey(api) === scope);
+            inv = await client.inventory({ page: "home", parentId: "" });
+            snapshots.set(`${scope}:home:`, { at: Date.now(), value: inv });
+          } catch {
+            if (searchOverlay) searchOverlay.replaceChildren(element("p", "fx-search-empty", "Could not search library right now."));
+            return;
+          }
+        }
+        if (!(headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) || normalize((_a2 = headerSearchWrap.querySelector("input")) == null ? void 0 : _a2.value) !== q) return;
+        const allItems = inv.items || [];
+        const scored = [];
+        const exploreCandidates = /* @__PURE__ */ new Map();
+        const addExplore = (term, weight) => {
+          if (!term) return;
+          const norm = normalize(term);
+          if (!norm.includes(q)) return;
+          const boost = norm.startsWith(q) ? weight + 10 : weight;
+          if ((exploreCandidates.get(term) || 0) < boost) exploreCandidates.set(term, boost);
+        };
+        for (const item of allItems) {
+          const nameNorm = normalize(item.Name);
+          const people = (item.People || []).map((p) => p.Name).filter(Boolean);
+          const genres = item.Genres || [];
+          const tags = item.Tags || [];
+          const studios = (item.Studios || []).map((st) => st.Name).filter(Boolean);
+          let score = 0;
+          if (nameNorm === q) score += 100;
+          else if (nameNorm.startsWith(q)) score += 70;
+          else if (nameNorm.includes(q)) score += 45;
+          for (const g of genres) {
+            const gn = normalize(g);
+            if (gn.includes(q)) {
+              score = Math.max(score, gn.startsWith(q) ? 38 : 28);
+              addExplore(g, 30);
+            }
+          }
+          for (const p of people) {
+            const pn = normalize(p);
+            if (pn.includes(q)) {
+              score = Math.max(score, pn.startsWith(q) ? 42 : 32);
+              addExplore(p, 28);
+            }
+          }
+          for (const t of tags) {
+            const tn = normalize(t);
+            if (tn.includes(q)) {
+              score = Math.max(score, tn.startsWith(q) ? 34 : 24);
+              addExplore(t, 22);
+            }
+          }
+          for (const st of studios) {
+            const sn = normalize(st);
+            if (sn.includes(q)) {
+              score = Math.max(score, sn.startsWith(q) ? 34 : 24);
+              addExplore(st, 20);
+            }
+          }
+          if (score > 0) {
+            if (nameNorm.includes(q)) addExplore(item.Name, 25);
+            scored.push({ item, score: score + (Number(item.CommunityRating) || 0) * 0.4 });
+          }
+        }
+        scored.sort((a, b) => b.score - a.score || String(a.item.Name || "").localeCompare(String(b.item.Name || "")));
+        const exploreTerms = [...exploreCandidates.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([term]) => term);
+        searchOverlay.replaceChildren();
+        if (exploreTerms.length) {
+          const exploreRow = element("div", "fx-search-explore");
+          exploreRow.append(element("span", "fx-search-explore-label", "More to explore:"));
+          exploreTerms.forEach((term, idx) => {
+            if (idx > 0) exploreRow.append(element("span", "fx-search-explore-sep", "|"));
+            const chip = button(term, () => {
+              const inp = headerSearchWrap == null ? void 0 : headerSearchWrap.querySelector("input");
+              if (inp) {
+                inp.value = term;
+                inp.focus();
+                executeHeaderSearch(api, term);
+              }
+            });
+            chip.className = "fx-search-explore-chip";
+            exploreRow.append(chip);
+          });
+          searchOverlay.append(exploreRow);
+        }
+        if (!scored.length) {
+          searchOverlay.append(element("p", "fx-search-empty", `No matches found for "${rawQuery}".`));
+          return;
+        }
+        const grid = element("div", "fx-search-grid");
+        const renderCtx = state || {
+          api,
+          scope,
+          inventory: inv,
+          badges: seasonBadges(inv.seasons || [], /* @__PURE__ */ new Date()),
+          tracking: inv.tracking || /* @__PURE__ */ new Map(),
+          now: /* @__PURE__ */ new Date(),
+          config: DEFAULT_CONFIG2,
+          filters: cloneJson(DEFAULT_FILTERS),
+          slots: []
+        };
+        scored.slice(0, 40).forEach(({ item }) => {
+          grid.append(renderCard(item, renderCtx, true, "landscape"));
+        });
+        searchOverlay.append(grid);
+      }
+      function ensureHeaderSearch(api) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
+        const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        if (!btn) return;
+        headerSearchBtn = btn;
+        if (!headerSearchWrap || !headerSearchWrap.isConnected || headerSearchWrap.nextElementSibling !== btn) {
+          headerSearchWrap == null ? void 0 : headerSearchWrap.remove();
+          const wrap = element("div", "fx-header-search");
+          const icon = element("span", "material-icons search fx-header-search-icon");
+          icon.setAttribute("aria-hidden", "true");
+          const input = element("input", "fx-header-search-input");
+          input.type = "search";
+          input.placeholder = "Titles, people, genres";
+          input.setAttribute("aria-label", "Search titles, people, genres");
+          input.autocomplete = "off";
+          const clear = button("\u2715", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeHeaderSearch(true);
+          });
+          clear.className = "fx-header-search-clear";
+          clear.setAttribute("aria-label", "Close search");
+          input.addEventListener("input", () => {
+            clearTimeout(headerSearchTimer);
+            const val = input.value.trim();
+            if (!val) {
+              if (searchOverlay) {
+                searchOverlay.hidden = true;
+                searchOverlay.replaceChildren();
+              }
+              return;
+            }
+            headerSearchTimer = setTimeout(() => executeHeaderSearch(api, val), 120);
+          });
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              e.stopPropagation();
+              closeHeaderSearch(true);
+            }
+          });
+          input.addEventListener("blur", () => {
+            setTimeout(() => {
+              if ((headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) && !input.value.trim() && !headerSearchWrap.contains(document.activeElement)) {
+                closeHeaderSearch(true);
+              }
+            }, 160);
+          });
+          wrap.append(icon, input, clear);
+          btn.before(wrap);
+          headerSearchWrap = wrap;
         }
       }
       function download(name, obj) {
@@ -3272,7 +3947,7 @@
         for (const page of document.querySelectorAll(selector)) {
           if (!visible(page)) continue;
           const wantIndex = route.view === "genres" ? route.page === "movies" ? 4 : 3 : route.view === "library" ? 0 : new URLSearchParams(location.hash.split("?")[1] || "").get("tab") || 1;
-          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector(`.pageTabContent[data-index="${wantIndex}"]`) || page.querySelector(".pageTabContent.is-active, .pageTabContent");
+          const native = route.page === "home" ? page.querySelector(".homeSectionsContainer") : page.querySelector(`.pageTabContent[data-index="${wantIndex}"]`) || page.querySelector(".pageTabContent.is-active, .pageTabContent") || page;
           if (native && !native.closest(".fx-discovery")) return { page, native };
         }
         return null;
@@ -3297,8 +3972,13 @@
         document.querySelectorAll("[data-fx-badge-host]").forEach((n) => n.removeAttribute("data-fx-badge-host"));
       }
       function restart(clearCache = false) {
+        var _a2, _b2;
         const key = state == null ? void 0 : state.key;
-        if (clearCache) snapshots.clear();
+        const scope = (state == null ? void 0 : state.scope) || (((_b2 = (_a2 = window.ApiClient) == null ? void 0 : _a2.getCurrentUserId) == null ? void 0 : _b2.call(_a2)) ? scopeKey(window.ApiClient) : "");
+        if (clearCache) {
+          snapshots.clear();
+          clearBootRows(scope);
+        }
         cleanup(false);
         if (key) savedFeeds.delete(key);
         reconcile();
@@ -3310,8 +3990,11 @@
         if (stopped) return;
         const api = window.ApiClient, route = routeInfo(location.hash);
         syncSettings(api);
+        syncLibraryViewMenu();
+        ensureHeaderSearch(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
+          closeHeaderSearch(true);
           savedFeeds.clear();
           snapshots.clear();
           lastScope = "";
@@ -3339,6 +4022,8 @@
         }
         const key = `${scope}:${route.page}:${route.parentId}:${route.view || "home"}`;
         if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+          const titlePicker = state.root.querySelector(".fx-title-picker");
+          if (titlePicker) titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
           if (!state.full && !state.failed) syncNative(state, true);
           decorateNative(state);
           return;
@@ -3372,31 +4057,44 @@
         if (route.page === "home") toolbar.hidden = true;
         else {
           menu.hidden = true;
+          const defaultLabel = route.page === "movies" ? "Movies" : "TV Shows";
+          const currentLabel = route.view === "library" ? "Library" : route.view === "genres" ? "Genres" : defaultLabel;
           const titlePicker = element("div", "fx-title-picker");
-          const heading = element("h1", "", route.page === "movies" ? "Movies" : "TV Shows");
-          const modeLabel = element("span", "fx-title-mode", `${route.view === "library" ? "Library" : route.view === "genres" ? "Genres" : "Suggestions"} \u25BE`);
+          const heading = element("h1", "", defaultLabel);
+          const modeLabel = element("span", "fx-title-mode", `${currentLabel} \u25BE`);
           const switcher = element("select", "fx-title-select");
           switcher.setAttribute("aria-label", "Browse mode");
-          for (const [value, label] of [["suggestions", "Suggestions"], ["library", "Library"], ["genres", "Genres"]]) {
+          const viewOptions = [
+            ["suggestions", defaultLabel],
+            ["library", "Library"],
+            ["favorites", "Favorites"],
+            ["genres", "Genres"]
+          ];
+          for (const [value, label] of viewOptions) {
             const option = element("option", "", label);
             option.value = value;
             option.selected = route.view === value;
             switcher.append(option);
           }
-          switcher.addEventListener("change", () => {
-            modeLabel.textContent = `${switcher.value === "library" ? "Library" : switcher.value === "genres" ? "Genres" : "Suggestions"} \u25BE`;
+          const applySwitch = (val) => {
+            var _a3;
+            const chosen = ((_a3 = viewOptions.find(([v]) => v === val)) == null ? void 0 : _a3[1]) || defaultLabel;
+            modeLabel.textContent = `${chosen} \u25BE`;
             const q = new URLSearchParams(location.hash.split("?")[1] || "");
-            q.set("tab", switcher.value === "library" ? "0" : switcher.value === "genres" ? route.page === "movies" ? "4" : "3" : "1");
+            q.set("tab", val === "library" ? "0" : val === "favorites" ? "2" : val === "genres" ? route.page === "movies" ? "4" : "3" : "1");
             location.hash = location.hash.split("?")[0] + "?" + q;
             schedule();
-          });
+          };
+          switcher.addEventListener("change", () => applySwitch(switcher.value));
           titlePicker.append(heading, modeLabel, switcher);
+          titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
           toolbar.prepend(titlePicker);
           if (route.view !== "library") toolbar.append(s.filterToggle);
         }
         footer.append(s.more, s.note);
         root.append(toolbar, panel, matchCount, status, list, footer);
         if (route.page === "home") target.native.after(root);
+        else if (target.native === target.page) target.page.prepend(root);
         else target.native.before(root);
         state = s;
         let full = route.view === "library";
@@ -3441,9 +4139,26 @@
         });
       }
       function navSuggestions(event) {
-        var _a2, _b2, _c2, _d2;
-        const target = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy-item],a[href]");
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+        const searchTrigger = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        if (searchTrigger && ((_d2 = (_c2 = window.ApiClient) == null ? void 0 : _c2.getCurrentUserId) == null ? void 0 : _d2.call(_c2))) {
+          ensureHeaderSearch(window.ApiClient);
+          if (headerSearchWrap) {
+            event.preventDefault();
+            (_e2 = event.stopImmediatePropagation) == null ? void 0 : _e2.call(event);
+            event.stopPropagation();
+            headerSearchWrap.classList.add("is-open");
+            searchTrigger.style.display = "none";
+            const inp = headerSearchWrap.querySelector("input");
+            (_f = inp == null ? void 0 : inp.focus) == null ? void 0 : _f.call(inp);
+            return;
+          }
+        }
+        const target = (_h = (_g = event.target).closest) == null ? void 0 : _h.call(_g, "[data-sleekfin-header-proxy-item],a[href]");
         if (!target) return;
+        if (searchOverlay && !searchOverlay.hidden && !target.closest(".fx-search-overlay,.fx-header-search")) {
+          closeHeaderSearch(true);
+        }
         const proxy = target.getAttribute("data-sleekfin-header-proxy-item") || "";
         let route = null;
         if (proxy === "jellyfin:movies") route = "#/movies";
@@ -3470,7 +4185,7 @@
           const [path, raw = ""] = normalized.split("?"), q = new URLSearchParams(raw);
           q.set("tab", "1");
           event.preventDefault();
-          (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+          (_i = event.stopImmediatePropagation) == null ? void 0 : _i.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = path + "?" + q;
@@ -3480,7 +4195,7 @@
         }
         if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home") {
           event.preventDefault();
-          (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
+          (_j = event.stopImmediatePropagation) == null ? void 0 : _j.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = normalized;
@@ -3612,6 +4327,7 @@
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
+        patchLibraryViews();
         if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
           const rh = element("script");
           rh.defer = true;
@@ -3622,7 +4338,7 @@
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
@@ -3651,8 +4367,14 @@
           stopped = true;
           clearTimeout(timer);
           clearInterval(heartbeat);
+          clearTimeout(headerSearchTimer);
           observer == null ? void 0 : observer.disconnect();
           cleanup(false);
+          closeHeaderSearch(true);
+          headerSearchWrap == null ? void 0 : headerSearchWrap.remove();
+          headerSearchWrap = null;
+          searchOverlay == null ? void 0 : searchOverlay.remove();
+          searchOverlay = null;
           snapshots.clear();
           savedFeeds.clear();
           document.removeEventListener("click", navSuggestions, true);
