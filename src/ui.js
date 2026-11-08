@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.6';
+const VERSION = '0.4.7';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -7,13 +7,31 @@ window.FazFortHomeFeed?.stop?.();
 let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
 const snapshots = new Map();
 const savedFeeds = new Map();
-let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null;
+const loadedImages = new Set();
+let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null, downloadMenuTrigger = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
 const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrentUserId()}`;
 const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
 const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v1:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
+const trackingCacheKey = scope => `fazfort-discovery:tracking:v1:${scope}`;
+function readTrackingCache(scope) {
+  if (!scope) return new Map();
+  try {
+    const raw = localStorage.getItem(trackingCacheKey(scope));
+    if (!raw) return new Map();
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.entries)) return new Map();
+    return new Map(parsed.entries);
+  } catch { return new Map(); }
+}
+function writeTrackingCache(scope, map) {
+  if (!scope || !(map instanceof Map)) return;
+  try {
+    localStorage.setItem(trackingCacheKey(scope), JSON.stringify({ at: Date.now(), entries: [...map.entries()] }));
+  } catch {}
+}
 function readBootRows(s, configStr) {
   if (s.full || s.route.view === 'genres') return null;
   try {
@@ -74,6 +92,14 @@ function applyWebpackViewPatch(req) {
       const modMap = req(95753);
       const map = modMap?.A;
       if (map?.movies) {
+        if (map.movies[2] && typeof map.movies[2] === 'object') {
+          map.movies[2].isAlphabetPickerEnabled = false;
+          map.movies[2].isAlphaPickerEnabled = false;
+        }
+        if (map.movies[4] && typeof map.movies[4] === 'object') {
+          map.movies[4].isAlphabetPickerEnabled = false;
+          map.movies[4].isAlphaPickerEnabled = false;
+        }
         Object.values(map.movies).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
@@ -91,8 +117,13 @@ function applyWebpackViewPatch(req) {
           isBtnFilterEnabled: true,
           isBtnGridListEnabled: true,
           isBtnSortEnabled: true,
-          isAlphaPickerEnabled: true
+          isAlphabetPickerEnabled: false,
+          isAlphaPickerEnabled: false
         };
+        if (map.tvshows[3] && typeof map.tvshows[3] === 'object') {
+          map.tvshows[3].isAlphabetPickerEnabled = false;
+          map.tvshows[3].isAlphaPickerEnabled = false;
+        }
         Object.values(map.tvshows).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
@@ -101,6 +132,14 @@ function applyWebpackViewPatch(req) {
         });
       }
       if (map?.boxsets) {
+        if (map.boxsets[1] && typeof map.boxsets[1] === 'object') {
+          map.boxsets[1].isAlphabetPickerEnabled = false;
+          map.boxsets[1].isAlphaPickerEnabled = false;
+        }
+        if (map.boxsets[2] && typeof map.boxsets[2] === 'object') {
+          map.boxsets[2].isAlphabetPickerEnabled = false;
+          map.boxsets[2].isAlphaPickerEnabled = false;
+        }
         Object.values(map.boxsets).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
@@ -269,6 +308,26 @@ function itemHref(item, api) {
   }
   return item.Id ? `#/details?${q}` : '';
 }
+function attachSimilarControls(entry, card, item, s, name) {
+  if (entry.querySelector('.fx-card-more')) return;
+  if (['Movie', 'Series'].includes(item.Type) && s.inventory?.items?.some(i => i.Id === item.Id)) {
+    const more = button('⋯', () => moreLikeThis(item, s));
+    more.className = 'fx-card-more';
+    more.title = 'More like this';
+    more.setAttribute('aria-label', `More like ${name}`);
+    entry.append(more);
+    card.addEventListener('contextmenu', event => { event.preventDefault(); moreLikeThis(item, s); });
+  }
+}
+function syncEntryBadge(entry, item, s) {
+  const visual = entry.querySelector('.fx-card-visual');
+  if (!visual) return;
+  const text = badgeFor(item, s.badges, s.now, s.tracking);
+  let badge = visual.querySelector('.fx-badge');
+  if (!text) { badge?.remove(); return; }
+  if (!badge) { badge = element('span', 'fx-badge'); visual.append(badge); }
+  if (badge.textContent !== text) badge.textContent = text;
+}
 function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   const card = element('a', 'fx-card'); card.href = itemHref(item, s.api) || '#';
   card.dataset.itemId = item.Id || '';
@@ -288,11 +347,31 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   const choices = imageChoices(item, s.api, layout);
   if (choices.length) {
     placeholder.hidden = true;
-    visual.classList.add('is-loading');
-    const img = element('img'); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+    const firstCached = loadedImages.has(choices[0].url);
+    if (!firstCached) visual.classList.add('is-loading');
+    const img = element('img'); img.alt = ''; img.loading = firstCached ? 'eager' : 'lazy'; img.decoding = firstCached ? 'sync' : 'async';
     let index = 0;
-    const use = () => { const choice = choices[index++]; img.className = choice.poster ? 'fx-poster' : ''; img.src = choice.url; };
-    img.addEventListener('load', () => { placeholder.hidden = true; visual.classList.remove('is-loading'); img.classList.add('is-loaded'); });
+    const use = () => {
+      const choice = choices[index++];
+      const cached = loadedImages.has(choice.url);
+      img.className = (choice.poster ? 'fx-poster' : '') + (cached ? ' is-loaded is-instant' : '');
+      if (cached) visual.classList.remove('is-loading');
+      img.src = choice.url;
+      if (img.complete && img.naturalWidth > 0) {
+        loadedImages.add(choice.url);
+        placeholder.hidden = true;
+        visual.classList.remove('is-loading');
+        img.classList.add('is-loaded', 'is-instant');
+      }
+    };
+    img.addEventListener('load', () => {
+      const activeUrl = choices[Math.max(0, index - 1)]?.url;
+      if (activeUrl) loadedImages.add(activeUrl);
+      if (img.currentSrc) loadedImages.add(img.currentSrc);
+      placeholder.hidden = true;
+      visual.classList.remove('is-loading');
+      img.classList.add('is-loaded');
+    });
     img.addEventListener('error', () => { if (index < choices.length) use(); else { img.remove(); visual.classList.remove('is-loading'); placeholder.hidden = false; } });
     use(); visual.append(placeholder, img);
   } else {
@@ -304,10 +383,7 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   if (badge) visual.append(element('span', 'fx-badge', badge));
   card.append(visual, element('span', 'fx-name', name)); card.title = name;
   const entry = element('div', `fx-card-entry fx-card-${layout}`); entry.append(card);
-  if (withSimilar && ['Movie', 'Series'].includes(item.Type) && s.inventory?.items?.some(i => i.Id === item.Id)) {
-    const more = button('⋯', () => moreLikeThis(item, s)); more.className = 'fx-card-more'; more.title='More like this';more.setAttribute('aria-label', `More like ${name}`); entry.append(more);
-    card.addEventListener('contextmenu', event => { event.preventDefault(); moreLikeThis(item, s); });
-  }
+  if (withSimilar) attachSimilarControls(entry, card, item, s, name);
   return entry;
 }
 function snapScrollDelta(track, direction, fallbackStep) {
@@ -409,17 +485,62 @@ function fillSlot(slot, s) {
   const requested = s.profile?.layouts?.[token] || row.layout || 'auto';
   const portraitOnly = row.key !== 'MyMedia' && row.items.filter(i => !i.ImageTags?.Thumb && !i.BackdropImageTags?.length && !i.ParentBackdropImageTags?.length && (i.ImageTags?.Primary || i.ProviderIds?.JellyseerrPoster) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1)).length > row.items.length / 2;
   const layout = s.route.view === 'genres' ? 'landscape' : requested === 'auto' ? (row.external || row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || portraitOnly ? 'portrait' : 'landscape') : requested;
+  const existingTrack = slot.node.querySelector('.fx-track');
+  if (existingTrack && slot.node.dataset.layout === layout) {
+    const existingEntries = [...existingTrack.querySelectorAll('.fx-card-entry')];
+    const expectedIds = [];
+    for (let copy = 0; copy < copies; copy++) {
+      row.items.forEach(item => expectedIds.push(item.Id || ''));
+    }
+    if (existingEntries.length === expectedIds.length && existingEntries.every((el, idx) => (el.querySelector('.fx-card')?.dataset?.itemId || '') === expectedIds[idx])) {
+      const existingHeading = slot.node.querySelector('.fx-row-head h2');
+      if (existingHeading && existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+      existingEntries.forEach((entry, idx) => {
+        const item = row.items[idx % baseCount];
+        const card = entry.querySelector('.fx-card');
+        if (item && card) {
+          const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
+          attachSimilarControls(entry, card, item, s, name);
+          syncEntryBadge(entry, item, s);
+        }
+      });
+      slot.node.className = 'fx-shelf';
+      slot.node.style.height = '';
+      slot.live = true;
+      return;
+    }
+  }
+  const reusablePool = new Map();
+  if (existingTrack && slot.node.dataset.layout === layout) {
+    for (const entry of existingTrack.querySelectorAll('.fx-card-entry')) {
+      const itemId = entry.querySelector('.fx-card')?.dataset?.itemId || '';
+      if (!itemId) continue;
+      if (!reusablePool.has(itemId)) reusablePool.set(itemId, []);
+      reusablePool.get(itemId).push(entry);
+    }
+  }
+  const preservedScroll = existingTrack ? existingTrack.scrollLeft : (slot.scrollLeft || 0);
   slot.node.dataset.layout = layout;
   head.append(title, back, forward);
   for (let copy = 0; copy < copies; copy++) {
     row.items.forEach(item => {
-      const cardNode = renderCard(item, s, true, layout);
+      const pool = item.Id ? reusablePool.get(item.Id) : null;
+      let cardNode = pool?.length ? pool.shift() : null;
+      if (cardNode) {
+        const card = cardNode.querySelector('.fx-card');
+        const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
+        if (card) attachSimilarControls(cardNode, card, item, s, name);
+        syncEntryBadge(cardNode, item, s);
+      } else {
+        cardNode = renderCard(item, s, true, layout);
+      }
       if (copy > 0) cardNode.dataset.loopClone = String(copy);
+      else delete cardNode.dataset.loopClone;
       track.append(cardNode);
     });
   }
   slot.node.replaceChildren(head, track); slot.node.className = 'fx-shelf'; slot.node.style.height = ''; slot.live = true;
-  if (slot.scrollLeft) track.scrollLeft = slot.scrollLeft;
+  if (preservedScroll) track.scrollLeft = preservedScroll;
 }
 function virtualize(s) {
   if (state !== s || !s.root.isConnected || s.full) return;
@@ -596,7 +717,7 @@ async function nextRow(s) {
     if(token.startsWith('anchor:')){
       const id=token.slice(7);
       try{const row=await s.client.anchor(id,s.route,s.inventory,s.config);if(row.items.length)return row;}
-      catch{s.client.assertCurrent();s.warnings.add(`Couldn't load ${id}.`);}
+      catch{s.client.assertCurrent();}
     }else{
       const row=token.startsWith('rule:')?s.planner.take(token):s.planner.shelves.some(r=>r.family===token.slice(7))?s.planner.next(token.slice(7)):null;
       if(row)return row;
@@ -610,7 +731,7 @@ async function nextRow(s) {
       try {
         const row = await s.client.anchor(id, s.route, s.inventory, s.config);
         if (row.items.length) return row;
-      } catch { s.client.assertCurrent(); s.warnings.add(`Couldn't load ${id}. Check HSS/Jellyseerr, then restart this feed.`); }
+      } catch { s.client.assertCurrent(); }
     } else {
       s.anchorTurn = true;
       const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.filter(slot => !slot.boot).length < s.profile.anchors.length * 2 ? 'theme' : null);
@@ -632,21 +753,28 @@ async function loadMore(s, automatic = false) {
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length && !s.full) {
-        if (s.slots.some(slot => slot.boot)) {
-          s.slots = [];
-          s.list.replaceChildren();
+        const hydratedRow = { ...row, items };
+        const existingBoot = s.slots.find(slot => slot.boot && slot.data?.key === hydratedRow.key) || s.slots.find(slot => slot.boot);
+        if (existingBoot) {
+          s.list.querySelectorAll('[data-skeleton="true"]').forEach(node => node.remove());
+          existingBoot.boot = false;
+          delete existingBoot.node.dataset.bootRow;
+          existingBoot.node.dataset.shelfKey = hydratedRow.key;
+          existingBoot.data = hydratedRow;
+          fillSlot(existingBoot, s);
+        } else {
+          appendRow(hydratedRow, s);
         }
-        appendRow({ ...row, items }, s);
         s.failed = false;
         s.footer.hidden = s.full;
         syncNative(s, true);
       }
       s.pending = null;
     }
-    if (s.slots.some(slot => slot.boot)) {
-      s.slots = [];
-      s.list.replaceChildren();
+    for (const staleBoot of s.slots.filter(slot => slot.boot)) {
+      staleBoot.node.remove();
     }
+    s.slots = s.slots.filter(slot => !slot.boot);
     s.list.querySelectorAll('[data-skeleton="true"]').forEach(n => n.remove());
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
@@ -763,16 +891,17 @@ async function initialize(s) {
     snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
     if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
     s.badges = seasonBadges(s.inventory.seasons, s.now);
-    s.tracking = null;
-    s.inventory.tracking = new Map();
+    if (!(s.tracking instanceof Map)) s.tracking = readTrackingCache(s.scope);
+    s.inventory.tracking = s.tracking;
     s.byId = new Map(s.inventory.items.map(i => [i.Id, i]));
     s.filterToggle.disabled=s.full;
     decorateNative(s);
     const trackingTask = s.client.tracking(s.inventory.items).then(arrival => {
       if (state !== s) return;
-      s.tracking = arrival.records;
+      s.tracking = arrival.records instanceof Map ? arrival.records : new Map();
       s.trackingReady = arrival.ready;
       s.inventory.tracking = s.tracking;
+      if (arrival.ready) writeTrackingCache(s.scope, s.tracking);
       decorateNative(s);
       refreshSlotBadges(s);
     }).catch(() => {
@@ -811,21 +940,69 @@ function closeDownloadMenu() {
     downloadMenu.remove();
     downloadMenu = null;
   }
+  downloadMenuTrigger = null;
 }
-function triggerUrlDownload(url) {
+function sanitizeFilename(raw, fallback = 'video') {
+  const cleaned = String(raw || '')
+    .replace(/[<>:"/\\|?*\x00-\x1f]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[. ]+$/g, '');
+  return cleaned || fallback;
+}
+function formatItemDownloadBase(item) {
+  if (!item?.Name) return '';
+  if (item.Type === 'Episode' && item.SeriesName) {
+    const sNum = Number.isFinite(item.ParentIndexNumber) ? `S${String(item.ParentIndexNumber).padStart(2, '0')}` : '';
+    const eNum = Number.isFinite(item.IndexNumber) ? `E${String(item.IndexNumber).padStart(2, '0')}` : '';
+    const code = sNum || eNum ? ` - ${sNum}${eNum}` : '';
+    return sanitizeFilename(`${item.SeriesName}${code} - ${item.Name}`);
+  }
+  return sanitizeFilename(item.Name);
+}
+function inferDownloadTitle(itemId, btn) {
+  const cached = state?.byId?.get(itemId) || state?.inventory?.items?.find(i => i.Id === itemId);
+  if (cached?.Name) return formatItemDownloadBase(cached);
+  const epCard = btn?.closest?.('.sleekfin-details-episode-card,[data-sleekfin-episode-id]');
+  if (epCard) {
+    const epTitle = epCard.querySelector('.sleekfin-details-episode-title,.cardText-first')?.textContent?.trim();
+    const seriesTitle = document.querySelector('#itemDetailPage .sleekfin-details-title,#itemDetailPage .itemName,#itemDetailPage h1')?.textContent?.trim();
+    if (seriesTitle && epTitle) return sanitizeFilename(`${seriesTitle} - ${epTitle}`);
+    if (epTitle) return sanitizeFilename(epTitle);
+  }
+  const detailTitle = document.querySelector('#itemDetailPage .sleekfin-details-title,#itemDetailPage .itemName,#itemDetailPage h1')?.textContent?.trim();
+  if (detailTitle) return sanitizeFilename(detailTitle);
+  return '';
+}
+function triggerUrlDownload(url, filename = '') {
   const a = element('a');
   a.href = url;
-  a.setAttribute('download', '');
+  a.setAttribute('download', filename || '');
   a.rel = 'noopener noreferrer';
   document.body.append(a);
   a.click();
   a.remove();
 }
 function openDownloadMenu(btn, itemId, api) {
+  if (downloadMenu && downloadMenuTrigger === btn) {
+    closeDownloadMenu();
+    return;
+  }
   closeDownloadMenu();
+  downloadMenuTrigger = btn;
+  let baseTitle = inferDownloadTitle(itemId, btn);
   const token = api.accessToken?.() || '';
-  const fullUrl = api.getUrl(`Items/${encodeURIComponent(itemId)}/Download`, token ? { api_key: token } : {});
-  const transcodeUrl = api.getUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+  const resolveApiUrl = (path, params) => {
+    const raw = api.getUrl?.(path, params);
+    if (typeof raw === 'string') return raw;
+    const qs = new URLSearchParams(params || {}).toString();
+    return `/${String(path).replace(/^\/+/, '')}${qs ? '?' + qs : ''}`;
+  };
+  const fullUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+    Static: 'true',
+    ...(token ? { api_key: token } : {})
+  });
+  const transcodeUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
     Static: 'false',
     VideoCodec: 'h264',
     AudioCodec: 'aac',
@@ -843,23 +1020,39 @@ function openDownloadMenu(btn, itemId, api) {
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', 'Download quality options');
 
-  const makeOption = (title, sub, onSelect) => {
-    const opt = button('', () => {
-      closeDownloadMenu();
-      onSelect();
-    });
-    opt.className = 'fx-download-option';
+  const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), 'video')}.mp4`;
+  const makeOption = (title, sub, url) => {
+    const opt = element('a', 'fx-download-option');
+    opt.href = url;
+    opt.setAttribute('download', fileFor());
+    opt.rel = 'noopener noreferrer';
     opt.setAttribute('role', 'menuitem');
     const t = element('strong', 'fx-download-option-title', title);
     const s = element('span', 'fx-download-option-sub', sub);
     opt.append(t, s);
+    opt.addEventListener('click', () => {
+      opt.setAttribute('download', fileFor());
+      setTimeout(closeDownloadMenu, 60);
+    });
     return opt;
   };
 
-  menu.append(
-    makeOption('Full Quality (Original)', 'Direct original file · Best for home & archival', () => triggerUrlDownload(fullUrl)),
-    makeOption('Condensed 1080p (Fast / Mobile)', 'Transcoded H.264 MP4 (~4 Mbps) · Smaller file for flights & phones', () => triggerUrlDownload(transcodeUrl))
-  );
+  const fullOpt = makeOption('Full Quality (Original)', 'Direct original file · Best for home & archival', fullUrl);
+  const condensedOpt = makeOption('Condensed 1080p (Fast / Mobile)', 'Transcoded H.264 MP4 (~4 Mbps) · Smaller file for flights & phones', transcodeUrl);
+  menu.append(fullOpt, condensedOpt);
+  const uid = api.getCurrentUserId?.();
+  if (uid && typeof api.getJSON === 'function' && typeof api.getUrl === 'function') {
+    Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`)))
+      .then(info => {
+        const refined = formatItemDownloadBase(info);
+        if (refined) {
+          baseTitle = refined;
+          fullOpt.setAttribute('download', fileFor());
+          condensedOpt.setAttribute('download', fileFor());
+        }
+      })
+      .catch(() => {});
+  }
   document.body.append(menu);
   downloadMenu = menu;
   const rect = typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null;
@@ -870,6 +1063,49 @@ function openDownloadMenu(btn, itemId, api) {
     menu.style.left = `${left}px`;
   } else {
     menu.style.top = '120px';
+    menu.style.left = '80px';
+  }
+}
+function openSeasonMenu(seasonWrap, select) {
+  if (downloadMenu && downloadMenuTrigger === seasonWrap) {
+    closeDownloadMenu();
+    return;
+  }
+  closeDownloadMenu();
+  downloadMenuTrigger = seasonWrap;
+  const menu = element('div', 'fx-download-menu fx-season-menu is-open');
+  menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', 'Select season');
+  [...select.options].forEach(opt => {
+    const label = (opt.textContent || opt.label || '').trim();
+    const item = button(label, () => {
+      closeDownloadMenu();
+      if (select.value !== opt.value) {
+        for (const o of select.querySelectorAll('option')) {
+          const isMatch = o.value === opt.value;
+          o.selected = isMatch;
+          o.toggleAttribute?.('selected', isMatch);
+        }
+        try { select.value = opt.value; } catch {}
+        const Ev = typeof Event === 'function' ? Event : document.defaultView?.Event;
+        if (Ev) select.dispatchEvent(new Ev('change', { bubbles: true }));
+      }
+    });
+    item.className = 'fx-download-option fx-season-option' + (opt.value === select.value ? ' is-selected' : '');
+    item.setAttribute('role', 'menuitemradio');
+    item.setAttribute('aria-checked', opt.value === select.value ? 'true' : 'false');
+    menu.append(item);
+  });
+  document.body.append(menu);
+  downloadMenu = menu;
+  const rect = typeof seasonWrap.getBoundingClientRect === 'function' ? seasonWrap.getBoundingClientRect() : null;
+  if (rect && (rect.width > 0 || rect.height > 0)) {
+    const top = Math.min((window.innerHeight || 800) - 240, Math.max(12, Math.round(rect.bottom + 6)));
+    const left = Math.min((window.innerWidth || 1280) - 220, Math.max(12, Math.round(rect.left)));
+    menu.style.top = `${top}px`;
+    menu.style.left = `${left}px`;
+  } else {
+    menu.style.top = '160px';
     menu.style.left = '80px';
   }
 }
@@ -1222,7 +1458,7 @@ function reconcile() {
   const token = generation;
   const root = element('div', 'fx-discovery'), toolbar = element('div', 'fx-toolbar'), list = element('div'), status = element('p', 'fx-status'), footer = element('div', 'fx-footer'), panel=element('div','fx-filters'),matchCount=element('p','fx-match-count');panel.hidden=true;
   status.setAttribute('role', 'status');
-  const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount,token, now: new Date(), slots: [], badges: new Map(), tracking:new Map(),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
+  const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount,token, now: new Date(), slots: [], badges: new Map(), tracking:readTrackingCache(scope),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
   s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
   s.toggle = button(route.page === 'home' ? 'Normal home' : 'Full library', () => setMode(s, !s.full));
   s.more = button('Load more', () => { s.pauseAutomatic = false; loadMore(s); });
@@ -1293,8 +1529,16 @@ function closeDrawers(){
   });
 }
 function navSuggestions(event){
-  if (downloadMenu && !event.target.closest?.('.fx-download-menu')) {
-    closeDownloadMenu();
+  const seasonWrap = event.target.closest?.('.sleekfin-details-season-select');
+  if (seasonWrap && !event.target.closest?.('.fx-download-menu')) {
+    const select = seasonWrap.querySelector('select.sleekfin-details-season-native, select');
+    if (select && select.options?.length) {
+      event.preventDefault();
+      event.stopImmediatePropagation?.();
+      event.stopPropagation();
+      openSeasonMenu(seasonWrap, select);
+      return;
+    }
   }
   const dlBtn = event.target.closest?.('button.btnDownload, button.sleekfin-details-episode-download, button[data-sleekfin-details-action="download"], button[data-id="download"], button[title="Download" i], button[aria-label="Download" i]');
   if (dlBtn && !dlBtn.closest('.fx-download-menu') && window.ApiClient?.getCurrentUserId?.()) {
@@ -1310,6 +1554,9 @@ function navSuggestions(event){
       openDownloadMenu(dlBtn, itemId, window.ApiClient);
       return;
     }
+  }
+  if (downloadMenu && !event.target.closest?.('.fx-download-menu')) {
+    closeDownloadMenu();
   }
   const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {

@@ -304,11 +304,36 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.deepEqual([...mapMod.A.tvshows[2].itemType],['Series']);
   assert.equal(mapMod.A.tvshows[2].isBtnPlayAllEnabled,false);
   assert.equal(mapMod.A.tvshows[2].isBtnShuffleEnabled,false);
+  assert.equal(mapMod.A.tvshows[2].isAlphabetPickerEnabled,false);
+  assert.equal(mapMod.A.tvshows[2].isAlphaPickerEnabled,false);
 
-  const dlBtn=f.document.createElement('button');dlBtn.className='btnDownload';dlBtn.setAttribute('data-id','movie-1');
+  const detailPage=f.document.createElement('div');detailPage.id='itemDetailPage';
+  const detailTitle=f.document.createElement('h1');detailTitle.className='itemName';detailTitle.textContent='Weapons';
+  detailPage.append(detailTitle);f.document.body.append(detailPage);
+  const dlBtn=f.document.createElement('button');dlBtn.className='btnDownload';dlBtn.setAttribute('data-id','movie-weapons');
   f.document.body.append(dlBtn);
   dlBtn.click();
-  assert.ok(f.document.querySelector('.fx-download-menu.is-open'));
+  const dlMenu=f.document.querySelector('.fx-download-menu.is-open');
+  assert.ok(dlMenu);
+  const dlLinks=[...dlMenu.querySelectorAll('a.fx-download-option')];
+  assert.equal(dlLinks[0].getAttribute('download'),'Weapons.mp4');
+  assert.ok(dlLinks[0].getAttribute('href').includes('/Videos/movie-weapons/stream.mp4'));
+  assert.ok(dlLinks[0].getAttribute('href').includes('Static=true'));
+  assert.equal(dlLinks[1].getAttribute('download'),'Weapons.mp4');
+  assert.ok(dlLinks[1].getAttribute('href').includes('Static=false'));
+
+  const seasonWrap=f.document.createElement('div');seasonWrap.className='sleekfin-details-season-select';
+  const seasonSel=f.document.createElement('select');
+  const opt1=f.document.createElement('option');opt1.value='s1';opt1.textContent='Season 1';
+  const opt2=f.document.createElement('option');opt2.value='s2';opt2.textContent='Season 2';
+  seasonSel.append(opt1,opt2);seasonWrap.append(seasonSel);f.document.body.append(seasonWrap);
+  seasonWrap.click();
+  const seasonMenu=f.document.querySelector('.fx-season-menu.is-open');
+  assert.ok(seasonMenu);
+  const seasonBtns=[...seasonMenu.querySelectorAll('.fx-season-option')];
+  assert.equal(seasonBtns.length,2);
+  seasonBtns[1].click();
+  assert.equal(seasonSel.value,'s2');
 
   searchBtn.click();
   const wrap=f.document.querySelector('.fx-header-search.is-open');

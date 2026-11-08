@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.6 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.7 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1064,22 +1064,25 @@
       }
     };
     const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
-.fx-discovery:not(:has(> :not([hidden]):not(:empty))){display:none!important;padding:0!important;margin:0!important}
+.fx-discovery:not(:has(> :not([hidden]):not(:empty))),
+.fx-discovery:has(> .fx-toolbar:not(:has(> :not([hidden])))):not(:has(> :not(.fx-toolbar):not([hidden]):not(:empty))){display:none!important;padding:0!important;margin:0!important}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
 .fx-toolbar:not(:has(> :not([hidden]))){display:none!important;margin:0!important}
-.fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#fff;background:#292929;border:1px solid #555;border-radius:8px;padding:9px 15px;cursor:pointer}
-.fx-discovery button:hover,.fx-dialog button:hover{background:#454545}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
+.fx-toolbar h2{margin:0 auto 0 0;font-size:1.25rem}.fx-discovery button,.fx-dialog button{font:inherit;color:#f1f2f4;background:#1a1c20;border:1px solid #26292e;border-radius:8px;padding:9px 15px;cursor:pointer}
+.fx-discovery button:hover,.fx-dialog button:hover{background:#26292e}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
 .fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
 .fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
-.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(15,15,15,.85)!important;padding:0!important;font-size:24px!important}
+.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(16,17,19,.86)!important;padding:0!important;font-size:24px!important}
 @keyframes fx-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#20252a;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#1a1d24 25%,#282c37 50%,#1a1d24 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
-.fx-card-visual img{width:100%;height:100%;object-fit:cover;transition:opacity .18s ease}.fx-card-visual.is-loading img{opacity:0}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#252c33,#101215)}
+.fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#101113;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#16181b 25%,#23262b 50%,#16181b 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
+.fx-card-visual img{width:100%;height:100%;object-fit:cover;transition:opacity .18s ease}.fx-card-visual img.is-instant{transition:none!important;opacity:1!important}.fx-card-visual.is-loading img{opacity:0}.fx-card-visual img.fx-poster{object-fit:contain;background:linear-gradient(110deg,#1a1c20,#101113)}
+.fx-card-visual .fx-progress,.fx-card-visual .fx-badge{transition:opacity .18s ease}
+.fx-card-visual:has(img.is-instant) .fx-progress,.fx-card-visual:has(img.is-instant) .fx-badge{transition:none!important;opacity:1!important}
 .fx-card-visual.is-loading .fx-progress,.fx-card-visual.is-loading .fx-badge{opacity:0}
 .fx-skeleton-title{width:220px;height:26px;border-radius:6px;border-left:3px solid var(--sleekfin-accent,#e50914)}
 .fx-skeleton-line{width:68%;height:14px;border-radius:4px;margin:8px 2px 0}
@@ -1087,16 +1090,16 @@
 .fx-card:hover .fx-name{color:#fff;text-decoration:underline}.fx-badge{position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#e50914;color:white;padding:3px 9px;line-height:1.3;font-size:13px;font-weight:700;white-space:nowrap;border-radius:3px 3px 0 0;z-index:2;pointer-events:none}
 .fx-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#595959;z-index:3}.fx-progress span{display:block;height:100%;background:#e50914}.fx-progress~.fx-badge{bottom:3px}
 .fx-footer{text-align:center;padding:20px;overflow-anchor:none}.fx-footer p{color:#aaa;font-size:14px}.fx-shelf,.fx-placeholder-row,.fx-status,.fx-toolbar{overflow-anchor:none;box-sizing:border-box}
-.fx-dialog{color:#eee;background:#151515;border:1px solid #777;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}
-.fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#090909;color:#eee;border:1px solid #777;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
+.fx-dialog{color:#f1f2f4;background:#101113;border:1px solid #26292e;border-radius:12px;width:min(850px,90vw);max-height:86vh;padding:22px;box-sizing:border-box;z-index:100001}.fx-dialog::backdrop{background:rgba(0,0,0,.8)}
+.fx-dialog h2{margin-top:0}.fx-dialog textarea{width:100%;height:42vh;box-sizing:border-box;background:#0b0b0c;color:#f1f2f4;border:1px solid #26292e;border-radius:6px;padding:12px;font:13px/1.5 monospace}.fx-dialog p{line-height:1.5}.fx-dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.fx-dialog input{max-width:100%}
 /* Hide only the native content this mounted feed explicitly owns; failure/stop removes the attribute. */
 [data-fx-native-hidden="true"]{display:none!important}
 [data-fx-react-host="true"] > :not(.fx-discovery){display:none!important}
 .fx-discovery [hidden]{display:none!important}
 .cardScalable[data-fx-badge-host]{position:relative}
-.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:rgba(18,20,28,.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:14px;margin-bottom:18px}
+.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:rgba(22,22,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:14px;margin-bottom:18px}
 .fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}
-.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;padding:8px 12px;max-width:100%;box-sizing:border-box}
+.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:42px;border-radius:10px;border:1px solid #26292e;background:#101113;color:#f1f2f4;padding:8px 12px;max-width:100%;box-sizing:border-box}
 .fx-match-count{color:#ccc}.fx-match-count:empty{display:none}
 .fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}
 .fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
@@ -1113,45 +1116,45 @@
 [data-fx-hero-anchor="true"]{min-height:1px}
 [data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections){display:none!important}
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
-.fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #555;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
+.fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #26292e;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:12px;background:rgba(18,20,28,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.14);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.72);min-width:190px;z-index:10}
+.fx-feed-menu-actions{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:100%;margin-top:8px;padding:8px;background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.07);border-radius:12px;box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);min-width:190px;z-index:10}
 .fx-feed-menu:not([open])>.fx-feed-menu-actions{display:none}
 .fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
 .fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
 .fx-card-portrait .fx-card-visual img{object-fit:contain}
 .fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
-.fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#14151b;border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
-.fx-inline-studio{color:#f3f4f6;background:#14151b;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
-.fx-inline-studio button{font:inherit;color:#fff;background:#252630;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
-.fx-inline-studio button:hover{background:#323442}
+.fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#101113;border:1px solid #26292e;border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
+.fx-inline-studio{color:#f1f2f4;background:#101113;border:1px solid #26292e;border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.fx-inline-studio button{font:inherit;color:#f1f2f4;background:#1a1c20;border:1px solid #26292e;border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
+.fx-inline-studio button:hover{background:#26292e}
 .fx-dialog button.fx-btn-primary,.fx-inline-studio button.fx-btn-primary{background:#e50914;border-color:#ff2c37;color:#fff;font-weight:700}
 .fx-dialog button.fx-btn-primary:hover,.fx-inline-studio button.fx-btn-primary:hover{background:#f6121d}
 .fx-editor-tabs,.fx-editor-fields,.fx-order-row,.fx-category-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
-.fx-editor-tabs{position:sticky;top:-22px;background:#14151b;padding:12px 0;z-index:4;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.fx-editor-tabs{position:sticky;top:-22px;background:#101113;padding:12px 0;z-index:4;border-bottom:1px solid #26292e;margin-bottom:16px}
 .fx-inline-studio .fx-editor-tabs{position:static;padding-top:4px}
 .fx-editor-tabs [aria-pressed="true"]{background:#e50914!important;border-color:#ff2c37!important;color:#fff!important;font-weight:700}
-.fx-editor-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.fx-editor-section{background:#15171a;border:1px solid #26292e;border-radius:14px;padding:18px 20px;margin-bottom:18px}
 .fx-editor-section h3{margin:0 0 6px;font-size:1.12rem;color:#fff;border-left:3px solid #e50914;padding-left:10px}
 .fx-editor-help{margin:0 0 14px;font-size:.88rem;color:rgba(255,255,255,.66);line-height:1.45}
 .fx-editor-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,.86);min-width:130px;flex:1}
-.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:42px;background:#0e0f14;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px 11px;font:inherit}
+.fx-editor-field input,.fx-editor-field select{box-sizing:border-box;width:100%;min-height:42px;background:#0b0b0c;color:#f1f2f4;border:1px solid #26292e;border-radius:8px;padding:8px 11px;font:inherit}
 .fx-editor-field input[type="checkbox"]{width:20px;min-height:20px;accent-color:#e50914}
 .fx-editor-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .fx-order-list{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
-.fx-order-row{padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.22);flex-wrap:wrap}
+.fx-order-row{padding:10px 12px;border:1px solid #26292e;border-radius:10px;background:#101113;flex-wrap:wrap}
 .fx-order-label{flex:1;min-width:160px;font-weight:600;color:#fff}
 .fx-row-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.1);color:#ddd}
-.fx-row-badge-core{background:rgba(59,130,246,.22);color:#93c5fd;border:1px solid rgba(59,130,246,.4)}
+.fx-row-badge-core{background:rgba(255,255,255,.12);color:#e5e7eb;border:1px solid rgba(255,255,255,.22)}
 .fx-row-badge-category{background:rgba(229,9,20,.22);color:#fca5a5;border:1px solid rgba(229,9,20,.4)}
 .fx-row-badge-rotating{background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.38)}
-.fx-chip-toggles .fx-editor-field{flex:0 0 auto;min-width:0;flex-direction:row;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+.fx-chip-toggles .fx-editor-field{flex:0 0 auto;min-width:0;flex-direction:row;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#1a1c20;border:1px solid #26292e}
 .fx-explorer-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .fx-subtab-btn.is-active{background:rgba(229,9,20,.24)!important;border-color:#e50914!important;color:#fff!important;font-weight:700}
 .fx-explorer-search,.fx-library-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.fx-explorer-search input,.fx-library-toolbar input{flex:1;min-width:220px;min-height:42px;background:#0e0f14;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:8px 14px;font:inherit}
+.fx-explorer-search input,.fx-library-toolbar input{flex:1;min-width:220px;min-height:42px;background:#0b0b0c;color:#f1f2f4;border:1px solid #26292e;border-radius:10px;padding:8px 14px;font:inherit}
 .fx-candidate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;max-height:340px;overflow-y:auto;padding-right:4px}
-.fx-candidate-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.08)}
+.fx-candidate-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:#101113;border:1px solid #26292e}
 .fx-candidate-card.is-enabled{background:rgba(229,9,20,.14);border-color:rgba(229,9,20,.45)}
 .fx-candidate-main{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0;flex:1}
 .fx-candidate-main input[type="checkbox"]{width:18px;height:18px;accent-color:#e50914;flex:0 0 18px}
@@ -1160,24 +1163,24 @@
 .fx-candidate-count{font-size:.76rem;color:rgba(255,255,255,.58)}
 .fx-btn-mini{min-height:32px!important;padding:4px 10px!important;font-size:.78rem!important;border-radius:999px!important}
 .fx-btn-mini.is-pinned{background:rgba(229,9,20,.25)!important;border-color:#e50914!important}
-.fx-template-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07)}
+.fx-template-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#101113;border:1px solid #26292e}
 .fx-template-label{font-size:.82rem;font-weight:700;color:rgba(255,255,255,.7);margin-right:4px}
 .fx-category-list{display:flex;flex-direction:column;gap:8px;max-height:440px;overflow-y:auto;padding-right:4px}
-.fx-category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.22)}
+.fx-category-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid #26292e;border-radius:10px;background:#101113}
 .fx-category-row.is-editing{border-color:#e50914;background:rgba(229,9,20,.1)}
 .fx-category-main{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}
 .fx-category-main .fx-editor-field{flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:10px;font-size:.95rem;font-weight:700;color:#fff}
 .fx-category-main input{flex:0 0 18px;width:18px;min-height:18px}
 .fx-category-meta{font-size:.8rem;color:rgba(255,255,255,.6);padding-left:28px}
 .fx-category-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.fx-rule-form{margin:14px 0 18px;padding:18px;border:1px solid rgba(229,9,20,.5);border-radius:12px;background:rgba(16,17,23,.95);display:flex;flex-direction:column;gap:14px}
+.fx-rule-form{margin:14px 0 18px;padding:18px;border:1px solid rgba(229,9,20,.5);border-radius:12px;background:#101113;display:flex;flex-direction:column;gap:14px}
 .fx-rule-form legend{font-weight:800;color:#fff;padding:0 8px;font-size:1rem}
 .fx-editor-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .fx-meta-col{display:flex;flex-direction:column;gap:6px}
 .fx-quick-picks{display:flex;flex-wrap:wrap;gap:6px}
-.fx-pick-chip{min-height:28px!important;padding:3px 9px!important;font-size:.75rem!important;border-radius:999px!important;background:rgba(255,255,255,.06)!important}
+.fx-pick-chip{min-height:28px!important;padding:3px 9px!important;font-size:.75rem!important;border-radius:999px!important;background:#1a1c20!important}
 .fx-pick-chip.is-selected{background:rgba(229,9,20,.25)!important;border-color:#e50914!important}
-.fx-advanced{margin-top:18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;background:rgba(0,0,0,.2)}.fx-advanced>summary{padding:8px 4px;cursor:pointer;font-weight:600}.fx-advanced textarea{margin-top:12px}
+.fx-advanced{margin-top:18px;border:1px solid #26292e;border-radius:12px;padding:8px 14px;background:#101113}.fx-advanced>summary{padding:8px 4px;cursor:pointer;font-weight:600}.fx-advanced textarea{margin-top:12px}
 .fx-editor-alert{color:#fde047;font-weight:600}
 @supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
 @media(hover:none){.fx-card-more{opacity:1}}
@@ -1189,16 +1192,16 @@
 .fx-title-picker:hover{background:rgba(255,255,255,.06)}
 .fx-title-picker:focus-within{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 5px rgba(229,9,20,.5)}
 .fx-toolbar h1{font-size:28px;line-height:34px;font-weight:700;margin:0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
-.fx-title-mode{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(18,20,28,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);font-size:.9rem;font-weight:600;color:#f3f4f6;transition:background .15s ease,border-color .15s ease}
-.fx-title-picker:hover .fx-title-mode{background:rgba(229,9,20,.18);border-color:rgba(229,9,20,.5);color:#fff}
-.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#fff;background:#14151b}
-.fx-title-select option{background:#14151b;color:#fff;padding:8px 12px}
-.fx-dropdown-menu{position:absolute;left:0;top:calc(100% + 8px);min-width:210px;padding:8px;background:rgba(18,20,28,.96);backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.14);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.75);display:flex;flex-direction:column;gap:4px;z-index:1000}
+.fx-title-mode{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;background:rgba(22,22,24,.82);backdrop-filter:blur(14px);border:1px solid #26292e;font-size:.9rem;font-weight:600;color:#f1f2f4;transition:background .15s ease,border-color .15s ease}
+.fx-title-picker:hover .fx-title-mode{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);color:#fff}
+.fx-title-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font:inherit;color:#f1f2f4;background:#101113}
+.fx-title-select option{background:#101113;color:#f1f2f4;padding:8px 12px}
+.fx-dropdown-menu{position:absolute;left:0;top:calc(100% + 8px);min-width:210px;padding:6px;background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.07);border-radius:12px;box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);display:flex;flex-direction:column;gap:2px;z-index:1000}
 .fx-dropdown-menu[hidden]{display:none!important}
-.fx-discovery button.fx-dropdown-item{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:10px 14px;min-height:40px;border-radius:10px;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.86);font-size:.93rem;font-weight:600}
-.fx-discovery button.fx-dropdown-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.fx-discovery button.fx-dropdown-item.is-selected{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.45);color:#fff;font-weight:700}
-.fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#181920;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
+.fx-discovery button.fx-dropdown-item{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:8px 10px;min-height:38px;border-radius:8px;border:0;background:transparent;color:rgba(255,255,255,.72);font-size:13px;font-weight:500}
+.fx-discovery button.fx-dropdown-item:hover{background:rgba(255,255,255,.12);color:#f1f2f4}
+.fx-discovery button.fx-dropdown-item.is-selected{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
+.fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#1a1c20;color:#f1f2f4;border:1px solid #26292e;border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 
 /* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections (Single Red Bar) */
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
@@ -1249,71 +1252,89 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Pl
   display:none!important;
 }
 
-/* SleekFin-Styled Dropdown Menus for Page View Switchers (Movies, Shows, Live TV, Collections) & User Menu */
+/* SleekFin Three-Dots Style Dropdown Menus Across All Switchers (Movies, Shows, Live TV, Collections, Season X, Downloads & User Menu) Without Dimming Background */
+html.sleekfin-main-ui :is(.MuiPopover-root,.MuiMenu-root,#library-view-menu,#app-user-menu) > .MuiBackdrop-root,
+html.sleekfin-main-ui .MuiBackdrop-root.MuiBackdrop-invisible,
+.MuiPopover-root > .MuiBackdrop-root,
+.MuiMenu-root > .MuiBackdrop-root,
+.MuiBackdrop-root.MuiBackdrop-invisible,
+html.sleekfin-main-ui .dialogBackdrop:has(+ .dialogContainer .sleekfin-more-menu),
+html.sleekfin-main-ui .dialogBackdrop:has(+ .sleekfin-more-menu),
+html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContainer .actionSheet){
+  background:transparent!important;
+  background-color:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  opacity:0!important;
+}
 .MuiPopover-root .MuiPaper-root,
 .MuiMenu-paper,
 #library-view-menu .MuiPaper-root,
 #app-user-menu .MuiPaper-root,
 .dialog.actionSheet{
-  background:rgba(18,20,28,.95)!important;
-  backdrop-filter:blur(22px) saturate(150%)!important;
-  -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
-  border:1px solid rgba(255,255,255,.13)!important;
-  border-radius:16px!important;
-  box-shadow:0 24px 64px rgba(0,0,0,.76)!important;
-  color:#f3f4f6!important;
+  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82)!important;
+  backdrop-filter:blur(18px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
   padding:6px!important;
   overflow:hidden!important;
 }
 .MuiPopover-root .MuiList-root,
 #library-view-menu .MuiList-root,
 #app-user-menu .MuiList-root{
-  padding:2px!important;
+  padding:0!important;
 }
 .MuiPopover-root .MuiMenuItem-root,
 #library-view-menu .MuiMenuItem-root,
 #app-user-menu .MuiMenuItem-root,
 .dialog.actionSheet .listItem{
-  border-radius:10px!important;
-  margin:2px 0!important;
-  padding:9px 14px!important;
-  font-size:.93rem!important;
-  font-weight:600!important;
-  color:rgba(255,255,255,.86)!important;
-  min-height:40px!important;
-  transition:background .14s ease,color .14s ease!important;
+  border-radius:8px!important;
+  margin:1px 0!important;
+  padding:8px 10px!important;
+  border:0!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  line-height:1.25!important;
+  color:rgba(255,255,255,.72)!important;
+  min-height:38px!important;
+  background:transparent!important;
+  transition:background-color .14s ease,color .14s ease!important;
 }
 .MuiPopover-root .MuiMenuItem-root:hover,
 #library-view-menu .MuiMenuItem-root:hover,
 #app-user-menu .MuiMenuItem-root:hover,
 .dialog.actionSheet .listItem:hover{
-  background:rgba(255,255,255,.09)!important;
-  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected,
 #library-view-menu .MuiMenuItem-root.Mui-selected,
 #app-user-menu .MuiMenuItem-root.Mui-selected{
-  background:rgba(229,9,20,.22)!important;
-  border:1px solid rgba(229,9,20,.45)!important;
+  background:rgba(255,255,255,.14)!important;
+  border:0!important;
   color:#fff!important;
-  font-weight:700!important;
+  font-weight:600!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected:hover,
 #library-view-menu .MuiMenuItem-root.Mui-selected:hover{
-  background:rgba(229,9,20,.32)!important;
+  background:rgba(255,255,255,.18)!important;
 }
 .MuiPopover-root .MuiDivider-root,
 #app-user-menu .MuiDivider-root{
-  border-color:rgba(255,255,255,.1)!important;
-  margin:6px 4px!important;
+  border-color:rgba(255,255,255,.08)!important;
+  margin:5px 4px!important;
 }
 #app-user-menu .MuiListItemIcon-root{
-  color:rgba(255,255,255,.78)!important;
-  min-width:34px!important;
+  color:rgba(255,255,255,.72)!important;
+  min-width:30px!important;
 }
 
-/* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search */
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+/* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search (Single Red Bar Only) */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
   font-size:24px!important;
   line-height:32px!important;
   font-weight:600!important;
@@ -1323,7 +1344,21 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Pl
   color:#fff!important;
   opacity:1!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
+  display:none!important;
+  content:none!important;
+}
+.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a),
+#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards){
+  border-left:0!important;
+  padding-left:0!important;
+}
+.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a)::before,
+#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards)::before{
+  display:none!important;
+  content:none!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .sectionTitleTextButton{
   padding:0!important;
   margin:0 auto 0 0!important;
   background:transparent!important;
@@ -1331,47 +1366,161 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Pl
   opacity:1!important;
   text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) .sectionTitleTextButton > .material-icons{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .sectionTitleTextButton > .material-icons{
   color:rgba(255,255,255,.75)!important;
   opacity:1!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   margin-bottom:14px!important;
   display:flex!important;
   align-items:center!important;
 }
 
-/* Unify Horizontal Gutter Alignment, Vertical Top Spacing & Card Sizes Across Movies, Shows, Live TV, and Collections */
-:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-left{
+/* Season X Selector on Show Detail Pages: Borderless Title + Unified Caret + SleekFin Dropdown */
+.sleekfin-details-season-select{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:2px 10px 2px 0!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  border-radius:0 10px 10px 0!important;
+  cursor:pointer!important;
+  position:relative!important;
+}
+.sleekfin-details-season-select:hover{
+  background:rgba(255,255,255,.06)!important;
+}
+.sleekfin-details-season-select .selectContainer{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  display:inline-flex!important;
+  align-items:center!important;
+}
+.sleekfin-details-season-select .selectArrowContainer,
+.sleekfin-details-season-select .selectLabel{
+  display:none!important;
+}
+.sleekfin-details-season-select :is(select,.emby-select,.sleekfin-details-season-native){
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  -moz-appearance:none!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  padding:0!important;
+  margin:0!important;
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  cursor:pointer!important;
+  pointer-events:none!important;
+  width:auto!important;
+}
+.sleekfin-details-season-select::after{
+  content:""!important;
+  position:static!important;
+  display:inline-block!important;
+  width:24px!important;
+  height:24px!important;
+  margin-left:2px!important;
+  border:0!important;
+  transform:none!important;
+  background-color:rgba(255,255,255,.78)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") center/24px 24px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") center/24px 24px no-repeat!important;
+  pointer-events:none!important;
+  flex-shrink:0!important;
+}
+
+/* Hide A-Z Right Sidebar on Collections -> Genres & Empty/Favorites Subpages */
+#boxsetsPage > .alphaPicker-fixed-right,
+#boxsetsPage:has(.emby-scroller) .alphaPicker-fixed-right,
+#boxsetsPage:has(.emby-scroller) .alphaPicker,
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .padded-bottom-page:has(.noItemsMessage) .alphaPicker-fixed-right,
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.noItemsMessage) > .alphaPicker-fixed-right,
+.pageTabContent[data-index="2"] .alphaPicker,
+.pageTabContent[data-index="2"] .alphaPicker-fixed-right,
+.pageTabContent[data-index="3"] .alphaPicker,
+.pageTabContent[data-index="3"] .alphaPicker-fixed-right,
+.pageTabContent[data-index="4"] .alphaPicker,
+.pageTabContent[data-index="4"] .alphaPicker-fixed-right{
+  display:none!important;
+}
+
+/* Comfortable Spacing for Empty Library / Favorites Views ("Nothing here / No Items are currently available.") */
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) .noItemsMessage{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:16px!important;
+  padding:88px 24px!important;
+  margin:24px auto!important;
+  max-width:520px!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) .noItemsMessage :is(h1,.MuiTypography-h1){
+  font-size:1.55rem!important;
+  line-height:1.3!important;
+  font-weight:700!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
+  margin:0!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) .noItemsMessage :is(p,.MuiTypography-body1){
+  font-size:.98rem!important;
+  line-height:1.6!important;
+  color:var(--sleekfin-muted,#969aa1)!important;
+  margin:0!important;
+}
+
+/* Unify Horizontal Gutter Alignment, Right Boundary, Vertical Top Spacing & Card Spacing Across Movies, Shows, Live TV, and Collections */
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-left,
+:is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
 }
-:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-right{
-  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .padded-right,
+:is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+  padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
 }
 :is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller{
-  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
-  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
-  margin-left:0!important;
-  margin-right:0!important;
+  margin-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  box-sizing:border-box!important;
 }
 :is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .emby-scroller .itemsContainer{
   column-gap:14px!important;
 }
-:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardBox{
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) :is(.cardBox,.cardBox-bottompadded,.card.portraitCard .cardBox,.card.overflowPortraitCard .cardBox){
   margin:0!important;
+  margin-inline-end:0!important;
+  margin-bottom:0!important;
 }
-:is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardScalable{
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .cardScalable{
   border-radius:9px!important;
   overflow:hidden!important;
 }
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page,
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .pageTabContent.is-active > .itemsContainer{
-  padding-top:18px!important;
+  padding-top:14px!important;
   margin-top:0!important;
 }
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+  padding-top:0!important;
   padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
-  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  margin-top:0!important;
   margin-left:0!important;
   margin-right:0!important;
   width:100%!important;
@@ -1404,9 +1553,8 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Pl
   margin:0!important;
 }
 
-#moviesPage:has(.fx-discovery),#tvshowsPage:has(.fx-discovery),#tvRecommendedPage:has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
-[data-sleekfin-header="modern"] ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery),
-header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:0!important}
+html:not(:has(header.MuiAppBar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
+html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage){padding-top:0!important;margin-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
@@ -1425,9 +1573,9 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   opacity:0;
   pointer-events:none;
   border-radius:999px;
-  background:rgba(14,16,22,.96);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.88);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
   border:1px solid transparent;
   transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
   box-sizing:border-box;
@@ -1436,9 +1584,9 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   width:clamp(220px,24vw,340px);
   opacity:1;
   pointer-events:auto;
-  border-color:rgba(255,255,255,.32);
+  border-color:rgba(255,255,255,.22);
   padding:4px 10px 4px 12px;
-  box-shadow:0 12px 32px rgba(0,0,0,.65);
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);
 }
 .fx-header-search.is-open:focus-within{
   border-color:var(--sleekfin-accent,#e50914);
@@ -1488,7 +1636,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   right:0;
   bottom:0;
   z-index:1080;
-  background:#0b0c10;
+  background:var(--sleekfin-bg,#070809);
   overflow-y:auto;
   padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 64px;
   box-sizing:border-box;
@@ -1543,51 +1691,65 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   margin-top:24px;
 }
 
-/* Download Quality Dropdown Menu (Full Quality vs Condensed 1080p) */
+/* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button) */
 .fx-download-menu{
   position:fixed;
   z-index:100005;
-  width:min(310px,92vw);
-  padding:8px;
-  background:rgba(18,20,28,.96);
-  backdrop-filter:blur(22px) saturate(150%);
-  -webkit-backdrop-filter:blur(22px) saturate(150%);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:16px;
-  box-shadow:0 24px 64px rgba(0,0,0,.78);
+  width:min(300px,92vw);
+  padding:6px;
+  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:2px;
   box-sizing:border-box;
+}
+.fx-download-menu.fx-season-menu{
+  width:min(210px,86vw);
+  max-height:min(340px,70vh);
+  overflow-y:auto;
 }
 .fx-download-option{
   display:flex;
   flex-direction:column;
   align-items:flex-start;
+  justify-content:center;
   gap:3px;
   width:100%;
   text-align:left;
-  padding:10px 14px;
-  border-radius:11px;
-  border:1px solid rgba(255,255,255,.07);
-  background:rgba(255,255,255,.03);
-  color:#fff;
-  font:inherit;
+  padding:8px 10px;
+  min-height:38px;
+  border-radius:8px;
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,.72);
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:13px;
+  font-weight:500;
   cursor:pointer;
-  transition:background .15s ease,border-color .15s ease;
+  transition:background-color .14s ease,color .14s ease;
 }
 .fx-download-option:hover{
-  background:rgba(229,9,20,.2);
-  border-color:rgba(229,9,20,.5);
+  background:rgba(255,255,255,.12);
+  color:var(--sleekfin-text,#f1f2f4);
+}
+.fx-download-option.is-selected{
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  font-weight:600;
 }
 .fx-download-option-title{
-  font-size:.93rem;
-  font-weight:700;
-  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  color:var(--sleekfin-text,#f1f2f4);
 }
 .fx-download-option-sub{
-  font-size:.78rem;
-  color:rgba(255,255,255,.64);
+  font-size:11.5px;
+  color:rgba(255,255,255,.58);
   line-height:1.35;
 }
 
@@ -1601,8 +1763,8 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   box-sizing:border-box!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
-  background:rgba(22,23,30,.92)!important;
-  border:1px solid rgba(255,255,255,.09)!important;
+  background:#101113!important;
+  border:1px solid #26292e!important;
   border-radius:16px!important;
   padding:22px 24px!important;
   margin:0 0 20px!important;
@@ -1619,21 +1781,21 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   margin:0 0 16px!important;
 }
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border{
-  background:rgba(255,255,255,.035)!important;
-  border:1px solid rgba(255,255,255,.09)!important;
+  background:#1a1c20!important;
+  border:1px solid #26292e!important;
   border-radius:12px!important;
   margin:0 0 10px!important;
   padding:10px 14px!important;
   transition:background .15s ease,border-color .15s ease!important;
 }
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover{
-  background:rgba(255,255,255,.08)!important;
+  background:#26292e!important;
   border-color:rgba(255,255,255,.2)!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input,select.emby-select,.inputContainer input,.selectContainer select){
-  background:#0e0f14!important;
-  color:#f3f4f6!important;
-  border:1px solid rgba(255,255,255,.16)!important;
+  background:#0b0b0c!important;
+  color:#f1f2f4!important;
+  border:1px solid #26292e!important;
   border-radius:10px!important;
   padding:10px 12px!important;
   min-height:42px!important;
@@ -1683,7 +1845,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
-  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
+  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
   .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
   .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
 }
@@ -2874,14 +3036,15 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.6";
+      const VERSION = "0.4.7";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
       let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
       const snapshots = /* @__PURE__ */ new Map();
       const savedFeeds = /* @__PURE__ */ new Map();
-      let activeDialog = null, lastScope = "", selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null;
+      const loadedImages = /* @__PURE__ */ new Set();
+      let activeDialog = null, lastScope = "", selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null, downloadMenuTrigger = null;
       const element = (tag, cls, text) => {
         const n = document.createElement(tag);
         if (cls) n.className = cls;
@@ -2901,6 +3064,26 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
       const configKey = (api) => `fazfort-discovery:config:v1:${scopeKey(api)}`;
       const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
       const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v1:${scope}:${route.page}:${route.parentId || ""}:${route.view || "home"}`;
+      const trackingCacheKey = (scope) => `fazfort-discovery:tracking:v1:${scope}`;
+      function readTrackingCache(scope) {
+        if (!scope) return /* @__PURE__ */ new Map();
+        try {
+          const raw = localStorage.getItem(trackingCacheKey(scope));
+          if (!raw) return /* @__PURE__ */ new Map();
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.entries)) return /* @__PURE__ */ new Map();
+          return new Map(parsed.entries);
+        } catch {
+          return /* @__PURE__ */ new Map();
+        }
+      }
+      function writeTrackingCache(scope, map) {
+        if (!scope || !(map instanceof Map)) return;
+        try {
+          localStorage.setItem(trackingCacheKey(scope), JSON.stringify({ at: Date.now(), entries: [...map.entries()] }));
+        } catch {
+        }
+      }
       function readBootRows(s, configStr) {
         if (s.full || s.route.view === "genres") return null;
         try {
@@ -2965,6 +3148,14 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             const modMap = req(95753);
             const map = modMap == null ? void 0 : modMap.A;
             if (map == null ? void 0 : map.movies) {
+              if (map.movies[2] && typeof map.movies[2] === "object") {
+                map.movies[2].isAlphabetPickerEnabled = false;
+                map.movies[2].isAlphaPickerEnabled = false;
+              }
+              if (map.movies[4] && typeof map.movies[4] === "object") {
+                map.movies[4].isAlphabetPickerEnabled = false;
+                map.movies[4].isAlphaPickerEnabled = false;
+              }
               Object.values(map.movies).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
@@ -2982,8 +3173,13 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
                 isBtnFilterEnabled: true,
                 isBtnGridListEnabled: true,
                 isBtnSortEnabled: true,
-                isAlphaPickerEnabled: true
+                isAlphabetPickerEnabled: false,
+                isAlphaPickerEnabled: false
               };
+              if (map.tvshows[3] && typeof map.tvshows[3] === "object") {
+                map.tvshows[3].isAlphabetPickerEnabled = false;
+                map.tvshows[3].isAlphaPickerEnabled = false;
+              }
               Object.values(map.tvshows).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
@@ -2992,6 +3188,14 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
               });
             }
             if (map == null ? void 0 : map.boxsets) {
+              if (map.boxsets[1] && typeof map.boxsets[1] === "object") {
+                map.boxsets[1].isAlphabetPickerEnabled = false;
+                map.boxsets[1].isAlphaPickerEnabled = false;
+              }
+              if (map.boxsets[2] && typeof map.boxsets[2] === "object") {
+                map.boxsets[2].isAlphabetPickerEnabled = false;
+                map.boxsets[2].isAlphaPickerEnabled = false;
+              }
               Object.values(map.boxsets).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
@@ -3205,8 +3409,38 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         }
         return item.Id ? `#/details?${q}` : "";
       }
+      function attachSimilarControls(entry, card, item, s, name) {
+        var _a2, _b2;
+        if (entry.querySelector(".fx-card-more")) return;
+        if (["Movie", "Series"].includes(item.Type) && ((_b2 = (_a2 = s.inventory) == null ? void 0 : _a2.items) == null ? void 0 : _b2.some((i) => i.Id === item.Id))) {
+          const more = button("\u22EF", () => moreLikeThis(item, s));
+          more.className = "fx-card-more";
+          more.title = "More like this";
+          more.setAttribute("aria-label", `More like ${name}`);
+          entry.append(more);
+          card.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            moreLikeThis(item, s);
+          });
+        }
+      }
+      function syncEntryBadge(entry, item, s) {
+        const visual = entry.querySelector(".fx-card-visual");
+        if (!visual) return;
+        const text = badgeFor(item, s.badges, s.now, s.tracking);
+        let badge = visual.querySelector(".fx-badge");
+        if (!text) {
+          badge == null ? void 0 : badge.remove();
+          return;
+        }
+        if (!badge) {
+          badge = element("span", "fx-badge");
+          visual.append(badge);
+        }
+        if (badge.textContent !== text) badge.textContent = text;
+      }
       function renderCard(item, s, withSimilar = true, layout = "landscape") {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2;
         const card = element("a", "fx-card");
         card.href = itemHref(item, s.api) || "#";
         card.dataset.itemId = item.Id || "";
@@ -3226,18 +3460,31 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const choices = imageChoices(item, s.api, layout);
         if (choices.length) {
           placeholder.hidden = true;
-          visual.classList.add("is-loading");
+          const firstCached = loadedImages.has(choices[0].url);
+          if (!firstCached) visual.classList.add("is-loading");
           const img = element("img");
           img.alt = "";
-          img.loading = "lazy";
-          img.decoding = "async";
+          img.loading = firstCached ? "eager" : "lazy";
+          img.decoding = firstCached ? "sync" : "async";
           let index = 0;
           const use = () => {
             const choice = choices[index++];
-            img.className = choice.poster ? "fx-poster" : "";
+            const cached = loadedImages.has(choice.url);
+            img.className = (choice.poster ? "fx-poster" : "") + (cached ? " is-loaded is-instant" : "");
+            if (cached) visual.classList.remove("is-loading");
             img.src = choice.url;
+            if (img.complete && img.naturalWidth > 0) {
+              loadedImages.add(choice.url);
+              placeholder.hidden = true;
+              visual.classList.remove("is-loading");
+              img.classList.add("is-loaded", "is-instant");
+            }
           };
           img.addEventListener("load", () => {
+            var _a3;
+            const activeUrl = (_a3 = choices[Math.max(0, index - 1)]) == null ? void 0 : _a3.url;
+            if (activeUrl) loadedImages.add(activeUrl);
+            if (img.currentSrc) loadedImages.add(img.currentSrc);
             placeholder.hidden = true;
             visual.classList.remove("is-loading");
             img.classList.add("is-loaded");
@@ -3269,17 +3516,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         card.title = name;
         const entry = element("div", `fx-card-entry fx-card-${layout}`);
         entry.append(card);
-        if (withSimilar && ["Movie", "Series"].includes(item.Type) && ((_d2 = (_c2 = s.inventory) == null ? void 0 : _c2.items) == null ? void 0 : _d2.some((i) => i.Id === item.Id))) {
-          const more = button("\u22EF", () => moreLikeThis(item, s));
-          more.className = "fx-card-more";
-          more.title = "More like this";
-          more.setAttribute("aria-label", `More like ${name}`);
-          entry.append(more);
-          card.addEventListener("contextmenu", (event) => {
-            event.preventDefault();
-            moreLikeThis(item, s);
-          });
-        }
+        if (withSimilar) attachSimilarControls(entry, card, item, s, name);
         return entry;
       }
       function snapScrollDelta(track, direction, fallbackStep) {
@@ -3300,7 +3537,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         return best - current;
       }
       function fillSlot(slot, s) {
-        var _a2, _b2;
+        var _a2, _b2, _c2, _d2;
         const row = slot.data;
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
@@ -3399,16 +3636,64 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const token = row.family === "anchor" ? `anchor:${row.key}` : row.family === "theme" ? row.key : `family:${row.family}`;
         const requested = ((_b2 = (_a2 = s.profile) == null ? void 0 : _a2.layouts) == null ? void 0 : _b2[token]) || row.layout || "auto";
         const portraitOnly = row.key !== "MyMedia" && row.items.filter((i) => {
-          var _a3, _b3, _c2, _d2, _e2;
-          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b3 = i.BackdropImageTags) == null ? void 0 : _b3.length) && !((_c2 = i.ParentBackdropImageTags) == null ? void 0 : _c2.length) && (((_d2 = i.ImageTags) == null ? void 0 : _d2.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
+          var _a3, _b3, _c3, _d3, _e2;
+          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b3 = i.BackdropImageTags) == null ? void 0 : _b3.length) && !((_c3 = i.ParentBackdropImageTags) == null ? void 0 : _c3.length) && (((_d3 = i.ImageTags) == null ? void 0 : _d3.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
         }).length > row.items.length / 2;
         const layout = s.route.view === "genres" ? "landscape" : requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
+        const existingTrack = slot.node.querySelector(".fx-track");
+        if (existingTrack && slot.node.dataset.layout === layout) {
+          const existingEntries = [...existingTrack.querySelectorAll(".fx-card-entry")];
+          const expectedIds = [];
+          for (let copy = 0; copy < copies; copy++) {
+            row.items.forEach((item) => expectedIds.push(item.Id || ""));
+          }
+          if (existingEntries.length === expectedIds.length && existingEntries.every((el, idx) => {
+            var _a3, _b3;
+            return (((_b3 = (_a3 = el.querySelector(".fx-card")) == null ? void 0 : _a3.dataset) == null ? void 0 : _b3.itemId) || "") === expectedIds[idx];
+          })) {
+            const existingHeading = slot.node.querySelector(".fx-row-head h2");
+            if (existingHeading && existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+            existingEntries.forEach((entry, idx) => {
+              const item = row.items[idx % baseCount];
+              const card = entry.querySelector(".fx-card");
+              if (item && card) {
+                const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
+                attachSimilarControls(entry, card, item, s, name);
+                syncEntryBadge(entry, item, s);
+              }
+            });
+            slot.node.className = "fx-shelf";
+            slot.node.style.height = "";
+            slot.live = true;
+            return;
+          }
+        }
+        const reusablePool = /* @__PURE__ */ new Map();
+        if (existingTrack && slot.node.dataset.layout === layout) {
+          for (const entry of existingTrack.querySelectorAll(".fx-card-entry")) {
+            const itemId = ((_d2 = (_c2 = entry.querySelector(".fx-card")) == null ? void 0 : _c2.dataset) == null ? void 0 : _d2.itemId) || "";
+            if (!itemId) continue;
+            if (!reusablePool.has(itemId)) reusablePool.set(itemId, []);
+            reusablePool.get(itemId).push(entry);
+          }
+        }
+        const preservedScroll = existingTrack ? existingTrack.scrollLeft : slot.scrollLeft || 0;
         slot.node.dataset.layout = layout;
         head.append(title, back, forward);
         for (let copy = 0; copy < copies; copy++) {
           row.items.forEach((item) => {
-            const cardNode = renderCard(item, s, true, layout);
+            const pool = item.Id ? reusablePool.get(item.Id) : null;
+            let cardNode = (pool == null ? void 0 : pool.length) ? pool.shift() : null;
+            if (cardNode) {
+              const card = cardNode.querySelector(".fx-card");
+              const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
+              if (card) attachSimilarControls(cardNode, card, item, s, name);
+              syncEntryBadge(cardNode, item, s);
+            } else {
+              cardNode = renderCard(item, s, true, layout);
+            }
             if (copy > 0) cardNode.dataset.loopClone = String(copy);
+            else delete cardNode.dataset.loopClone;
             track.append(cardNode);
           });
         }
@@ -3416,7 +3701,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         slot.node.className = "fx-shelf";
         slot.node.style.height = "";
         slot.live = true;
-        if (slot.scrollLeft) track.scrollLeft = slot.scrollLeft;
+        if (preservedScroll) track.scrollLeft = preservedScroll;
       }
       function virtualize(s) {
         var _a2;
@@ -3683,7 +3968,6 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
               if (row.items.length) return row;
             } catch {
               s.client.assertCurrent();
-              s.warnings.add(`Couldn't load ${id}.`);
             }
           } else {
             const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7)) : null;
@@ -3700,7 +3984,6 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
               if (row.items.length) return row;
             } catch {
               s.client.assertCurrent();
-              s.warnings.add(`Couldn't load ${id}. Check HSS/Jellyseerr, then restart this feed.`);
             }
           } else {
             s.anchorTurn = true;
@@ -3728,21 +4011,31 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length && !s.full) {
-              if (s.slots.some((slot) => slot.boot)) {
-                s.slots = [];
-                s.list.replaceChildren();
+              const hydratedRow = { ...row, items };
+              const existingBoot = s.slots.find((slot) => {
+                var _a2;
+                return slot.boot && ((_a2 = slot.data) == null ? void 0 : _a2.key) === hydratedRow.key;
+              }) || s.slots.find((slot) => slot.boot);
+              if (existingBoot) {
+                s.list.querySelectorAll('[data-skeleton="true"]').forEach((node) => node.remove());
+                existingBoot.boot = false;
+                delete existingBoot.node.dataset.bootRow;
+                existingBoot.node.dataset.shelfKey = hydratedRow.key;
+                existingBoot.data = hydratedRow;
+                fillSlot(existingBoot, s);
+              } else {
+                appendRow(hydratedRow, s);
               }
-              appendRow({ ...row, items }, s);
               s.failed = false;
               s.footer.hidden = s.full;
               syncNative(s, true);
             }
             s.pending = null;
           }
-          if (s.slots.some((slot) => slot.boot)) {
-            s.slots = [];
-            s.list.replaceChildren();
+          for (const staleBoot of s.slots.filter((slot) => slot.boot)) {
+            staleBoot.node.remove();
           }
+          s.slots = s.slots.filter((slot) => !slot.boot);
           s.list.querySelectorAll('[data-skeleton="true"]').forEach((n) => n.remove());
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
@@ -3884,16 +4177,17 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
           if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
           s.badges = seasonBadges(s.inventory.seasons, s.now);
-          s.tracking = null;
-          s.inventory.tracking = /* @__PURE__ */ new Map();
+          if (!(s.tracking instanceof Map)) s.tracking = readTrackingCache(s.scope);
+          s.inventory.tracking = s.tracking;
           s.byId = new Map(s.inventory.items.map((i) => [i.Id, i]));
           s.filterToggle.disabled = s.full;
           decorateNative(s);
           const trackingTask = s.client.tracking(s.inventory.items).then((arrival) => {
             if (state !== s) return;
-            s.tracking = arrival.records;
+            s.tracking = arrival.records instanceof Map ? arrival.records : /* @__PURE__ */ new Map();
             s.trackingReady = arrival.ready;
             s.inventory.tracking = s.tracking;
+            if (arrival.ready) writeTrackingCache(s.scope, s.tracking);
             decorateNative(s);
             refreshSlotBadges(s);
           }).catch(() => {
@@ -3948,22 +4242,68 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           downloadMenu.remove();
           downloadMenu = null;
         }
+        downloadMenuTrigger = null;
       }
-      function triggerUrlDownload(url) {
+      function sanitizeFilename(raw, fallback = "video") {
+        const cleaned = String(raw || "").replace(/[<>:"/\\|?*\x00-\x1f]+/g, " ").replace(/\s+/g, " ").trim().replace(/[. ]+$/g, "");
+        return cleaned || fallback;
+      }
+      function formatItemDownloadBase(item) {
+        if (!(item == null ? void 0 : item.Name)) return "";
+        if (item.Type === "Episode" && item.SeriesName) {
+          const sNum = Number.isFinite(item.ParentIndexNumber) ? `S${String(item.ParentIndexNumber).padStart(2, "0")}` : "";
+          const eNum = Number.isFinite(item.IndexNumber) ? `E${String(item.IndexNumber).padStart(2, "0")}` : "";
+          const code = sNum || eNum ? ` - ${sNum}${eNum}` : "";
+          return sanitizeFilename(`${item.SeriesName}${code} - ${item.Name}`);
+        }
+        return sanitizeFilename(item.Name);
+      }
+      function inferDownloadTitle(itemId, btn) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+        const cached = ((_a2 = state == null ? void 0 : state.byId) == null ? void 0 : _a2.get(itemId)) || ((_c2 = (_b2 = state == null ? void 0 : state.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.find((i) => i.Id === itemId));
+        if (cached == null ? void 0 : cached.Name) return formatItemDownloadBase(cached);
+        const epCard = (_d2 = btn == null ? void 0 : btn.closest) == null ? void 0 : _d2.call(btn, ".sleekfin-details-episode-card,[data-sleekfin-episode-id]");
+        if (epCard) {
+          const epTitle = (_f = (_e2 = epCard.querySelector(".sleekfin-details-episode-title,.cardText-first")) == null ? void 0 : _e2.textContent) == null ? void 0 : _f.trim();
+          const seriesTitle = (_h = (_g = document.querySelector("#itemDetailPage .sleekfin-details-title,#itemDetailPage .itemName,#itemDetailPage h1")) == null ? void 0 : _g.textContent) == null ? void 0 : _h.trim();
+          if (seriesTitle && epTitle) return sanitizeFilename(`${seriesTitle} - ${epTitle}`);
+          if (epTitle) return sanitizeFilename(epTitle);
+        }
+        const detailTitle = (_j = (_i = document.querySelector("#itemDetailPage .sleekfin-details-title,#itemDetailPage .itemName,#itemDetailPage h1")) == null ? void 0 : _i.textContent) == null ? void 0 : _j.trim();
+        if (detailTitle) return sanitizeFilename(detailTitle);
+        return "";
+      }
+      function triggerUrlDownload(url, filename = "") {
         const a = element("a");
         a.href = url;
-        a.setAttribute("download", "");
+        a.setAttribute("download", filename || "");
         a.rel = "noopener noreferrer";
         document.body.append(a);
         a.click();
         a.remove();
       }
       function openDownloadMenu(btn, itemId, api) {
-        var _a2;
+        var _a2, _b2;
+        if (downloadMenu && downloadMenuTrigger === btn) {
+          closeDownloadMenu();
+          return;
+        }
         closeDownloadMenu();
+        downloadMenuTrigger = btn;
+        let baseTitle = inferDownloadTitle(itemId, btn);
         const token = ((_a2 = api.accessToken) == null ? void 0 : _a2.call(api)) || "";
-        const fullUrl = api.getUrl(`Items/${encodeURIComponent(itemId)}/Download`, token ? { api_key: token } : {});
-        const transcodeUrl = api.getUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+        const resolveApiUrl = (path, params) => {
+          var _a3;
+          const raw = (_a3 = api.getUrl) == null ? void 0 : _a3.call(api, path, params);
+          if (typeof raw === "string") return raw;
+          const qs = new URLSearchParams(params || {}).toString();
+          return `/${String(path).replace(/^\/+/, "")}${qs ? "?" + qs : ""}`;
+        };
+        const fullUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
+          Static: "true",
+          ...token ? { api_key: token } : {}
+        });
+        const transcodeUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
           Static: "false",
           VideoCodec: "h264",
           AudioCodec: "aac",
@@ -3980,22 +4320,37 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const menu = element("div", "fx-download-menu is-open");
         menu.setAttribute("role", "menu");
         menu.setAttribute("aria-label", "Download quality options");
-        const makeOption = (title, sub, onSelect) => {
-          const opt = button("", () => {
-            closeDownloadMenu();
-            onSelect();
-          });
-          opt.className = "fx-download-option";
+        const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), "video")}.mp4`;
+        const makeOption = (title, sub, url) => {
+          const opt = element("a", "fx-download-option");
+          opt.href = url;
+          opt.setAttribute("download", fileFor());
+          opt.rel = "noopener noreferrer";
           opt.setAttribute("role", "menuitem");
           const t = element("strong", "fx-download-option-title", title);
           const s = element("span", "fx-download-option-sub", sub);
           opt.append(t, s);
+          opt.addEventListener("click", () => {
+            opt.setAttribute("download", fileFor());
+            setTimeout(closeDownloadMenu, 60);
+          });
           return opt;
         };
-        menu.append(
-          makeOption("Full Quality (Original)", "Direct original file \xB7 Best for home & archival", () => triggerUrlDownload(fullUrl)),
-          makeOption("Condensed 1080p (Fast / Mobile)", "Transcoded H.264 MP4 (~4 Mbps) \xB7 Smaller file for flights & phones", () => triggerUrlDownload(transcodeUrl))
-        );
+        const fullOpt = makeOption("Full Quality (Original)", "Direct original file \xB7 Best for home & archival", fullUrl);
+        const condensedOpt = makeOption("Condensed 1080p (Fast / Mobile)", "Transcoded H.264 MP4 (~4 Mbps) \xB7 Smaller file for flights & phones", transcodeUrl);
+        menu.append(fullOpt, condensedOpt);
+        const uid = (_b2 = api.getCurrentUserId) == null ? void 0 : _b2.call(api);
+        if (uid && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
+          Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`))).then((info) => {
+            const refined = formatItemDownloadBase(info);
+            if (refined) {
+              baseTitle = refined;
+              fullOpt.setAttribute("download", fileFor());
+              condensedOpt.setAttribute("download", fileFor());
+            }
+          }).catch(() => {
+          });
+        }
         document.body.append(menu);
         downloadMenu = menu;
         const rect = typeof btn.getBoundingClientRect === "function" ? btn.getBoundingClientRect() : null;
@@ -4006,6 +4361,53 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           menu.style.left = `${left}px`;
         } else {
           menu.style.top = "120px";
+          menu.style.left = "80px";
+        }
+      }
+      function openSeasonMenu(seasonWrap, select) {
+        if (downloadMenu && downloadMenuTrigger === seasonWrap) {
+          closeDownloadMenu();
+          return;
+        }
+        closeDownloadMenu();
+        downloadMenuTrigger = seasonWrap;
+        const menu = element("div", "fx-download-menu fx-season-menu is-open");
+        menu.setAttribute("role", "menu");
+        menu.setAttribute("aria-label", "Select season");
+        [...select.options].forEach((opt) => {
+          const label = (opt.textContent || opt.label || "").trim();
+          const item = button(label, () => {
+            var _a2, _b2;
+            closeDownloadMenu();
+            if (select.value !== opt.value) {
+              for (const o of select.querySelectorAll("option")) {
+                const isMatch = o.value === opt.value;
+                o.selected = isMatch;
+                (_a2 = o.toggleAttribute) == null ? void 0 : _a2.call(o, "selected", isMatch);
+              }
+              try {
+                select.value = opt.value;
+              } catch {
+              }
+              const Ev = typeof Event === "function" ? Event : (_b2 = document.defaultView) == null ? void 0 : _b2.Event;
+              if (Ev) select.dispatchEvent(new Ev("change", { bubbles: true }));
+            }
+          });
+          item.className = "fx-download-option fx-season-option" + (opt.value === select.value ? " is-selected" : "");
+          item.setAttribute("role", "menuitemradio");
+          item.setAttribute("aria-checked", opt.value === select.value ? "true" : "false");
+          menu.append(item);
+        });
+        document.body.append(menu);
+        downloadMenu = menu;
+        const rect = typeof seasonWrap.getBoundingClientRect === "function" ? seasonWrap.getBoundingClientRect() : null;
+        if (rect && (rect.width > 0 || rect.height > 0)) {
+          const top = Math.min((window.innerHeight || 800) - 240, Math.max(12, Math.round(rect.bottom + 6)));
+          const left = Math.min((window.innerWidth || 1280) - 220, Math.max(12, Math.round(rect.left)));
+          menu.style.top = `${top}px`;
+          menu.style.left = `${left}px`;
+        } else {
+          menu.style.top = "160px";
           menu.style.left = "80px";
         }
       }
@@ -4503,7 +4905,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         const root = element("div", "fx-discovery"), toolbar = element("div", "fx-toolbar"), list = element("div"), status = element("p", "fx-status"), footer = element("div", "fx-footer"), panel = element("div", "fx-filters"), matchCount = element("p", "fx-match-count");
         panel.hidden = true;
         status.setAttribute("role", "status");
-        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: /* @__PURE__ */ new Map(), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
+        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: readTrackingCache(scope), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
         s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
         s.toggle = button(route.page === "home" ? "Normal home" : "Full library", () => setMode(s, !s.full));
         s.more = button("Load more", () => {
@@ -4608,43 +5010,54 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         });
       }
       function navSuggestions(event) {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
-        if (downloadMenu && !((_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-download-menu"))) {
-          closeDownloadMenu();
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C;
+        const seasonWrap = (_b2 = (_a2 = event.target).closest) == null ? void 0 : _b2.call(_a2, ".sleekfin-details-season-select");
+        if (seasonWrap && !((_d2 = (_c2 = event.target).closest) == null ? void 0 : _d2.call(_c2, ".fx-download-menu"))) {
+          const select = seasonWrap.querySelector("select.sleekfin-details-season-native, select");
+          if (select && ((_e2 = select.options) == null ? void 0 : _e2.length)) {
+            event.preventDefault();
+            (_f = event.stopImmediatePropagation) == null ? void 0 : _f.call(event);
+            event.stopPropagation();
+            openSeasonMenu(seasonWrap, select);
+            return;
+          }
         }
-        const dlBtn = (_d2 = (_c2 = event.target).closest) == null ? void 0 : _d2.call(_c2, 'button.btnDownload, button.sleekfin-details-episode-download, button[data-sleekfin-details-action="download"], button[data-id="download"], button[title="Download" i], button[aria-label="Download" i]');
-        if (dlBtn && !dlBtn.closest(".fx-download-menu") && ((_f = (_e2 = window.ApiClient) == null ? void 0 : _e2.getCurrentUserId) == null ? void 0 : _f.call(_e2))) {
-          const rawSelfId = dlBtn.getAttribute("data-item-id") || ((_g = dlBtn.dataset) == null ? void 0 : _g.itemId) || dlBtn.getAttribute("data-id") || ((_h = dlBtn.dataset) == null ? void 0 : _h.id);
-          const parentIdNode = (_j = (_i = dlBtn.parentElement) == null ? void 0 : _i.closest) == null ? void 0 : _j.call(_i, "[data-item-id],[data-itemid],[data-id]");
+        const dlBtn = (_h = (_g = event.target).closest) == null ? void 0 : _h.call(_g, 'button.btnDownload, button.sleekfin-details-episode-download, button[data-sleekfin-details-action="download"], button[data-id="download"], button[title="Download" i], button[aria-label="Download" i]');
+        if (dlBtn && !dlBtn.closest(".fx-download-menu") && ((_j = (_i = window.ApiClient) == null ? void 0 : _i.getCurrentUserId) == null ? void 0 : _j.call(_i))) {
+          const rawSelfId = dlBtn.getAttribute("data-item-id") || ((_k = dlBtn.dataset) == null ? void 0 : _k.itemId) || dlBtn.getAttribute("data-id") || ((_l = dlBtn.dataset) == null ? void 0 : _l.id);
+          const parentIdNode = (_n = (_m = dlBtn.parentElement) == null ? void 0 : _m.closest) == null ? void 0 : _n.call(_m, "[data-item-id],[data-itemid],[data-id]");
           const parentId = (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-item-id")) || (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-itemid")) || (parentIdNode == null ? void 0 : parentIdNode.getAttribute("data-id"));
           const hashId = new URLSearchParams(location.hash.split("?")[1] || "").get("id");
           const itemId = (rawSelfId && rawSelfId.toLowerCase() !== "download" ? rawSelfId : "") || parentId || hashId;
           if (itemId) {
             event.preventDefault();
-            (_k = event.stopImmediatePropagation) == null ? void 0 : _k.call(event);
+            (_o = event.stopImmediatePropagation) == null ? void 0 : _o.call(event);
             event.stopPropagation();
             openDownloadMenu(dlBtn, itemId, window.ApiClient);
             return;
           }
         }
-        const searchTrigger = (_m = (_l = event.target).closest) == null ? void 0 : _m.call(_l, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
-        if (searchTrigger && ((_o = (_n = window.ApiClient) == null ? void 0 : _n.getCurrentUserId) == null ? void 0 : _o.call(_n))) {
+        if (downloadMenu && !((_q = (_p = event.target).closest) == null ? void 0 : _q.call(_p, ".fx-download-menu"))) {
+          closeDownloadMenu();
+        }
+        const searchTrigger = (_s = (_r = event.target).closest) == null ? void 0 : _s.call(_r, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        if (searchTrigger && ((_u = (_t = window.ApiClient) == null ? void 0 : _t.getCurrentUserId) == null ? void 0 : _u.call(_t))) {
           ensureHeaderSearch(window.ApiClient);
           if (headerSearchWrap) {
             event.preventDefault();
-            (_p = event.stopImmediatePropagation) == null ? void 0 : _p.call(event);
+            (_v = event.stopImmediatePropagation) == null ? void 0 : _v.call(event);
             event.stopPropagation();
             positionHeaderSearch();
             headerSearchWrap.classList.add("is-open");
             const inp = headerSearchWrap.querySelector("input");
-            (_q = inp == null ? void 0 : inp.focus) == null ? void 0 : _q.call(inp);
+            (_w = inp == null ? void 0 : inp.focus) == null ? void 0 : _w.call(inp);
             return;
           }
         }
-        if ((headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) && !((_s = (_r = event.target).closest) == null ? void 0 : _s.call(_r, ".fx-header-search,.fx-search-overlay"))) {
+        if ((headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) && !((_y = (_x = event.target).closest) == null ? void 0 : _y.call(_x, ".fx-header-search,.fx-search-overlay"))) {
           closeHeaderSearch(true);
         }
-        const target = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, "[data-sleekfin-header-proxy-item],a[href]");
+        const target = (_A = (_z = event.target).closest) == null ? void 0 : _A.call(_z, "[data-sleekfin-header-proxy-item],a[href]");
         if (!target) return;
         if (searchOverlay && !searchOverlay.hidden && !target.closest(".fx-search-overlay,.fx-header-search")) {
           closeHeaderSearch(true);
@@ -4675,7 +5088,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
           const [path, raw = ""] = normalized.split("?"), q = new URLSearchParams(raw);
           q.set("tab", "1");
           event.preventDefault();
-          (_v = event.stopImmediatePropagation) == null ? void 0 : _v.call(event);
+          (_B = event.stopImmediatePropagation) == null ? void 0 : _B.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = path + "?" + q;
@@ -4685,7 +5098,7 @@ header.MuiAppBar-root ~ main :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):ha
         }
         if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home") {
           event.preventDefault();
-          (_w = event.stopImmediatePropagation) == null ? void 0 : _w.call(event);
+          (_C = event.stopImmediatePropagation) == null ? void 0 : _C.call(event);
           event.stopPropagation();
           closeDrawers();
           location.hash = normalized;

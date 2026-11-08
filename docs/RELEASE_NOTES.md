@@ -1,11 +1,12 @@
-Jellyfin Discovery 0.4.6 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.7 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.6):
-- Cold-start instant opening shelves (`Continue Watching / Next Up`, `Recently Added Movies`, `Recently Added Series`) and Netflix-style gray shimmer skeleton rows so first-time users never wait for full library scans.
-- Fix header search bar popup disappearing on click, fix `Shows -> Favorites` endless loading spinner (`viewType: 'favorites'`), and remove `Filters`, `Play All`, `Shuffle`, and `"### matching titles"` clutter across Movies, Shows, and Collections.
-- Unify single red bar (`3px`), bold `28px/34px` page titles, `18px` top vertical spacing, `.overflowPortraitCard` poster sizing, `#boxsetsPage` / `#liveTvPage` horizontal alignment, and SleekFin-styled Profile & User Settings pages.
-- Add Download quality dropdown (`Full Quality` original file vs `Condensed 1080p` H.264/AAC stream) on movie/episode detail download buttons.
+Discovery (0.4.7):
+- Eliminate page-entry and endless-scroll transition flicker by upgrading boot shelves in-place (`fillSlot`), reusing card/image DOM nodes across `loadMore`, and tracking loaded poster URLs (`loadedImages`) so cached images render instantaneously without `.is-loading` shimmer.
+- Fix `"Recently Added"` and `"New Season"` badge flash and false positives by persisting server arrival tracking in `localStorage` (`fazfort-discovery:tracking:v1:*`) and removing raw `DateCreated` / `seasons.has` fallbacks.
+- Remove `"Couldn't load MyJellyseerrRequests..."` error banner on `Movies`, `Shows`, and `Home`.
+- Unify all dropdown menus (`#library-view-menu`, `#app-user-menu`, `.fx-download-menu`, `.fx-season-menu`, `.fx-dropdown-menu`) with SleekFin's `.sleekfin-more-menu` 3D glass surface and transparent non-dimming backdrop.
+- Unify colors across all shelves, cards, shimmers, and controls with SleekFin's neutral monochrome gray palette.
+- Fix `Collections` subpage right boundary, `Collections -> Genres` A-Z sidebar, `Movies -> Library` / `Shows -> Library` poster & top spacing, empty `Favorites` message spacing, `#itemDetailPage` double vertical red lines, `Season X` border/arrow/dropdown menu, and `<Movie Title>.mp4` clean download filenames.
 
-Request Hub (0.4.6):
-- Hide the `Discover` header tab for users without request permissions via `RequestHub/Status`, standardize row arrow buttons (`‹` / `›`) to match Home/Movies/Shows, and add Netflix gray shimmer placeholders while posters load.
-- Make Request Hub and Jellyfin Discovery plugin settings pages responsive in half-screen mode.
+Request Hub (0.4.7):
+- Unify poster shimmers, cards, logos, and modals with SleekFin's neutral monochrome gray palette and cache loaded TMDB poster URLs to eliminate re-render flicker.
