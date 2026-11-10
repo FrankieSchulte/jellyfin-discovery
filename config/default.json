@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "timeZone": "America/Los_Angeles",
-  "cardsPerShelf": 8,
+  "cardsPerShelf": 20,
   "batchSize": 4,
   "minimumItems": 3,
   "maxLiveRows": 24,

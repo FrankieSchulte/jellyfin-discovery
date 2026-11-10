@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.7';
+const VERSION = '0.4.8';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -40,7 +40,7 @@ function readBootRows(s, configStr) {
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
     if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1000) return null;
-    return parsed.rows;
+    return { rows: parsed.rows, shuffle: parsed.shuffle };
   } catch { return null; }
 }
 function writeBootRows(s) {
@@ -48,7 +48,7 @@ function writeBootRows(s) {
   try {
     const rows = s.slots.filter(slot => !slot.boot).slice(0, 4).map(slot => slot.data);
     if (!rows.length) return;
-    localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), config: JSON.stringify(s.config), rows }));
+    localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
   } catch {}
 }
 function clearBootRows(scope) {
@@ -92,18 +92,18 @@ function applyWebpackViewPatch(req) {
       const modMap = req(95753);
       const map = modMap?.A;
       if (map?.movies) {
-        if (map.movies[2] && typeof map.movies[2] === 'object') {
-          map.movies[2].isAlphabetPickerEnabled = false;
-          map.movies[2].isAlphaPickerEnabled = false;
-        }
-        if (map.movies[4] && typeof map.movies[4] === 'object') {
-          map.movies[4].isAlphabetPickerEnabled = false;
-          map.movies[4].isAlphaPickerEnabled = false;
+        for (const k of [0, 1, 2, 3, 4]) {
+          if (map.movies[k] && typeof map.movies[k] === 'object') {
+            map.movies[k].isAlphabetPickerEnabled = false;
+            map.movies[k].isAlphaPickerEnabled = false;
+          }
         }
         Object.values(map.movies).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
             v.isBtnShuffleEnabled = false;
+            v.isAlphabetPickerEnabled = false;
+            v.isAlphaPickerEnabled = false;
           }
         });
       }
@@ -120,30 +120,34 @@ function applyWebpackViewPatch(req) {
           isAlphabetPickerEnabled: false,
           isAlphaPickerEnabled: false
         };
-        if (map.tvshows[3] && typeof map.tvshows[3] === 'object') {
-          map.tvshows[3].isAlphabetPickerEnabled = false;
-          map.tvshows[3].isAlphaPickerEnabled = false;
+        for (const k of [0, 1, 2, 3, 4]) {
+          if (map.tvshows[k] && typeof map.tvshows[k] === 'object') {
+            map.tvshows[k].isAlphabetPickerEnabled = false;
+            map.tvshows[k].isAlphaPickerEnabled = false;
+          }
         }
         Object.values(map.tvshows).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
             v.isBtnShuffleEnabled = false;
+            v.isAlphabetPickerEnabled = false;
+            v.isAlphaPickerEnabled = false;
           }
         });
       }
       if (map?.boxsets) {
-        if (map.boxsets[1] && typeof map.boxsets[1] === 'object') {
-          map.boxsets[1].isAlphabetPickerEnabled = false;
-          map.boxsets[1].isAlphaPickerEnabled = false;
-        }
-        if (map.boxsets[2] && typeof map.boxsets[2] === 'object') {
-          map.boxsets[2].isAlphabetPickerEnabled = false;
-          map.boxsets[2].isAlphaPickerEnabled = false;
+        for (const k of [0, 1, 2, 3, 4]) {
+          if (map.boxsets[k] && typeof map.boxsets[k] === 'object') {
+            map.boxsets[k].isAlphabetPickerEnabled = false;
+            map.boxsets[k].isAlphaPickerEnabled = false;
+          }
         }
         Object.values(map.boxsets).forEach(v => {
           if (v && typeof v === 'object') {
             v.isBtnPlayAllEnabled = false;
             v.isBtnShuffleEnabled = false;
+            v.isAlphabetPickerEnabled = false;
+            v.isAlphaPickerEnabled = false;
           }
         });
       }
@@ -218,8 +222,18 @@ function syncLibraryViewMenu() {
     });
   }
 }
+function upgradeLegacyConfig(cfg) {
+  if (cfg && typeof cfg === 'object' && cfg.cardsPerShelf === 8) {
+    cfg.cardsPerShelf = 20;
+  }
+  return cfg;
+}
 function readConfig(api) {
-  try { const raw = localStorage.getItem(configKey(api)); return validateConfig(raw ? JSON.parse(raw) : cloneJson(DEFAULT_CONFIG)); }
+  try {
+    const raw = localStorage.getItem(configKey(api));
+    const parsed = raw ? upgradeLegacyConfig(JSON.parse(raw)) : cloneJson(DEFAULT_CONFIG);
+    return validateConfig(parsed);
+  }
   catch { throw Error('Saved discovery rules are invalid. Open Customize to repair them, or reset to the supplied rules.'); }
 }
 function closeDialog() {
@@ -297,6 +311,10 @@ function imageChoices(item, api, layout = 'landscape') {
   return layout === 'portrait' ? results.filter(c => c.poster) : results;
 }
 function itemHref(item, api) {
+  if (item.Type === 'SeeMore') {
+    const kind = item.SeeMoreKind || 'movies';
+    return `#/home?requesthub=discover&rhView=${encodeURIComponent(kind)}`;
+  }
   if (item.ProviderIds?.JellyseerrRoot && item.ProviderIds?.Jellyseerr && ['movie', 'tv'].includes(item.SourceType)) {
     if(window.JellyfinRequestHub)return `#/home?requesthub=discover&mediaType=${item.SourceType}&mediaId=${encodeURIComponent(item.ProviderIds.Jellyseerr)}`;
     return safeUrl(`${item.ProviderIds.JellyseerrRoot.replace(/\/$/, '')}/${item.SourceType}/${encodeURIComponent(item.ProviderIds.Jellyseerr)}`);
@@ -342,6 +360,20 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   // Same-context navigation works in mobile web wrappers and TV browser shells.
   if (/^https?:/i.test(card.getAttribute('href'))) card.rel = 'noopener noreferrer';
   const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
+  if (item.Type === 'SeeMore') {
+    card.classList.add('fx-see-more-link');
+    const visual = element('div', 'fx-card-visual fx-see-more-poster');
+    visual.append(
+      element('span', 'fx-see-more-arrow', '→'),
+      element('span', 'fx-see-more-label', name),
+      element('span', 'fx-see-more-sub', item.SeeMoreSub || 'Browse more')
+    );
+    card.append(visual, element('span', 'fx-name', name));
+    card.title = name;
+    const entry = element('div', `fx-card-entry fx-card-${layout} fx-see-more-card`);
+    entry.append(card);
+    return entry;
+  }
   const visual = element('div', 'fx-card-visual');
   const placeholder = element('span', 'fx-placeholder', name);
   const choices = imageChoices(item, s.api, layout);
@@ -406,7 +438,8 @@ function fillSlot(slot, s) {
   const row = slot.data;
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
   const baseCount = row.items.length;
-  const copies = row.key !== 'MyMedia' && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
+  const hasSeeMore = row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || row.items.some(i => i.Type === 'SeeMore');
+  const copies = row.key !== 'MyMedia' && !hasSeeMore && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
   const cycleWidth = () => {
     if (copies <= 1) return 0;
     const first = track.children[0], secondCycle = track.children[baseCount];
@@ -700,7 +733,7 @@ function syncNative(s, hide) {
   walk(s.native);
 }
 function setMode(s, full, remember = true) {
-  s.full = full; s.list.hidden = full; s.footer.hidden = full || (!s.slots.length && !s.finished);
+  s.full = full; s.root.classList.toggle('fx-mode-full', !!full); s.list.hidden = full; s.footer.hidden = full || (!s.slots.length && !s.finished);
   s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
   syncNative(s, !(full || s.failed));
@@ -753,9 +786,21 @@ async function loadMore(s, automatic = false) {
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length && !s.full) {
-        const hydratedRow = { ...row, items };
-        const existingBoot = s.slots.find(slot => slot.boot && slot.data?.key === hydratedRow.key) || s.slots.find(slot => slot.boot);
+        let hydratedRow = { ...row, items };
+        const existingBoot = s.slots.find(slot => slot.boot && slot.data?.key === hydratedRow.key);
         if (existingBoot) {
+          if (hydratedRow.family !== 'anchor' && Array.isArray(existingBoot.data?.items) && existingBoot.data.items.length) {
+            const byIdMap = new Map(items.map(i => [i.Id, i]));
+            const ordered = existingBoot.data.items.map(oldItem => byIdMap.get(oldItem.Id) || oldItem).filter(Boolean);
+            const seen = new Set(ordered.map(i => i.Id));
+            for (const item of items) {
+              if (!seen.has(item.Id)) {
+                seen.add(item.Id);
+                ordered.push(item);
+              }
+            }
+            hydratedRow = { ...hydratedRow, items: ordered.slice(0, s.config.cardsPerShelf) };
+          }
           s.list.querySelectorAll('[data-skeleton="true"]').forEach(node => node.remove());
           existingBoot.boot = false;
           delete existingBoot.node.dataset.bootRow;
@@ -846,19 +891,27 @@ async function initialize(s) {
     try{s.config=readConfig(s.api);}catch(e){localError=e;}
     if (s.config && !s.full) {
       s.profile = s.config.pages[s.route.page];
-      const bootRows = readBootRows(s, JSON.stringify(s.config));
-      if (bootRows?.length) {
-        bootRows.forEach(row => appendRow(row, s, true));
+      const earlySaved = savedFeeds.get(s.key);
+      if (earlySaved && Date.now() - earlySaved.at < 30 * 60000 && earlySaved.config === JSON.stringify(s.config) && earlySaved.rows?.length) {
+        if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
+        earlySaved.rows.slice(0, 4).forEach(row => appendRow(row, s, true));
         syncNative(s, true);
       } else {
-        renderSkeletonRows(s, 3);
-        syncNative(s, true);
-        if (s.route.view !== 'genres') {
-          s.client.fastOpening(s.route, s.config).then(fastRows => {
-            if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
-            fastRows.forEach(row => appendRow(row, s, true));
-            syncNative(s, true);
-          }).catch(() => {});
+        const bootData = readBootRows(s, JSON.stringify(s.config));
+        if (bootData?.rows?.length) {
+          if (bootData.shuffle) s.shuffle = bootData.shuffle;
+          bootData.rows.forEach(row => appendRow(row, s, true));
+          syncNative(s, true);
+        } else {
+          renderSkeletonRows(s, 3);
+          syncNative(s, true);
+          if (s.route.view !== 'genres') {
+            s.client.fastOpening(s.route, s.config).then(fastRows => {
+              if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
+              fastRows.forEach(row => appendRow(row, s, true));
+              syncNative(s, true);
+            }).catch(() => {});
+          }
         }
       }
     }
@@ -879,7 +932,7 @@ async function initialize(s) {
       s.profileVersion = prefRes.profile.version;
       s.syncAvailable = true;
       if (prefRes.profile.config) {
-        s.config = validateConfig(prefRes.profile.config);
+        s.config = validateConfig(upgradeLegacyConfig(prefRes.profile.config));
         try { localStorage.setItem(configKey(s.api), JSON.stringify(s.config)); } catch {}
       }
     } else {
@@ -1006,10 +1059,12 @@ function openDownloadMenu(btn, itemId, api) {
     Static: 'false',
     VideoCodec: 'h264',
     AudioCodec: 'aac',
-    MaxWidth: '1920',
-    MaxHeight: '1080',
-    VideoBitRate: '4000000',
-    AudioBitRate: '192000',
+    Profile: 'high',
+    Level: '41',
+    MaxWidth: '1280',
+    MaxHeight: '720',
+    VideoBitRate: '1600000',
+    AudioBitRate: '128000',
     MaxAudioChannels: '2',
     TranscodingProtocol: 'http',
     TranscodingContainer: 'mp4',
@@ -1021,15 +1076,12 @@ function openDownloadMenu(btn, itemId, api) {
   menu.setAttribute('aria-label', 'Download quality options');
 
   const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), 'video')}.mp4`;
-  const makeOption = (title, sub, url) => {
-    const opt = element('a', 'fx-download-option');
+  const makeOption = (title, url) => {
+    const opt = element('a', 'fx-download-option', title);
     opt.href = url;
     opt.setAttribute('download', fileFor());
     opt.rel = 'noopener noreferrer';
     opt.setAttribute('role', 'menuitem');
-    const t = element('strong', 'fx-download-option-title', title);
-    const s = element('span', 'fx-download-option-sub', sub);
-    opt.append(t, s);
     opt.addEventListener('click', () => {
       opt.setAttribute('download', fileFor());
       setTimeout(closeDownloadMenu, 60);
@@ -1037,8 +1089,8 @@ function openDownloadMenu(btn, itemId, api) {
     return opt;
   };
 
-  const fullOpt = makeOption('Full Quality (Original)', 'Direct original file · Best for home & archival', fullUrl);
-  const condensedOpt = makeOption('Condensed 1080p (Fast / Mobile)', 'Transcoded H.264 MP4 (~4 Mbps) · Smaller file for flights & phones', transcodeUrl);
+  const fullOpt = makeOption('Full Quality', fullUrl);
+  const condensedOpt = makeOption('Condensed', transcodeUrl);
   menu.append(fullOpt, condensedOpt);
   const uid = api.getCurrentUserId?.();
   if (uid && typeof api.getJSON === 'function' && typeof api.getUrl === 'function') {
@@ -1110,7 +1162,13 @@ function openSeasonMenu(seasonWrap, select) {
   }
 }
 function positionHeaderSearch() {
-  if (!headerSearchWrap || !headerSearchBtn?.isConnected || typeof headerSearchBtn.getBoundingClientRect !== 'function') return;
+  if (!headerSearchWrap || !headerSearchBtn?.isConnected) return;
+  if (headerSearchWrap.classList.contains('fx-header-search-inline')) {
+    headerSearchWrap.style.top = '';
+    headerSearchWrap.style.right = '';
+    return;
+  }
+  if (typeof headerSearchBtn.getBoundingClientRect !== 'function') return;
   const r = headerSearchBtn.getBoundingClientRect();
   if (r.width > 0 && r.height > 0 && r.top < 250) {
     const top = Math.max(8, Math.round(r.top + (r.height - 38) / 2));
@@ -1128,7 +1186,9 @@ function closeHeaderSearch(restoreButton = true) {
   }
   if (restoreButton && headerSearchBtn) {
     headerSearchBtn.style.display = '';
+    headerSearchBtn.classList.remove('fx-search-btn-hidden');
   }
+  document.body?.classList?.remove('fx-searching');
   if (searchOverlay) {
     searchOverlay.hidden = true;
     searchOverlay.replaceChildren();
@@ -1137,6 +1197,7 @@ function closeHeaderSearch(restoreButton = true) {
 async function executeHeaderSearch(api, rawQuery) {
   const q = normalize(rawQuery);
   if (!q) {
+    document.body?.classList?.remove('fx-searching');
     if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
     return;
   }
@@ -1147,8 +1208,9 @@ async function executeHeaderSearch(api, rawQuery) {
     document.body.append(searchOverlay);
   }
   searchOverlay.hidden = false;
+  document.body?.classList?.add('fx-searching');
   const scope = scopeKey(api);
-  let inv = state?.inventory || findCachedInventory(scope, { page: 'home', parentId: '' });
+  let inv = (state?.route?.page === 'home' && !state?.route?.parentId ? state.inventory : null) || findCachedInventory(scope, { page: 'home', parentId: '' });
   if (!inv) {
     try {
       const client = new JellyfinClient(api, () => scopeKey(api) === scope);
@@ -1248,16 +1310,21 @@ function ensureHeaderSearch(api) {
   const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (!btn) return;
   headerSearchBtn = btn;
-  if (!headerSearchWrap || !headerSearchWrap.isConnected) {
+  const inProxy = !!btn.closest?.('[data-sleekfin-header-proxy]');
+  if (!headerSearchWrap || !headerSearchWrap.isConnected || (inProxy && headerSearchWrap.parentElement !== btn.parentElement)) {
+    const wasOpen = headerSearchWrap?.classList?.contains('is-open');
+    const prevVal = headerSearchWrap?.querySelector('input')?.value || '';
     headerSearchWrap?.remove();
-    const wrap = element('div', 'fx-header-search');
+    const wrap = element('div', 'fx-header-search' + (inProxy ? ' fx-header-search-inline' : '') + (wasOpen ? ' is-open' : ''));
     const icon = element('span', 'material-icons search fx-header-search-icon');
     icon.setAttribute('aria-hidden', 'true');
     const input = element('input', 'fx-header-search-input');
-    input.type = 'search';
+    input.type = 'text';
+    input.setAttribute('inputmode', 'search');
     input.placeholder = 'Titles, people, genres';
     input.setAttribute('aria-label', 'Search titles, people, genres');
     input.autocomplete = 'off';
+    if (prevVal) input.value = prevVal;
     const clear = button('✕', e => {
       e.preventDefault();
       e.stopPropagation();
@@ -1269,6 +1336,7 @@ function ensureHeaderSearch(api) {
       clearTimeout(headerSearchTimer);
       const val = input.value.trim();
       if (!val) {
+        document.body?.classList?.remove('fx-searching');
         if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
         return;
       }
@@ -1289,7 +1357,12 @@ function ensureHeaderSearch(api) {
       }, 160);
     });
     wrap.append(icon, input, clear);
-    document.body.append(wrap);
+    if (inProxy && btn.parentElement) {
+      btn.before(wrap);
+      if (wasOpen) btn.classList.add('fx-search-btn-hidden');
+    } else {
+      document.body.append(wrap);
+    }
     headerSearchWrap = wrap;
   }
   positionHeaderSearch();
@@ -1567,6 +1640,7 @@ function navSuggestions(event){
       event.stopPropagation();
       positionHeaderSearch();
       headerSearchWrap.classList.add('is-open');
+      searchTrigger.classList.add('fx-search-btn-hidden');
       const inp = headerSearchWrap.querySelector('input');
       inp?.focus?.();
       return;

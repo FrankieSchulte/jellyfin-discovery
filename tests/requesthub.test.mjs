@@ -52,7 +52,7 @@ test('SleekFin header proxy receives Discover button before separator and regist
  const sep=f.document.createElement('span');sep.setAttribute('data-sleekfin-header-separator','true');
  proxy.append(homeBtn,sep);header.append(proxy);
  f.navigate('#/home?requesthub=discover');await f.settle();
- assert.ok(left.querySelector('[data-rh-source="true"]'));
+ assert.ok(left.querySelector('#requesthub-discover-tab[data-rh-source="true"]'));
  const link=proxy.querySelector('[data-rh-link="true"]');
  assert.ok(link);
  assert.equal(link.nextElementSibling,sep);
@@ -62,6 +62,9 @@ test('SleekFin header proxy receives Discover button before separator and regist
  assert.ok(firstTrack);
  assert.ok(firstTrack.querySelectorAll('.rh-card:not(.rh-see-more)').length<=20);
  assert.equal(firstTrack.lastElementChild?.classList.contains('rh-see-more'),true);
+ f.navigate('#/home?requesthub=discover&rhView=movies');await f.settle();
+ assert.equal(f.document.querySelector('.rh-page-title').textContent,'Popular Movies');
+ assert.ok(f.document.querySelector('.rh-grid'));
  f.stop();
 });
 

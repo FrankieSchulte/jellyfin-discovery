@@ -2,7 +2,7 @@
 (()=>{'use strict';
 if(!Element.prototype.replaceChildren)Element.prototype.replaceChildren=function(...nodes){while(this.firstChild)this.removeChild(this.firstChild);this.append(...nodes);};
 window.JellyfinRequestHub?.stop?.();
-let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null,permScope='',permAllowed=null,permPending=null;
+let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,lastRouteView='',hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null,permScope='',permAllowed=null,permPending=null;
 const el=(tag,text='',cls='')=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn,cls='')=>{const n=el('button',text,cls);n.type='button';n.onclick=fn;return n;};
 const scope=()=>{const api=window.ApiClient;return api?.getCurrentUserId?.()?`${api.serverId?.()}:${api.getCurrentUserId()}`:'';};
@@ -326,8 +326,12 @@ function returnToOverview(clearSearch=true){
  generation++;
  clearGridScroll();
  subviewActive=false;
+ lastRouteView='overview';
  if(clearSearch&&searchInput)searchInput.value='';
  if(pageTitleNode)pageTitleNode.textContent='Discover';
+ if(/[?&]rhView=/i.test(location.hash)){
+  try{history.replaceState(null,'','#/home?requesthub=discover');}catch{}
+ }
  syncHeaderActive();
  setTimeout(syncHeaderActive,50);
  mainHost.replaceChildren();
@@ -580,9 +584,18 @@ async function render(){
  actionsWrap.append(search);
  toolbar.append(titleH1,actionsWrap);
  root.append(toolbar,main);
- await home(main);
+ const q=new URLSearchParams(location.hash.split('?')[1]||''),rhView=(q.get('rhView')||'').toLowerCase(),type=q.get('mediaType'),id=Number(q.get('mediaId'));
+ if(rhView==='movies'){
+  lastRouteView='movies';
+  await gridView(main,'Popular Movies','movies');
+ }else if(rhView==='tv'||rhView==='series'||rhView==='shows'){
+  lastRouteView='tv';
+  await gridView(main,'Popular Series','tv');
+ }else{
+  lastRouteView='overview';
+  await home(main);
+ }
  if(token!==generation)return;
- const q=new URLSearchParams(location.hash.split('?')[1]||''),type=q.get('mediaType'),id=Number(q.get('mediaId'));
  if(['movie','tv'].includes(type)&&id>0)details({type,id});
 }
 async function home(main){
@@ -621,9 +634,11 @@ function ensureNavigation(active){
   removeNavigation();
   return;
  }
- const headerLeft=document.querySelector('.skinHeader .headerLeft');
- if(headerLeft&&!headerLeft.querySelector('[data-rh-source]')){
+ const sourceHost=document.querySelector('.skinHeader .headerLeft')||document.querySelector('header.MuiAppBar-root .MuiToolbar-root .MuiStack-root');
+ let addedSource=false;
+ if(sourceHost&&!sourceHost.querySelector('[data-rh-source]')){
   const src=el('button','','headerButton headerButtonLeft rh-source-btn');
+  src.id='requesthub-discover-tab';
   src.type='button';
   src.dataset.rhSource='true';
   src.dataset.headerLabel='Discover';
@@ -634,13 +649,24 @@ function ensureNavigation(active){
   const label=el('span','Discover','emby-button-foreground');
   src.append(icon,label);
   src.onclick=openDiscoverRoute;
-  headerLeft.append(src);
+  sourceHost.append(src);
+  addedSource=true;
+ }
+ if(addedSource&&window.SleekFinFeatures?.header?.refresh){
+  try{window.SleekFinFeatures.header.refresh();}catch{}
  }
  const proxy=document.querySelector('[data-sleekfin-header-proxy]');
  if(proxy){
   document.querySelectorAll('[data-rh-link]').forEach(n=>{if(!proxy.contains(n))n.remove();});
-  const nativeProxyBtn=proxy.querySelector('[data-sleekfin-header-proxy-item="dom:toolbar-discover"]');
+  const nativeProxyBtn=[...proxy.querySelectorAll('button[data-sleekfin-header-proxy-item]')].find(b=>{
+   const itemKey=b.getAttribute('data-sleekfin-header-proxy-item')||'';
+   if(itemKey==='requesthub:discover')return false;
+   if(itemKey==='dom:toolbar-discover')return true;
+   const lbl=(b.getAttribute('aria-label')||b.textContent||'').trim().toLowerCase();
+   return itemKey.startsWith('source:')&&lbl==='discover';
+  });
   if(nativeProxyBtn){
+   proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach(n=>n.remove());
    nativeProxyBtn.dataset.rhLink='true';
    nativeProxyBtn.onclick=openDiscoverRoute;
   }else if(!proxy.querySelector('[data-rh-link]')){
@@ -776,6 +802,14 @@ function reconcile(){
     hidden.push(n);
    }
   });
+  const q=new URLSearchParams(location.hash.split('?')[1]||''),rhView=(q.get('rhView')||'').toLowerCase();
+  const wantView=rhView==='movies'?'movies':(rhView==='tv'||rhView==='series'||rhView==='shows')?'tv':'overview';
+  if(mainHost&&wantView!==lastRouteView){
+   lastRouteView=wantView;
+   if(wantView==='movies'){generation++;mainHost.replaceChildren();gridView(mainHost,'Popular Movies','movies');}
+   else if(wantView==='tv'){generation++;mainHost.replaceChildren();gridView(mainHost,'Popular Series','tv');}
+   else if(subviewActive){returnToOverview();}
+  }
   return;
  }
  cleanup();
@@ -790,7 +824,8 @@ function reconcile(){
 const css=el('style');
 css.textContent=`
 [data-rh-hidden=true]{display:none!important}
-.rh-source-btn{display:none!important}
+.rh-source-btn[data-sleekfin-header-source-hidden="true"]{display:none!important}
+.rh-source-btn:not([data-sleekfin-header-source-hidden="true"]){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important;opacity:0!important;pointer-events:none!important}
 html[data-rh-active="true"] #indexPage,
 html[data-rh-active="true"] #indexPage.homePage.libraryPage,
 #indexPage:has(.rh-root),

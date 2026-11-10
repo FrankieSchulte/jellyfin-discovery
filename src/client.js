@@ -129,40 +129,10 @@ export class JellyfinClient {
   }
   async fastOpening(route, config) {
     if (route.view === 'genres' || route.view === 'library' || route.view === 'favorites') return [];
-    const limit = Math.min(config?.cardsPerShelf || 16, 16);
-    const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
-    const latestParams = type => ({
-      UserId: this.userId,
-      Limit: limit,
-      IncludeItemTypes: type,
-      ...parentFilter,
-      Fields: 'DateCreated,PrimaryImageAspectRatio',
-      EnableImages: true,
-      EnableUserData: true,
-      ImageTypeLimit: 1,
-      EnableImageTypes: 'Primary,Backdrop,Thumb'
-    });
-    const normalizeLatest = list => (Array.isArray(list) ? list : list?.Items || []);
-    const tasks = [
-      this.fetchContinueWatching(route, { items: [] }, limit).then(items => items.length ? { key: 'ContinueWatchingNextUp', title: 'Continue Watching / Next Up', family: 'anchor', items } : null).catch(() => null)
-    ];
-    if (route.page === 'home' || route.page === 'movies') {
-      tasks.push(
-        this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams('Movie'))
-          .then(res => { const items = normalizeLatest(res); return items.length ? { key: 'RecentlyAddedMovies', title: 'Recently Added in Movies', family: 'anchor', items } : null; })
-          .catch(() => null)
-      );
-    }
-    if (route.page === 'home' || route.page === 'shows') {
-      tasks.push(
-        this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams('Series'))
-          .then(res => { const items = normalizeLatest(res); return items.length ? { key: 'RecentlyAddedShows', title: 'Recently Added in Shows', family: 'anchor', items } : null; })
-          .catch(() => null)
-      );
-    }
-    const settled = await Promise.all(tasks);
+    const limit = Math.min(config?.cardsPerShelf || 20, 20);
+    const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
     this.assertCurrent();
-    return settled.filter(Boolean);
+    return items.length ? [{ key: 'ContinueWatchingNextUp', title: 'Continue Watching / Next Up', family: 'anchor', items }] : [];
   }
   async anchor(id, route, inventory, config) {
     const typed = list => route.page === 'home' ? list : list.filter(i => route.page === 'movies' ? i.Type === 'Movie' || i.SourceType === 'movie' : ['Series', 'Episode'].includes(i.Type) || i.SourceType === 'tv');
@@ -170,6 +140,11 @@ export class JellyfinClient {
     const kindDate = (item,r) => item.Type==='Series' ? r?.NewSeasonAt||r?.AddedAt : r?.AddedAt;
     const recentItems = kind => inventory.items.filter(i => i.Type === kind).sort((a, b) => Number(!!arrival(b))-Number(!!arrival(a)) || arrival(b)-arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
     const title = { ContinueWatchingNextUp: 'Continue Watching / Next Up', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
+    const seeMoreItem = id === 'DiscoverMovies'
+      ? { Id: 'fx-see-more:movies', Name: 'See More Movies', Type: 'SeeMore', SeeMoreKind: 'movies', SeeMoreSub: 'Browse Popular Movies' }
+      : id === 'DiscoverTV'
+        ? { Id: 'fx-see-more:tv', Name: 'See More TV Shows', Type: 'SeeMore', SeeMoreKind: 'tv', SeeMoreSub: 'Browse Popular Series' }
+        : null;
     if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };
     if (id === 'ContinueWatchingNextUp' && !this.prefetchedSections.has(id) && typeof this.api?.getUrl === 'function') {
@@ -190,9 +165,27 @@ export class JellyfinClient {
     if ((id === 'DiscoverMovies' || id === 'DiscoverTV') && !this.prefetchedSections.has(id)) {
       try {
         const kind = id === 'DiscoverMovies' ? 'movies' : 'tv';
+        const targetCount = Math.max(config.cardsPerShelf || 20, 20);
+        const today = new Date().toISOString().slice(0, 10);
+        const isReleased = r => !r?.releaseDate || String(r.releaseDate).slice(0, 10) <= today;
         const rh = await this.json('RequestHub/Browse', { kind, page: 1 });
-        if (Array.isArray(rh?.results) && rh.results.length) {
-          const mapped = rh.results.slice(0, config.cardsPerShelf).map(r => ({
+        let rawList = Array.isArray(rh?.results) ? rh.results.filter(isReleased) : [];
+        if (rawList.length > 0 && rawList.length < targetCount && (rh?.totalPages || 1) >= 2) {
+          try {
+            const rh2 = await this.json('RequestHub/Browse', { kind, page: 2 });
+            if (Array.isArray(rh2?.results)) {
+              const seenIds = new Set(rawList.map(r => r.id));
+              for (const r of rh2.results.filter(isReleased)) {
+                if (!seenIds.has(r.id)) {
+                  seenIds.add(r.id);
+                  rawList.push(r);
+                }
+              }
+            }
+          } catch {}
+        }
+        if (rawList.length) {
+          const mapped = rawList.slice(0, targetCount).map(r => ({
             Id: `rh:${kind}:${r.id}`,
             Name: r.title || 'Untitled',
             Type: kind === 'movies' ? 'Movie' : 'Series',
@@ -204,6 +197,7 @@ export class JellyfinClient {
               ...(r.poster ? { JellyseerrPoster: r.poster } : {})
             }
           }));
+          if (seeMoreItem) mapped.push(seeMoreItem);
           return { key: id, title, family: 'anchor', items: mapped, external: true };
         }
       } catch {
@@ -220,7 +214,10 @@ export class JellyfinClient {
         list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));
       }
       if(id==='ContinueWatchingNextUp')list=this.groupResume(list,inventory);
-      return { key: id, title, family: 'anchor', items: list.slice(0, config.cardsPerShelf), external: id.startsWith('Discover') };
+      const maxItems = id.startsWith('Discover') ? Math.max(config.cardsPerShelf || 20, 20) : config.cardsPerShelf;
+      const sliced = list.slice(0, maxItems);
+      if (seeMoreItem && sliced.length) sliced.push(seeMoreItem);
+      return { key: id, title, family: 'anchor', items: sliced, external: id.startsWith('Discover') };
     } catch (error) {
       this.assertCurrent();
       if (id !== 'ContinueWatchingNextUp') throw error;

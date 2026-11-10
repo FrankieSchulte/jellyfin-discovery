@@ -273,14 +273,16 @@ test('React library pages without pageTabContent mount discovery, customize drop
   const f=fixture();await f.settle();
   const bootRaw=f.storage.get('fazfort-discovery:boot:v1:s:u:home::home');
   assert.ok(bootRaw);
-  assert.ok(JSON.parse(bootRaw).rows.length>=3);
+  const bootParsed=JSON.parse(bootRaw);
+  assert.ok(bootParsed.rows.length>=3);
+  assert.ok(bootParsed.shuffle);
 
   const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
   const searchBtn=f.document.createElement('button');searchBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:search');
   proxy.append(searchBtn);f.document.body.prepend(proxy);
 
   const viewsMod={u:[{path:'/movies',views:[{index:0,label:'Movies',view:'Movies'}]},{path:'/tv',views:[{index:0,label:'Series',view:'Series'}]}]};
-  const mapMod={A:{movies:{},tvshows:{}}};
+  const mapMod={A:{movies:{0:{}},tvshows:{0:{}},boxsets:{0:{}}}};
   const fakeReq=id=>id===57826?viewsMod:id===95753?mapMod:null;
   fakeReq.m={57826:true,95753:true};
   f.ctx.window.webpackChunk={push:([_id,_mods,cb])=>cb?.(fakeReq)};
@@ -299,6 +301,8 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.deepEqual(options,['TV Shows','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/movies').views.map(v=>v.label)],['Movies','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/tv').views.map(v=>v.label)],['TV Shows','Library','Favorites','Genres']);
+  assert.equal(mapMod.A.movies[0].isAlphabetPickerEnabled,false);
+  assert.equal(mapMod.A.tvshows[0].isAlphabetPickerEnabled,false);
   assert.equal(mapMod.A.tvshows[2].viewType,'favorites');
   assert.equal(mapMod.A.tvshows[2].collectionType,'tvshows');
   assert.deepEqual([...mapMod.A.tvshows[2].itemType],['Series']);
@@ -316,11 +320,15 @@ test('React library pages without pageTabContent mount discovery, customize drop
   const dlMenu=f.document.querySelector('.fx-download-menu.is-open');
   assert.ok(dlMenu);
   const dlLinks=[...dlMenu.querySelectorAll('a.fx-download-option')];
+  assert.equal(dlLinks[0].textContent,'Full Quality');
   assert.equal(dlLinks[0].getAttribute('download'),'Weapons.mp4');
   assert.ok(dlLinks[0].getAttribute('href').includes('/Videos/movie-weapons/stream.mp4'));
   assert.ok(dlLinks[0].getAttribute('href').includes('Static=true'));
+  assert.equal(dlLinks[1].textContent,'Condensed');
   assert.equal(dlLinks[1].getAttribute('download'),'Weapons.mp4');
   assert.ok(dlLinks[1].getAttribute('href').includes('Static=false'));
+  assert.ok(dlLinks[1].getAttribute('href').includes('MaxHeight=720'));
+  assert.ok(dlLinks[1].getAttribute('href').includes('VideoBitRate=1600000'));
 
   const seasonWrap=f.document.createElement('div');seasonWrap.className='sleekfin-details-season-select';
   const seasonSel=f.document.createElement('select');
@@ -338,8 +346,11 @@ test('React library pages without pageTabContent mount discovery, customize drop
   searchBtn.click();
   const wrap=f.document.querySelector('.fx-header-search.is-open');
   assert.ok(wrap);
+  assert.equal(wrap.classList.contains('fx-header-search-inline'),true);
+  assert.equal(wrap.parentElement,proxy);
   assert.notEqual(searchBtn.style.display,'none');
   const input=wrap.querySelector('.fx-header-search-input');
+  assert.equal(input.type,'text');
   input.value='Movie 1';
   input.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
   f.navigate('#/tv?tab=1');

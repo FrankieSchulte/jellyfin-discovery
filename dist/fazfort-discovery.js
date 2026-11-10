@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.4.7 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.4.8 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -9,7 +9,7 @@
     const DEFAULT_CONFIG = {
       "schemaVersion": 1,
       "timeZone": "America/Los_Angeles",
-      "cardsPerShelf": 8,
+      "cardsPerShelf": 20,
       "batchSize": 4,
       "minimumItems": 3,
       "maxLiveRows": 24,
@@ -1064,6 +1064,7 @@
       }
     };
     const DISCOVERY_CSS = `.fx-discovery{color:inherit;padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 36px;font-family:inherit;clear:both;box-sizing:border-box;overflow-anchor:none}
+.fx-discovery.fx-mode-full:has(> .fx-toolbar:not(:has(> :not([hidden])))),
 .fx-discovery:not(:has(> :not([hidden]):not(:empty))),
 .fx-discovery:has(> .fx-toolbar:not(:has(> :not([hidden])))):not(:has(> :not(.fx-toolbar):not([hidden]):not(:empty))){display:none!important;padding:0!important;margin:0!important}
 .fx-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 26px}
@@ -1123,6 +1124,11 @@
 .fx-card-entry.fx-card-portrait{width:clamp(135px,14vw,205px);flex-basis:clamp(135px,14vw,205px)}
 .fx-card-portrait .fx-card-visual{aspect-ratio:2/3}
 .fx-card-portrait .fx-card-visual img{object-fit:contain}
+.fx-see-more-poster{flex-direction:column;gap:8px;padding:16px;text-align:center;background:linear-gradient(145deg,#1a1c20,#101113)!important;border:1px solid #26292e;box-sizing:border-box;transition:border-color .16s ease,background .16s ease,transform .16s ease}
+.fx-see-more-card:hover .fx-see-more-poster{border-color:rgba(229,9,20,.65);background:linear-gradient(145deg,rgba(229,9,20,.16),#141619)!important;transform:translateY(-2px)}
+.fx-see-more-arrow{width:44px;height:44px;border-radius:999px;background:rgba(229,9,20,.2);border:1px solid rgba(229,9,20,.55);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800}
+.fx-see-more-label{font-size:.95rem;font-weight:700;color:#f1f2f4}
+.fx-see-more-sub{font-size:.76rem;color:#969aa1}
 .fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
 .fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#101113;border:1px solid #26292e;border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
 .fx-inline-studio{color:#f1f2f4;background:#101113;border:1px solid #26292e;border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
@@ -1281,6 +1287,10 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   color:var(--sleekfin-text,#f1f2f4)!important;
   padding:6px!important;
   overflow:hidden!important;
+}
+#library-view-menu .MuiPaper-root,
+#app-user-menu .MuiPaper-root{
+  margin-top:10px!important;
 }
 .MuiPopover-root .MuiList-root,
 #library-view-menu .MuiList-root,
@@ -1441,18 +1451,15 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   flex-shrink:0!important;
 }
 
-/* Hide A-Z Right Sidebar on Collections -> Genres & Empty/Favorites Subpages */
+/* Hide A-Z Right Sidebar Across Movies, Shows, and Collections Subpages so Grid Width Matches Everywhere */
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) :is(.alphaPicker,.alphaPicker-fixed-right),
 #boxsetsPage > .alphaPicker-fixed-right,
 #boxsetsPage:has(.emby-scroller) .alphaPicker-fixed-right,
 #boxsetsPage:has(.emby-scroller) .alphaPicker,
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .padded-bottom-page:has(.noItemsMessage) .alphaPicker-fixed-right,
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.noItemsMessage) > .alphaPicker-fixed-right,
-.pageTabContent[data-index="2"] .alphaPicker,
-.pageTabContent[data-index="2"] .alphaPicker-fixed-right,
-.pageTabContent[data-index="3"] .alphaPicker,
-.pageTabContent[data-index="3"] .alphaPicker-fixed-right,
-.pageTabContent[data-index="4"] .alphaPicker,
-.pageTabContent[data-index="4"] .alphaPicker-fixed-right{
+.pageTabContent .alphaPicker,
+.pageTabContent .alphaPicker-fixed-right{
   display:none!important;
 }
 
@@ -1512,14 +1519,27 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   overflow:hidden!important;
 }
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page,
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) :is(.padded-top-page,.padded-bottom-page,.pageTabContent,.content-primary),
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .pageTabContent.is-active > .itemsContainer{
   padding-top:14px!important;
+  padding-left:0!important;
+  padding-right:0!important;
   margin-top:0!important;
 }
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery:not(.fx-mode-full)) :is(.padded-top-page,.padded-bottom-page,.pageTabContent,.content-primary){
+  padding-top:0!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) :is(.padded-right-withalphapicker,.itemsContainer.padded-right-withalphapicker){
+  padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
+  gap:20px 14px!important;
   padding-top:0!important;
   padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  padding-bottom:48px!important;
   margin-top:0!important;
   margin-left:0!important;
   margin-right:0!important;
@@ -1559,7 +1579,11 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-first{font-weight:700}
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
-/* Netflix-Style Slide-Out Header Search Bar & Live Search Results Overlay */
+/* Netflix-Style Slide-Out Header Search Bar (Ingrained in Header Pill) & Live Search Results Overlay */
+[data-sleekfin-header-proxy] button.fx-search-btn-hidden,
+.skinHeader .headerSearchButton.fx-search-btn-hidden{
+  display:none!important;
+}
 .fx-header-search{
   display:inline-flex!important;
   align-items:center;
@@ -1569,7 +1593,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
   z-index:1200;
   overflow:hidden;
   width:0;
-  height:38px;
+  height:36px;
   opacity:0;
   pointer-events:none;
   border-radius:999px;
@@ -1577,16 +1601,31 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
   backdrop-filter:blur(18px) saturate(140%);
   -webkit-backdrop-filter:blur(18px) saturate(140%);
   border:1px solid transparent;
-  transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease;
+  transition:width .24s cubic-bezier(.22,1,.36,1),opacity .18s ease,border-color .18s ease,padding .24s ease,margin .24s ease;
   box-sizing:border-box;
 }
+.fx-header-search.fx-header-search-inline{
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
+  height:34px;
+  margin:0;
+  background:rgba(10,11,13,.68);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  flex-shrink:0;
+}
 .fx-header-search.is-open{
-  width:clamp(220px,24vw,340px);
+  width:clamp(210px,22vw,310px);
   opacity:1;
   pointer-events:auto;
-  border-color:rgba(255,255,255,.22);
-  padding:4px 10px 4px 12px;
-  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);
+  border-color:rgba(255,255,255,.2);
+  padding:2px 8px 2px 11px;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 10px 28px -6px rgba(0,0,0,.5);
+}
+.fx-header-search.fx-header-search-inline.is-open{
+  margin:0 4px;
+  box-shadow:inset 0 1px rgba(255,255,255,.06);
 }
 .fx-header-search.is-open:focus-within{
   border-color:var(--sleekfin-accent,#e50914);
@@ -1609,6 +1648,15 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
   font-size:.9rem;
   line-height:1.3;
   padding:4px 0;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.fx-header-search-input::-webkit-search-cancel-button,
+.fx-header-search-input::-webkit-search-decoration,
+.fx-header-search-input::-ms-clear{
+  display:none!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
 }
 .fx-header-search-input::placeholder{
   color:rgba(255,255,255,.5);
@@ -1617,13 +1665,14 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
   border:0!important;
   background:transparent!important;
   color:rgba(255,255,255,.68)!important;
-  font-size:15px!important;
+  font-size:14px!important;
   line-height:1!important;
   padding:4px 6px!important;
   min-height:24px!important;
   min-width:24px!important;
   border-radius:50%!important;
   cursor:pointer;
+  flex-shrink:0;
 }
 .fx-header-search-clear:hover{
   color:#fff!important;
@@ -1631,17 +1680,31 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
 }
 .fx-search-overlay{
   position:fixed;
-  top:var(--sleekfin-header-height,72px);
+  inset:0;
+  top:0;
   left:0;
   right:0;
   bottom:0;
-  z-index:1080;
+  z-index:990;
   background:var(--sleekfin-bg,#070809);
   overflow-y:auto;
-  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 64px;
+  padding:calc(var(--sleekfin-header-height,72px) + 22px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 64px;
   box-sizing:border-box;
 }
 .fx-search-overlay[hidden]{display:none!important}
+body.fx-searching{
+  overflow:hidden!important;
+}
+body.fx-searching header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+body.fx-searching .sleekfin-hero,
+body.fx-searching .hero,
+body.fx-searching #slides-container,
+body.fx-searching .fx-discovery,
+body.fx-searching .rh-root,
+body.fx-searching :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#itemDetailPage) > :not(.fx-search-overlay){
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
 .fx-search-explore{
   display:flex;
   flex-wrap:wrap;
@@ -1692,10 +1755,14 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
 }
 
 /* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button) */
+@keyframes fx-dropdown-enter{
+  from{opacity:0;transform:translateY(-6px) scale(.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
 .fx-download-menu{
   position:fixed;
   z-index:100005;
-  width:min(300px,92vw);
+  width:min(190px,86vw);
   padding:6px;
   background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82);
   backdrop-filter:blur(18px) saturate(140%);
@@ -1707,50 +1774,146 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
   flex-direction:column;
   gap:2px;
   box-sizing:border-box;
+  transform-origin:top left;
+  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1);
 }
 .fx-download-menu.fx-season-menu{
   width:min(210px,86vw);
   max-height:min(340px,70vh);
   overflow-y:auto;
 }
-.fx-download-option{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  gap:3px;
-  width:100%;
-  text-align:left;
-  padding:8px 10px;
-  min-height:38px;
-  border-radius:8px;
-  border:0;
-  background:transparent;
-  color:rgba(255,255,255,.72);
-  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
-  font-size:13px;
-  font-weight:500;
-  cursor:pointer;
-  transition:background-color .14s ease,color .14s ease;
+.fx-download-option,
+a.fx-download-option{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  text-align:left!important;
+  text-decoration:none!important;
+  padding:8px 10px!important;
+  min-height:38px!important;
+  border-radius:8px!important;
+  border:0!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  line-height:1.25!important;
+  cursor:pointer!important;
+  box-sizing:border-box!important;
+  transition:background-color .14s ease,color .14s ease!important;
 }
-.fx-download-option:hover{
-  background:rgba(255,255,255,.12);
-  color:var(--sleekfin-text,#f1f2f4);
+.fx-download-option:hover,
+a.fx-download-option:hover{
+  background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
+  text-decoration:none!important;
 }
-.fx-download-option.is-selected{
-  background:rgba(255,255,255,.14);
-  color:#fff;
-  font-weight:600;
+.fx-download-option.is-selected,
+a.fx-download-option.is-selected{
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+  font-weight:600!important;
+  text-decoration:none!important;
 }
-.fx-download-option-title{
-  font-size:13px;
-  font-weight:600;
-  color:var(--sleekfin-text,#f1f2f4);
+
+/* Sign-In Page (#loginPage) Styled to Match SleekFin & Discovery Monochrome Dark Glass UI */
+#loginPage{
+  background:radial-gradient(circle at 50% 18%,rgba(229,9,20,.12),transparent 52%),var(--sleekfin-bg,#070809)!important;
+  min-height:100vh!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:32px 18px!important;
+  box-sizing:border-box!important;
 }
-.fx-download-option-sub{
-  font-size:11.5px;
-  color:rgba(255,255,255,.58);
-  line-height:1.35;
+#loginPage .readOnlyContent,
+#loginPage .padded-left.padded-right{
+  max-width:440px!important;
+  width:100%!important;
+  margin:0 auto!important;
+  padding:30px 28px!important;
+  background:linear-gradient(rgba(255,255,255,.04),rgba(255,255,255,.01)),rgba(16,17,19,.88)!important;
+  backdrop-filter:blur(20px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(140%)!important;
+  border:1px solid #26292e!important;
+  border-radius:18px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 24px 64px rgba(0,0,0,.65)!important;
+  box-sizing:border-box!important;
+}
+#loginPage :is(h1,.sectionTitle,.sectionTitle-cards){
+  font-size:26px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 0 22px!important;
+  text-align:left!important;
+}
+#loginPage .inputLabel{
+  font-size:13px!important;
+  font-weight:600!important;
+  color:rgba(255,255,255,.82)!important;
+  margin-bottom:6px!important;
+}
+#loginPage :is(input.emby-input,.inputContainer input){
+  background:#0b0b0c!important;
+  color:#f1f2f4!important;
+  border:1px solid #26292e!important;
+  border-radius:10px!important;
+  padding:11px 14px!important;
+  min-height:44px!important;
+  font-size:14px!important;
+  box-sizing:border-box!important;
+  transition:border-color .15s ease,box-shadow .15s ease!important;
+}
+#loginPage :is(input.emby-input:focus,.inputContainer input:focus){
+  outline:none!important;
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
+}
+#loginPage :is(.button-submit,button[type="submit"]){
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid #ff2c37!important;
+  color:#fff!important;
+  font-weight:700!important;
+  font-size:14px!important;
+  border-radius:10px!important;
+  min-height:44px!important;
+  margin-top:10px!important;
+  transition:background .15s ease!important;
+}
+#loginPage :is(.button-submit:hover,button[type="submit"]:hover){
+  background:#f6121d!important;
+}
+#loginPage :is(.raised:not(.button-submit),.btnCancel,.btnManual,.btnForgotPassword){
+  background:#1a1c20!important;
+  border:1px solid #26292e!important;
+  color:#f1f2f4!important;
+  border-radius:10px!important;
+  min-height:42px!important;
+}
+#loginPage :is(.raised:not(.button-submit):hover,.btnCancel:hover,.btnManual:hover,.btnForgotPassword:hover){
+  background:#26292e!important;
+}
+#loginPage .checkboxOutline{
+  border-color:#26292e!important;
+  background:#0b0b0c!important;
+  border-radius:5px!important;
+}
+#loginPage #divUsers .cardBox{
+  background:#16181b!important;
+  border:1px solid #26292e!important;
+  border-radius:12px!important;
+  overflow:hidden!important;
+  transition:border-color .15s ease,transform .15s ease!important;
+}
+#loginPage #divUsers .card:hover .cardBox{
+  border-color:rgba(229,9,20,.65)!important;
+  transform:translateY(-2px)!important;
 }
 
 /* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
@@ -2251,42 +2414,10 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
       }
       async fastOpening(route, config) {
         if (route.view === "genres" || route.view === "library" || route.view === "favorites") return [];
-        const limit = Math.min((config == null ? void 0 : config.cardsPerShelf) || 16, 16);
-        const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
-        const latestParams = (type) => ({
-          UserId: this.userId,
-          Limit: limit,
-          IncludeItemTypes: type,
-          ...parentFilter,
-          Fields: "DateCreated,PrimaryImageAspectRatio",
-          EnableImages: true,
-          EnableUserData: true,
-          ImageTypeLimit: 1,
-          EnableImageTypes: "Primary,Backdrop,Thumb"
-        });
-        const normalizeLatest = (list) => Array.isArray(list) ? list : (list == null ? void 0 : list.Items) || [];
-        const tasks = [
-          this.fetchContinueWatching(route, { items: [] }, limit).then((items) => items.length ? { key: "ContinueWatchingNextUp", title: "Continue Watching / Next Up", family: "anchor", items } : null).catch(() => null)
-        ];
-        if (route.page === "home" || route.page === "movies") {
-          tasks.push(
-            this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams("Movie")).then((res) => {
-              const items = normalizeLatest(res);
-              return items.length ? { key: "RecentlyAddedMovies", title: "Recently Added in Movies", family: "anchor", items } : null;
-            }).catch(() => null)
-          );
-        }
-        if (route.page === "home" || route.page === "shows") {
-          tasks.push(
-            this.json(`Users/${encodeURIComponent(this.userId)}/Items/Latest`, latestParams("Series")).then((res) => {
-              const items = normalizeLatest(res);
-              return items.length ? { key: "RecentlyAddedShows", title: "Recently Added in Shows", family: "anchor", items } : null;
-            }).catch(() => null)
-          );
-        }
-        const settled = await Promise.all(tasks);
+        const limit = Math.min((config == null ? void 0 : config.cardsPerShelf) || 20, 20);
+        const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
         this.assertCurrent();
-        return settled.filter(Boolean);
+        return items.length ? [{ key: "ContinueWatchingNextUp", title: "Continue Watching / Next Up", family: "anchor", items }] : [];
       }
       async anchor(id, route, inventory, config) {
         var _a;
@@ -2299,6 +2430,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         const kindDate = (item, r) => item.Type === "Series" ? (r == null ? void 0 : r.NewSeasonAt) || (r == null ? void 0 : r.AddedAt) : r == null ? void 0 : r.AddedAt;
         const recentItems = (kind) => inventory.items.filter((i) => i.Type === kind).sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
         const title = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
+        const seeMoreItem = id === "DiscoverMovies" ? { Id: "fx-see-more:movies", Name: "See More Movies", Type: "SeeMore", SeeMoreKind: "movies", SeeMoreSub: "Browse Popular Movies" } : id === "DiscoverTV" ? { Id: "fx-see-more:tv", Name: "See More TV Shows", Type: "SeeMore", SeeMoreKind: "tv", SeeMoreSub: "Browse Popular Series" } : null;
         if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
         if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
         if (id === "ContinueWatchingNextUp" && !this.prefetchedSections.has(id) && typeof ((_a = this.api) == null ? void 0 : _a.getUrl) === "function") {
@@ -2319,9 +2451,28 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         if ((id === "DiscoverMovies" || id === "DiscoverTV") && !this.prefetchedSections.has(id)) {
           try {
             const kind = id === "DiscoverMovies" ? "movies" : "tv";
+            const targetCount = Math.max(config.cardsPerShelf || 20, 20);
+            const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+            const isReleased = (r) => !(r == null ? void 0 : r.releaseDate) || String(r.releaseDate).slice(0, 10) <= today;
             const rh = await this.json("RequestHub/Browse", { kind, page: 1 });
-            if (Array.isArray(rh == null ? void 0 : rh.results) && rh.results.length) {
-              const mapped = rh.results.slice(0, config.cardsPerShelf).map((r) => ({
+            let rawList = Array.isArray(rh == null ? void 0 : rh.results) ? rh.results.filter(isReleased) : [];
+            if (rawList.length > 0 && rawList.length < targetCount && ((rh == null ? void 0 : rh.totalPages) || 1) >= 2) {
+              try {
+                const rh2 = await this.json("RequestHub/Browse", { kind, page: 2 });
+                if (Array.isArray(rh2 == null ? void 0 : rh2.results)) {
+                  const seenIds = new Set(rawList.map((r) => r.id));
+                  for (const r of rh2.results.filter(isReleased)) {
+                    if (!seenIds.has(r.id)) {
+                      seenIds.add(r.id);
+                      rawList.push(r);
+                    }
+                  }
+                }
+              } catch {
+              }
+            }
+            if (rawList.length) {
+              const mapped = rawList.slice(0, targetCount).map((r) => ({
                 Id: `rh:${kind}:${r.id}`,
                 Name: r.title || "Untitled",
                 Type: kind === "movies" ? "Movie" : "Series",
@@ -2333,6 +2484,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
                   ...r.poster ? { JellyseerrPoster: r.poster } : {}
                 }
               }));
+              if (seeMoreItem) mapped.push(seeMoreItem);
               return { key: id, title, family: "anchor", items: mapped, external: true };
             }
           } catch {
@@ -2349,7 +2501,10 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
           }
           if (id === "ContinueWatchingNextUp") list = this.groupResume(list, inventory);
-          return { key: id, title, family: "anchor", items: list.slice(0, config.cardsPerShelf), external: id.startsWith("Discover") };
+          const maxItems = id.startsWith("Discover") ? Math.max(config.cardsPerShelf || 20, 20) : config.cardsPerShelf;
+          const sliced = list.slice(0, maxItems);
+          if (seeMoreItem && sliced.length) sliced.push(seeMoreItem);
+          return { key: id, title, family: "anchor", items: sliced, external: id.startsWith("Discover") };
         } catch (error) {
           this.assertCurrent();
           if (id !== "ContinueWatchingNextUp") throw error;
@@ -3036,7 +3191,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.4.7";
+      const VERSION = "0.4.8";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -3092,7 +3247,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           const parsed = JSON.parse(raw);
           if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
           if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1e3) return null;
-          return parsed.rows;
+          return { rows: parsed.rows, shuffle: parsed.shuffle };
         } catch {
           return null;
         }
@@ -3102,7 +3257,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         try {
           const rows = s.slots.filter((slot) => !slot.boot).slice(0, 4).map((slot) => slot.data);
           if (!rows.length) return;
-          localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), config: JSON.stringify(s.config), rows }));
+          localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
         } catch {
         }
       }
@@ -3148,18 +3303,18 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             const modMap = req(95753);
             const map = modMap == null ? void 0 : modMap.A;
             if (map == null ? void 0 : map.movies) {
-              if (map.movies[2] && typeof map.movies[2] === "object") {
-                map.movies[2].isAlphabetPickerEnabled = false;
-                map.movies[2].isAlphaPickerEnabled = false;
-              }
-              if (map.movies[4] && typeof map.movies[4] === "object") {
-                map.movies[4].isAlphabetPickerEnabled = false;
-                map.movies[4].isAlphaPickerEnabled = false;
+              for (const k of [0, 1, 2, 3, 4]) {
+                if (map.movies[k] && typeof map.movies[k] === "object") {
+                  map.movies[k].isAlphabetPickerEnabled = false;
+                  map.movies[k].isAlphaPickerEnabled = false;
+                }
               }
               Object.values(map.movies).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
                   v.isBtnShuffleEnabled = false;
+                  v.isAlphabetPickerEnabled = false;
+                  v.isAlphaPickerEnabled = false;
                 }
               });
             }
@@ -3176,30 +3331,34 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
                 isAlphabetPickerEnabled: false,
                 isAlphaPickerEnabled: false
               };
-              if (map.tvshows[3] && typeof map.tvshows[3] === "object") {
-                map.tvshows[3].isAlphabetPickerEnabled = false;
-                map.tvshows[3].isAlphaPickerEnabled = false;
+              for (const k of [0, 1, 2, 3, 4]) {
+                if (map.tvshows[k] && typeof map.tvshows[k] === "object") {
+                  map.tvshows[k].isAlphabetPickerEnabled = false;
+                  map.tvshows[k].isAlphaPickerEnabled = false;
+                }
               }
               Object.values(map.tvshows).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
                   v.isBtnShuffleEnabled = false;
+                  v.isAlphabetPickerEnabled = false;
+                  v.isAlphaPickerEnabled = false;
                 }
               });
             }
             if (map == null ? void 0 : map.boxsets) {
-              if (map.boxsets[1] && typeof map.boxsets[1] === "object") {
-                map.boxsets[1].isAlphabetPickerEnabled = false;
-                map.boxsets[1].isAlphaPickerEnabled = false;
-              }
-              if (map.boxsets[2] && typeof map.boxsets[2] === "object") {
-                map.boxsets[2].isAlphabetPickerEnabled = false;
-                map.boxsets[2].isAlphaPickerEnabled = false;
+              for (const k of [0, 1, 2, 3, 4]) {
+                if (map.boxsets[k] && typeof map.boxsets[k] === "object") {
+                  map.boxsets[k].isAlphabetPickerEnabled = false;
+                  map.boxsets[k].isAlphaPickerEnabled = false;
+                }
               }
               Object.values(map.boxsets).forEach((v) => {
                 if (v && typeof v === "object") {
                   v.isBtnPlayAllEnabled = false;
                   v.isBtnShuffleEnabled = false;
+                  v.isAlphabetPickerEnabled = false;
+                  v.isAlphaPickerEnabled = false;
                 }
               });
             }
@@ -3275,10 +3434,17 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           });
         }
       }
+      function upgradeLegacyConfig(cfg) {
+        if (cfg && typeof cfg === "object" && cfg.cardsPerShelf === 8) {
+          cfg.cardsPerShelf = 20;
+        }
+        return cfg;
+      }
       function readConfig(api) {
         try {
           const raw = localStorage.getItem(configKey(api));
-          return validateConfig(raw ? JSON.parse(raw) : cloneJson(DEFAULT_CONFIG2));
+          const parsed = raw ? upgradeLegacyConfig(JSON.parse(raw)) : cloneJson(DEFAULT_CONFIG2);
+          return validateConfig(parsed);
         } catch {
           throw Error("Saved discovery rules are invalid. Open Customize to repair them, or reset to the supplied rules.");
         }
@@ -3398,6 +3564,10 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
       }
       function itemHref(item, api) {
         var _a2, _b2, _c2, _d2;
+        if (item.Type === "SeeMore") {
+          const kind = item.SeeMoreKind || "movies";
+          return `#/home?requesthub=discover&rhView=${encodeURIComponent(kind)}`;
+        }
         if (((_a2 = item.ProviderIds) == null ? void 0 : _a2.JellyseerrRoot) && ((_b2 = item.ProviderIds) == null ? void 0 : _b2.Jellyseerr) && ["movie", "tv"].includes(item.SourceType)) {
           if (window.JellyfinRequestHub) return `#/home?requesthub=discover&mediaType=${item.SourceType}&mediaId=${encodeURIComponent(item.ProviderIds.Jellyseerr)}`;
           return safeUrl(`${item.ProviderIds.JellyseerrRoot.replace(/\/$/, "")}/${item.SourceType}/${encodeURIComponent(item.ProviderIds.Jellyseerr)}`);
@@ -3455,6 +3625,20 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         });
         if (/^https?:/i.test(card.getAttribute("href"))) card.rel = "noopener noreferrer";
         const name = item.Type === "Episode" ? `${item.SeriesName || item.Name} \xB7 ${item.Name}` : item.Name || "Untitled";
+        if (item.Type === "SeeMore") {
+          card.classList.add("fx-see-more-link");
+          const visual2 = element("div", "fx-card-visual fx-see-more-poster");
+          visual2.append(
+            element("span", "fx-see-more-arrow", "\u2192"),
+            element("span", "fx-see-more-label", name),
+            element("span", "fx-see-more-sub", item.SeeMoreSub || "Browse more")
+          );
+          card.append(visual2, element("span", "fx-name", name));
+          card.title = name;
+          const entry2 = element("div", `fx-card-entry fx-card-${layout} fx-see-more-card`);
+          entry2.append(card);
+          return entry2;
+        }
         const visual = element("div", "fx-card-visual");
         const placeholder = element("span", "fx-placeholder", name);
         const choices = imageChoices(item, s.api, layout);
@@ -3541,7 +3725,8 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         const row = slot.data;
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
-        const copies = row.key !== "MyMedia" && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
+        const hasSeeMore = row.key === "DiscoverMovies" || row.key === "DiscoverTV" || row.items.some((i) => i.Type === "SeeMore");
+        const copies = row.key !== "MyMedia" && !hasSeeMore && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
         const cycleWidth = () => {
           if (copies <= 1) return 0;
           const first = track.children[0], secondCycle = track.children[baseCount];
@@ -3937,6 +4122,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
       }
       function setMode(s, full, remember = true) {
         s.full = full;
+        s.root.classList.toggle("fx-mode-full", !!full);
         s.list.hidden = full;
         s.footer.hidden = full || !s.slots.length && !s.finished;
         s.filterToggle.disabled = full || !s.inventory;
@@ -3995,6 +4181,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         return null;
       }
       async function loadMore(s, automatic = false) {
+        var _a2;
         if (state !== s || s.loading || s.full || s.finished || !s.planner || automatic && s.pauseAutomatic) return;
         s.loading = true;
         s.more.disabled = true;
@@ -4011,12 +4198,24 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             s.client.assertCurrent();
             if (state !== s) return;
             if (items.length && !s.full) {
-              const hydratedRow = { ...row, items };
+              let hydratedRow = { ...row, items };
               const existingBoot = s.slots.find((slot) => {
-                var _a2;
-                return slot.boot && ((_a2 = slot.data) == null ? void 0 : _a2.key) === hydratedRow.key;
-              }) || s.slots.find((slot) => slot.boot);
+                var _a3;
+                return slot.boot && ((_a3 = slot.data) == null ? void 0 : _a3.key) === hydratedRow.key;
+              });
               if (existingBoot) {
+                if (hydratedRow.family !== "anchor" && Array.isArray((_a2 = existingBoot.data) == null ? void 0 : _a2.items) && existingBoot.data.items.length) {
+                  const byIdMap = new Map(items.map((i) => [i.Id, i]));
+                  const ordered = existingBoot.data.items.map((oldItem) => byIdMap.get(oldItem.Id) || oldItem).filter(Boolean);
+                  const seen = new Set(ordered.map((i) => i.Id));
+                  for (const item of items) {
+                    if (!seen.has(item.Id)) {
+                      seen.add(item.Id);
+                      ordered.push(item);
+                    }
+                  }
+                  hydratedRow = { ...hydratedRow, items: ordered.slice(0, s.config.cardsPerShelf) };
+                }
                 s.list.querySelectorAll('[data-skeleton="true"]').forEach((node) => node.remove());
                 existingBoot.boot = false;
                 delete existingBoot.node.dataset.bootRow;
@@ -4116,6 +4315,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         }
       }
       async function initialize(s) {
+        var _a2, _b2;
         if (s.started) return;
         s.started = true;
         s.status.textContent = "";
@@ -4129,20 +4329,28 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           }
           if (s.config && !s.full) {
             s.profile = s.config.pages[s.route.page];
-            const bootRows = readBootRows(s, JSON.stringify(s.config));
-            if (bootRows == null ? void 0 : bootRows.length) {
-              bootRows.forEach((row) => appendRow(row, s, true));
+            const earlySaved = savedFeeds.get(s.key);
+            if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === JSON.stringify(s.config) && ((_a2 = earlySaved.rows) == null ? void 0 : _a2.length)) {
+              if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
+              earlySaved.rows.slice(0, 4).forEach((row) => appendRow(row, s, true));
               syncNative(s, true);
             } else {
-              renderSkeletonRows(s, 3);
-              syncNative(s, true);
-              if (s.route.view !== "genres") {
-                s.client.fastOpening(s.route, s.config).then((fastRows) => {
-                  if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
-                  fastRows.forEach((row) => appendRow(row, s, true));
-                  syncNative(s, true);
-                }).catch(() => {
-                });
+              const bootData = readBootRows(s, JSON.stringify(s.config));
+              if ((_b2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _b2.length) {
+                if (bootData.shuffle) s.shuffle = bootData.shuffle;
+                bootData.rows.forEach((row) => appendRow(row, s, true));
+                syncNative(s, true);
+              } else {
+                renderSkeletonRows(s, 3);
+                syncNative(s, true);
+                if (s.route.view !== "genres") {
+                  s.client.fastOpening(s.route, s.config).then((fastRows) => {
+                    if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
+                    fastRows.forEach((row) => appendRow(row, s, true));
+                    syncNative(s, true);
+                  }).catch(() => {
+                  });
+                }
               }
             }
           }
@@ -4162,7 +4370,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             s.profileVersion = prefRes.profile.version;
             s.syncAvailable = true;
             if (prefRes.profile.config) {
-              s.config = validateConfig(prefRes.profile.config);
+              s.config = validateConfig(upgradeLegacyConfig(prefRes.profile.config));
               try {
                 localStorage.setItem(configKey(s.api), JSON.stringify(s.config));
               } catch {
@@ -4307,10 +4515,12 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           Static: "false",
           VideoCodec: "h264",
           AudioCodec: "aac",
-          MaxWidth: "1920",
-          MaxHeight: "1080",
-          VideoBitRate: "4000000",
-          AudioBitRate: "192000",
+          Profile: "high",
+          Level: "41",
+          MaxWidth: "1280",
+          MaxHeight: "720",
+          VideoBitRate: "1600000",
+          AudioBitRate: "128000",
           MaxAudioChannels: "2",
           TranscodingProtocol: "http",
           TranscodingContainer: "mp4",
@@ -4321,23 +4531,20 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         menu.setAttribute("role", "menu");
         menu.setAttribute("aria-label", "Download quality options");
         const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), "video")}.mp4`;
-        const makeOption = (title, sub, url) => {
-          const opt = element("a", "fx-download-option");
+        const makeOption = (title, url) => {
+          const opt = element("a", "fx-download-option", title);
           opt.href = url;
           opt.setAttribute("download", fileFor());
           opt.rel = "noopener noreferrer";
           opt.setAttribute("role", "menuitem");
-          const t = element("strong", "fx-download-option-title", title);
-          const s = element("span", "fx-download-option-sub", sub);
-          opt.append(t, s);
           opt.addEventListener("click", () => {
             opt.setAttribute("download", fileFor());
             setTimeout(closeDownloadMenu, 60);
           });
           return opt;
         };
-        const fullOpt = makeOption("Full Quality (Original)", "Direct original file \xB7 Best for home & archival", fullUrl);
-        const condensedOpt = makeOption("Condensed 1080p (Fast / Mobile)", "Transcoded H.264 MP4 (~4 Mbps) \xB7 Smaller file for flights & phones", transcodeUrl);
+        const fullOpt = makeOption("Full Quality", fullUrl);
+        const condensedOpt = makeOption("Condensed", transcodeUrl);
         menu.append(fullOpt, condensedOpt);
         const uid = (_b2 = api.getCurrentUserId) == null ? void 0 : _b2.call(api);
         if (uid && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
@@ -4412,7 +4619,13 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         }
       }
       function positionHeaderSearch() {
-        if (!headerSearchWrap || !(headerSearchBtn == null ? void 0 : headerSearchBtn.isConnected) || typeof headerSearchBtn.getBoundingClientRect !== "function") return;
+        if (!headerSearchWrap || !(headerSearchBtn == null ? void 0 : headerSearchBtn.isConnected)) return;
+        if (headerSearchWrap.classList.contains("fx-header-search-inline")) {
+          headerSearchWrap.style.top = "";
+          headerSearchWrap.style.right = "";
+          return;
+        }
+        if (typeof headerSearchBtn.getBoundingClientRect !== "function") return;
         const r = headerSearchBtn.getBoundingClientRect();
         if (r.width > 0 && r.height > 0 && r.top < 250) {
           const top = Math.max(8, Math.round(r.top + (r.height - 38) / 2));
@@ -4422,6 +4635,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         }
       }
       function closeHeaderSearch(restoreButton = true) {
+        var _a2, _b2;
         clearTimeout(headerSearchTimer);
         if (headerSearchWrap) {
           headerSearchWrap.classList.remove("is-open");
@@ -4430,16 +4644,19 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         }
         if (restoreButton && headerSearchBtn) {
           headerSearchBtn.style.display = "";
+          headerSearchBtn.classList.remove("fx-search-btn-hidden");
         }
+        (_b2 = (_a2 = document.body) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.remove("fx-searching");
         if (searchOverlay) {
           searchOverlay.hidden = true;
           searchOverlay.replaceChildren();
         }
       }
       async function executeHeaderSearch(api, rawQuery) {
-        var _a2;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
         const q = normalize(rawQuery);
         if (!q) {
+          (_b2 = (_a2 = document.body) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.remove("fx-searching");
           if (searchOverlay) {
             searchOverlay.hidden = true;
             searchOverlay.replaceChildren();
@@ -4453,8 +4670,9 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           document.body.append(searchOverlay);
         }
         searchOverlay.hidden = false;
+        (_d2 = (_c2 = document.body) == null ? void 0 : _c2.classList) == null ? void 0 : _d2.add("fx-searching");
         const scope = scopeKey(api);
-        let inv = (state == null ? void 0 : state.inventory) || findCachedInventory(scope, { page: "home", parentId: "" });
+        let inv = (((_e2 = state == null ? void 0 : state.route) == null ? void 0 : _e2.page) === "home" && !((_f = state == null ? void 0 : state.route) == null ? void 0 : _f.parentId) ? state.inventory : null) || findCachedInventory(scope, { page: "home", parentId: "" });
         if (!inv) {
           try {
             const client = new JellyfinClient(api, () => scopeKey(api) === scope);
@@ -4465,7 +4683,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             return;
           }
         }
-        if (!(headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) || normalize((_a2 = headerSearchWrap.querySelector("input")) == null ? void 0 : _a2.value) !== q) return;
+        if (!(headerSearchWrap == null ? void 0 : headerSearchWrap.classList.contains("is-open")) || normalize((_g = headerSearchWrap.querySelector("input")) == null ? void 0 : _g.value) !== q) return;
         const allItems = inv.items || [];
         const scored = [];
         const exploreCandidates = /* @__PURE__ */ new Map();
@@ -4562,21 +4780,26 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
         searchOverlay.append(grid);
       }
       function ensureHeaderSearch(api) {
-        var _a2;
+        var _a2, _b2, _c2, _d2;
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
         const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
         if (!btn) return;
         headerSearchBtn = btn;
-        if (!headerSearchWrap || !headerSearchWrap.isConnected) {
+        const inProxy = !!((_b2 = btn.closest) == null ? void 0 : _b2.call(btn, "[data-sleekfin-header-proxy]"));
+        if (!headerSearchWrap || !headerSearchWrap.isConnected || inProxy && headerSearchWrap.parentElement !== btn.parentElement) {
+          const wasOpen = (_c2 = headerSearchWrap == null ? void 0 : headerSearchWrap.classList) == null ? void 0 : _c2.contains("is-open");
+          const prevVal = ((_d2 = headerSearchWrap == null ? void 0 : headerSearchWrap.querySelector("input")) == null ? void 0 : _d2.value) || "";
           headerSearchWrap == null ? void 0 : headerSearchWrap.remove();
-          const wrap = element("div", "fx-header-search");
+          const wrap = element("div", "fx-header-search" + (inProxy ? " fx-header-search-inline" : "") + (wasOpen ? " is-open" : ""));
           const icon = element("span", "material-icons search fx-header-search-icon");
           icon.setAttribute("aria-hidden", "true");
           const input = element("input", "fx-header-search-input");
-          input.type = "search";
+          input.type = "text";
+          input.setAttribute("inputmode", "search");
           input.placeholder = "Titles, people, genres";
           input.setAttribute("aria-label", "Search titles, people, genres");
           input.autocomplete = "off";
+          if (prevVal) input.value = prevVal;
           const clear = button("\u2715", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -4585,9 +4808,11 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
           clear.className = "fx-header-search-clear";
           clear.setAttribute("aria-label", "Close search");
           input.addEventListener("input", () => {
+            var _a3, _b3;
             clearTimeout(headerSearchTimer);
             const val = input.value.trim();
             if (!val) {
+              (_b3 = (_a3 = document.body) == null ? void 0 : _a3.classList) == null ? void 0 : _b3.remove("fx-searching");
               if (searchOverlay) {
                 searchOverlay.hidden = true;
                 searchOverlay.replaceChildren();
@@ -4611,7 +4836,12 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             }, 160);
           });
           wrap.append(icon, input, clear);
-          document.body.append(wrap);
+          if (inProxy && btn.parentElement) {
+            btn.before(wrap);
+            if (wasOpen) btn.classList.add("fx-search-btn-hidden");
+          } else {
+            document.body.append(wrap);
+          }
           headerSearchWrap = wrap;
         }
         positionHeaderSearch();
@@ -5049,6 +5279,7 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
             event.stopPropagation();
             positionHeaderSearch();
             headerSearchWrap.classList.add("is-open");
+            searchTrigger.classList.add("fx-search-btn-hidden");
             const inp = headerSearchWrap.querySelector("input");
             (_w = inp == null ? void 0 : inp.focus) == null ? void 0 : _w.call(inp);
             return;

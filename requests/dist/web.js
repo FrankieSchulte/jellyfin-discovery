@@ -7,7 +7,7 @@
       this.append(...nodes);
     };
     (_b = (_a = window.JellyfinRequestHub) == null ? void 0 : _a.stop) == null ? void 0 : _b.call(_a);
-    let root = null, mainHost = null, pageTitleNode = null, searchInput = null, searchTimer = null, subviewActive = false, hidden = [], generation = 0, session = "", timer, observer, gridScrollHandler = null, permScope = "", permAllowed = null, permPending = null;
+    let root = null, mainHost = null, pageTitleNode = null, searchInput = null, searchTimer = null, subviewActive = false, lastRouteView = "", hidden = [], generation = 0, session = "", timer, observer, gridScrollHandler = null, permScope = "", permAllowed = null, permPending = null;
     const el = (tag, text = "", cls = "") => {
       const n = document.createElement(tag);
       if (text) n.textContent = text;
@@ -409,8 +409,15 @@
       generation++;
       clearGridScroll();
       subviewActive = false;
+      lastRouteView = "overview";
       if (clearSearch && searchInput) searchInput.value = "";
       if (pageTitleNode) pageTitleNode.textContent = "Discover";
+      if (/[?&]rhView=/i.test(location.hash)) {
+        try {
+          history.replaceState(null, "", "#/home?requesthub=discover");
+        } catch {
+        }
+      }
       syncHeaderActive();
       setTimeout(syncHeaderActive, 50);
       mainHost.replaceChildren();
@@ -710,9 +717,18 @@
       actionsWrap.append(search);
       toolbar.append(titleH1, actionsWrap);
       root.append(toolbar, main);
-      await home(main);
+      const q = new URLSearchParams(location.hash.split("?")[1] || ""), rhView = (q.get("rhView") || "").toLowerCase(), type = q.get("mediaType"), id = Number(q.get("mediaId"));
+      if (rhView === "movies") {
+        lastRouteView = "movies";
+        await gridView(main, "Popular Movies", "movies");
+      } else if (rhView === "tv" || rhView === "series" || rhView === "shows") {
+        lastRouteView = "tv";
+        await gridView(main, "Popular Series", "tv");
+      } else {
+        lastRouteView = "overview";
+        await home(main);
+      }
       if (token !== generation) return;
-      const q = new URLSearchParams(location.hash.split("?")[1] || ""), type = q.get("mediaType"), id = Number(q.get("mediaId"));
       if (["movie", "tv"].includes(type) && id > 0) details({ type, id });
     }
     async function home(main) {
@@ -760,14 +776,16 @@
       setTimeout(reconcile, 150);
     }
     function ensureNavigation(active) {
-      var _a2;
+      var _a2, _b2, _c2;
       if (permAllowed !== true) {
         removeNavigation();
         return;
       }
-      const headerLeft = document.querySelector(".skinHeader .headerLeft");
-      if (headerLeft && !headerLeft.querySelector("[data-rh-source]")) {
+      const sourceHost = document.querySelector(".skinHeader .headerLeft") || document.querySelector("header.MuiAppBar-root .MuiToolbar-root .MuiStack-root");
+      let addedSource = false;
+      if (sourceHost && !sourceHost.querySelector("[data-rh-source]")) {
         const src = el("button", "", "headerButton headerButtonLeft rh-source-btn");
+        src.id = "requesthub-discover-tab";
         src.type = "button";
         src.dataset.rhSource = "true";
         src.dataset.headerLabel = "Discover";
@@ -778,15 +796,29 @@
         const label = el("span", "Discover", "emby-button-foreground");
         src.append(icon, label);
         src.onclick = openDiscoverRoute;
-        headerLeft.append(src);
+        sourceHost.append(src);
+        addedSource = true;
+      }
+      if (addedSource && ((_b2 = (_a2 = window.SleekFinFeatures) == null ? void 0 : _a2.header) == null ? void 0 : _b2.refresh)) {
+        try {
+          window.SleekFinFeatures.header.refresh();
+        } catch {
+        }
       }
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       if (proxy) {
         document.querySelectorAll("[data-rh-link]").forEach((n) => {
           if (!proxy.contains(n)) n.remove();
         });
-        const nativeProxyBtn = proxy.querySelector('[data-sleekfin-header-proxy-item="dom:toolbar-discover"]');
+        const nativeProxyBtn = [...proxy.querySelectorAll("button[data-sleekfin-header-proxy-item]")].find((b) => {
+          const itemKey = b.getAttribute("data-sleekfin-header-proxy-item") || "";
+          if (itemKey === "requesthub:discover") return false;
+          if (itemKey === "dom:toolbar-discover") return true;
+          const lbl = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+          return itemKey.startsWith("source:") && lbl === "discover";
+        });
         if (nativeProxyBtn) {
+          proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
           nativeProxyBtn.dataset.rhLink = "true";
           nativeProxyBtn.onclick = openDiscoverRoute;
         } else if (!proxy.querySelector("[data-rh-link]")) {
@@ -795,7 +827,7 @@
           btn.dataset.rhLink = "true";
           btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
           btn.dataset.sleekfinHeaderZone = "tabs";
-          btn.dataset.sleekfinHeaderDisplay = ((_a2 = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _a2.sleekfinHeaderDisplay) || "both";
+          btn.dataset.sleekfinHeaderDisplay = ((_c2 = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _c2.sleekfinHeaderDisplay) || "both";
           btn.title = "Discover";
           btn.setAttribute("aria-label", "Discover");
           const vis = el("span", "");
@@ -924,6 +956,22 @@
             hidden.push(n);
           }
         });
+        const q = new URLSearchParams(location.hash.split("?")[1] || ""), rhView = (q.get("rhView") || "").toLowerCase();
+        const wantView = rhView === "movies" ? "movies" : rhView === "tv" || rhView === "series" || rhView === "shows" ? "tv" : "overview";
+        if (mainHost && wantView !== lastRouteView) {
+          lastRouteView = wantView;
+          if (wantView === "movies") {
+            generation++;
+            mainHost.replaceChildren();
+            gridView(mainHost, "Popular Movies", "movies");
+          } else if (wantView === "tv") {
+            generation++;
+            mainHost.replaceChildren();
+            gridView(mainHost, "Popular Series", "tv");
+          } else if (subviewActive) {
+            returnToOverview();
+          }
+        }
         return;
       }
       cleanup();
@@ -938,7 +986,8 @@
     const css = el("style");
     css.textContent = `
 [data-rh-hidden=true]{display:none!important}
-.rh-source-btn{display:none!important}
+.rh-source-btn[data-sleekfin-header-source-hidden="true"]{display:none!important}
+.rh-source-btn:not([data-sleekfin-header-source-hidden="true"]){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important;opacity:0!important;pointer-events:none!important}
 html[data-rh-active="true"] #indexPage,
 html[data-rh-active="true"] #indexPage.homePage.libraryPage,
 #indexPage:has(.rh-root),

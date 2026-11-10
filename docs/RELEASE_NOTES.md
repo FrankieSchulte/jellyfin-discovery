@@ -1,12 +1,14 @@
-Jellyfin Discovery 0.4.7 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.4.8 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.4.7):
-- Eliminate page-entry and endless-scroll transition flicker by upgrading boot shelves in-place (`fillSlot`), reusing card/image DOM nodes across `loadMore`, and tracking loaded poster URLs (`loadedImages`) so cached images render instantaneously without `.is-loading` shimmer.
-- Fix `"Recently Added"` and `"New Season"` badge flash and false positives by persisting server arrival tracking in `localStorage` (`fazfort-discovery:tracking:v1:*`) and removing raw `DateCreated` / `seasons.has` fallbacks.
-- Remove `"Couldn't load MyJellyseerrRequests..."` error banner on `Movies`, `Shows`, and `Home`.
-- Unify all dropdown menus (`#library-view-menu`, `#app-user-menu`, `.fx-download-menu`, `.fx-season-menu`, `.fx-dropdown-menu`) with SleekFin's `.sleekfin-more-menu` 3D glass surface and transparent non-dimming backdrop.
-- Unify colors across all shelves, cards, shimmers, and controls with SleekFin's neutral monochrome gray palette.
-- Fix `Collections` subpage right boundary, `Collections -> Genres` A-Z sidebar, `Movies -> Library` / `Shows -> Library` poster & top spacing, empty `Favorites` message spacing, `#itemDetailPage` double vertical red lines, `Season X` border/arrow/dropdown menu, and `<Movie Title>.mp4` clean download filenames.
+Discovery (0.4.8):
+- Increase horizontal shelf capacity from 8 to 20 items (`cardsPerShelf: 20`, auto-upgrading legacy `8`-item saved configs) so horizontal carousels scroll through 20 titles before looping.
+- Expand `Discover Movies` and `Discover TV Shows` shelves to 20 released items plus a tail `"See More Movies"` / `"See More TV Shows"` portrait card linking directly to `Discover -> Popular Movies` (`rhView=movies`) and `Discover -> Popular Series` (`rhView=tv`).
+- Update Download dropdown options to single-line `"Full Quality"` and `"Condensed"` with no underline, entrance animation (`@keyframes fx-dropdown-enter`), and optimized flight/mobile transcode parameters (`720p` `1280x720`, `H.264 High Profile` at `1.6 Mbps` video + `128 kbps` stereo AAC in `MP4`).
+- Ingrain the header search bar directly inside `[data-sleekfin-header-proxy]` so it expands inline inside the header pill with a single `✕` button, searches the entire library regardless of the active page, and hides background page elements (`body.fx-searching`) while searching.
+- Unify `Movies -> Library`, `Movies -> Favorites`, `Shows -> Library`, and `Shows -> Favorites` grid & top spacing with `Collections -> Collections` and `Collections -> Favorites`.
+- Add top spacing (`margin-top: 10px`) to `#app-user-menu` and `#library-view-menu` dropdowns so they never clip the header pill, and style the Sign-In page (`#loginPage`) to match SleekFin's dark monochrome glass UI.
+- Eliminate post-load category/movie switching by persisting `shuffle` alongside `bootRows` in `localStorage` and preserving displayed boot shelf item order during hydration.
 
-Request Hub (0.4.7):
-- Unify poster shimmers, cards, logos, and modals with SleekFin's neutral monochrome gray palette and cache loaded TMDB poster URLs to eliminate re-render flicker.
+Request Hub (0.4.8):
+- Support direct `rhView=movies` (`Popular Movies`) and `rhView=tv` (`Popular Series`) deep links from `Discover Movies` and `Discover TV Shows` `"See More"` cards.
+- Register `id="requesthub-discover-tab"` natively with SleekFin's Header Proxy and Header Bar UI editor (`Drag your favorite things into the header bar`) and eliminate window-resize header rebuild jank.
