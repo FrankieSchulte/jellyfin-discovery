@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.9';
+const VERSION = '0.5.0';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -92,6 +92,30 @@ function applyWebpackViewPatch(req) {
       const modMap = req(95753);
       const map = modMap?.A;
       if (map?.movies) {
+        map.movies[1] = {
+          viewType: 'fx-suggestions',
+          collectionType: 'movies',
+          itemType: [],
+          isBtnPlayAllEnabled: false,
+          isBtnShuffleEnabled: false,
+          isBtnFilterEnabled: false,
+          isBtnGridListEnabled: false,
+          isBtnSortEnabled: false,
+          isAlphabetPickerEnabled: false,
+          isAlphaPickerEnabled: false
+        };
+        map.movies[4] = {
+          viewType: 'fx-genres',
+          collectionType: 'movies',
+          itemType: [],
+          isBtnPlayAllEnabled: false,
+          isBtnShuffleEnabled: false,
+          isBtnFilterEnabled: false,
+          isBtnGridListEnabled: false,
+          isBtnSortEnabled: false,
+          isAlphabetPickerEnabled: false,
+          isAlphaPickerEnabled: false
+        };
         for (const k of [0, 1, 2, 3, 4]) {
           if (map.movies[k] && typeof map.movies[k] === 'object') {
             map.movies[k].isAlphabetPickerEnabled = false;
@@ -108,6 +132,18 @@ function applyWebpackViewPatch(req) {
         });
       }
       if (map?.tvshows) {
+        map.tvshows[1] = {
+          viewType: 'fx-suggestions',
+          collectionType: 'tvshows',
+          itemType: [],
+          isBtnPlayAllEnabled: false,
+          isBtnShuffleEnabled: false,
+          isBtnFilterEnabled: false,
+          isBtnGridListEnabled: false,
+          isBtnSortEnabled: false,
+          isAlphabetPickerEnabled: false,
+          isAlphaPickerEnabled: false
+        };
         map.tvshows[2] = {
           viewType: 'favorites',
           collectionType: 'tvshows',
@@ -117,6 +153,18 @@ function applyWebpackViewPatch(req) {
           isBtnFilterEnabled: true,
           isBtnGridListEnabled: true,
           isBtnSortEnabled: true,
+          isAlphabetPickerEnabled: false,
+          isAlphaPickerEnabled: false
+        };
+        map.tvshows[3] = {
+          viewType: 'fx-genres',
+          collectionType: 'tvshows',
+          itemType: [],
+          isBtnPlayAllEnabled: false,
+          isBtnShuffleEnabled: false,
+          isBtnFilterEnabled: false,
+          isBtnGridListEnabled: false,
+          isBtnSortEnabled: false,
           isAlphabetPickerEnabled: false,
           isAlphaPickerEnabled: false
         };
@@ -152,6 +200,92 @@ function applyWebpackViewPatch(req) {
         });
       }
     }
+    if (req.m[95988] && !req.m[95988]._fxPatched) {
+      const orig95988 = req.m[95988];
+      const wrapped95988 = function(module, exports, wreq) {
+        orig95988(module, exports, wreq);
+        try {
+          const react = wreq(96540);
+          const router = wreq(96303);
+          if (react?.useState && router?.useSearchParams) {
+            const safeUseSearchParam = function(paramKey, defaultValue = '') {
+              const [searchParams, setSearchParams] = router.useSearchParams();
+              const urlVal = searchParams.get(paramKey) || defaultValue;
+              const [val, setVal] = react.useState(urlVal);
+              const typingRef = react.useRef(false);
+              const timerRef = react.useRef(0);
+              react.useEffect(() => {
+                if (!typingRef.current && urlVal !== val) {
+                  setVal(urlVal);
+                }
+              }, [urlVal]);
+              react.useEffect(() => () => clearTimeout(timerRef.current), []);
+              const updateVal = react.useCallback(nextVal => {
+                const str = String(nextVal ?? '');
+                typingRef.current = true;
+                setVal(str);
+                clearTimeout(timerRef.current);
+                timerRef.current = setTimeout(() => {
+                  typingRef.current = false;
+                  const currentUrlVal = searchParams.get(paramKey) || defaultValue;
+                  if (currentUrlVal !== str) {
+                    const nextParams = new URLSearchParams(searchParams);
+                    if (str.trim()) nextParams.set(paramKey, str);
+                    else nextParams.delete(paramKey);
+                    setSearchParams(nextParams, { replace: true });
+                  }
+                }, 450);
+              }, [paramKey, defaultValue, searchParams, setSearchParams]);
+              return [val, updateVal];
+            };
+            try {
+              Object.defineProperty(exports, 'A', { configurable: true, enumerable: true, get: () => safeUseSearchParam });
+            } catch {
+              exports.A = safeUseSearchParam;
+            }
+          }
+        } catch {}
+      };
+      wrapped95988._fxPatched = true;
+      req.m[95988] = wrapped95988;
+      if (req.c?.[95988]) {
+        delete req.c[95988];
+        try { req(95988); } catch {}
+      }
+    }
+    if (req.m[42111] && !req.m[42111]._fxPatched) {
+      const orig42111 = req.m[42111];
+      const wrapped42111 = function(module, exports, wreq) {
+        orig42111(module, exports, wreq);
+        try {
+          const origHook = exports.u;
+          if (typeof origHook === 'function') {
+            const cappedHook = function(parentId, collectionType, query) {
+              const trimmed = typeof query === 'string' ? query.trim() : '';
+              const res = origHook(parentId, collectionType, trimmed);
+              if (res && Array.isArray(res.data)) {
+                return {
+                  ...res,
+                  data: res.data.map(sec => sec && Array.isArray(sec.items) && sec.items.length > 24 ? { ...sec, items: sec.items.slice(0, 24) } : sec)
+                };
+              }
+              return res;
+            };
+            try {
+              Object.defineProperty(exports, 'u', { configurable: true, enumerable: true, get: () => cappedHook });
+            } catch {
+              exports.u = cappedHook;
+            }
+          }
+        } catch {}
+      };
+      wrapped42111._fxPatched = true;
+      req.m[42111] = wrapped42111;
+      if (req.c?.[42111]) {
+        delete req.c[42111];
+        try { req(42111); } catch {}
+      }
+    }
   } catch {}
 }
 function patchLibraryViews() {
@@ -175,8 +309,26 @@ function patchLibraryViews() {
     }
   } catch {}
 }
+function hideLeavingSoonNav() {
+  document.querySelectorAll('[data-sleekfin-header-proxy] button, [data-sleekfin-header-proxy] a, header button, header a, .mainDrawer a, .mainDrawer button').forEach(node => {
+    const text = (node.getAttribute('aria-label') || node.getAttribute('title') || node.textContent || '').trim();
+    if (/leaving\s+soon/i.test(text) && node.style.display !== 'none') {
+      node.style.display = 'none';
+    }
+  });
+}
+function scrollToTop() {
+  try { window.scrollTo(0, 0); } catch {}
+  if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+  if (document.documentElement) document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+  document.querySelectorAll('.page:not(.hide), #indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #boxsetsPage, #searchPage').forEach(p => {
+    if (p.scrollTop) p.scrollTop = 0;
+  });
+}
 function syncLibraryViewMenu() {
   patchLibraryViews();
+  hideLeavingSoonNav();
   const h = String(location.hash || '').replace(/^#!?\/?/, '').replace(/^\//, '');
   const [path, query = ''] = h.split('?');
   const name = path.replace(/\.html$/, '').toLowerCase();
@@ -354,6 +506,10 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
       s.lastFocus = { row: s.slots.findIndex(slot => slot.node.contains(card)), id: item.Id };
       saveFeed(s);
     }
+    if (item.Type === 'SeeMore') {
+      scrollToTop();
+      setTimeout(scrollToTop, 40);
+    }
     if (activeDialog) closeDialog();
   });
   // Same-context navigation works in mobile web wrappers and TV browser shells.
@@ -447,7 +603,9 @@ function fillSlot(slot, s) {
   const baseCount = row.items.length;
   const hasSeeMore = row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || row.items.some(i => i.Type === 'SeeMore');
   if (hasSeeMore) track.dataset.noLoop = 'true';
-  const copies = row.key !== 'MyMedia' && !hasSeeMore && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
+  const copies = row.key !== 'MyMedia' && !hasSeeMore && baseCount >= 2
+    ? (s.route.view === 'genres' ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)))
+    : 1;
   const cycleWidth = () => {
     if (copies <= 1) return 0;
     const first = track.children[0], secondCycle = track.children[baseCount];
@@ -801,7 +959,7 @@ async function loadMore(s, automatic = false) {
       const row = s.pending || await nextRow(s);
       if (!row) { s.finished = true; break; }
       s.pending = row;
-      const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' || s.initialHydrateSkip ? row.items : await s.client.hydrate(row.items);
+      const items = row.key === 'MyMedia' || row.external || row.key==='ContinueWatchingNextUp' || s.route.view === 'genres' || s.initialHydrateSkip ? row.items : await s.client.hydrate(row.items);
       s.client.assertCurrent();
       if (state !== s) return;
       if (items.length && !s.full) {
@@ -997,6 +1155,7 @@ async function initialize(s) {
 }
 function decorateNative(s) {
   if (!s.byId || state !== s) return;
+  if (!s.full && !s.failed && s.route.page !== 'home') return;
   for (const card of s.page.querySelectorAll('.card[data-id]')) {
     const item = s.byId.get(card.dataset.id), host = card.querySelector('.cardScalable');
     if (!host || !item) continue;
@@ -1376,6 +1535,7 @@ function reconcile() {
       modeLabel.textContent = `${chosen} ▾`;
       const q = new URLSearchParams(location.hash.split('?')[1] || '');
       q.set('tab', val === 'library' ? '0' : val === 'favorites' ? '2' : val === 'genres' ? (route.page === 'movies' ? '4' : '3') : '1');
+      scrollToTop();
       location.hash = location.hash.split('?')[0] + '?' + q;
       schedule();
     };
@@ -1393,6 +1553,7 @@ function reconcile() {
   if (typeof IntersectionObserver === 'function') {
     s.io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) loadMore(s, true); }, { rootMargin: '600px 0px' }); s.io.observe(footer);
   }
+  if (!savedFeeds.has(key)) scrollToTop();
   setMode(s, full, false);
 }
 let scrollQueued = false;
@@ -1445,17 +1606,23 @@ function navSuggestions(event){
   if (downloadMenu && !event.target.closest?.('.fx-download-menu')) {
     closeDownloadMenu();
   }
+  if (event.target.closest?.('#library-view-menu .MuiMenuItem-root')) {
+    scrollToTop();
+    setTimeout(scrollToTop, 40);
+  }
   const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
     event.preventDefault();
     event.stopImmediatePropagation?.();
     event.stopPropagation();
     closeDrawers();
+    scrollToTop();
     if (!/^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(location.hash)) {
       location.hash = '#/search';
     }
     schedule();
     setTimeout(() => {
+      scrollToTop();
       const inp = document.querySelector('#searchPage #searchTextInput, #searchPage input.searchfields-txtSearch, #searchPage input[type="search"], #searchPage input[type="text"]');
       inp?.focus?.();
     }, 80);
@@ -1489,6 +1656,7 @@ function navSuggestions(event){
     q.set('tab','1');
     event.preventDefault();event.stopImmediatePropagation?.();event.stopPropagation();
     closeDrawers();
+    scrollToTop();
     location.hash=path+'?'+q;
     schedule();
     setTimeout(closeDrawers,40);
@@ -1497,6 +1665,7 @@ function navSuggestions(event){
   if(proxy.startsWith('jellyfin:view:')||proxy==='jellyfin:home'){
     event.preventDefault();event.stopImmediatePropagation?.();event.stopPropagation();
     closeDrawers();
+    scrollToTop();
     location.hash=normalized;
     schedule();
     setTimeout(closeDrawers,40);

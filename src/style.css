@@ -428,15 +428,24 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
 }
 
 /* Unify Horizontal Gutter Alignment, Right Boundary, Vertical Top Spacing & Card Spacing Across Movies, Shows, Live TV, Collections, and Search */
-html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-left,
+html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-left:not(.sectionTitle):not(.sectionTitle-cards),
 html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   padding-inline-start:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
 }
-html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-right,
+html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-right:not(.sectionTitle):not(.sectionTitle-cards),
 html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
   padding-inline-end:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+}
+html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection > :is(h2.sectionTitle,.sectionTitle.padded-left,.sectionTitle-cards.padded-left){
+  margin-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  margin-bottom:14px!important;
+  padding-left:10px!important;
+  padding-inline-start:10px!important;
+  padding-right:0!important;
+  padding-inline-end:0!important;
 }
 html body :is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller{
   margin-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
@@ -466,16 +475,22 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) :is(.pad
   padding-inline:0!important;
   margin-top:0!important;
 }
-html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) :is(.pageTabContent,.pageTabContent.is-active),
-html body :is(#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page{
-  padding-top:14px!important;
+html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) :is(.pageTabContent,.pageTabContent.is-active){
+  padding-top:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  padding-inline:0!important;
+  margin-top:0!important;
+}
+html body :is(#liveTvSuggestedPage,#liveTvPage) > .padded-bottom-page,
+html body #boxsetsPage:not(:has(.fx-discovery)) :is(.padded-top-page,.padded-bottom-page,.content-primary):has(.emby-scroller){
+  padding-top:18px!important;
   padding-left:0!important;
   padding-right:0!important;
   padding-inline:0!important;
   margin-top:0!important;
 }
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .pageTabContent.is-active > .itemsContainer{
-  padding-top:0!important;
   margin-top:0!important;
 }
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery:not(.fx-mode-full):not([hidden])) :is(.padded-top-page,.padded-bottom-page,.pageTabContent,.content-primary){
@@ -489,7 +504,7 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSu
   display:grid!important;
   grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr))!important;
   gap:20px 14px!important;
-  padding-top:0!important;
+  padding-top:26px!important;
   padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   padding-inline-start:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
@@ -538,6 +553,14 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardTex
 [data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]{
   display:inline-flex!important;
 }
+[data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i],
+header :is(button,a)[title*="Leaving Soon" i],
+header :is(button,a)[aria-label*="Leaving Soon" i],
+.mainDrawer :is(button,a)[title*="Leaving Soon" i],
+.mainDrawer :is(button,a)[aria-label*="Leaving Soon" i]{
+  display:none!important;
+}
 html:not(:has(header.MuiAppBar-root)) #searchPage{
   padding-top:calc(var(--sleekfin-header-height,72px) + 18px)!important;
 }
@@ -579,11 +602,20 @@ html:has(header.MuiAppBar-root) #searchPage{
   margin:0!important;
   position:static!important;
   flex-shrink:0!important;
+  -webkit-align-self:center!important;
+  align-self:center!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  height:auto!important;
 }
 #searchPage .searchFieldsInner .inputContainer{
   flex:1!important;
   margin:0!important;
   width:100%!important;
+  display:flex!important;
+  align-items:center!important;
 }
 #searchPage .searchFieldsInner .inputLabel{
   display:none!important;
@@ -613,8 +645,15 @@ html:has(header.MuiAppBar-root) #searchPage{
   box-sizing:border-box!important;
 }
 #searchPage .searchSuggestions :is(h2,.sectionTitle){
-  display:inline-block!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  width:max-content!important;
+  max-width:100%!important;
   margin:0 auto 18px!important;
+  padding-left:10px!important;
+  padding-inline-start:10px!important;
+  padding-right:0!important;
+  padding-inline-end:0!important;
 }
 #searchPage .searchSuggestionsList{
   display:flex!important;

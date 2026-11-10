@@ -291,7 +291,8 @@ test('React library pages without pageTabContent mount discovery, customize drop
 
   const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
   const searchBtn=f.document.createElement('button');searchBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:search');
-  proxy.append(searchBtn);f.document.body.prepend(proxy);
+  const leavingSoonBtn=f.document.createElement('button');leavingSoonBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:view:leaving');leavingSoonBtn.textContent='Movies (Leaving Soon)';
+  proxy.append(searchBtn,leavingSoonBtn);f.document.body.prepend(proxy);
 
   const viewsMod={u:[{path:'/movies',views:[{index:0,label:'Movies',view:'Movies'}]},{path:'/tv',views:[{index:0,label:'Series',view:'Series'}]}]};
   const mapMod={A:{movies:{0:{}},tvshows:{0:{}},boxsets:{0:{}}}};
@@ -314,7 +315,12 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/movies').views.map(v=>v.label)],['Movies','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/tv').views.map(v=>v.label)],['TV Shows','Library','Favorites','Genres']);
   assert.equal(mapMod.A.movies[0].isAlphabetPickerEnabled,false);
+  assert.equal(mapMod.A.movies[1].viewType,'fx-suggestions');
+  assert.equal(mapMod.A.movies[4].viewType,'fx-genres');
   assert.equal(mapMod.A.tvshows[0].isAlphabetPickerEnabled,false);
+  assert.equal(mapMod.A.tvshows[1].viewType,'fx-suggestions');
+  assert.equal(mapMod.A.tvshows[3].viewType,'fx-genres');
+  assert.equal(leavingSoonBtn.style.display,'none');
   assert.equal(mapMod.A.tvshows[2].viewType,'favorites');
   assert.equal(mapMod.A.tvshows[2].collectionType,'tvshows');
   assert.deepEqual([...mapMod.A.tvshows[2].itemType],['Series']);

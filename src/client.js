@@ -47,7 +47,7 @@ export class JellyfinClient {
   async inventory(route, progress) {
     // Explicit library IDs stay scoped; Home uses only libraries visible to this user.
     const views = await this.json(`Users/${encodeURIComponent(this.userId)}/Views`);
-    this.views = (views.Items || []).filter(v => ['movies', 'tvshows', '', null, undefined].includes(v.CollectionType));
+    this.views = (views.Items || []).filter(v => ['movies', 'tvshows', '', null, undefined].includes(v.CollectionType) && !/leaving\s+soon/i.test(v.Name || ''));
     const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter(v => route.page === 'home' || !v.CollectionType || v.CollectionType === (route.page === 'movies' ? 'movies' : 'tvshows'));
     const type = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Series' : 'Movie,Series';
     const all = new Map(), seasons = new Map();

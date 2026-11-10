@@ -375,31 +375,51 @@
       n.append(frame, meta);
       return n;
     }
+    function scrollToTop() {
+      try {
+        window.scrollTo(0, 0);
+      } catch {
+      }
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      document.querySelectorAll(".page:not(.hide),#indexPage,.homePage").forEach((p) => {
+        if (p.scrollTop) p.scrollTop = 0;
+      });
+    }
+    function hideLeavingSoonNav() {
+      document.querySelectorAll("[data-sleekfin-header-proxy] button,[data-sleekfin-header-proxy] a,header button,header a,.mainDrawer a,.mainDrawer button").forEach((n) => {
+        const txt = (n.getAttribute("aria-label") || n.getAttribute("title") || n.textContent || "").trim();
+        if (/leaving\s+soon/i.test(txt) && n.style.display !== "none") n.style.display = "none";
+      });
+    }
     function syncHeaderActive() {
-      var _a2, _b2, _c2, _d2;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
+      hideLeavingSoonNav();
       const active = isDiscoverHash();
       const highlight = active && !subviewActive;
       if (active) {
-        (_a2 = document.documentElement) == null ? void 0 : _a2.setAttribute("data-rh-active", "true");
-        (_b2 = document.documentElement) == null ? void 0 : _b2.setAttribute("data-rh-subview", subviewActive ? "true" : "false");
+        if (((_a2 = document.documentElement) == null ? void 0 : _a2.getAttribute("data-rh-active")) !== "true") (_b2 = document.documentElement) == null ? void 0 : _b2.setAttribute("data-rh-active", "true");
+        const wantSub = subviewActive ? "true" : "false";
+        if (((_c2 = document.documentElement) == null ? void 0 : _c2.getAttribute("data-rh-subview")) !== wantSub) (_d2 = document.documentElement) == null ? void 0 : _d2.setAttribute("data-rh-subview", wantSub);
       } else {
-        (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute("data-rh-active");
-        (_d2 = document.documentElement) == null ? void 0 : _d2.removeAttribute("data-rh-subview");
+        if ((_e2 = document.documentElement) == null ? void 0 : _e2.hasAttribute("data-rh-active")) (_f = document.documentElement) == null ? void 0 : _f.removeAttribute("data-rh-active");
+        if ((_g = document.documentElement) == null ? void 0 : _g.hasAttribute("data-rh-subview")) (_h = document.documentElement) == null ? void 0 : _h.removeAttribute("data-rh-subview");
       }
       document.querySelectorAll("[data-rh-link],[data-rh-source]").forEach((n) => {
         if (highlight) {
-          n.setAttribute("aria-current", "page");
-          n.dataset.sleekfinCurrent = "true";
+          if (n.getAttribute("aria-current") !== "page") n.setAttribute("aria-current", "page");
+          if (n.dataset.sleekfinCurrent !== "true") n.dataset.sleekfinCurrent = "true";
         } else {
-          n.removeAttribute("aria-current");
-          delete n.dataset.sleekfinCurrent;
+          if (n.hasAttribute("aria-current")) n.removeAttribute("aria-current");
+          if (n.dataset.sleekfinCurrent !== void 0) delete n.dataset.sleekfinCurrent;
         }
       });
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       if (proxy && active) {
         proxy.querySelectorAll('[data-sleekfin-header-proxy-item="jellyfin:home"]').forEach((n) => {
-          delete n.dataset.sleekfinCurrent;
-          n.removeAttribute("aria-current");
+          if (n.dataset.sleekfinCurrent !== void 0) delete n.dataset.sleekfinCurrent;
+          if (n.hasAttribute("aria-current")) n.removeAttribute("aria-current");
         });
       }
     }
@@ -418,6 +438,7 @@
         } catch {
         }
       }
+      scrollToTop();
       syncHeaderActive();
       setTimeout(syncHeaderActive, 50);
       mainHost.replaceChildren();
@@ -427,6 +448,8 @@
       clearGridScroll();
       subviewActive = true;
       if (pageTitleNode) pageTitleNode.textContent = title;
+      scrollToTop();
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(scrollToTop);
       syncHeaderActive();
       setTimeout(syncHeaderActive, 50);
       const token = generation;
@@ -764,6 +787,7 @@
     function openDiscoverRoute(e) {
       var _a2;
       (_a2 = e == null ? void 0 : e.preventDefault) == null ? void 0 : _a2.call(e);
+      scrollToTop();
       if (isDiscoverHash() && (root == null ? void 0 : root.isConnected) && subviewActive) {
         returnToOverview();
         return;
@@ -960,6 +984,7 @@
         const wantView = rhView === "movies" ? "movies" : rhView === "tv" || rhView === "series" || rhView === "shows" ? "tv" : "overview";
         if (mainHost && wantView !== lastRouteView) {
           lastRouteView = wantView;
+          scrollToTop();
           if (wantView === "movies") {
             generation++;
             mainHost.replaceChildren();
@@ -975,6 +1000,7 @@
         return;
       }
       cleanup();
+      scrollToTop();
       root = el("div", "", "rh-root");
       [...page.children].forEach((n) => {
         n.dataset.rhHidden = "true";
@@ -986,6 +1012,8 @@
     const css = el("style");
     css.textContent = `
 [data-rh-hidden=true]{display:none!important}
+[data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i]{display:none!important}
 .rh-source-btn[data-sleekfin-header-source-hidden="true"]{display:none!important}
 .rh-source-btn:not([data-sleekfin-header-source-hidden="true"]){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important;opacity:0!important;pointer-events:none!important}
 html[data-rh-active="true"] #indexPage,
@@ -1628,7 +1656,7 @@ a.rh-nav[aria-current=page]{
     observer = new MutationObserver((records) => {
       if (records.some((r) => {
         var _a2, _b2;
-        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],.fx-discovery,.fx-dialog,.fx-inline-studio"));
+        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage"));
       })) {
         clearTimeout(timer);
         timer = setTimeout(reconcile, 80);
