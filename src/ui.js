@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.4.8';
+const VERSION = '0.4.9';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -8,13 +8,13 @@ let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
 const snapshots = new Map();
 const savedFeeds = new Map();
 const loadedImages = new Set();
-let activeDialog = null, lastScope = '', selectHold = null, searchOverlay = null, headerSearchWrap = null, headerSearchBtn = null, headerSearchTimer = null, downloadMenu = null, downloadMenuTrigger = null;
+let activeDialog = null, lastScope = '', selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
 const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrentUserId()}`;
 const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
-const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v1:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
+const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
 const trackingCacheKey = scope => `fazfort-discovery:tracking:v1:${scope}`;
 function readTrackingCache(scope) {
   if (!scope) return new Map();
@@ -355,21 +355,28 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
       saveFeed(s);
     }
     if (activeDialog) closeDialog();
-    if (searchOverlay && !searchOverlay.hidden) closeHeaderSearch(false);
   });
   // Same-context navigation works in mobile web wrappers and TV browser shells.
   if (/^https?:/i.test(card.getAttribute('href'))) card.rel = 'noopener noreferrer';
   const name = item.Type === 'Episode' ? `${item.SeriesName || item.Name} · ${item.Name}` : item.Name || 'Untitled';
   if (item.Type === 'SeeMore') {
+    const isTv = item.SeeMoreKind === 'tv' || /tv|series|show/i.test(item.Id || '') || /tv|series|show/i.test(item.Name || '');
+    const boxLabel = item.SeeMoreLabel || 'See More';
+    const boxSub = item.SeeMoreSub && !/^Browse /i.test(item.SeeMoreSub)
+      ? item.SeeMoreSub
+      : (isTv ? 'Popular Series' : 'Popular Movies');
+    const caption = /^See More/i.test(name)
+      ? (isTv ? 'All Popular Series' : 'All Popular Movies')
+      : name;
     card.classList.add('fx-see-more-link');
     const visual = element('div', 'fx-card-visual fx-see-more-poster');
     visual.append(
       element('span', 'fx-see-more-arrow', '→'),
-      element('span', 'fx-see-more-label', name),
-      element('span', 'fx-see-more-sub', item.SeeMoreSub || 'Browse more')
+      element('span', 'fx-see-more-label', boxLabel),
+      element('span', 'fx-see-more-sub', boxSub)
     );
-    card.append(visual, element('span', 'fx-name', name));
-    card.title = name;
+    card.append(visual, element('span', 'fx-name', caption));
+    card.title = caption;
     const entry = element('div', `fx-card-entry fx-card-${layout} fx-see-more-card`);
     entry.append(card);
     return entry;
@@ -439,6 +446,7 @@ function fillSlot(slot, s) {
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
   const baseCount = row.items.length;
   const hasSeeMore = row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || row.items.some(i => i.Type === 'SeeMore');
+  if (hasSeeMore) track.dataset.noLoop = 'true';
   const copies = row.key !== 'MyMedia' && !hasSeeMore && baseCount >= 2 ? Math.max(6, Math.ceil(32 / baseCount)) : 1;
   const cycleWidth = () => {
     if (copies <= 1) return 0;
@@ -474,6 +482,11 @@ function fillSlot(slot, s) {
       }, 520);
       return;
     }
+    if (hasSeeMore) {
+      const delta = snapScrollDelta(track, direction, step);
+      track.scrollBy({ left: delta, behavior: 'smooth' });
+      return;
+    }
     const end = Math.max(0, track.scrollWidth - track.clientWidth);
     if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
     else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
@@ -494,6 +507,7 @@ function fillSlot(slot, s) {
       else if (e.deltaX > 0 && track.scrollLeft >= cw * (copies - 1.5)) { track.scrollLeft -= cw; track._fxMoved = true; }
       return;
     }
+    if (hasSeeMore) return;
     const end = track.scrollWidth - track.clientWidth;
     if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) { e.preventDefault(); scroll(e.deltaX > 0 ? 1 : -1); }
   }, { passive: false });
@@ -508,6 +522,7 @@ function fillSlot(slot, s) {
     if (Math.abs(delta) > 40) {
       const cw = cycleWidth();
       if (cw > 0) { normalizeLoop(); return; }
+      if (hasSeeMore) return;
       const end = track.scrollWidth - track.clientWidth;
       if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
     }
@@ -734,6 +749,10 @@ function syncNative(s, hide) {
 }
 function setMode(s, full, remember = true) {
   s.full = full; s.root.classList.toggle('fx-mode-full', !!full); s.list.hidden = full; s.footer.hidden = full || (!s.slots.length && !s.finished);
+  const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
+  const titlePicker = s.root.querySelector('.fx-title-picker');
+  if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+  s.root.hidden = !!(full && s.route.page !== 'home' && hasHeaderViewMenu && !s.failed);
   s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
   syncNative(s, !(full || s.failed));
@@ -1161,212 +1180,6 @@ function openSeasonMenu(seasonWrap, select) {
     menu.style.left = '80px';
   }
 }
-function positionHeaderSearch() {
-  if (!headerSearchWrap || !headerSearchBtn?.isConnected) return;
-  if (headerSearchWrap.classList.contains('fx-header-search-inline')) {
-    headerSearchWrap.style.top = '';
-    headerSearchWrap.style.right = '';
-    return;
-  }
-  if (typeof headerSearchBtn.getBoundingClientRect !== 'function') return;
-  const r = headerSearchBtn.getBoundingClientRect();
-  if (r.width > 0 && r.height > 0 && r.top < 250) {
-    const top = Math.max(8, Math.round(r.top + (r.height - 38) / 2));
-    const right = Math.max(12, Math.round((window.innerWidth || 1280) - r.right));
-    headerSearchWrap.style.top = `${top}px`;
-    headerSearchWrap.style.right = `${right}px`;
-  }
-}
-function closeHeaderSearch(restoreButton = true) {
-  clearTimeout(headerSearchTimer);
-  if (headerSearchWrap) {
-    headerSearchWrap.classList.remove('is-open');
-    const inp = headerSearchWrap.querySelector('input');
-    if (inp) inp.value = '';
-  }
-  if (restoreButton && headerSearchBtn) {
-    headerSearchBtn.style.display = '';
-    headerSearchBtn.classList.remove('fx-search-btn-hidden');
-  }
-  document.body?.classList?.remove('fx-searching');
-  if (searchOverlay) {
-    searchOverlay.hidden = true;
-    searchOverlay.replaceChildren();
-  }
-}
-async function executeHeaderSearch(api, rawQuery) {
-  const q = normalize(rawQuery);
-  if (!q) {
-    document.body?.classList?.remove('fx-searching');
-    if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
-    return;
-  }
-  if (!searchOverlay) {
-    searchOverlay = element('div', 'fx-search-overlay');
-    searchOverlay.setAttribute('role', 'region');
-    searchOverlay.setAttribute('aria-label', 'Search results');
-    document.body.append(searchOverlay);
-  }
-  searchOverlay.hidden = false;
-  document.body?.classList?.add('fx-searching');
-  const scope = scopeKey(api);
-  let inv = (state?.route?.page === 'home' && !state?.route?.parentId ? state.inventory : null) || findCachedInventory(scope, { page: 'home', parentId: '' });
-  if (!inv) {
-    try {
-      const client = new JellyfinClient(api, () => scopeKey(api) === scope);
-      inv = await client.inventory({ page: 'home', parentId: '' });
-      snapshots.set(`${scope}:home:`, { at: Date.now(), value: inv });
-    } catch {
-      if (searchOverlay) searchOverlay.replaceChildren(element('p', 'fx-search-empty', 'Could not search library right now.'));
-      return;
-    }
-  }
-  if (!headerSearchWrap?.classList.contains('is-open') || normalize(headerSearchWrap.querySelector('input')?.value) !== q) return;
-  const allItems = inv.items || [];
-  const scored = [];
-  const exploreCandidates = new Map();
-  const addExplore = (term, weight) => {
-    if (!term) return;
-    const norm = normalize(term);
-    if (!norm.includes(q)) return;
-    const boost = norm.startsWith(q) ? weight + 10 : weight;
-    if ((exploreCandidates.get(term) || 0) < boost) exploreCandidates.set(term, boost);
-  };
-  for (const item of allItems) {
-    const nameNorm = normalize(item.Name);
-    const people = (item.People || []).map(p => p.Name).filter(Boolean);
-    const genres = item.Genres || [];
-    const tags = item.Tags || [];
-    const studios = (item.Studios || []).map(st => st.Name).filter(Boolean);
-    let score = 0;
-    if (nameNorm === q) score += 100;
-    else if (nameNorm.startsWith(q)) score += 70;
-    else if (nameNorm.includes(q)) score += 45;
-    for (const g of genres) {
-      const gn = normalize(g);
-      if (gn.includes(q)) { score = Math.max(score, gn.startsWith(q) ? 38 : 28); addExplore(g, 30); }
-    }
-    for (const p of people) {
-      const pn = normalize(p);
-      if (pn.includes(q)) { score = Math.max(score, pn.startsWith(q) ? 42 : 32); addExplore(p, 28); }
-    }
-    for (const t of tags) {
-      const tn = normalize(t);
-      if (tn.includes(q)) { score = Math.max(score, tn.startsWith(q) ? 34 : 24); addExplore(t, 22); }
-    }
-    for (const st of studios) {
-      const sn = normalize(st);
-      if (sn.includes(q)) { score = Math.max(score, sn.startsWith(q) ? 34 : 24); addExplore(st, 20); }
-    }
-    if (score > 0) {
-      if (nameNorm.includes(q)) addExplore(item.Name, 25);
-      scored.push({ item, score: score + (Number(item.CommunityRating) || 0) * 0.4 });
-    }
-  }
-  scored.sort((a, b) => b.score - a.score || String(a.item.Name || '').localeCompare(String(b.item.Name || '')));
-  const exploreTerms = [...exploreCandidates.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([term]) => term);
-  searchOverlay.replaceChildren();
-  if (exploreTerms.length) {
-    const exploreRow = element('div', 'fx-search-explore');
-    exploreRow.append(element('span', 'fx-search-explore-label', 'More to explore:'));
-    exploreTerms.forEach((term, idx) => {
-      if (idx > 0) exploreRow.append(element('span', 'fx-search-explore-sep', '|'));
-      const chip = button(term, () => {
-        const inp = headerSearchWrap?.querySelector('input');
-        if (inp) {
-          inp.value = term;
-          inp.focus();
-          executeHeaderSearch(api, term);
-        }
-      });
-      chip.className = 'fx-search-explore-chip';
-      exploreRow.append(chip);
-    });
-    searchOverlay.append(exploreRow);
-  }
-  if (!scored.length) {
-    searchOverlay.append(element('p', 'fx-search-empty', `No matches found for "${rawQuery}".`));
-    return;
-  }
-  const grid = element('div', 'fx-search-grid');
-  const renderCtx = state || {
-    api,
-    scope,
-    inventory: inv,
-    badges: seasonBadges(inv.seasons || [], new Date()),
-    tracking: inv.tracking || new Map(),
-    now: new Date(),
-    config: DEFAULT_CONFIG,
-    filters: cloneJson(DEFAULT_FILTERS),
-    slots: []
-  };
-  scored.slice(0, 40).forEach(({ item }) => {
-    grid.append(renderCard(item, renderCtx, true, 'landscape'));
-  });
-  searchOverlay.append(grid);
-}
-function ensureHeaderSearch(api) {
-  if (!api?.getCurrentUserId?.()) return;
-  const btn = document.querySelector('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
-  if (!btn) return;
-  headerSearchBtn = btn;
-  const inProxy = !!btn.closest?.('[data-sleekfin-header-proxy]');
-  if (!headerSearchWrap || !headerSearchWrap.isConnected || (inProxy && headerSearchWrap.parentElement !== btn.parentElement)) {
-    const wasOpen = headerSearchWrap?.classList?.contains('is-open');
-    const prevVal = headerSearchWrap?.querySelector('input')?.value || '';
-    headerSearchWrap?.remove();
-    const wrap = element('div', 'fx-header-search' + (inProxy ? ' fx-header-search-inline' : '') + (wasOpen ? ' is-open' : ''));
-    const icon = element('span', 'material-icons search fx-header-search-icon');
-    icon.setAttribute('aria-hidden', 'true');
-    const input = element('input', 'fx-header-search-input');
-    input.type = 'text';
-    input.setAttribute('inputmode', 'search');
-    input.placeholder = 'Titles, people, genres';
-    input.setAttribute('aria-label', 'Search titles, people, genres');
-    input.autocomplete = 'off';
-    if (prevVal) input.value = prevVal;
-    const clear = button('✕', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeHeaderSearch(true);
-    });
-    clear.className = 'fx-header-search-clear';
-    clear.setAttribute('aria-label', 'Close search');
-    input.addEventListener('input', () => {
-      clearTimeout(headerSearchTimer);
-      const val = input.value.trim();
-      if (!val) {
-        document.body?.classList?.remove('fx-searching');
-        if (searchOverlay) { searchOverlay.hidden = true; searchOverlay.replaceChildren(); }
-        return;
-      }
-      headerSearchTimer = setTimeout(() => executeHeaderSearch(api, val), 120);
-    });
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        closeHeaderSearch(true);
-      }
-    });
-    input.addEventListener('blur', () => {
-      setTimeout(() => {
-        if (headerSearchWrap?.classList.contains('is-open') && !input.value.trim() && !headerSearchWrap.contains(document.activeElement)) {
-          closeHeaderSearch(true);
-        }
-      }, 160);
-    });
-    wrap.append(icon, input, clear);
-    if (inProxy && btn.parentElement) {
-      btn.before(wrap);
-      if (wasOpen) btn.classList.add('fx-search-btn-hidden');
-    } else {
-      document.body.append(wrap);
-    }
-    headerSearchWrap = wrap;
-  }
-  positionHeaderSearch();
-}
 function download(name, obj) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
   const a = element('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -1511,8 +1324,7 @@ function reconcile() {
   const api = window.ApiClient, route = routeInfo(location.hash);
   syncSettings(api);
   syncLibraryViewMenu();
-  ensureHeaderSearch(api);
-  if (!api?.getCurrentUserId?.()) {cleanup(false);closeHeaderSearch(true);savedFeeds.clear();snapshots.clear();lastScope='';return;}
+  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
@@ -1521,8 +1333,10 @@ function reconcile() {
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
   if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+    const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
     const titlePicker = state.root.querySelector('.fx-title-picker');
-    if (titlePicker) titlePicker.hidden = !!document.querySelector('button[aria-controls="library-view-menu"]');
+    if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+    state.root.hidden = !!(state.full && state.route.page !== 'home' && hasHeaderViewMenu && !state.failed);
     if(!state.full && !state.failed)syncNative(state,true);
     decorateNative(state);
     return;
@@ -1633,26 +1447,21 @@ function navSuggestions(event){
   }
   const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
-    ensureHeaderSearch(window.ApiClient);
-    if (headerSearchWrap) {
-      event.preventDefault();
-      event.stopImmediatePropagation?.();
-      event.stopPropagation();
-      positionHeaderSearch();
-      headerSearchWrap.classList.add('is-open');
-      searchTrigger.classList.add('fx-search-btn-hidden');
-      const inp = headerSearchWrap.querySelector('input');
-      inp?.focus?.();
-      return;
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+    closeDrawers();
+    if (!/^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(location.hash)) {
+      location.hash = '#/search';
     }
-  }
-  if (headerSearchWrap?.classList.contains('is-open') && !event.target.closest?.('.fx-header-search,.fx-search-overlay')) {
-    closeHeaderSearch(true);
+    schedule();
+    setTimeout(() => {
+      const inp = document.querySelector('#searchPage #searchTextInput, #searchPage input.searchfields-txtSearch, #searchPage input[type="search"], #searchPage input[type="text"]');
+      inp?.focus?.();
+    }, 80);
+    return;
   }
   const target=event.target.closest?.('[data-sleekfin-header-proxy-item],a[href]');if(!target)return;
-  if (searchOverlay && !searchOverlay.hidden && !target.closest('.fx-search-overlay,.fx-header-search')) {
-    closeHeaderSearch(true);
-  }
   const proxy=target.getAttribute('data-sleekfin-header-proxy-item')||'';
   let route=null;
   if(proxy==='jellyfin:movies')route='#/movies';
@@ -1743,7 +1552,10 @@ function remoteKey(event) {
   let next;
   if(card){
     const slotIndex=s.slots.findIndex(slot=>slot.node.contains(card)),track=card.closest('.fx-track'),cards=[...track.querySelectorAll('.fx-card')],index=cards.indexOf(card);
-    if(key==='ArrowLeft'||key==='ArrowRight')next=cards[(index+(key==='ArrowLeft'?-1:1)+cards.length)%cards.length];
+    if(key==='ArrowLeft'||key==='ArrowRight'){
+      const delta=key==='ArrowLeft'?-1:1;
+      next=track?.dataset?.noLoop==='true'?cards[Math.max(0,Math.min(cards.length-1,index+delta))]:cards[(index+delta+cards.length)%cards.length];
+    }
     else{
       const nextSlot=s.slots[slotIndex+(key==='ArrowUp'?-1:1)];
       if(nextSlot){if(!nextSlot.live)fillSlot(nextSlot,s);const options=[...nextSlot.node.querySelectorAll('.fx-card')];next=options[Math.min(index,options.length-1)];}
@@ -1769,7 +1581,7 @@ function start() {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-header-search,.fx-search-overlay,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
@@ -1782,7 +1594,7 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); clearTimeout(headerSearchTimer); observer?.disconnect(); cleanup(false); closeHeaderSearch(true); closeDownloadMenu(); headerSearchWrap?.remove(); headerSearchWrap = null; searchOverlay?.remove(); searchOverlay = null; snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
     document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;

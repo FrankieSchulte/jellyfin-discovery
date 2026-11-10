@@ -181,6 +181,18 @@ test('opening rows pin a theme and rotate a director between defaults; Discover 
   assert.ok(rows[2].dataset.shelfKey.startsWith('director:'));assert.equal(rows[3].dataset.shelfKey,'DiscoverMovies');
   assert.equal(rows[1].dataset.layout,'portrait');assert.equal(rows[3].dataset.layout,'portrait');
   assert.ok(rows[3].querySelector('.fx-card-portrait img').src.endsWith('/Images/Primary'));
+  const seeMoreCard=rows[3].querySelector('.fx-see-more-card');
+  assert.ok(seeMoreCard);
+  assert.equal(seeMoreCard.querySelector('.fx-see-more-label').textContent,'See More');
+  assert.equal(seeMoreCard.querySelector('.fx-see-more-sub').textContent,'Popular Movies');
+  assert.equal(seeMoreCard.querySelector('.fx-name').textContent,'All Popular Movies');
+  const discoverTrack=rows[3].querySelector('.fx-track');
+  assert.equal(discoverTrack.dataset.noLoop,'true');
+  assert.equal(discoverTrack.querySelectorAll('[data-loop-clone]').length,0);
+  Object.defineProperties(discoverTrack,{clientWidth:{value:500},scrollWidth:{value:1500}});
+  discoverTrack.scrollLeft=1000;
+  rows[3].querySelectorAll('.fx-row-head button')[1].click();
+  assert.equal(discoverTrack.scrollLeft,1000);
   f.intersection();await f.settle();assert.ok(f.document.querySelectorAll('.fx-shelf').length>4);
   f.ctx.window.FazFortDiscovery.stop();
 });
@@ -269,9 +281,9 @@ test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly 
   assert.equal((track.scrollLeft + lastScrollBy.left) % 280, 0);
   f.ctx.window.FazFortDiscovery.stop();
 });
-test('React library pages without pageTabContent mount discovery, customize dropdown views, and support header live search and instant boot rows',async()=>{
+test('React library pages without pageTabContent mount discovery, customize dropdown views, and support dedicated search page and instant boot rows',async()=>{
   const f=fixture();await f.settle();
-  const bootRaw=f.storage.get('fazfort-discovery:boot:v1:s:u:home::home');
+  const bootRaw=f.storage.get('fazfort-discovery:boot:v2:s:u:home::home');
   assert.ok(bootRaw);
   const bootParsed=JSON.parse(bootRaw);
   assert.ok(bootParsed.rows.length>=3);
@@ -344,15 +356,8 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.equal(seasonSel.value,'s2');
 
   searchBtn.click();
-  const wrap=f.document.querySelector('.fx-header-search.is-open');
-  assert.ok(wrap);
-  assert.equal(wrap.classList.contains('fx-header-search-inline'),true);
-  assert.equal(wrap.parentElement,proxy);
+  assert.equal(f.location.hash,'#/search');
   assert.notEqual(searchBtn.style.display,'none');
-  const input=wrap.querySelector('.fx-header-search-input');
-  assert.equal(input.type,'text');
-  input.value='Movie 1';
-  input.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
   f.navigate('#/tv?tab=1');
   await f.settle();
   f.ctx.window.FazFortDiscovery.stop();

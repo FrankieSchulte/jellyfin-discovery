@@ -141,9 +141,9 @@ export class JellyfinClient {
     const recentItems = kind => inventory.items.filter(i => i.Type === kind).sort((a, b) => Number(!!arrival(b))-Number(!!arrival(a)) || arrival(b)-arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
     const title = { ContinueWatchingNextUp: 'Continue Watching / Next Up', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
     const seeMoreItem = id === 'DiscoverMovies'
-      ? { Id: 'fx-see-more:movies', Name: 'See More Movies', Type: 'SeeMore', SeeMoreKind: 'movies', SeeMoreSub: 'Browse Popular Movies' }
+      ? { Id: 'fx-see-more:movies', Name: 'All Popular Movies', Type: 'SeeMore', SeeMoreKind: 'movies', SeeMoreLabel: 'See More', SeeMoreSub: 'Popular Movies' }
       : id === 'DiscoverTV'
-        ? { Id: 'fx-see-more:tv', Name: 'See More TV Shows', Type: 'SeeMore', SeeMoreKind: 'tv', SeeMoreSub: 'Browse Popular Series' }
+        ? { Id: 'fx-see-more:tv', Name: 'All Popular Series', Type: 'SeeMore', SeeMoreKind: 'tv', SeeMoreLabel: 'See More', SeeMoreSub: 'Popular Series' }
         : null;
     if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };

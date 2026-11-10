@@ -1,6 +1,6 @@
 {
   "name": "fazfort-discovery",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "private": true,
   "type": "module",
   "description": "Configurable Jellyfin Web discovery feeds with seasonal shelves and continuous browsing",

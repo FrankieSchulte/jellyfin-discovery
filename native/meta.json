@@ -5,7 +5,7 @@
   "overview": "Discovery tools for Jellyfin",
   "owner": "Jellyfin Discovery contributors",
   "category": "General",
-  "version": "0.4.8.0",
+  "version": "0.4.9.0",
   "targetAbi": "12.4.0.0",
   "status": "Active",
   "autoUpdate": false,
