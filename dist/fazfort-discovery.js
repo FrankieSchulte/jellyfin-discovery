@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.3 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.4 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -3373,29 +3373,37 @@ button.fx-settings-menu-row .listItemBodyText{
 .fx-osd-gesture-pill[hidden]{
   display:none!important;
 }
+.fx-osd-gesture-pill[data-pos="top"],
+.fx-osd-gesture-pill:not([data-pos]),
 .fx-osd-gesture-pill-speed{
   top:calc(22px + env(safe-area-inset-top,0px));
   left:50%;
   transform:translateX(-50%) scale(.96);
 }
+.fx-osd-gesture-pill[data-pos="top"].is-visible,
+.fx-osd-gesture-pill:not([data-pos]).is-visible,
 .fx-osd-gesture-pill-speed.is-visible{
   opacity:1;
   transform:translateX(-50%) scale(1);
 }
+.fx-osd-gesture-pill[data-pos="right"],
 .fx-osd-gesture-pill-right{
   top:50%;
   right:12%;
   transform:translateY(-50%) scale(.94);
 }
+.fx-osd-gesture-pill[data-pos="right"].is-visible,
 .fx-osd-gesture-pill-right.is-visible{
   opacity:1;
   transform:translateY(-50%) scale(1);
 }
+.fx-osd-gesture-pill[data-pos="left"],
 .fx-osd-gesture-pill-left{
   top:50%;
   left:12%;
   transform:translateY(-50%) scale(.94);
 }
+.fx-osd-gesture-pill[data-pos="left"].is-visible,
 .fx-osd-gesture-pill-left.is-visible{
   opacity:1;
   transform:translateY(-50%) scale(1);
@@ -4820,7 +4828,7 @@ button.fx-settings-menu-row .listItemBodyText{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.3";
+      const VERSION = "0.5.4";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);

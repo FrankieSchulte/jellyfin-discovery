@@ -1399,29 +1399,37 @@ button.fx-settings-menu-row .listItemBodyText{
 .fx-osd-gesture-pill[hidden]{
   display:none!important;
 }
+.fx-osd-gesture-pill[data-pos="top"],
+.fx-osd-gesture-pill:not([data-pos]),
 .fx-osd-gesture-pill-speed{
   top:calc(22px + env(safe-area-inset-top,0px));
   left:50%;
   transform:translateX(-50%) scale(.96);
 }
+.fx-osd-gesture-pill[data-pos="top"].is-visible,
+.fx-osd-gesture-pill:not([data-pos]).is-visible,
 .fx-osd-gesture-pill-speed.is-visible{
   opacity:1;
   transform:translateX(-50%) scale(1);
 }
+.fx-osd-gesture-pill[data-pos="right"],
 .fx-osd-gesture-pill-right{
   top:50%;
   right:12%;
   transform:translateY(-50%) scale(.94);
 }
+.fx-osd-gesture-pill[data-pos="right"].is-visible,
 .fx-osd-gesture-pill-right.is-visible{
   opacity:1;
   transform:translateY(-50%) scale(1);
 }
+.fx-osd-gesture-pill[data-pos="left"],
 .fx-osd-gesture-pill-left{
   top:50%;
   left:12%;
   transform:translateY(-50%) scale(.94);
 }
+.fx-osd-gesture-pill[data-pos="left"].is-visible,
 .fx-osd-gesture-pill-left.is-visible{
   opacity:1;
   transform:translateY(-50%) scale(1);

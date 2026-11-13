@@ -1,12 +1,12 @@
-Jellyfin Discovery 0.5.3 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.4 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.3):
+Discovery (0.5.4):
 - Expand curated category rules tailored to the library: add 15 show-specific categories on `Shows` (37 total rules, deduplicating legacy `tv-*` duplicates), add 27 tag-driven movie categories on `Movies` (53 total rules), expand `Home` to 61 curated rules, and automatically upgrade uncustomized legacy saved configs.
 - Integrate `Discovery` cleanly into the user preferences card (`#myPreferencesMenuPage .verticalSection`) as a matching `.listItem-border` settings row instead of a full-width top banner, and mount the inline Discovery customization studio directly inside `Settings -> Home` (`#homeScreenPreferencesPage`) while tucking legacy native home controls into a collapsed disclosure.
 - Eliminate `Movies (Leaving Soon)` and `Shows (Leaving Soon)` across the entire experience: exclude virtual folders in `ShelfIntegration.cs`, filter `Leaving Soon` libraries and child items from `JellyfinClient` and `ApiClient` (`getUserViews` / `getItems`), and hide any remaining references across Home, `Settings -> Home`, `Profile`, drawers, and headers.
 - Remove the hover three-dots menu button on content cards (`.fx-card-more` and native `.cardOverlayButton[data-action="menu"]`) while retaining right-click / TV context-menu `More like this`, and keep Library/Collections two-row subheaders (`header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)`) non-sticky at the top of the page so scrolling never overlaps posters.
 - Overhaul mobile UX: smooth horizontal touch scrolling (`copies = 1`, lighter mobile artwork sizes, scroll-idle `normalizeLoop` + clamped `snapScrollDelta`), smaller mobile content cards and 3-column mobile portrait grids, prioritized `Home` / `Movies` / `Shows` bottom navigation with `Settings` in the overflow menu, zero horizontal page overflow, clean 2-row `#itemDetailPage` mobile action layout, Jellyfin mobile app `NativeShell.downloadFiles` integration for `Full Quality` / `Condensed` downloads, and YouTube-style `#videoOsdPage` mobile gestures (double-tap left/right `±10s` skip and right-edge hold for `2×` speed).
 
-Request Hub (0.5.3):
+Request Hub (0.5.4):
 - Move `Discover` out of the mobile bottom navigation bar (`max-width: 899px`) and wire it directly into the SleekFin mobile overflow menu right after `Collections` so `Home`, `Movies`, and `Shows` take priority in the bottom bar.
 - Resize mobile `Discover` cards, 3-column subpage grids, and Genre/Studio/Network media cards to match Discovery's compact mobile proportions with zero horizontal page overflow.

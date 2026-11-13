@@ -470,6 +470,8 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   assert.ok(cssText.includes('header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)'));
   assert.ok(cssText.includes('.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"]'));
   assert.ok(cssText.includes('#itemDetailPage .mainDetailButtons.sleekfin-details-actions'));
+  assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="top"].is-visible'));
+  assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="right"].is-visible'));
 
   f.document.getElementById('indexPage').classList.add('hide');
 
