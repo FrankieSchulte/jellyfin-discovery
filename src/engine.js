@@ -109,11 +109,11 @@ export function validateConfig(config) {
   if (typeof config.endless !== 'boolean' || typeof config.hideWatched !== 'boolean') throw Error('endless and hideWatched must be true or false.');
   for (const page of ['home', 'movies', 'shows']) {
     const profile = config.pages?.[page];
-    if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 100) throw Error(`${page}: use up to 100 rules.`);
+    if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);
     if (!Array.isArray(profile.anchors) || profile.anchors.some(a => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
     if (!Array.isArray(profile.families) || profile.families.some(f => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
-    if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>100||profile.opening.some(t=>typeof t!=='string'||!(t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
-    if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>200||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
+    if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>250||profile.opening.some(t=>typeof t!=='string'||!(t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
+    if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>500||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
     const keys = new Set();
     for (const r of profile.rules) {
       if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);

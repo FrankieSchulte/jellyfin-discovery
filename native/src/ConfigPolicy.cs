@@ -8,7 +8,7 @@ public static class ConfigPolicy
     {
         try
         {
-            if (c.ValueKind != JsonValueKind.Object || c.GetRawText().Length > 128000 || !Integer(c,"schemaVersion",1,1)) return false;
+            if (c.ValueKind != JsonValueKind.Object || c.GetRawText().Length > 256000 || !Integer(c,"schemaVersion",1,1)) return false;
             var allowed = new HashSet<string> { "schemaVersion","timeZone","cardsPerShelf","batchSize","minimumItems","maxLiveRows","endless","hideWatched","pages" };
             if (c.EnumerateObject().Any(p => !allowed.Contains(p.Name))) return false;
             _ = TimeZoneInfo.FindSystemTimeZoneById(c.GetProperty("timeZone").GetString()!);
@@ -20,14 +20,14 @@ public static class ConfigPolicy
                 var p=pages.GetProperty(page);
                 if (!Strings(p.GetProperty("anchors"),new HashSet<string>{"ContinueWatchingNextUp","RecentlyAddedMovies","RecentlyAddedShows","DiscoverMovies","DiscoverTV","MyJellyseerrRequests","MyMedia"}) ||
                     !Strings(p.GetProperty("families"),new HashSet<string>{"theme","genre","director","actor","decade","studio","rating","rewatch","runtime"})) return false;
-                var rules=p.GetProperty("rules"); if(rules.ValueKind!=JsonValueKind.Array || rules.GetArrayLength()>100)return false;
+                var rules=p.GetProperty("rules"); if(rules.ValueKind!=JsonValueKind.Array || rules.GetArrayLength()>250)return false;
                 var ruleKeys=rules.EnumerateArray().Select(r=>r.GetProperty("Key").GetString()).ToHashSet();
                 bool Token(string? token) => token is not null && (
                     token.StartsWith("rule:",StringComparison.Ordinal)&&ruleKeys.Contains(token[5..]) ||
                     token.StartsWith("anchor:",StringComparison.Ordinal)&&new[]{"ContinueWatchingNextUp","RecentlyAddedMovies","RecentlyAddedShows","DiscoverMovies","DiscoverTV","MyJellyseerrRequests","MyMedia"}.Contains(token[7..]) ||
                     token.StartsWith("family:",StringComparison.Ordinal)&&new[]{"theme","genre","director","actor","decade","studio","rating","rewatch","runtime"}.Contains(token[7..]));
-                if(p.TryGetProperty("opening",out var opening)&&opening.ValueKind!=JsonValueKind.Null&&(opening.ValueKind!=JsonValueKind.Array||opening.GetArrayLength()>100||opening.EnumerateArray().Any(t=>t.ValueKind!=JsonValueKind.String||!Token(t.GetString()))))return false;
-                if(p.TryGetProperty("layouts",out var layouts)&&layouts.ValueKind!=JsonValueKind.Null&&(layouts.ValueKind!=JsonValueKind.Object||layouts.EnumerateObject().Count()>200||layouts.EnumerateObject().Any(l=>!Token(l.Name)||l.Value.ValueKind!=JsonValueKind.String||!new[]{"auto","landscape","portrait"}.Contains(l.Value.GetString()))))return false;
+                if(p.TryGetProperty("opening",out var opening)&&opening.ValueKind!=JsonValueKind.Null&&(opening.ValueKind!=JsonValueKind.Array||opening.GetArrayLength()>250||opening.EnumerateArray().Any(t=>t.ValueKind!=JsonValueKind.String||!Token(t.GetString()))))return false;
+                if(p.TryGetProperty("layouts",out var layouts)&&layouts.ValueKind!=JsonValueKind.Null&&(layouts.ValueKind!=JsonValueKind.Object||layouts.EnumerateObject().Count()>500||layouts.EnumerateObject().Any(l=>!Token(l.Name)||l.Value.ValueKind!=JsonValueKind.String||!new[]{"auto","landscape","portrait"}.Contains(l.Value.GetString()))))return false;
                 var keys=new HashSet<string>();
                 foreach(var rule in rules.EnumerateArray())
                 {

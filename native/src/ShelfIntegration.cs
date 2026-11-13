@@ -74,6 +74,7 @@ public sealed class Results(IUserManager users, ILibraryManager library, IDtoSer
             List<BaseItem> items = [];
             foreach (VirtualFolderInfo folderInfo in library.GetVirtualFolders())
             {
+                if (folderInfo.Name?.Contains("Leaving Soon", StringComparison.OrdinalIgnoreCase) == true) continue;
                 if (!Guid.TryParse(folderInfo.ItemId, out Guid folderId)) continue;
                 if (library.GetItemById<BaseItem>(folderId, user) is not Folder folder) continue;
                 items.AddRange(folder.GetItems(new InternalItemsQuery(user)

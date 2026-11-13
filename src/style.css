@@ -11,10 +11,10 @@
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
 .fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
-.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
+.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
-.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(16,17,19,.86)!important;padding:0!important;font-size:24px!important}
+.fx-card-more,.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"],.cardOverlayContainer button[data-action="menu"],.cardFooter button[data-action="menu"]){display:none!important}
 @keyframes fx-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#101113;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#16181b 25%,#23262b 50%,#16181b 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
@@ -48,7 +48,7 @@
 .fx-tv .fx-card-entry:focus-within{z-index:3}.fx-discovery button,.fx-dialog button{min-height:44px;touch-action:manipulation}
 .fx-discovery{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
-@media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.fx-discovery{padding:10px 14px 25px;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:clamp(154px,44vw,215px);flex-basis:clamp(154px,44vw,215px)}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:19px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
 /* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS/native rows never flash. */
 [data-fx-hero-anchor="true"]{min-height:1px}
@@ -68,7 +68,6 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-see-more-arrow{width:48px;height:48px;border-radius:999px;background:#e50914;border:0;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;line-height:1}
 .fx-see-more-label{font-size:1rem;font-weight:700;color:#fff}
 .fx-see-more-sub{font-size:.78rem;color:rgba(255,255,255,.72);line-height:1.3}
-.fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
 .fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#101113;border:1px solid #26292e;border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
 .fx-inline-studio{color:#f1f2f4;background:#101113;border:1px solid #26292e;border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
 .fx-inline-studio button{font:inherit;color:#f1f2f4;background:#1a1c20;border:1px solid #26292e;border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
@@ -128,8 +127,7 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-advanced{margin-top:18px;border:1px solid #26292e;border-radius:12px;padding:8px 14px;background:#101113}.fx-advanced>summary{padding:8px 4px;cursor:pointer;font-weight:600}.fx-advanced textarea{margin-top:12px}
 .fx-editor-alert{color:#fde047;font-weight:600}
 @supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
-@media(hover:none){.fx-card-more{opacity:1}}
-@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-editor-tabs{top:-15px}}
+@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:clamp(98px,28vw,136px);flex-basis:clamp(98px,28vw,136px)}.fx-editor-tabs{top:-15px}}
 .fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
 .fx-shelf{margin-bottom:24px}.fx-row-head{margin-bottom:14px}.fx-name{font-weight:700}
 .fx-toolbar{justify-content:space-between;margin:4px 0 22px;position:relative;z-index:5}
@@ -148,7 +146,22 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-discovery button.fx-dropdown-item.is-selected{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#1a1c20;color:#f1f2f4;border:1px solid #26292e;border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 
-/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections (Single Red Bar) */
+/* Keep Library/Collections Top Subheader Non-Sticky at the Top of the Document & Unify Title Size/Weight */
+header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root){
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  filter:none!important;
+  transform:none!important;
+}
+header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) + div[aria-hidden="true"]{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
@@ -572,7 +585,7 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPa
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
 /* Dedicated Search Page (#searchPage) & Leaving Soon Nav Suppression */
-[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]{
+[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]:not([data-sleekfin-header-overflowed="true"]){
   display:inline-flex!important;
 }
 [data-fx-leaving-hidden="true"],
@@ -1285,14 +1298,332 @@ a.fx-download-option.is-selected{
   min-width:min(160px,100%)!important;
 }
 
+/* Settings Row Parity, Legacy Home Settings Toggle, Download Toast & Mobile OSD Gesture Pill */
+button.fx-settings-menu-row{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  font:inherit!important;
+  color:#f1f2f4!important;
+  box-sizing:border-box!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+button.fx-settings-menu-row .listItemIcon{
+  color:rgba(255,255,255,.76)!important;
+  font-size:22px!important;
+  margin-right:16px!important;
+  flex:0 0 auto!important;
+}
+button.fx-settings-menu-row .listItemBody{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  padding:0!important;
+}
+button.fx-settings-menu-row .listItemBodyText{
+  font-size:15px!important;
+  font-weight:500!important;
+  color:#f1f2f4!important;
+  margin:0!important;
+}
+.fx-legacy-home-settings{
+  margin:20px 0 0!important;
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:14px 18px!important;
+  box-sizing:border-box!important;
+}
+.fx-legacy-home-settings > summary{
+  cursor:pointer!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  color:rgba(255,255,255,.78)!important;
+  padding:4px 2px!important;
+  user-select:none!important;
+}
+.fx-legacy-home-settings[open] > summary{
+  margin-bottom:16px!important;
+  color:#fff!important;
+}
+.fx-toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(88px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%) translateY(8px);
+  opacity:0;
+  pointer-events:none;
+  z-index:100020;
+  padding:10px 18px;
+  border-radius:999px;
+  background:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.02)),rgba(18,19,23,.92);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 36px rgba(0,0,0,.6);
+  color:#fff;
+  font-size:13.5px;
+  font-weight:600;
+  white-space:nowrap;
+  max-width:calc(100vw - 32px);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.fx-toast.is-visible{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.fx-osd-gesture-pill{
+  position:fixed;
+  z-index:100015;
+  pointer-events:none;
+  padding:9px 18px;
+  border-radius:999px;
+  background:rgba(14,15,18,.78);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 10px 28px rgba(0,0,0,.55);
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.02em;
+  opacity:0;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.fx-osd-gesture-pill[hidden]{
+  display:none!important;
+}
+.fx-osd-gesture-pill-speed{
+  top:calc(22px + env(safe-area-inset-top,0px));
+  left:50%;
+  transform:translateX(-50%) scale(.96);
+}
+.fx-osd-gesture-pill-speed.is-visible{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+}
+.fx-osd-gesture-pill-right{
+  top:50%;
+  right:12%;
+  transform:translateY(-50%) scale(.94);
+}
+.fx-osd-gesture-pill-right.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+.fx-osd-gesture-pill-left{
+  top:50%;
+  left:12%;
+  transform:translateY(-50%) scale(.94);
+}
+.fx-osd-gesture-pill-left.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+
+/* Smooth Touch Scrolling on Native Scrollers */
+.emby-scroller{
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+
+/* Mobile Layout, Bottom Nav Priority, Overflow Prevention, Compact Cards & Detail Button Alignment */
+@media(max-width:899px){
+  html,body{
+    max-width:100%;
+    overflow-x:clip;
+  }
+  .mainAnimatedPages,
+  .page:not(#videoOsdPage),
+  #indexPage,
+  #moviesPage,
+  #tvshowsPage,
+  #tvRecommendedPage,
+  #boxsetsPage,
+  #searchPage,
+  #itemDetailPage,
+  #userProfilePage,
+  #myPreferencesMenuPage,
+  #quickConnectPreferencesPage,
+  #displayPreferencesPage,
+  #homeScreenPreferencesPage,
+  #languagePreferencesPage,
+  #subtitlePreferencesPage,
+  #controlsPreferencesPage,
+  .userPreferencesPage{
+    max-width:100vw!important;
+    box-sizing:border-box!important;
+    overflow-x:clip!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+    padding:16px 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
+    max-width:100%!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+    padding:16px!important;
+    max-width:100%!important;
+  }
+  .fx-discovery{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #searchPage#searchPage .searchResults{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  /* Prioritize Home, Movies, and Shows on the Mobile Bottom Bar; Overflow Collections, Discover, Live TV & Settings into Menu */
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy]{
+    max-width:min(calc(100vw - 20px),348px)!important;
+  }
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])){
+    height:auto!important;
+    min-height:10px!important;
+    padding-top:env(safe-area-inset-top,0px)!important;
+    padding-bottom:0!important;
+  }
+}
+@media(max-width:360px){
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-zone="tabs"]{
+    padding-inline:9px!important;
+    font-size:12px!important;
+  }
+}
+
 @media(max-width:768px){
+  .fx-discovery{
+    padding-inline:14px!important;
+  }
+  .fx-inline-studio{
+    padding:16px 14px!important;
+  }
+  .fx-editor-section{
+    padding:14px!important;
+  }
+  .fx-rule-form{
+    padding:14px!important;
+  }
   .fx-toolbar h1,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
-  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:22px!important;line-height:28px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:18.5px!important;line-height:25px!important}
+  .fx-shelf{margin-bottom:20px}
+  .fx-row-head{margin-bottom:10px}
+  .fx-track{gap:10px;padding:2px 2px 10px}
+  .fx-card-entry{
+    width:clamp(154px,44vw,215px)!important;
+    flex:0 0 clamp(154px,44vw,215px)!important;
+  }
+  .fx-card-entry.fx-card-portrait{
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+  }
+  .fx-name,
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{
+    font-size:12.5px!important;
+    margin-top:6px!important;
+  }
+  .fx-badge{
+    font-size:10.5px!important;
+    padding:2px 7px!important;
+  }
+  .fx-see-more-arrow{
+    width:38px!important;
+    height:38px!important;
+    font-size:1.2rem!important;
+  }
+  .fx-see-more-label{
+    font-size:.88rem!important;
+  }
+  .fx-see-more-sub{
+    font-size:.72rem!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer{
+    column-gap:10px!important;
+    gap:10px!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer > :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"]){
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+    max-width:clamp(98px,28vw,136px)!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer > :is(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+    width:clamp(154px,44vw,215px)!important;
+    flex:0 0 clamp(154px,44vw,215px)!important;
+    max-width:clamp(154px,44vw,215px)!important;
+  }
+  #searchPage#searchPage .searchResults .emby-scroller .itemsContainer > :is(.squareCard,.overflowSquareCard){
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+    max-width:clamp(98px,28vw,136px)!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap,
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard,.overflowPortraitCard){
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px 10px!important;
+    padding-top:16px!important;
+    padding-left:14px!important;
+    padding-inline-start:14px!important;
+    padding-right:14px!important;
+    padding-inline-end:14px!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px 10px!important;
+  }
+  #searchPage#searchPage .searchFields{
+    padding:6px 14px 18px!important;
+  }
+  #searchPage#searchPage .searchSuggestions{
+    width:calc(100% - 28px)!important;
+    padding:16px!important;
+  }
   .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
   .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
+}
+
+@media(max-width:767px){
+  /* Clean Two-Row Media Detail Actions on Mobile: Row 1 = Play + Download, Row 2 = Centered Icon Actions */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]){
+    display:flex!important;
+    flex-wrap:wrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:12px!important;
+    width:100%!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-spacer{
+    display:none!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload){
+    order:1!important;
+    flex:1 1 calc(50% - 6px)!important;
+    min-width:120px!important;
+    justify-content:center!important;
+    margin:0!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],.btnPlay,.btnResume,.btnReplay){
+    flex:1 1 100%!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)){
+    order:2!important;
+    flex:0 0 var(--sleekfin-details-button-height,44px)!important;
+    margin:0!important;
+    margin-left:0!important;
+    margin-top:0!important;
+  }
 }

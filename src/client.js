@@ -1,3 +1,21 @@
+const normalizeGuid = id => String(id || '').replace(/-/g, '').toLowerCase();
+export const leavingSoonState = {
+  viewIds: new Set(['5ebc3f61ab8138bcfac3c68317a6be0b', '98081fc4b7413c896b48aaf1e35e8457']),
+  itemIds: new Set(),
+  loadedViews: new Set()
+};
+export function isLeavingSoonItem(item) {
+  if (!item || typeof item !== 'object') return false;
+  const id = normalizeGuid(item.Id);
+  const parentId = normalizeGuid(item.ParentId);
+  const seriesId = normalizeGuid(item.SeriesId);
+  if (id && (leavingSoonState.viewIds.has(id) || leavingSoonState.itemIds.has(id))) return true;
+  if (parentId && leavingSoonState.viewIds.has(parentId)) return true;
+  if (seriesId && (leavingSoonState.viewIds.has(seriesId) || leavingSoonState.itemIds.has(seriesId))) return true;
+  if (/leaving\s+soon/i.test(String(item.Name || '')) || /leaving\s+soon/i.test(String(item.SeriesName || ''))) return true;
+  return false;
+}
+
 export class JellyfinClient {
   constructor(api, current = () => true) {
     this.api = api; this.userId = api.getCurrentUserId(); this.current = current;
@@ -47,8 +65,26 @@ export class JellyfinClient {
   async inventory(route, progress) {
     // Explicit library IDs stay scoped; Home uses only libraries visible to this user.
     const views = await this.json(`Users/${encodeURIComponent(this.userId)}/Views`);
-    this.views = (views.Items || []).filter(v => ['movies', 'tvshows', '', null, undefined].includes(v.CollectionType) && !/leaving\s+soon/i.test(v.Name || ''));
-    const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter(v => route.page === 'home' || !v.CollectionType || v.CollectionType === (route.page === 'movies' ? 'movies' : 'tvshows'));
+    const rawViews = views.Items || [];
+    const leavingViews = rawViews.filter(v => /leaving\s+soon/i.test(v?.Name || '') || leavingSoonState.viewIds.has(normalizeGuid(v?.Id)));
+    for (const lv of leavingViews) {
+      const gid = normalizeGuid(lv?.Id);
+      if (gid) leavingSoonState.viewIds.add(gid);
+      if (gid && !leavingSoonState.loadedViews.has(gid) && typeof this.api?.getItems === 'function') {
+        leavingSoonState.loadedViews.add(gid);
+        Promise.resolve(this.api.getItems(this.userId, { ParentId: lv.Id, Recursive: true, IncludeItemTypes: 'Movie,Series', Limit: 500 }))
+          .then(res => {
+            for (const it of res?.Items || []) {
+              const iid = normalizeGuid(it?.Id);
+              if (iid) leavingSoonState.itemIds.add(iid);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+    this.views = rawViews.filter(v => ['movies', 'tvshows', '', null, undefined].includes(v.CollectionType) && !isLeavingSoonItem(v));
+    const safeParentId = route.parentId && !leavingSoonState.viewIds.has(normalizeGuid(route.parentId)) ? route.parentId : '';
+    const folders = safeParentId ? [{ Id: safeParentId }] : this.views.filter(v => route.page === 'home' || !v.CollectionType || v.CollectionType === (route.page === 'movies' ? 'movies' : 'tvshows'));
     const type = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Series' : 'Movie,Series';
     const all = new Map(), seasons = new Map();
     const tasks = [];
@@ -117,12 +153,12 @@ export class JellyfinClient {
     }
     const results = await Promise.all(tasks);
     this.assertCurrent();
-    const combined = [...(results[0]?.Items || []), ...(results[1]?.Items || [])];
+    const combined = [...(results[0]?.Items || []), ...(results[1]?.Items || [])].filter(i => !isLeavingSoonItem(i));
     if (!combined.length && this.prefetchedSections.has('ContinueWatchingNextUp')) {
       try {
         const pref = await this.prefetchedSections.get('ContinueWatchingNextUp');
         this.prefetchedSections.delete('ContinueWatchingNextUp');
-        if (pref?.Items?.length) return this.groupResume(pref.Items, inventory).slice(0, limit);
+        if (pref?.Items?.length) return this.groupResume(pref.Items.filter(i => !isLeavingSoonItem(i)), inventory).slice(0, limit);
       } catch {}
     }
     return this.groupResume(combined, inventory).slice(0, limit);
@@ -157,8 +193,8 @@ export class JellyfinClient {
       try {
         const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
         if (items.length) {
-          let list = typed(items);
-          if (route.parentId) {
+          let list = typed(items).filter(i => !isLeavingSoonItem(i));
+          if ((route.parentId || leavingSoonState.itemIds.size > 0) && inventory.items?.length) {
             const allowed = new Set(inventory.items.map(i => i.Id));
             list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));
           }
@@ -214,8 +250,8 @@ export class JellyfinClient {
       const prefetched = this.prefetchedSections.get(id);
       if (prefetched) this.prefetchedSections.delete(id);
       const response = prefetched ? await prefetched : await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
-      let list = typed(response.Items || []);
-      if (route.parentId && !id.startsWith('Discover')) {
+      let list = typed(response.Items || []).filter(i => id.startsWith('Discover') || !isLeavingSoonItem(i));
+      if ((route.parentId || leavingSoonState.itemIds.size > 0) && !id.startsWith('Discover') && inventory.items?.length) {
         const allowed = new Set(inventory.items.map(i => i.Id));
         list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));
       }
@@ -228,7 +264,7 @@ export class JellyfinClient {
       this.assertCurrent();
       if (id !== 'ContinueWatchingNextUp') throw error;
       const resume = await this.json('Items/Resume', { UserId: this.userId, Limit: config.cardsPerShelf, ...(route.parentId ? { ParentId: route.parentId } : {}), Fields: 'DateCreated,PrimaryImageAspectRatio', EnableImages: true });
-      return { key: id, title: 'Continue Watching', family: 'anchor', items: this.groupResume(typed(resume.Items || []),inventory).slice(0, config.cardsPerShelf) };
+      return { key: id, title: 'Continue Watching', family: 'anchor', items: this.groupResume(typed(resume.Items || []).filter(i => !isLeavingSoonItem(i)),inventory).slice(0, config.cardsPerShelf) };
     }
   }
 }

@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.2';
+const VERSION = '0.5.3';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -319,7 +319,67 @@ function patchLibraryViews() {
     }
   } catch {}
 }
+function patchApiClientLeavingSoon(api) {
+  if (!api || typeof api !== 'object' || api._fxLeavingPatched) return;
+  try { api._fxLeavingPatched = true; } catch { return; }
+  const isDashboard = () => /^#!?\/?(?:dashboard|configurationpage)/i.test(String(location.hash || ''));
+  const rememberViews = items => {
+    if (!Array.isArray(items)) return;
+    const uid = api.getCurrentUserId?.();
+    for (const v of items) {
+      const gid = normalizeGuid(v?.Id);
+      if (/leaving\s+soon/i.test(String(v?.Name || '')) || (gid && leavingSoonState.viewIds.has(gid))) {
+        if (gid) leavingSoonState.viewIds.add(gid);
+        if (gid && uid && !leavingSoonState.loadedViews.has(gid) && typeof origGetItems === 'function') {
+          leavingSoonState.loadedViews.add(gid);
+          Promise.resolve(origGetItems(uid, { ParentId: v.Id, Recursive: true, IncludeItemTypes: 'Movie,Series', Limit: 500 }))
+            .then(res => {
+              for (const it of res?.Items || []) {
+                const iid = normalizeGuid(it?.Id);
+                if (iid) leavingSoonState.itemIds.add(iid);
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    }
+  };
+  const origGetItems = typeof api.getItems === 'function' ? api.getItems.bind(api) : null;
+  if (typeof api.getUserViews === 'function') {
+    const origViews = api.getUserViews.bind(api);
+    api.getUserViews = function(...args) {
+      return Promise.resolve(origViews(...args)).then(res => {
+        if (res && Array.isArray(res.Items)) {
+          rememberViews(res.Items);
+          if (!isDashboard()) {
+            const filtered = res.Items.filter(v => !isLeavingSoonItem(v));
+            if (filtered.length !== res.Items.length) {
+              return { ...res, Items: filtered, TotalRecordCount: filtered.length };
+            }
+          }
+        }
+        return res;
+      });
+    };
+  }
+  if (origGetItems) {
+    api.getItems = function(userId, options, ...rest) {
+      return Promise.resolve(origGetItems(userId, options, ...rest)).then(res => {
+        if (!res || !Array.isArray(res.Items) || isDashboard()) return res;
+        const requestedParent = normalizeGuid(options?.ParentId);
+        if (requestedParent && leavingSoonState.viewIds.has(requestedParent)) return res;
+        if (!leavingSoonState.viewIds.size && !leavingSoonState.itemIds.size) return res;
+        const filtered = res.Items.filter(it => !isLeavingSoonItem(it));
+        if (filtered.length !== res.Items.length) {
+          return { ...res, Items: filtered, TotalRecordCount: Math.max(0, (res.TotalRecordCount ?? res.Items.length) - (res.Items.length - filtered.length)) };
+        }
+        return res;
+      });
+    };
+  }
+}
 function hideLeavingSoonNav() {
+  if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
   try {
     const raw = window.sessionStorage?.getItem?.('sleekfin:header-sources:v2');
     if (raw && /leaving\s+soon/i.test(raw)) {
@@ -355,10 +415,75 @@ function hideLeavingSoonNav() {
       }
     }
   });
+  document.querySelectorAll('#indexPage .card, #indexPage .verticalSection, #homeScreenPreferencesPage .viewItem, #homeScreenPreferencesPage .checkboxList > *, #homeScreenPreferencesPage .folderList > *, #homeScreenPreferencesPage .listItem, #homeScreenPreferencesPage label, #userProfilePage .folderAccessListContainer label, #userProfilePage .checkboxList > *').forEach(node => {
+    if (node.classList?.contains('verticalSection')) {
+      const heading = node.querySelector('h2, .sectionTitle')?.textContent || '';
+      if (!/leaving\s+soon/i.test(heading)) return;
+    } else {
+      const idAttr = normalizeGuid(node.getAttribute('data-id') || node.getAttribute('data-itemid') || '');
+      const text = (node.getAttribute('aria-label') || node.getAttribute('title') || node.textContent || '').trim();
+      const matchedId = idAttr && (leavingSoonState.viewIds.has(idAttr) || leavingSoonState.itemIds.has(idAttr));
+      if (!matchedId && !/leaving\s+soon/i.test(text)) return;
+    }
+    if (node.getAttribute('data-fx-leaving-hidden') !== 'true') {
+      node.setAttribute('data-fx-leaving-hidden', 'true');
+      node.style.display = 'none';
+    }
+  });
   if (changed && typeof Event === 'function') {
     const fire = () => { try { window.dispatchEvent?.(new Event('resize')); } catch {} };
     if (typeof requestAnimationFrame === 'function') requestAnimationFrame(fire);
     else setTimeout(fire, 0);
+  }
+}
+function syncMobileOverflowDrawer(api = window.ApiClient) {
+  const drawer = document.querySelector('[data-sleekfin-header-overflow-drawer]');
+  if (!drawer) return;
+  if (!api?.getCurrentUserId?.()) {
+    drawer.querySelectorAll('[data-fx-overflow-settings]').forEach(n => n.remove());
+    return;
+  }
+  const existingItems = [...drawer.querySelectorAll('button[data-sleekfin-header-overflow-item], a[data-sleekfin-header-overflow-item]')];
+  if (!existingItems.length) return;
+  const listHost = existingItems[0].parentElement;
+  if (!listHost) return;
+  const isSettingsActive = /^#!?\/?mypreferences/i.test(String(location.hash || ''));
+  let settingsBtn = drawer.querySelector('[data-fx-overflow-settings="true"]');
+  if (!settingsBtn) {
+    const sample = existingItems.find(b => (b.getAttribute('data-sleekfin-header-overflow-item') || '') !== 'jellyfin:user-menu') || existingItems[0];
+    settingsBtn = element('button', sample?.className || '');
+    settingsBtn.type = 'button';
+    settingsBtn.dataset.fxOverflowSettings = 'true';
+    settingsBtn.setAttribute('data-sleekfin-header-overflow-item', 'fx:settings');
+    settingsBtn.title = 'Settings';
+    settingsBtn.setAttribute('aria-label', 'Settings');
+    const vis = element('span');
+    vis.dataset.sleekfinHeaderSourceVisual = 'true';
+    const icon = element('span', 'material-icons settings');
+    icon.dataset.sleekfinHeaderSourceIcon = 'true';
+    icon.setAttribute('aria-hidden', 'true');
+    const lbl = element('span', '', 'Settings');
+    lbl.dataset.sleekfinHeaderSourceLabel = 'true';
+    vis.append(icon, lbl);
+    settingsBtn.append(vis);
+    settingsBtn.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closeDrawers();
+      scrollToTop();
+      location.hash = '#/mypreferencesmenu';
+      schedule();
+    });
+    const beforeAnchor = listHost.querySelector('[data-sleekfin-header-overflow-item="jellyfin:search"], [data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+    if (beforeAnchor && beforeAnchor.parentElement === listHost) listHost.insertBefore(settingsBtn, beforeAnchor);
+    else listHost.append(settingsBtn);
+  }
+  if (isSettingsActive) {
+    settingsBtn.setAttribute('aria-current', 'page');
+    settingsBtn.dataset.sleekfinCurrent = 'true';
+  } else {
+    settingsBtn.removeAttribute('aria-current');
+    delete settingsBtn.dataset.sleekfinCurrent;
   }
 }
 function syncHomeModeAttr(api = window.ApiClient) {
@@ -462,11 +587,52 @@ function syncLibraryViewMenu() {
     });
   }
 }
+const LEGACY_DUPLICATE_SHOW_KEYS = new Set(['tv-drama', 'tv-comedy', 'tv-anime', 'tv-scifi', 'tv-crime', 'tv-acclaimed']);
+const LEGACY_DEFAULT_RULE_COUNTS = { home: 32, movies: 26, shows: 28 };
 function upgradeLegacyConfig(cfg) {
-  if (cfg && typeof cfg === 'object' && cfg.cardsPerShelf === 8) {
+  if (!cfg || typeof cfg !== 'object') return cfg;
+  if (cfg.cardsPerShelf === 8) {
     cfg.cardsPerShelf = 20;
   }
+  if (cfg.pages && DEFAULT_CONFIG?.pages) {
+    for (const page of ['home', 'movies', 'shows']) {
+      const prof = cfg.pages[page];
+      const supplied = DEFAULT_CONFIG.pages[page]?.rules;
+      if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
+      if (page === 'shows') {
+        const pinned = new Set(Array.isArray(prof.opening) ? prof.opening : []);
+        const layouts = prof.layouts && typeof prof.layouts === 'object' ? prof.layouts : null;
+        prof.rules = prof.rules.filter(r => {
+          if (!LEGACY_DUPLICATE_SHOW_KEYS.has(r?.Key)) return true;
+          const tok = `rule:${r.Key}`;
+          return pinned.has(tok) || Boolean(layouts && tok in layouts);
+        });
+      }
+      if (prof.rules.length <= LEGACY_DEFAULT_RULE_COUNTS[page]) {
+        const existingKeys = new Set(prof.rules.map(r => r?.Key).filter(Boolean));
+        for (const rule of supplied) {
+          if (rule?.Key && !existingKeys.has(rule.Key)) {
+            prof.rules.push(cloneJson(rule));
+            existingKeys.add(rule.Key);
+          } else if (page === 'shows' && ['comfort', 'dark-side-laughs', 'mind-benders'].includes(rule?.Key)) {
+            const target = prof.rules.find(r => r?.Key === rule.Key);
+            if (target && Array.isArray(target.TagsAny) && target.TagsAny.length <= 2) {
+              target.TagsAny = [...rule.TagsAny];
+            }
+          }
+        }
+      }
+    }
+  }
   return cfg;
+}
+function isCompactTouchViewport() {
+  try {
+    return Boolean(
+      window.matchMedia?.('(max-width: 768px)')?.matches ||
+      (window.matchMedia?.('(pointer: coarse)')?.matches && (window.innerWidth || 1024) <= 900)
+    );
+  } catch { return false; }
 }
 function readConfig(api) {
   try {
@@ -533,9 +699,12 @@ function safeUrl(value, base = location.href) {
 }
 function imageChoices(item, api, layout = 'landscape') {
   const results = [];
+  const compact = isCompactTouchViewport();
+  const maxWidth = compact ? (layout === 'portrait' ? 300 : 440) : 700;
+  const quality = compact ? 82 : 88;
   const add = (id, type, tag, poster = false) => {
     if (!id || !tag) return;
-    const url = safeUrl(api.getImageUrl(id, { type, tag, maxWidth: 700, quality: 88, ...(type === 'Backdrop' ? { index: 0 } : {}) }));
+    const url = safeUrl(api.getImageUrl(id, { type, tag, maxWidth, quality, ...(type === 'Backdrop' ? { index: 0 } : {}) }));
     if (url) results.push({ url, poster });
   };
   add(item.Id, 'Thumb', item.ImageTags?.Thumb);
@@ -566,14 +735,11 @@ function itemHref(item, api) {
   }
   return item.Id ? `#/details?${q}` : '';
 }
-function attachSimilarControls(entry, card, item, s, name) {
-  if (entry.querySelector('.fx-card-more')) return;
+function attachSimilarControls(entry, card, item, s) {
+  entry.querySelector('.fx-card-more')?.remove();
+  if (card.dataset.fxSimilarBound === 'true') return;
   if (['Movie', 'Series'].includes(item.Type) && s.inventory?.items?.some(i => i.Id === item.Id)) {
-    const more = button('⋯', () => moreLikeThis(item, s));
-    more.className = 'fx-card-more';
-    more.title = 'More like this';
-    more.setAttribute('aria-label', `More like ${name}`);
-    entry.append(more);
+    card.dataset.fxSimilarBound = 'true';
     card.addEventListener('contextmenu', event => { event.preventDefault(); moreLikeThis(item, s); });
   }
 }
@@ -669,16 +835,35 @@ function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   if (withSimilar) attachSimilarControls(entry, card, item, s, name);
   return entry;
 }
-function snapScrollDelta(track, direction, fallbackStep) {
+function snapScrollDelta(track, direction, fallbackStep, clampEnd = false) {
+  const maxScroll = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+  const current = track.scrollLeft || 0;
+  if (clampEnd && maxScroll > 0) {
+    if (direction > 0 && current >= maxScroll - 2) return 0;
+    if (direction < 0 && current <= 2) return 0;
+  }
   const children = [...track.children];
-  if (children.length < 2) return direction * fallbackStep;
+  if (children.length < 2) {
+    const raw = direction * fallbackStep;
+    return clampEnd && maxScroll > 0 ? Math.max(-current, Math.min(maxScroll - current, raw)) : raw;
+  }
   const base = typeof children[0]?.offsetLeft === 'number' ? children[0].offsetLeft : 0;
-  const snaps = children.map(c => (typeof c.offsetLeft === 'number' ? c.offsetLeft - base : 0));
-  if (!snaps.some(x => x > 0)) return direction * fallbackStep;
-  const current = track.scrollLeft;
-  const desired = current + direction * fallbackStep;
-  const candidates = snaps.filter(pos => direction > 0 ? pos > current + 8 : pos < current - 8);
-  if (!candidates.length) return direction * fallbackStep;
+  let snaps = children.map(c => (typeof c.offsetLeft === 'number' ? c.offsetLeft - base : 0));
+  if (!snaps.some(x => x > 0)) {
+    const raw = direction * fallbackStep;
+    return clampEnd && maxScroll > 0 ? Math.max(-current, Math.min(maxScroll - current, raw)) : raw;
+  }
+  if (clampEnd && maxScroll > 0) {
+    snaps = [...new Set(snaps.map(pos => Math.min(pos, maxScroll)))];
+  }
+  const desired = clampEnd && maxScroll > 0
+    ? Math.max(0, Math.min(maxScroll, current + direction * fallbackStep))
+    : current + direction * fallbackStep;
+  const candidates = snaps.filter(pos => direction > 0 ? pos > current + 4 : pos < current - 4);
+  if (!candidates.length) {
+    if (clampEnd && maxScroll > 0) return direction > 0 ? Math.max(0, maxScroll - current) : -current;
+    return direction * fallbackStep;
+  }
   let best = candidates[0];
   for (const pos of candidates) {
     if (Math.abs(pos - desired) < Math.abs(best - desired)) best = pos;
@@ -690,8 +875,10 @@ function fillSlot(slot, s) {
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
   const baseCount = row.items.length;
   const hasSeeMore = row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || row.items.some(i => i.Type === 'SeeMore');
-  if (hasSeeMore) track.dataset.noLoop = 'true';
-  const copies = row.key !== 'MyMedia' && !hasSeeMore && baseCount >= 2
+  const compactTouch = isCompactTouchViewport();
+  const noLoop = hasSeeMore || row.key === 'MyMedia' || compactTouch;
+  if (noLoop) track.dataset.noLoop = 'true';
+  const copies = !noLoop && baseCount >= 2
     ? (s.route.view === 'genres' ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)))
     : 1;
   const cycleWidth = () => {
@@ -706,8 +893,17 @@ function fillSlot(slot, s) {
     while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
     if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
   };
+  const finishProgrammatic = () => {
+    clearTimeout(track._fxScrollTimer);
+    track._fxProgrammatic = false;
+    normalizeLoop();
+  };
+  const bumpProgrammaticTimer = (ms = 200) => {
+    clearTimeout(track._fxScrollTimer);
+    track._fxScrollTimer = setTimeout(finishProgrammatic, ms);
+  };
   const scroll = direction => {
-    const cw = cycleWidth(), step = Math.max(250, Math.round(track.clientWidth * 0.85));
+    const cw = cycleWidth(), step = Math.max(180, Math.round((track.clientWidth || 320) * 0.85));
     if (cw > 0) {
       clearTimeout(track._fxScrollTimer);
       track._fxProgrammatic = true;
@@ -720,30 +916,43 @@ function fillSlot(slot, s) {
       }
       track.style.scrollBehavior = prevBehavior;
       track._fxMoved = true;
-      const delta = snapScrollDelta(track, direction, step);
-      track.scrollBy({ left: delta, behavior: 'smooth' });
-      track._fxScrollTimer = setTimeout(() => {
-        track._fxProgrammatic = false;
-        normalizeLoop();
-      }, 520);
+      const delta = snapScrollDelta(track, direction, step, false);
+      if (delta !== 0) {
+        track.scrollBy({ left: delta, behavior: 'smooth' });
+        bumpProgrammaticTimer(750);
+      } else {
+        finishProgrammatic();
+      }
       return;
     }
     if (hasSeeMore) {
-      const delta = snapScrollDelta(track, direction, step);
-      track.scrollBy({ left: delta, behavior: 'smooth' });
+      const delta = snapScrollDelta(track, direction, step, true);
+      if (delta !== 0) track.scrollBy({ left: delta, behavior: 'smooth' });
       return;
     }
-    const end = Math.max(0, track.scrollWidth - track.clientWidth);
-    if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
-    else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
-    else {
-      const delta = snapScrollDelta(track, direction, step);
-      track.scrollBy({ left: delta, behavior: 'smooth' });
+    const end = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+    if (direction > 0 && track.scrollLeft >= end - 2) {
+      if (typeof track.scrollTo === 'function' && compactTouch) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollLeft = 0;
+    } else if (direction < 0 && track.scrollLeft <= 2) {
+      if (typeof track.scrollTo === 'function' && compactTouch) track.scrollTo({ left: end, behavior: 'smooth' });
+      else track.scrollLeft = end;
+    } else {
+      const delta = snapScrollDelta(track, direction, step, true);
+      if (delta !== 0) track.scrollBy({ left: delta, behavior: 'smooth' });
     }
   };
   track.addEventListener('scroll', () => {
     if (track.scrollLeft > 12) track._fxMoved = true;
+    if (track._fxProgrammatic) {
+      bumpProgrammaticTimer(180);
+      return;
+    }
     normalizeLoop();
+  }, { passive: true });
+  track.addEventListener('scrollend', () => {
+    if (track._fxProgrammatic) finishProgrammatic();
+    else normalizeLoop();
   }, { passive: true });
   track.addEventListener('wheel', e => {
     if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
@@ -753,26 +962,27 @@ function fillSlot(slot, s) {
       else if (e.deltaX > 0 && track.scrollLeft >= cw * (copies - 1.5)) { track.scrollLeft -= cw; track._fxMoved = true; }
       return;
     }
-    if (hasSeeMore) return;
+    if (noLoop) return;
     const end = track.scrollWidth - track.clientWidth;
     if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) { e.preventDefault(); scroll(e.deltaX > 0 ? 1 : -1); }
   }, { passive: false });
-  let touchX;
-  track.addEventListener('touchstart', e => {
-    touchX = e.touches[0]?.clientX;
-    const cw = cycleWidth();
-    if (cw > 0 && track.scrollLeft <= 12) { track.scrollLeft += cw; track._fxMoved = true; }
-  }, { passive: true });
-  track.addEventListener('touchend', e => {
-    const delta = touchX - e.changedTouches[0]?.clientX;
-    if (Math.abs(delta) > 40) {
+  if (!noLoop) {
+    let touchX;
+    track.addEventListener('touchstart', e => {
+      touchX = e.touches[0]?.clientX;
       const cw = cycleWidth();
-      if (cw > 0) { normalizeLoop(); return; }
-      if (hasSeeMore) return;
-      const end = track.scrollWidth - track.clientWidth;
-      if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
-    }
-  }, { passive: true });
+      if (cw > 0 && track.scrollLeft <= 12) { track.scrollLeft += cw; track._fxMoved = true; }
+    }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const delta = touchX - e.changedTouches[0]?.clientX;
+      if (Math.abs(delta) > 40) {
+        const cw = cycleWidth();
+        if (cw > 0) { normalizeLoop(); return; }
+        const end = track.scrollWidth - track.clientWidth;
+        if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  }
   const back = button('‹', () => scroll(-1)), forward = button('›', () => scroll(1));
   back.setAttribute('aria-label', `Previous ${row.title}`); forward.setAttribute('aria-label', `More ${row.title}`);
   const token = row.family === 'anchor' ? `anchor:${row.key}` : row.family === 'theme' ? row.key : `family:${row.family}`;
@@ -1308,14 +1518,60 @@ function inferDownloadTitle(itemId, btn) {
   if (detailTitle) return sanitizeFilename(detailTitle);
   return '';
 }
+function showToast(text) {
+  let toast = document.querySelector('.fx-toast');
+  if (!toast) {
+    toast = element('div', 'fx-toast');
+    toast.setAttribute('role', 'status');
+    document.body.append(toast);
+  }
+  toast.textContent = text;
+  toast.classList.add('is-visible');
+  clearTimeout(toast._fxTimer);
+  toast._fxTimer = setTimeout(() => {
+    toast.classList.remove('is-visible');
+  }, 2400);
+}
 function triggerUrlDownload(url, filename = '') {
   const a = element('a');
   a.href = url;
   a.setAttribute('download', filename || '');
   a.rel = 'noopener noreferrer';
+  if (isCompactTouchViewport()) a.target = '_blank';
   document.body.append(a);
   a.click();
   a.remove();
+}
+async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api }) {
+  const absUrl = safeUrl(url, location.href) || url;
+  const nativeShell = window.NativeShell;
+  if (nativeShell && (typeof nativeShell.downloadFiles === 'function' || typeof nativeShell.downloadFile === 'function')) {
+    let itemObj = cachedItem || state?.byId?.get(itemId) || state?.inventory?.items?.find(i => i.Id === itemId) || null;
+    const uid = api?.getCurrentUserId?.();
+    if (!itemObj && uid && typeof api?.getJSON === 'function' && typeof api?.getUrl === 'function') {
+      try {
+        itemObj = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
+      } catch {}
+    }
+    const finalBase = formatItemDownloadBase(itemObj) || baseTitle || 'video';
+    const finalFilename = filename || `${finalBase}.mp4`;
+    const payload = {
+      url: absUrl,
+      item: itemObj || { Id: itemId, Name: finalBase, ServerId: api?.serverId?.() || '' },
+      itemId,
+      serverId: itemObj?.ServerId || api?.serverId?.() || '',
+      title: itemObj?.Name || finalBase,
+      filename: finalFilename
+    };
+    if (typeof nativeShell.downloadFiles === 'function') {
+      await nativeShell.downloadFiles([payload]);
+    } else {
+      await nativeShell.downloadFile(payload);
+    }
+    showToast('Added to Jellyfin Downloads');
+    return;
+  }
+  triggerUrlDownload(absUrl, filename);
 }
 function openDownloadMenu(btn, itemId, api) {
   if (downloadMenu && downloadMenuTrigger === btn) {
@@ -1325,12 +1581,14 @@ function openDownloadMenu(btn, itemId, api) {
   closeDownloadMenu();
   downloadMenuTrigger = btn;
   let baseTitle = inferDownloadTitle(itemId, btn);
+  let resolvedItem = state?.byId?.get(itemId) || state?.inventory?.items?.find(i => i.Id === itemId) || null;
   const token = api.accessToken?.() || '';
   const resolveApiUrl = (path, params) => {
     const raw = api.getUrl?.(path, params);
-    if (typeof raw === 'string') return raw;
+    if (typeof raw === 'string') return safeUrl(raw, location.href) || raw;
     const qs = new URLSearchParams(params || {}).toString();
-    return `/${String(path).replace(/^\/+/, '')}${qs ? '?' + qs : ''}`;
+    const rel = `/${String(path).replace(/^\/+/, '')}${qs ? '?' + qs : ''}`;
+    return safeUrl(rel, location.href) || rel;
   };
   const fullUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
     Static: 'true',
@@ -1358,14 +1616,18 @@ function openDownloadMenu(btn, itemId, api) {
 
   const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), 'video')}.mp4`;
   const makeOption = (title, url) => {
-    const opt = element('a', 'fx-download-option', title);
-    opt.href = url;
+    const opt = element('button', 'fx-download-option', title);
+    opt.type = 'button';
+    opt.dataset.downloadUrl = url;
     opt.setAttribute('download', fileFor());
-    opt.rel = 'noopener noreferrer';
     opt.setAttribute('role', 'menuitem');
-    opt.addEventListener('click', () => {
-      opt.setAttribute('download', fileFor());
-      setTimeout(closeDownloadMenu, 60);
+    opt.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const filename = fileFor();
+      opt.setAttribute('download', filename);
+      closeDownloadMenu();
+      startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api });
     });
     return opt;
   };
@@ -1377,6 +1639,7 @@ function openDownloadMenu(btn, itemId, api) {
   if (uid && typeof api.getJSON === 'function' && typeof api.getUrl === 'function') {
     Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`)))
       .then(info => {
+        if (info && typeof info === 'object') resolvedItem = info;
         const refined = formatItemDownloadBase(info);
         if (refined) {
           baseTitle = refined;
@@ -1519,7 +1782,7 @@ async function buildStandaloneSettingsState(api){
   const s={api,scope,root:element('div'),route:{page:state?.route?.page||'home'},config:null,inventory:inv};
   try{s.config=readConfig(api);}catch{}
   s.client=new JellyfinClient(api,()=>scopeKey(api)===scope);
-  try{const profile=await s.client.preferences();s.config=profile.config?validateConfig(profile.config):s.config;s.profileVersion=profile.version;s.syncAvailable=true;}catch{s.client.assertCurrent();}
+  try{const profile=await s.client.preferences();s.config=profile.config?validateConfig(upgradeLegacyConfig(profile.config)):s.config;s.profileVersion=profile.version;s.syncAvailable=true;}catch{s.client.assertCurrent();}
   return s;
 }
 async function openUserSettings(api){
@@ -1537,11 +1800,49 @@ async function mountInlineSettings(host, api = window.ApiClient){
 }
 function syncSettings(api){
   const scope=api?.getCurrentUserId?.()?scopeKey(api):'';
-  if(settingsScope&&scope!==settingsScope){closeDialog();document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());}settingsScope=scope;
-  if(!scope||!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))return;
-  const page=[...document.querySelectorAll('.userPreferencesPage')].find(visible);
-  if(!page||page.querySelector('[data-fx-settings-link]'))return;
-  const link=button('Discovery settings',()=>openUserSettings(api));link.dataset.fxSettingsLink='true';link.className='fx-profile-settings';page.prepend(link);
+  if(settingsScope&&scope!==settingsScope){
+    closeDialog();
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio]').forEach(n=>n.remove());
+  }
+  settingsScope=scope;
+  if(!scope)return;
+  if(/^#!?\/?mypreferencesmenu(?:[?]|$)/i.test(location.hash)){
+    const page=[...document.querySelectorAll('#myPreferencesMenuPage,.userPreferencesPage')].find(visible);
+    if(page&&!page.querySelector('[data-fx-settings-link]')){
+      const section=page.querySelector('.verticalSection:has(.listItem-border)')||page.querySelector('.readOnlyContent .verticalSection')||page.querySelector('.verticalSection')||page;
+      const link=element('button','emby-button listItem-border fx-settings-menu-row');
+      link.type='button';
+      link.dataset.fxSettingsLink='true';
+      const itemRow=element('div','listItem');
+      const icon=element('span','material-icons tune listItemIcon','');
+      icon.setAttribute('aria-hidden','true');
+      const body=element('div','listItemBody');
+      body.append(element('div','listItemBodyText','Discovery'));
+      itemRow.append(icon,body);
+      link.append(itemRow);
+      link.addEventListener('click',()=>openUserSettings(api));
+      const homeAnchor=section.querySelector('a[href*="mypreferenceshome"], [data-id="home"]');
+      if(homeAnchor&&homeAnchor.parentElement===section)homeAnchor.after(link);
+      else section.append(link);
+    }
+  }
+  if(/^#!?\/?mypreferenceshome(?:[?]|$)/i.test(location.hash)){
+    const homePref=[...document.querySelectorAll('#homeScreenPreferencesPage,.homeScreenPreferencesPage')].find(visible);
+    if(homePref&&!homePref.querySelector('[data-fx-home-studio]')){
+      const container=homePref.querySelector('.readOnlyContent')||homePref.querySelector('.content-primary')||homePref;
+      const nativeForm=container.querySelector('form,.homeScreenSettingsContainer');
+      if(nativeForm&&!nativeForm.closest('.fx-legacy-home-settings')){
+        const details=element('details','fx-legacy-home-settings');
+        const summary=element('summary','','Legacy Jellyfin Home sections (used only when Normal Home is active)');
+        nativeForm.before(details);
+        details.append(summary,nativeForm);
+      }
+      const host=element('div');
+      host.dataset.fxHomeStudio='true';
+      container.prepend(host);
+      mountInlineSettings(host,api);
+    }
+  }
 }
 function visible(node) {
   if (!node?.isConnected || node.closest('.hide,[hidden],.hidePage')) return false;
@@ -1586,6 +1887,7 @@ function reconcile() {
   const api = window.ApiClient, route = routeInfo(location.hash);
   syncSettings(api);
   syncLibraryViewMenu();
+  syncMobileOverflowDrawer(api);
   syncHomeModeAttr(api);
   if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
@@ -1676,8 +1978,11 @@ function schedule() { if (!timer && !stopped) timer = setTimeout(reconcile, 120)
 function closeDrawers(){
   document.querySelectorAll('.mainDrawer.drawer-open,.touch-menu-la.drawer-open').forEach(d=>d.classList.remove('drawer-open'));
   document.body?.classList?.remove('menu-open','withSectionTabs');
-  document.querySelectorAll('.mainDrawer-backdrop,.backdrop-open,.MuiDrawer-root .MuiBackdrop-root').forEach(b=>{
+  document.querySelectorAll('.mainDrawer-backdrop,.backdrop-open,.MuiDrawer-root .MuiBackdrop-root,[data-sleekfin-header-overflow-backdrop]').forEach(b=>{
     try{if(getComputedStyle(b).display!=='none'&&getComputedStyle(b).visibility!=='hidden')b.click?.();}catch{}
+  });
+  document.querySelectorAll('[data-sleekfin-header-overflow-toggle][aria-expanded="true"]').forEach(t=>{
+    try{t.click?.();}catch{}
   });
 }
 function navSuggestions(event){
@@ -1714,7 +2019,7 @@ function navSuggestions(event){
     scrollToTop();
     setTimeout(scrollToTop, 40);
   }
-  const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+  const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
     event.preventDefault();
     event.stopImmediatePropagation?.();
@@ -1732,8 +2037,9 @@ function navSuggestions(event){
     }, 80);
     return;
   }
-  const target=event.target.closest?.('[data-sleekfin-header-proxy-item],a[href]');if(!target)return;
-  const proxy=target.getAttribute('data-sleekfin-header-proxy-item')||'';
+  const target=event.target.closest?.('[data-sleekfin-header-proxy-item],[data-sleekfin-header-overflow-item],a[href]');if(!target)return;
+  const proxy=target.getAttribute('data-sleekfin-header-proxy-item')||target.getAttribute('data-sleekfin-header-overflow-item')||'';
+  if(proxy==='fx:settings')return;
   let route=null;
   if(proxy==='jellyfin:movies')route='#/movies';
   else if(proxy==='jellyfin:shows')route='#/tv';
@@ -1752,7 +2058,7 @@ function navSuggestions(event){
   }else{
     route=target.getAttribute('href');
   }
-  if(!proxy&&!target.closest('header,.headerTabs,[data-sleekfin-header-proxy]'))return;
+  if(!proxy&&!target.closest('header,.headerTabs,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]'))return;
   if(!route)return;
   const normalized=route.startsWith('#')?route:'#'+route.replace(/^\/+/,'/');
   if(/^#!?\/?(movies|tv|tvshows)(?:\.html)?(?:[?]|$)/i.test(normalized)){
@@ -1847,14 +2153,180 @@ function remoteKeyUp(event){
   event.preventDefault();event.stopPropagation();const held=selectHold;selectHold=null;clearTimeout(held.timer);
   if(!held.fired&&held.node.isConnected)held.node.click();
 }
+const osdGesture = {
+  holdTimer: 0,
+  pillTimer: 0,
+  streakTimer: 0,
+  suppressClickUntil: 0,
+  touching: false,
+  moved: false,
+  holdActive: false,
+  savedRate: 1,
+  activeVideo: null,
+  startX: 0,
+  startY: 0,
+  startAt: 0,
+  lastTap: null,
+  streakZone: '',
+  streakSec: 0
+};
+function findActiveOsdVideo() {
+  const osd = document.getElementById('videoOsdPage');
+  if (!osd || osd.classList.contains('hide') || osd.classList.contains('hidePage') || osd.hidden) return null;
+  return document.querySelector('video.htmlvideoplayer') || osd.querySelector('video') || document.querySelector('.videoPlayerContainer video');
+}
+function showOsdGesturePill(label, position = 'center', persistent = false) {
+  let pill = document.querySelector('.fx-osd-gesture-pill');
+  if (!pill) {
+    pill = element('div', 'fx-osd-gesture-pill');
+    pill.setAttribute('aria-live', 'polite');
+    document.body.append(pill);
+  }
+  clearTimeout(osdGesture.pillTimer);
+  pill.textContent = label;
+  pill.dataset.pos = position;
+  pill.classList.add('is-visible');
+  if (!persistent) {
+    osdGesture.pillTimer = setTimeout(() => {
+      pill.classList.remove('is-visible');
+    }, 720);
+  }
+}
+function hideOsdGesturePill() {
+  clearTimeout(osdGesture.pillTimer);
+  const pill = document.querySelector('.fx-osd-gesture-pill');
+  pill?.classList.remove('is-visible');
+}
+function releaseOsdSpeedHold() {
+  clearTimeout(osdGesture.holdTimer);
+  osdGesture.holdTimer = 0;
+  if (osdGesture.holdActive) {
+    if (osdGesture.activeVideo) {
+      try { osdGesture.activeVideo.playbackRate = osdGesture.savedRate || 1; } catch {}
+    }
+    osdGesture.holdActive = false;
+    osdGesture.activeVideo = null;
+    hideOsdGesturePill();
+  }
+}
+function isOsdInteractiveTarget(target) {
+  return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+}
+function onOsdTouchStart(event) {
+  if (!event.touches || event.touches.length !== 1) {
+    releaseOsdSpeedHold();
+    osdGesture.touching = false;
+    return;
+  }
+  const video = findActiveOsdVideo();
+  if (!video || isOsdInteractiveTarget(event.target)) return;
+  const t = event.touches[0];
+  const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
+  if (!vw) return;
+  osdGesture.touching = true;
+  osdGesture.moved = false;
+  osdGesture.startX = t.clientX;
+  osdGesture.startY = t.clientY;
+  osdGesture.startAt = Date.now();
+  clearTimeout(osdGesture.holdTimer);
+  if (t.clientX >= vw * 0.72) {
+    osdGesture.holdTimer = setTimeout(() => {
+      if (!osdGesture.touching || osdGesture.moved || osdGesture.holdActive) return;
+      const v = findActiveOsdVideo();
+      if (!v || v.paused) return;
+      osdGesture.holdActive = true;
+      osdGesture.activeVideo = v;
+      osdGesture.savedRate = Number.isFinite(v.playbackRate) && v.playbackRate > 0 ? v.playbackRate : 1;
+      try { v.playbackRate = 2; } catch {}
+      showOsdGesturePill('2× Speed ▸▸', 'top', true);
+    }, 320);
+  }
+}
+function onOsdTouchMove(event) {
+  if (!osdGesture.touching || !event.touches?.length) return;
+  const t = event.touches[0];
+  if (Math.hypot(t.clientX - osdGesture.startX, t.clientY - osdGesture.startY) > 16) {
+    osdGesture.moved = true;
+    if (!osdGesture.holdActive) {
+      clearTimeout(osdGesture.holdTimer);
+      osdGesture.holdTimer = 0;
+    }
+  }
+}
+function onOsdTouchEnd(event) {
+  clearTimeout(osdGesture.holdTimer);
+  osdGesture.holdTimer = 0;
+  if (!osdGesture.touching) return;
+  osdGesture.touching = false;
+  if (osdGesture.holdActive) {
+    releaseOsdSpeedHold();
+    osdGesture.suppressClickUntil = Date.now() + 380;
+    if (event.cancelable) event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+    return;
+  }
+  if (event.type === 'touchcancel' || osdGesture.moved || isOsdInteractiveTarget(event.target)) return;
+  const video = findActiveOsdVideo();
+  if (!video) return;
+  const now = Date.now();
+  if (now - osdGesture.startAt > 300) return;
+  const t = event.changedTouches?.[0];
+  const x = t ? t.clientX : osdGesture.startX;
+  const y = t ? t.clientY : osdGesture.startY;
+  const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
+  if (!vw) return;
+  const zone = x >= vw * 0.60 ? 'right' : (x <= vw * 0.40 ? 'left' : '');
+  if (!zone) {
+    osdGesture.lastTap = null;
+    return;
+  }
+  const streakContinue = osdGesture.streakZone === zone && osdGesture.lastTap && (now - osdGesture.lastTap.time) <= 650;
+  const isDoubleTap = streakContinue || (
+    osdGesture.lastTap &&
+    osdGesture.lastTap.zone === zone &&
+    (now - osdGesture.lastTap.time) <= 340 &&
+    Math.hypot(x - osdGesture.lastTap.x, y - osdGesture.lastTap.y) <= 68
+  );
+  osdGesture.lastTap = { zone, x, y, time: now };
+  if (!isDoubleTap) return;
+  const delta = zone === 'right' ? 10 : -10;
+  osdGesture.streakZone = zone;
+  osdGesture.streakSec = streakContinue ? osdGesture.streakSec + delta : delta;
+  clearTimeout(osdGesture.streakTimer);
+  osdGesture.streakTimer = setTimeout(() => {
+    osdGesture.streakZone = '';
+    osdGesture.streakSec = 0;
+  }, 680);
+  const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Infinity;
+  const nextTime = Math.max(0, Math.min(dur, (Number(video.currentTime) || 0) + delta));
+  try { video.currentTime = nextTime; } catch {}
+  const absSec = Math.abs(osdGesture.streakSec);
+  showOsdGesturePill(zone === 'right' ? `+${absSec}s ▸▸` : `◂◂ -${absSec}s`, zone, false);
+  osdGesture.suppressClickUntil = now + 380;
+  if (event.cancelable) event.preventDefault();
+  event.stopImmediatePropagation?.();
+  event.stopPropagation();
+}
+function onOsdSuppressClick(event) {
+  if (Date.now() <= osdGesture.suppressClickUntil && findActiveOsdVideo() && !isOsdInteractiveTarget(event.target)) {
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+  }
+}
 function onRouteEvent() {
+  releaseOsdSpeedHold();
   syncLibraryViewMenu();
+  syncMobileOverflowDrawer(window.ApiClient);
   schedule();
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
+  if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
   patchLibraryViews();
   syncLibraryViewMenu();
+  syncMobileOverflowDrawer(window.ApiClient);
   syncHomeModeAttr(window.ApiClient);
   if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
@@ -1862,11 +2334,18 @@ function start() {
   observer = new MutationObserver(records => {
     if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu'))) {
       hideLeavingSoonNav();
+      syncMobileOverflowDrawer(window.ApiClient);
     }
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('click', onOsdSuppressClick, true);
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', onRouteEvent); window.addEventListener('popstate', onRouteEvent); document.addEventListener('viewshow', onRouteEvent);
+  document.addEventListener('touchstart', onOsdTouchStart, { passive: true, capture: true });
+  document.addEventListener('touchmove', onOsdTouchMove, { passive: true, capture: true });
+  document.addEventListener('touchend', onOsdTouchEnd, { passive: false, capture: true });
+  document.addEventListener('touchcancel', onOsdTouchEnd, { passive: true, capture: true });
+  window.addEventListener('blur', releaseOsdSpeedHold);
   window.addEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
   document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', scheduleScroll);
@@ -1877,14 +2356,21 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
+    document.removeEventListener('click', onOsdSuppressClick, true);
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
+    document.removeEventListener('touchstart', onOsdTouchStart, true);
+    document.removeEventListener('touchmove', onOsdTouchMove, true);
+    document.removeEventListener('touchend', onOsdTouchEnd, true);
+    document.removeEventListener('touchcancel', onOsdTouchEnd, true);
+    window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],.fx-osd-gesture-pill,.fx-toast').forEach(n=>n.remove());
+    document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };
 if (document.body) start(); else document.addEventListener('DOMContentLoaded', start, { once: true });

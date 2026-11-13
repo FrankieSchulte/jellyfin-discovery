@@ -778,9 +778,26 @@
       })));
       await Promise.all([pTrending, pMovies, pGenres, pSeries]);
     }
+    function closeMobileDrawers() {
+      const backdrop = document.querySelector("[data-sleekfin-header-overflow-backdrop]");
+      if (backdrop && !backdrop.hidden && backdrop.getAttribute("aria-hidden") !== "true") {
+        try {
+          backdrop.click();
+        } catch {
+        }
+      }
+      const toggle = document.querySelector('[data-sleekfin-header-overflow-toggle][aria-expanded="true"]');
+      if (toggle) {
+        try {
+          toggle.click();
+        } catch {
+        }
+      }
+    }
     function openDiscoverRoute(e) {
       var _a2;
       (_a2 = e == null ? void 0 : e.preventDefault) == null ? void 0 : _a2.call(e);
+      closeMobileDrawers();
       scrollToTop();
       if (isDiscoverHash() && (root == null ? void 0 : root.isConnected) && subviewActive) {
         returnToOverview();
@@ -794,7 +811,7 @@
       setTimeout(reconcile, 150);
     }
     function ensureNavigation(active) {
-      var _a2, _b2, _c2;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
       if (permAllowed !== true) {
         removeNavigation();
         return;
@@ -817,49 +834,111 @@
         sourceHost.append(src);
         addedSource = true;
       }
-      if (addedSource && ((_b2 = (_a2 = window.SleekFinFeatures) == null ? void 0 : _a2.header) == null ? void 0 : _b2.refresh)) {
-        try {
-          window.SleekFinFeatures.header.refresh();
-        } catch {
+      if (addedSource) {
+        if ((_b2 = (_a2 = window.SleekFinFeatures) == null ? void 0 : _a2.header) == null ? void 0 : _b2.refresh) {
+          try {
+            window.SleekFinFeatures.header.refresh();
+          } catch {
+          }
+        }
+        if (typeof Event === "function") {
+          try {
+            (_c2 = window.dispatchEvent) == null ? void 0 : _c2.call(window, new Event("resize"));
+          } catch {
+          }
         }
       }
+      const isMobileHeader = Boolean((_e2 = (_d2 = window.matchMedia) == null ? void 0 : _d2.call(window, "(max-width: 899px)")) == null ? void 0 : _e2.matches);
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
+      const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
       if (proxy) {
         document.querySelectorAll("[data-rh-link]").forEach((n) => {
-          if (!proxy.contains(n)) n.remove();
+          if (!proxy.contains(n) && !(overflowDrawer && overflowDrawer.contains(n))) n.remove();
         });
         const nativeProxyBtn = [...proxy.querySelectorAll("button[data-sleekfin-header-proxy-item]")].find((b) => {
           const itemKey = b.getAttribute("data-sleekfin-header-proxy-item") || "";
           if (itemKey === "requesthub:discover") return false;
-          if (itemKey === "dom:toolbar-discover") return true;
+          if (itemKey === "dom:toolbar-discover" || itemKey === "source:v1:96dd680085f8e0120c78fac6efbf540c") return true;
           const lbl = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
           return itemKey.startsWith("source:") && lbl === "discover";
         });
-        if (nativeProxyBtn) {
+        if (isMobileHeader) {
           proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
-          nativeProxyBtn.dataset.rhLink = "true";
-          nativeProxyBtn.onclick = openDiscoverRoute;
-        } else if (!proxy.querySelector("[data-rh-link]")) {
-          const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
-          const btn = button("", openDiscoverRoute, "rh-nav");
-          btn.dataset.rhLink = "true";
-          btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
-          btn.dataset.sleekfinHeaderZone = "tabs";
-          btn.dataset.sleekfinHeaderDisplay = ((_c2 = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _c2.sleekfinHeaderDisplay) || "both";
-          btn.title = "Discover";
-          btn.setAttribute("aria-label", "Discover");
-          const vis = el("span", "");
-          vis.dataset.sleekfinHeaderSourceVisual = "true";
-          const icon = el("span", "", "material-icons explore");
-          icon.dataset.sleekfinHeaderSourceIcon = "true";
-          icon.setAttribute("aria-hidden", "true");
-          const label = el("span", "Discover");
-          label.dataset.sleekfinHeaderSourceLabel = "true";
-          vis.append(icon, label);
-          btn.append(vis);
-          const anchor = proxy.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
-          if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
-          else proxy.append(btn);
+          if (nativeProxyBtn) {
+            nativeProxyBtn.dataset.rhLink = "true";
+            nativeProxyBtn.onclick = openDiscoverRoute;
+          }
+          if (overflowDrawer) {
+            const existingOverflowItems = [...overflowDrawer.querySelectorAll("button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]")];
+            const nativeOverflowBtn = existingOverflowItems.find((b) => {
+              const k = b.getAttribute("data-sleekfin-header-overflow-item") || "";
+              if (k === "requesthub:discover") return false;
+              if (k === "dom:toolbar-discover" || k === "source:v1:96dd680085f8e0120c78fac6efbf540c") return true;
+              const lbl = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+              return k.startsWith("source:") && lbl === "discover";
+            });
+            if (nativeOverflowBtn) {
+              overflowDrawer.querySelectorAll('[data-sleekfin-header-overflow-item="requesthub:discover"]').forEach((n) => n.remove());
+              nativeOverflowBtn.dataset.rhLink = "true";
+              nativeOverflowBtn.onclick = openDiscoverRoute;
+            } else if (existingOverflowItems.length && !overflowDrawer.querySelector('[data-sleekfin-header-overflow-item="requesthub:discover"]')) {
+              const listHost = existingOverflowItems[0].parentElement;
+              if (listHost) {
+                const sample = existingOverflowItems.find((b) => (b.getAttribute("data-sleekfin-header-overflow-item") || "") !== "jellyfin:user-menu") || existingOverflowItems[0];
+                const btn = button("", openDiscoverRoute, (sample == null ? void 0 : sample.className) || "rh-nav");
+                btn.dataset.rhLink = "true";
+                btn.setAttribute("data-sleekfin-header-overflow-item", "requesthub:discover");
+                btn.title = "Discover";
+                btn.setAttribute("aria-label", "Discover");
+                const vis = el("span", "");
+                vis.dataset.sleekfinHeaderSourceVisual = "true";
+                const icon = el("span", "", "material-icons explore");
+                icon.dataset.sleekfinHeaderSourceIcon = "true";
+                icon.setAttribute("aria-hidden", "true");
+                const label = el("span", "Discover");
+                label.dataset.sleekfinHeaderSourceLabel = "true";
+                vis.append(icon, label);
+                btn.append(vis);
+                const collectionsItem = existingOverflowItems.find((b) => /collections/i.test((b.getAttribute("aria-label") || b.textContent || "").trim()));
+                const beforeFallback = listHost.querySelector('[data-sleekfin-header-overflow-item^="source:"],[data-fx-overflow-settings],[data-sleekfin-header-overflow-item="jellyfin:search"],[data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+                if (collectionsItem && collectionsItem.parentElement === listHost) {
+                  listHost.insertBefore(btn, collectionsItem.nextSibling);
+                } else if (beforeFallback && beforeFallback.parentElement === listHost) {
+                  listHost.insertBefore(btn, beforeFallback);
+                } else {
+                  listHost.append(btn);
+                }
+              }
+            }
+          }
+        } else {
+          (_g = (_f = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _f.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _g.forEach((n) => n.remove());
+          if (nativeProxyBtn) {
+            proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
+            nativeProxyBtn.dataset.rhLink = "true";
+            nativeProxyBtn.onclick = openDiscoverRoute;
+          } else if (!proxy.querySelector("[data-rh-link]")) {
+            const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+            const btn = button("", openDiscoverRoute, "rh-nav");
+            btn.dataset.rhLink = "true";
+            btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
+            btn.dataset.sleekfinHeaderZone = "tabs";
+            btn.dataset.sleekfinHeaderDisplay = ((_h = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _h.sleekfinHeaderDisplay) || "both";
+            btn.title = "Discover";
+            btn.setAttribute("aria-label", "Discover");
+            const vis = el("span", "");
+            vis.dataset.sleekfinHeaderSourceVisual = "true";
+            const icon = el("span", "", "material-icons explore");
+            icon.dataset.sleekfinHeaderSourceIcon = "true";
+            icon.setAttribute("aria-hidden", "true");
+            const label = el("span", "Discover");
+            label.dataset.sleekfinHeaderSourceLabel = "true";
+            vis.append(icon, label);
+            btn.append(vis);
+            const anchor = proxy.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
+            if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+            else proxy.append(btn);
+          }
         }
       } else {
         const nav = document.querySelector(".headerTabs") || document.querySelector(".userPreferencesPage") || document.querySelector(".skinHeader");
@@ -1286,6 +1365,8 @@ a.rh-nav[aria-current=page]{
  box-sizing:border-box;
  scrollbar-width:none;
  -ms-overflow-style:none;
+ -webkit-overflow-scrolling:touch;
+ overscroll-behavior-x:contain;
 }
 .rh-track.rh-media-track{
  min-height:calc(clamp(210px, 18.5vw, 268px) * 0.5 + 16px);
@@ -1692,16 +1773,35 @@ a.rh-nav[aria-current=page]{
  .rh-poster{height:0;padding-bottom:150%}
  .rh-poster img{position:absolute;top:0;left:0}
 }
+@media(max-width:899px){
+ .rh-root{
+  padding:calc(16px + env(safe-area-inset-top, 0px)) 14px calc(96px + env(safe-area-inset-bottom, 0px));
+  max-width:100vw;
+  overflow-x:clip;
+ }
+}
 @media(max-width:768px){
- .rh-root{padding:calc(var(--sleekfin-header-height, 64px) + 8px) 16px 32px}
- .rh-page-title{font-size:24px;line-height:30px}
- .rh-row-head h2,.rh-pill-section h2,.rh-grid-heading{font-size:20px;line-height:28px}
- .rh-card{flex-basis:38vw;width:38vw;max-width:38vw}
- .rh-root button.rh-media-card,.rh-media-card{flex-basis:56vw;width:56vw;max-width:56vw}
- .rh-grid{grid-template-columns:repeat(auto-fill, minmax(38vw, 1fr))}
- .rh-search input{width:100%}
- .rh-dialog-body{grid-template-columns:1fr}
- .rh-dialog .rh-poster{max-width:160px}
+ .rh-page-title{font-size:22px;line-height:28px}
+ .rh-row{margin-bottom:20px}
+ .rh-row-head{margin-bottom:10px}
+ .rh-row-head h2,.rh-pill-section h2,.rh-grid-heading{font-size:18.5px;line-height:25px}
+ .rh-track{gap:10px;padding:2px 2px 10px;min-height:calc(clamp(98px, 28vw, 136px) * 1.5 + 36px)}
+ .rh-track.rh-media-track{min-height:calc(clamp(144px, 42vw, 196px) * 0.5 + 14px)}
+ .rh-card{flex:0 0 clamp(98px, 28vw, 136px);width:clamp(98px, 28vw, 136px);max-width:clamp(98px, 28vw, 136px)}
+ .rh-card strong{font-size:12.5px}
+ .rh-type,.rh-status{font-size:10px;padding:2px 7px;left:6px}
+ .rh-see-more-arrow{width:38px;height:38px;font-size:19px}
+ .rh-see-more-title{font-size:0.88rem}
+ .rh-see-more-sub{font-size:0.72rem}
+ .rh-root button.rh-media-card,.rh-media-card{flex:0 0 clamp(144px, 42vw, 196px);width:clamp(144px, 42vw, 196px);max-width:clamp(144px, 42vw, 196px)}
+ .rh-genre-label{font-size:0.95rem;padding:0 10px}
+ .rh-logo-frame{padding:12px 16px}
+ .rh-grid{grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px 10px}
+ .rh-toolbar-right,.rh-search{width:100%}
+ .rh-search input{width:100%;box-sizing:border-box}
+ .rh-dialog{padding:18px 16px 22px}
+ .rh-dialog-body{grid-template-columns:1fr;gap:16px}
+ .rh-dialog .rh-poster{max-width:140px}
 }
 `;
     document.head.append(css);
@@ -1711,18 +1811,28 @@ a.rh-nav[aria-current=page]{
         return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu"));
       })) {
         hideLeavingSoonNav();
+        if (permAllowed === true && !records.every((r) => [...r.addedNodes, ...r.removedNodes].every((n) => {
+          var _a2;
+          return ((_a2 = n == null ? void 0 : n.dataset) == null ? void 0 : _a2.rhLink) === "true";
+        }))) {
+          ensureNavigation(isDiscoverHash());
+        }
       }
       if (records.some((r) => {
         var _a2, _b2;
-        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage"));
+        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage"));
       })) {
         clearTimeout(timer);
         timer = setTimeout(reconcile, 80);
       }
     });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
+    const onWindowResize = () => {
+      if (permAllowed === true) ensureNavigation(isDiscoverHash());
+    };
     window.addEventListener("hashchange", reconcile);
     window.addEventListener("popstate", reconcile);
+    window.addEventListener("resize", onWindowResize);
     window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
     (_c = document.addEventListener) == null ? void 0 : _c.call(document, "viewshow", reconcile);
     (_d = document.addEventListener) == null ? void 0 : _d.call(document, "pageshow", reconcile);
@@ -1737,6 +1847,7 @@ a.rh-nav[aria-current=page]{
         clearInterval(heartbeat);
         window.removeEventListener("hashchange", reconcile);
         window.removeEventListener("popstate", reconcile);
+        window.removeEventListener("resize", onWindowResize);
         window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
         (_a2 = document.removeEventListener) == null ? void 0 : _a2.call(document, "viewshow", reconcile);
         (_b2 = document.removeEventListener) == null ? void 0 : _b2.call(document, "pageshow", reconcile);

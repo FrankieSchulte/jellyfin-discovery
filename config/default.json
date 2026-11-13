@@ -403,6 +403,419 @@
           "GenresAny": [
             "Animation"
           ]
+        },
+        {
+          "Key": "sequels",
+          "Title": "Bigger & Wilder Sequels",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "sequel"
+          ]
+        },
+        {
+          "Key": "credits-stingers",
+          "Title": "Stay Through the Credits",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "aftercreditsstinger",
+            "duringcreditsstinger"
+          ]
+        },
+        {
+          "Key": "mcu-movies",
+          "Title": "Marvel Cinematic Universe",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "marvel cinematic universe (mcu)"
+          ]
+        },
+        {
+          "Key": "comic-books",
+          "Title": "From Comic Panels to Screen",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "based on comic",
+            "superhero team",
+            "secret identity"
+          ]
+        },
+        {
+          "Key": "3d-animation",
+          "Title": "3D Animated Worlds",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "3d animation"
+          ]
+        },
+        {
+          "Key": "witches-wizards",
+          "Title": "Witches, Wizards & Spells",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "witch",
+            "wizard",
+            "castle",
+            "sorcery"
+          ]
+        },
+        {
+          "Key": "dragons-quests",
+          "Title": "Dragons, Castles & Epic Quests",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "dragon",
+            "quest",
+            "fantasy world",
+            "good versus evil"
+          ]
+        },
+        {
+          "Key": "talking-animals-toys",
+          "Title": "Talking Animals & Living Toys",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "anthropomorphism",
+            "animals",
+            "toy comes to life"
+          ]
+        },
+        {
+          "Key": "friendship-bonds",
+          "Title": "Ride-or-Die Friendships & Siblings",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "friendship",
+            "friends",
+            "sibling relationship",
+            "group of friends"
+          ]
+        },
+        {
+          "Key": "nyc-stories",
+          "Title": "Set in New York City",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "new york city"
+          ]
+        },
+        {
+          "Key": "ghosts-demons",
+          "Title": "Ghosts, Demons & The Occult",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "ghost",
+            "demon",
+            "supernatural horror",
+            "supernatural"
+          ]
+        },
+        {
+          "Key": "slashers-killers",
+          "Title": "Slashers, Killers & Murder Mysteries",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "serial killer",
+            "murder",
+            "sadism",
+            "whodunit"
+          ]
+        },
+        {
+          "Key": "zombies-monsters",
+          "Title": "Zombies, Creatures & Survival Horror",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "zombie",
+            "survival horror",
+            "monster",
+            "creature",
+            "epidemic"
+          ]
+        },
+        {
+          "Key": "aliens-first-contact",
+          "Title": "Aliens & First Contact",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "alien",
+            "alien invasion",
+            "alien life-form"
+          ]
+        },
+        {
+          "Key": "space-odysseys",
+          "Title": "Space Operas & Deep-Space Voyages",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "space opera",
+            "space travel",
+            "spacecraft"
+          ]
+        },
+        {
+          "Key": "true-stories",
+          "Title": "Inspired by True Stories",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on true story",
+            "biography"
+          ]
+        },
+        {
+          "Key": "dreams-surreal",
+          "Title": "Fever Dreams & Surreal Worlds",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "dreams",
+            "surrealism",
+            "philosophical",
+            "absurdism"
+          ]
+        },
+        {
+          "Key": "martial-arts-brawls",
+          "Title": "Martial Arts & Showdowns",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "martial arts",
+            "fight",
+            "battle",
+            "shounen"
+          ]
+        },
+        {
+          "Key": "revenge-thrillers",
+          "Title": "Tales of Revenge",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "revenge"
+          ]
+        },
+        {
+          "Key": "nostalgia-throwbacks",
+          "Title": "Pure Nostalgia",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "nostalgic",
+            "1980s",
+            "1960s"
+          ]
+        },
+        {
+          "Key": "feel-good-inspiring",
+          "Title": "Hopeful & Inspirational",
+          "Enabled": true,
+          "Types": [
+            "Movie",
+            "Series"
+          ],
+          "TagsAny": [
+            "hopeful",
+            "inspirational",
+            "cheerful",
+            "joyful"
+          ]
+        },
+        {
+          "Key": "manga-light-novel-tv",
+          "Title": "Manga & Light Novel Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "based on manga",
+            "based on light novel"
+          ]
+        },
+        {
+          "Key": "workplace-tv",
+          "Title": "Clock In: Workplace Chaos",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "workplace",
+            "workplace comedy",
+            "office",
+            "work",
+            "mockumentary",
+            "small business",
+            "hospital",
+            "fast food restaurant"
+          ]
+        },
+        {
+          "Key": "adult-animation-tv",
+          "Title": "Adult Swim & Late-Night Toons",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "adult animation",
+            "adult humor",
+            "absurdism",
+            "psychedelic",
+            "slacker"
+          ]
+        },
+        {
+          "Key": "satire-parody-tv",
+          "Title": "Biting Satire & Parody",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "satire",
+            "parody",
+            "social satire",
+            "mockumentary",
+            "scathing"
+          ]
+        },
+        {
+          "Key": "survival-high-stakes-tv",
+          "Title": "High-Stakes Survival",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "survival",
+            "death game",
+            "epidemic",
+            "post-apocalyptic future",
+            "virus",
+            "war",
+            "rebellion"
+          ]
+        },
+        {
+          "Key": "mystery-conspiracy-tv",
+          "Title": "Whodunits, Secrets & Conspiracies",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "whodunit",
+            "detective",
+            "impostor",
+            "conspiracy",
+            "spy thriller",
+            "memory",
+            "alternative reality"
+          ]
+        },
+        {
+          "Key": "prestige-streaming-tv",
+          "Title": "Prestige Streaming Originals",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "HBO",
+            "Max",
+            "HBO Max",
+            "Apple TV",
+            "Apple TV+",
+            "Netflix",
+            "Prime Video",
+            "Hulu",
+            "Disney+",
+            "Crave"
+          ]
+        },
+        {
+          "Key": "new-era-hits-tv",
+          "Title": "2020s Breakout Series",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "Years": [
+            2020,
+            2029
+          ],
+          "MinRating": 8
         }
       ]
     },
@@ -717,6 +1130,340 @@
           "GenresAny": [
             "Animation"
           ]
+        },
+        {
+          "Key": "sequels",
+          "Title": "Bigger & Wilder Sequels",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "sequel"
+          ]
+        },
+        {
+          "Key": "credits-stingers",
+          "Title": "Stay Through the Credits",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "aftercreditsstinger",
+            "duringcreditsstinger"
+          ]
+        },
+        {
+          "Key": "mcu-movies",
+          "Title": "Marvel Cinematic Universe",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "marvel cinematic universe (mcu)"
+          ]
+        },
+        {
+          "Key": "comic-books",
+          "Title": "From Comic Panels to Screen",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on comic",
+            "superhero team",
+            "secret identity"
+          ]
+        },
+        {
+          "Key": "3d-animation",
+          "Title": "3D Animated Worlds",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "3d animation"
+          ]
+        },
+        {
+          "Key": "classic-cartoons",
+          "Title": "Hand-Drawn & Cartoon Favorites",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cartoon",
+            "live action and animation"
+          ]
+        },
+        {
+          "Key": "manga-movies",
+          "Title": "Manga Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on manga"
+          ]
+        },
+        {
+          "Key": "witches-wizards",
+          "Title": "Witches, Wizards & Spells",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "witch",
+            "wizard",
+            "castle"
+          ]
+        },
+        {
+          "Key": "dragons-quests",
+          "Title": "Dragons, Castles & Epic Quests",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "dragon",
+            "quest",
+            "fantasy world",
+            "good versus evil"
+          ]
+        },
+        {
+          "Key": "fairy-tales",
+          "Title": "Fairy Tales & Folklore",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on fairy tale",
+            "princess"
+          ]
+        },
+        {
+          "Key": "talking-animals-toys",
+          "Title": "Talking Animals & Living Toys",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "anthropomorphism",
+            "animals",
+            "toy comes to life"
+          ]
+        },
+        {
+          "Key": "friendship-bonds",
+          "Title": "Ride-or-Die Friendships & Siblings",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "friendship",
+            "friends",
+            "sibling relationship"
+          ]
+        },
+        {
+          "Key": "nyc-stories",
+          "Title": "Set in New York City",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "new york city"
+          ]
+        },
+        {
+          "Key": "la-hollywood",
+          "Title": "L.A. & Hollywood Stories",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "los angeles, california"
+          ]
+        },
+        {
+          "Key": "ghosts-demons",
+          "Title": "Ghosts, Demons & The Occult",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "ghost",
+            "demon",
+            "supernatural horror",
+            "supernatural"
+          ]
+        },
+        {
+          "Key": "slashers-killers",
+          "Title": "Slashers, Killers & Murder Mysteries",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "serial killer",
+            "murder",
+            "sadism"
+          ]
+        },
+        {
+          "Key": "zombies-monsters",
+          "Title": "Zombies, Creatures & Survival Horror",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "zombie",
+            "survival horror",
+            "monster",
+            "creature"
+          ]
+        },
+        {
+          "Key": "aliens-first-contact",
+          "Title": "Aliens & First Contact",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "alien",
+            "alien invasion",
+            "alien life-form"
+          ]
+        },
+        {
+          "Key": "space-odysseys",
+          "Title": "Space Operas & Deep-Space Voyages",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "space opera",
+            "space travel",
+            "spacecraft"
+          ]
+        },
+        {
+          "Key": "true-stories",
+          "Title": "Inspired by True Stories",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on true story",
+            "biography"
+          ]
+        },
+        {
+          "Key": "dreams-surreal",
+          "Title": "Fever Dreams & Surreal Cinema",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "dreams",
+            "surrealism",
+            "philosophical"
+          ]
+        },
+        {
+          "Key": "martial-arts-brawls",
+          "Title": "Martial Arts & Showdowns",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "martial arts",
+            "fight",
+            "battle"
+          ]
+        },
+        {
+          "Key": "revenge-thrillers",
+          "Title": "Tales of Revenge",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "revenge"
+          ]
+        },
+        {
+          "Key": "ya-adaptations",
+          "Title": "Young Adult Book Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "based on young adult novel"
+          ]
+        },
+        {
+          "Key": "female-leads-auteurs",
+          "Title": "Leading Women & Female Directors",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "female protagonist",
+            "woman director"
+          ]
+        },
+        {
+          "Key": "nostalgia-throwbacks",
+          "Title": "Pure Nostalgia",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "nostalgic",
+            "1980s",
+            "1960s"
+          ]
+        },
+        {
+          "Key": "feel-good-inspiring",
+          "Title": "Hopeful & Inspirational",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "hopeful",
+            "inspirational",
+            "cheerful",
+            "joyful"
+          ]
         }
       ]
     },
@@ -780,7 +1527,9 @@
           ],
           "TagsAny": [
             "comforting",
-            "lighthearted"
+            "lighthearted",
+            "playful",
+            "amused"
           ]
         },
         {
@@ -868,7 +1617,10 @@
             "Series"
           ],
           "TagsAny": [
-            "dark comedy"
+            "dark comedy",
+            "black comedy",
+            "dark humor",
+            "cynical"
           ]
         },
         {
@@ -880,7 +1632,10 @@
           ],
           "TagsAny": [
             "psychological thriller",
-            "psychological horror"
+            "psychological horror",
+            "psychological",
+            "paranoia",
+            "suspenseful"
           ]
         },
         {
@@ -985,71 +1740,225 @@
           ]
         },
         {
-          "Key": "tv-drama",
-          "Title": "Drama Worth Your Time",
+          "Key": "manga-light-novel-tv",
+          "Title": "Manga & Light Novel Adaptations",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "based on manga",
+            "based on light novel"
+          ]
+        },
+        {
+          "Key": "shounen-martial-arts-tv",
+          "Title": "Shounen & Martial Arts",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "shounen",
+            "martial arts",
+            "combat"
+          ]
+        },
+        {
+          "Key": "workplace-tv",
+          "Title": "Clock In: Workplace Chaos",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "workplace",
+            "workplace comedy",
+            "office",
+            "work",
+            "mockumentary",
+            "small business",
+            "hospital",
+            "fast food restaurant"
+          ]
+        },
+        {
+          "Key": "adult-animation-tv",
+          "Title": "Adult Swim & Late-Night Toons",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "adult animation",
+            "adult humor",
+            "absurdism",
+            "psychedelic",
+            "slacker"
+          ]
+        },
+        {
+          "Key": "cartoon-favorites-tv",
+          "Title": "Cartoon & Animated Classics",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "Nickelodeon",
+            "Cartoon Network",
+            "Paramount+",
+            "FOX"
+          ]
+        },
+        {
+          "Key": "satire-parody-tv",
+          "Title": "Biting Satire & Parody",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "satire",
+            "parody",
+            "social satire",
+            "mockumentary",
+            "scathing"
+          ]
+        },
+        {
+          "Key": "sitcoms-hangout-tv",
+          "Title": "Sitcoms & Hangout Comedies",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "sitcom",
+            "group of friends",
+            "high school friends",
+            "playful",
+            "amused"
+          ]
+        },
+        {
+          "Key": "survival-high-stakes-tv",
+          "Title": "High-Stakes Survival",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "survival",
+            "death game",
+            "epidemic",
+            "post-apocalyptic future",
+            "virus",
+            "war",
+            "rebellion"
+          ]
+        },
+        {
+          "Key": "supernatural-powers-tv",
+          "Title": "Curses, Psychics & Superpowers",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "supernatural",
+            "sorcery",
+            "psychic power",
+            "super power",
+            "magic"
+          ]
+        },
+        {
+          "Key": "mystery-conspiracy-tv",
+          "Title": "Whodunits, Secrets & Conspiracies",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "whodunit",
+            "detective",
+            "impostor",
+            "conspiracy",
+            "spy thriller",
+            "memory",
+            "alternative reality"
+          ]
+        },
+        {
+          "Key": "anthology-feuds-tv",
+          "Title": "Anthologies, Grudges & Rivalries",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "anthology",
+            "revenge",
+            "rivalry",
+            "sibling rivalry"
+          ]
+        },
+        {
+          "Key": "action-adventure-tv",
+          "Title": "Action & Adventure Series",
+          "Enabled": true,
           "Types": [
             "Series"
           ],
           "GenresAny": [
-            "Drama"
-          ],
-          "Enabled": true
+            "Action & Adventure"
+          ]
         },
         {
-          "Key": "tv-comedy",
-          "Title": "Familiar TV Favorites",
+          "Key": "prestige-streaming-tv",
+          "Title": "Prestige Streaming Originals",
+          "Enabled": true,
           "Types": [
             "Series"
           ],
-          "GenresAny": [
-            "Comedy"
-          ],
-          "Enabled": true
+          "StudiosAny": [
+            "HBO",
+            "Max",
+            "HBO Max",
+            "Apple TV",
+            "Apple TV+",
+            "Netflix",
+            "Prime Video",
+            "Hulu",
+            "Disney+",
+            "Crave"
+          ]
         },
         {
-          "Key": "tv-anime",
-          "Title": "Animated Worlds",
+          "Key": "classic-throwback-tv",
+          "Title": "90s & 2000s Throwback TV",
+          "Enabled": true,
           "Types": [
             "Series"
           ],
-          "GenresAny": [
-            "Animation",
-            "Anime"
-          ],
-          "Enabled": true
+          "Years": [
+            1989,
+            2012
+          ]
         },
         {
-          "Key": "tv-scifi",
-          "Title": "Strange Worlds",
+          "Key": "new-era-hits-tv",
+          "Title": "2020s Breakout Series",
+          "Enabled": true,
           "Types": [
             "Series"
           ],
-          "GenresAny": [
-            "Sci-Fi & Fantasy",
-            "Science Fiction",
-            "Fantasy"
+          "Years": [
+            2020,
+            2029
           ],
-          "Enabled": true
-        },
-        {
-          "Key": "tv-crime",
-          "Title": "Crime and Consequences",
-          "Types": [
-            "Series"
-          ],
-          "GenresAny": [
-            "Crime"
-          ],
-          "Enabled": true
-        },
-        {
-          "Key": "tv-acclaimed",
-          "Title": "Highly Rated TV",
-          "Types": [
-            "Series"
-          ],
-          "MinRating": 8,
-          "Enabled": true
+          "MinRating": 8
         }
       ]
     }

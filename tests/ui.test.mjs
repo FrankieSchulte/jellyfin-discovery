@@ -9,7 +9,7 @@ const fixtureItems=Array.from({length:45},(_,n)=>({Id:id(n+1),Name:`Movie ${n}`,
 function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   const saves=[];
   const {window,document}=parseHTML('<html><head></head><body><div id="indexPage" class="page"><div class="hero">Keep hero</div><div class="homeSectionsContainer"><div class="card" data-id="'+id(1)+'"><div class="cardScalable"></div></div></div></div><div id="moviesPage" class="page hide"><div class="pageTabContent" data-index="0"><p>Original movie list</p></div></div><div id="tvshowsPage" class="page hide"><div class="pageTabContent" data-index="0">Original shows</div></div></body></html>');
-  let timeouts=[],frames=[],mutation,intersect,requests=0,resolver,focused=document.body;
+  let timeouts=[],nextTimerId=1,frames=[],mutation,intersect,requests=0,resolver,focused=document.body;
   const listeners=new Map();
   Object.defineProperty(document,'activeElement',{configurable:true,get:()=>focused});
   window.HTMLElement.prototype.focus=function(){focused=this;};
@@ -33,7 +33,7 @@ function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   const context={window:fakeWindow,document,Element:window.Element,location,console,structuredClone,URL,URLSearchParams,Blob,Intl,Date,Map,Set,innerHeight:800,
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
     getComputedStyle:n=>({display:n.classList.contains('hide')?'none':'block'}),
-    setTimeout:(fn,ms)=>{timeouts.push({fn,ms});return timeouts.length;},clearTimeout(){},setInterval:()=>1,clearInterval(){},
+    setTimeout:(fn,ms)=>{const tid=nextTimerId++;timeouts.push({id:tid,fn,ms});return tid;},clearTimeout(tid){timeouts=timeouts.filter(t=>t.id!==tid);},setInterval:()=>1,clearInterval(){},
     requestAnimationFrame:fn=>frames.push(fn),
     MutationObserver:class{constructor(cb){mutation=cb}observe(){}disconnect(){}},IntersectionObserver:class{constructor(cb){intersect=cb}observe(){}disconnect(){}}};
   window.HTMLElement.prototype.getBoundingClientRect=function(){const n=this.parentNode?.children?Array.from(this.parentNode.children).indexOf(this):0;return {top:1000+n*250,bottom:1250+n*250,height:250};};
@@ -41,7 +41,7 @@ function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   const ctx=vm.createContext(context);
   vm.runInContext(source,ctx);
   const settle=async()=>{for(let n=0;n<80;n++)await Promise.resolve();};
-  return {ctx,document,api,location,storage,settle,saves,runAgain:()=>vm.runInContext(source,ctx),intersection:()=>intersect([{isIntersecting:true}]),resolve:()=>resolver?.(),requests:()=>requests,frames:()=>{const f=frames;frames=[];f.forEach(fn=>fn());},notify:()=>mutation([{target:document.body,type:'childList'}]),navigate:hash=>{location.hash=hash;listeners.get('hashchange')?.();const queued=timeouts.filter(t=>t.ms===120);timeouts=timeouts.filter(t=>t.ms!==120);queued.forEach(t=>t.fn());},key:(node,key,keyCode)=>{const event=new window.Event('keydown',{bubbles:true,cancelable:true});Object.defineProperties(event,{key:{value:key},keyCode:{value:keyCode}});node.dispatchEvent(event);return event;},select:(label,value)=>{const select=document.querySelector(`select[aria-label="${label}"]`);for(const option of select.querySelectorAll('option'))option.toggleAttribute('selected',option.value===value);select.dispatchEvent(new window.Event('change',{bubbles:true}));}};
+  return {ctx,document,api,location,storage,settle,saves,flushTimeouts:msFilter=>{const due=timeouts.filter(t=>msFilter===undefined||t.ms===msFilter);timeouts=timeouts.filter(t=>!due.includes(t));due.forEach(t=>t.fn());},runAgain:()=>vm.runInContext(source,ctx),intersection:()=>intersect([{isIntersecting:true}]),resolve:()=>resolver?.(),requests:()=>requests,frames:()=>{const f=frames;frames=[];f.forEach(fn=>fn());},notify:()=>mutation([{target:document.body,type:'childList'}]),navigate:hash=>{location.hash=hash;listeners.get('hashchange')?.();const queued=timeouts.filter(t=>t.ms===120);timeouts=timeouts.filter(t=>t.ms!==120);queued.forEach(t=>t.fn());},key:(node,key,keyCode)=>{const event=new window.Event('keydown',{bubbles:true,cancelable:true});Object.defineProperties(event,{key:{value:key},keyCode:{value:keyCode}});node.dispatchEvent(event);return event;},select:(label,value)=>{const select=document.querySelector(`select[aria-label="${label}"]`);for(const option of select.querySelectorAll('option'))option.toggleAttribute('selected',option.value===value);select.dispatchEvent(new window.Event('change',{bubbles:true}));}};
 }
 test('home mounts, alternates core/theme, preserves hero and restores native on stop',async()=>{
   const f=fixture();await f.settle();
@@ -123,8 +123,13 @@ test('invalid saved configuration fails open with working Customize control',asy
   assert.ok([...f.document.querySelectorAll('.fx-toolbar button')].some(n=>n.textContent==='Customize'));
   f.ctx.window.FazFortDiscovery.stop();
 });
-test('More like this opens an explained modal and TV Back closes it',async()=>{
-  const f=fixture();await f.settle();f.document.querySelector('.fx-card-more').click();
+test('More like this omits hover three-dots button, opens via contextmenu, and TV Back closes it',async()=>{
+  const f=fixture();await f.settle();
+  assert.equal(f.document.querySelector('.fx-card-more'),null);
+  const card=f.document.querySelector('.fx-card');
+  const ctxEv=new f.ctx.document.defaultView.Event('contextmenu',{bubbles:true,cancelable:true});
+  card.dispatchEvent(ctxEv);
+  assert.ok(ctxEv.defaultPrevented);
   assert.ok(f.document.querySelector('.fx-similar'));assert.ok(f.document.querySelector('.fx-match-reason'));
   f.key(f.document.querySelector('.fx-similar button'),'Unidentified',10009);
   assert.equal(f.document.querySelector('.fx-dialog-overlay'),null);f.ctx.window.FazFortDiscovery.stop();
@@ -271,7 +276,7 @@ test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly 
   const cw=baseCount*280;
   Object.defineProperties(track,{clientWidth:{value:800},scrollWidth:{value:track.children.length*280}});
   track.scrollLeft=cw*2;
-  track.dispatchEvent(new f.ctx.document.defaultView.Event('scroll'));
+  track.dispatchEvent(new f.ctx.document.defaultView.Event('scrollend'));
   assert.equal(track.scrollLeft,cw);
   let lastScrollBy=null;
   track.scrollBy=opts=>{lastScrollBy=opts;};
@@ -347,16 +352,24 @@ test('React library pages without pageTabContent mount discovery, customize drop
   dlBtn.click();
   const dlMenu=f.document.querySelector('.fx-download-menu.is-open');
   assert.ok(dlMenu);
-  const dlLinks=[...dlMenu.querySelectorAll('a.fx-download-option')];
+  const dlLinks=[...dlMenu.querySelectorAll('button.fx-download-option')];
   assert.equal(dlLinks[0].textContent,'Full Quality');
   assert.equal(dlLinks[0].getAttribute('download'),'Weapons.mp4');
-  assert.ok(dlLinks[0].getAttribute('href').includes('/Videos/movie-weapons/stream.mp4'));
-  assert.ok(dlLinks[0].getAttribute('href').includes('Static=true'));
+  assert.ok(dlLinks[0].dataset.downloadUrl.includes('/Videos/movie-weapons/stream.mp4'));
+  assert.ok(dlLinks[0].dataset.downloadUrl.includes('Static=true'));
   assert.equal(dlLinks[1].textContent,'Condensed');
   assert.equal(dlLinks[1].getAttribute('download'),'Weapons.mp4');
-  assert.ok(dlLinks[1].getAttribute('href').includes('Static=false'));
-  assert.ok(dlLinks[1].getAttribute('href').includes('MaxHeight=720'));
-  assert.ok(dlLinks[1].getAttribute('href').includes('VideoBitRate=1600000'));
+  assert.ok(dlLinks[1].dataset.downloadUrl.includes('Static=false'));
+  assert.ok(dlLinks[1].dataset.downloadUrl.includes('MaxHeight=720'));
+  assert.ok(dlLinks[1].dataset.downloadUrl.includes('VideoBitRate=1600000'));
+  const nativeDownloaded=[];
+  f.ctx.window.NativeShell={downloadFiles:items=>{nativeDownloaded.push(...items);}};
+  dlLinks[1].click();
+  await f.settle();
+  assert.equal(nativeDownloaded.length,1);
+  assert.equal(nativeDownloaded[0].filename,'Weapons.mp4');
+  assert.ok(nativeDownloaded[0].url.includes('VideoBitRate=1600000'));
+  assert.equal(f.document.querySelector('.fx-toast.is-visible')?.textContent,'Added to Jellyfin Downloads');
 
   const seasonWrap=f.document.createElement('div');seasonWrap.className='sleekfin-details-season-select';
   const seasonSel=f.document.createElement('select');
@@ -449,4 +462,132 @@ test('count chip and curated-tab attributes toggle on curated routes, clear acti
   assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
   assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
   assert.equal(f.document.documentElement.hasAttribute('data-fx-home-mode'),false);
+});
+
+test('Settings integrates Discovery row inside verticalSection, mounts inline studio on Settings -> Home, filters Leaving Soon, wires mobile overflow Settings, and handles OSD touch gestures',async()=>{
+  const f=fixture();await f.settle();
+  const cssText=f.document.getElementById('fx-discovery-style')?.textContent||'';
+  assert.ok(cssText.includes('header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)'));
+  assert.ok(cssText.includes('.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"]'));
+  assert.ok(cssText.includes('#itemDetailPage .mainDetailButtons.sleekfin-details-actions'));
+
+  f.document.getElementById('indexPage').classList.add('hide');
+
+  const menuPage=f.document.createElement('div');menuPage.id='myPreferencesMenuPage';menuPage.className='page userPreferencesPage';
+  const section=f.document.createElement('div');section.className='verticalSection';
+  const profileRow=f.document.createElement('a');profileRow.className='listItem-border';profileRow.setAttribute('href','#/mypreferencesprofile');profileRow.textContent='Profile';
+  const homeRow=f.document.createElement('a');homeRow.className='listItem-border';homeRow.setAttribute('href','#/mypreferenceshome');homeRow.textContent='Home';
+  const playbackRow=f.document.createElement('a');playbackRow.className='listItem-border';playbackRow.setAttribute('href','#/mypreferencesplayback');playbackRow.textContent='Playback';
+  section.append(profileRow,homeRow,playbackRow);menuPage.append(section);f.document.body.append(menuPage);
+
+  f.navigate('#/mypreferencesmenu');await f.settle();
+  const discRow=section.querySelector('button.listItem-border.fx-settings-menu-row[data-fx-settings-link="true"]');
+  assert.ok(discRow);
+  assert.equal(homeRow.nextElementSibling,discRow);
+  assert.equal(discRow.querySelector('.listItemBodyText')?.textContent,'Discovery');
+
+  menuPage.classList.add('hide');
+  const homePref=f.document.createElement('div');homePref.id='homeScreenPreferencesPage';homePref.className='page homeScreenPreferencesPage';
+  const readOnly=f.document.createElement('div');readOnly.className='readOnlyContent';
+  const form=f.document.createElement('form');
+  const leavingViewItem=f.document.createElement('div');leavingViewItem.className='viewItem';leavingViewItem.textContent='Movies (Leaving Soon)';
+  const normalViewItem=f.document.createElement('div');normalViewItem.className='viewItem';normalViewItem.textContent='Movies';
+  form.append(leavingViewItem,normalViewItem);readOnly.append(form);homePref.append(readOnly);f.document.body.append(homePref);
+
+  f.navigate('#/mypreferenceshome');await f.settle();
+  const inlineStudio=readOnly.querySelector('[data-fx-home-studio="true"]');
+  assert.ok(inlineStudio);
+  assert.ok(inlineStudio.classList.contains('fx-inline-studio'));
+  assert.ok(inlineStudio.querySelector('.fx-visual-editor'));
+  assert.ok(form.closest('details.fx-legacy-home-settings'));
+  assert.equal(leavingViewItem.getAttribute('data-fx-leaving-hidden'),'true');
+  assert.equal(leavingViewItem.style.display,'none');
+  assert.equal(normalViewItem.getAttribute('data-fx-leaving-hidden'),null);
+
+  const drawer=f.document.createElement('div');drawer.setAttribute('data-sleekfin-header-overflow-drawer','true');
+  const drawerList=f.document.createElement('div');
+  const colBtn=f.document.createElement('button');colBtn.setAttribute('data-sleekfin-header-overflow-item','jellyfin:view:collections');colBtn.textContent='Collections';
+  const searchBtn=f.document.createElement('button');searchBtn.setAttribute('data-sleekfin-header-overflow-item','jellyfin:search');searchBtn.textContent='Search';
+  drawerList.append(colBtn,searchBtn);drawer.append(drawerList);f.document.body.append(drawer);
+
+  f.navigate('#/home');await f.settle();
+  const overflowSettings=drawer.querySelector('[data-fx-overflow-settings="true"]');
+  assert.ok(overflowSettings);
+  assert.equal(overflowSettings.nextElementSibling,searchBtn);
+  menuPage.classList.remove('hide');
+  overflowSettings.click();
+  assert.equal(f.location.hash,'#/mypreferencesmenu');
+
+  const osd=f.document.createElement('div');osd.id='videoOsdPage';osd.className='page';
+  const video=f.document.createElement('video');video.className='htmlvideoplayer';
+  video.currentTime=20;video.duration=120;video.playbackRate=1;
+  Object.defineProperty(video,'paused',{configurable:true,get:()=>false});
+  osd.append(video);f.document.body.append(osd);
+  f.ctx.window.innerWidth=400;
+
+  const fireTouch=(type,x,y)=>{
+    const ev=new f.ctx.document.defaultView.Event(type,{bubbles:true,cancelable:true});
+    const pt={clientX:x,clientY:y};
+    Object.defineProperties(ev,{
+      touches:{value:type==='touchend'?[]:[pt]},
+      changedTouches:{value:[pt]}
+    });
+    video.dispatchEvent(ev);
+    return ev;
+  };
+
+  fireTouch('touchstart',320,180);
+  fireTouch('touchend',320,180);
+  fireTouch('touchstart',322,182);
+  fireTouch('touchend',322,182);
+  assert.equal(video.currentTime,30);
+  assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'+10s ▸▸');
+
+  fireTouch('touchstart',324,180);
+  fireTouch('touchend',324,180);
+  assert.equal(video.currentTime,40);
+  assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'+20s ▸▸');
+
+  fireTouch('touchstart',60,180);
+  fireTouch('touchend',60,180);
+  fireTouch('touchstart',62,182);
+  fireTouch('touchend',62,182);
+  assert.equal(video.currentTime,30);
+  assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'◂◂ -10s');
+
+  fireTouch('touchstart',360,180);
+  f.flushTimeouts(320);
+  assert.equal(video.playbackRate,2);
+  assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'2× Speed ▸▸');
+  fireTouch('touchend',360,180);
+  assert.equal(video.playbackRate,1);
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('patchApiClientLeavingSoon filters Leaving Soon libraries and child items from getUserViews and getItems',async()=>{
+  const f=fixture();await f.settle();
+  const leavingViewId='5ebc3f61ab8138bcfac3c68317a6be0b';
+  const leavingMovieId='deadbeefdeadbeefdeadbeefdeadbeef';
+  delete f.api._fxLeavingPatched;
+  const origGetItems=f.api.getItems;
+  f.api.getItems=async(uid,opts)=>{
+    if(opts?.ParentId===leavingViewId)return {Items:[{Id:leavingMovieId,Name:'Expiring Film',Type:'Movie'}],TotalRecordCount:1};
+    return {Items:[{Id:leavingMovieId,Name:'Expiring Film',Type:'Movie'},{Id:id(1),Name:'Kept Film',Type:'Movie'}],TotalRecordCount:2};
+  };
+  f.api.getUserViews=async()=>({
+    Items:[
+      {Id:'m',Name:'Movies',CollectionType:'movies'},
+      {Id:leavingViewId,Name:'Movies (Leaving Soon)',CollectionType:'movies'}
+    ],
+    TotalRecordCount:2
+  });
+  f.ctx.window.FazFortDiscovery.restart();await f.settle();
+  const views=await f.api.getUserViews('u');
+  assert.deepEqual(views.Items.map(v=>v.Id),['m']);
+  await f.settle();
+  const listed=await f.api.getItems('u',{IncludeItemTypes:'Movie'});
+  assert.deepEqual(listed.Items.map(i=>i.Id),[id(1)]);
+  f.api.getItems=origGetItems;
+  f.ctx.window.FazFortDiscovery.stop();
 });

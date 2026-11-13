@@ -46,7 +46,7 @@ public sealed class DiscoveryController(DiscoveryStore store, ILibraryManager li
         return Ok(new { Version = profile?.Version ?? 0, Config = profile?.Config });
     }
     [HttpPost("Preferences")]
-    [RequestSizeLimit(150000)]
+    [RequestSizeLimit(300000)]
     public ActionResult SavePreferences([FromBody] ProfileWrite body)
     {
         Guid? user = OwnUser(); if (user is null) return Forbid();

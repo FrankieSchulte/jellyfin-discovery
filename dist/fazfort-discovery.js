@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.2 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.3 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -411,6 +411,419 @@
               "GenresAny": [
                 "Animation"
               ]
+            },
+            {
+              "Key": "sequels",
+              "Title": "Bigger & Wilder Sequels",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "sequel"
+              ]
+            },
+            {
+              "Key": "credits-stingers",
+              "Title": "Stay Through the Credits",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "aftercreditsstinger",
+                "duringcreditsstinger"
+              ]
+            },
+            {
+              "Key": "mcu-movies",
+              "Title": "Marvel Cinematic Universe",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "marvel cinematic universe (mcu)"
+              ]
+            },
+            {
+              "Key": "comic-books",
+              "Title": "From Comic Panels to Screen",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "based on comic",
+                "superhero team",
+                "secret identity"
+              ]
+            },
+            {
+              "Key": "3d-animation",
+              "Title": "3D Animated Worlds",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "3d animation"
+              ]
+            },
+            {
+              "Key": "witches-wizards",
+              "Title": "Witches, Wizards & Spells",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "witch",
+                "wizard",
+                "castle",
+                "sorcery"
+              ]
+            },
+            {
+              "Key": "dragons-quests",
+              "Title": "Dragons, Castles & Epic Quests",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "dragon",
+                "quest",
+                "fantasy world",
+                "good versus evil"
+              ]
+            },
+            {
+              "Key": "talking-animals-toys",
+              "Title": "Talking Animals & Living Toys",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "anthropomorphism",
+                "animals",
+                "toy comes to life"
+              ]
+            },
+            {
+              "Key": "friendship-bonds",
+              "Title": "Ride-or-Die Friendships & Siblings",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "friendship",
+                "friends",
+                "sibling relationship",
+                "group of friends"
+              ]
+            },
+            {
+              "Key": "nyc-stories",
+              "Title": "Set in New York City",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "new york city"
+              ]
+            },
+            {
+              "Key": "ghosts-demons",
+              "Title": "Ghosts, Demons & The Occult",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "ghost",
+                "demon",
+                "supernatural horror",
+                "supernatural"
+              ]
+            },
+            {
+              "Key": "slashers-killers",
+              "Title": "Slashers, Killers & Murder Mysteries",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "serial killer",
+                "murder",
+                "sadism",
+                "whodunit"
+              ]
+            },
+            {
+              "Key": "zombies-monsters",
+              "Title": "Zombies, Creatures & Survival Horror",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "zombie",
+                "survival horror",
+                "monster",
+                "creature",
+                "epidemic"
+              ]
+            },
+            {
+              "Key": "aliens-first-contact",
+              "Title": "Aliens & First Contact",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "alien",
+                "alien invasion",
+                "alien life-form"
+              ]
+            },
+            {
+              "Key": "space-odysseys",
+              "Title": "Space Operas & Deep-Space Voyages",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "space opera",
+                "space travel",
+                "spacecraft"
+              ]
+            },
+            {
+              "Key": "true-stories",
+              "Title": "Inspired by True Stories",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on true story",
+                "biography"
+              ]
+            },
+            {
+              "Key": "dreams-surreal",
+              "Title": "Fever Dreams & Surreal Worlds",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "dreams",
+                "surrealism",
+                "philosophical",
+                "absurdism"
+              ]
+            },
+            {
+              "Key": "martial-arts-brawls",
+              "Title": "Martial Arts & Showdowns",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "martial arts",
+                "fight",
+                "battle",
+                "shounen"
+              ]
+            },
+            {
+              "Key": "revenge-thrillers",
+              "Title": "Tales of Revenge",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "revenge"
+              ]
+            },
+            {
+              "Key": "nostalgia-throwbacks",
+              "Title": "Pure Nostalgia",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "nostalgic",
+                "1980s",
+                "1960s"
+              ]
+            },
+            {
+              "Key": "feel-good-inspiring",
+              "Title": "Hopeful & Inspirational",
+              "Enabled": true,
+              "Types": [
+                "Movie",
+                "Series"
+              ],
+              "TagsAny": [
+                "hopeful",
+                "inspirational",
+                "cheerful",
+                "joyful"
+              ]
+            },
+            {
+              "Key": "manga-light-novel-tv",
+              "Title": "Manga & Light Novel Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "based on manga",
+                "based on light novel"
+              ]
+            },
+            {
+              "Key": "workplace-tv",
+              "Title": "Clock In: Workplace Chaos",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "workplace",
+                "workplace comedy",
+                "office",
+                "work",
+                "mockumentary",
+                "small business",
+                "hospital",
+                "fast food restaurant"
+              ]
+            },
+            {
+              "Key": "adult-animation-tv",
+              "Title": "Adult Swim & Late-Night Toons",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "adult animation",
+                "adult humor",
+                "absurdism",
+                "psychedelic",
+                "slacker"
+              ]
+            },
+            {
+              "Key": "satire-parody-tv",
+              "Title": "Biting Satire & Parody",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "satire",
+                "parody",
+                "social satire",
+                "mockumentary",
+                "scathing"
+              ]
+            },
+            {
+              "Key": "survival-high-stakes-tv",
+              "Title": "High-Stakes Survival",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "survival",
+                "death game",
+                "epidemic",
+                "post-apocalyptic future",
+                "virus",
+                "war",
+                "rebellion"
+              ]
+            },
+            {
+              "Key": "mystery-conspiracy-tv",
+              "Title": "Whodunits, Secrets & Conspiracies",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "whodunit",
+                "detective",
+                "impostor",
+                "conspiracy",
+                "spy thriller",
+                "memory",
+                "alternative reality"
+              ]
+            },
+            {
+              "Key": "prestige-streaming-tv",
+              "Title": "Prestige Streaming Originals",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "HBO",
+                "Max",
+                "HBO Max",
+                "Apple TV",
+                "Apple TV+",
+                "Netflix",
+                "Prime Video",
+                "Hulu",
+                "Disney+",
+                "Crave"
+              ]
+            },
+            {
+              "Key": "new-era-hits-tv",
+              "Title": "2020s Breakout Series",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "Years": [
+                2020,
+                2029
+              ],
+              "MinRating": 8
             }
           ]
         },
@@ -725,6 +1138,340 @@
               "GenresAny": [
                 "Animation"
               ]
+            },
+            {
+              "Key": "sequels",
+              "Title": "Bigger & Wilder Sequels",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "sequel"
+              ]
+            },
+            {
+              "Key": "credits-stingers",
+              "Title": "Stay Through the Credits",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "aftercreditsstinger",
+                "duringcreditsstinger"
+              ]
+            },
+            {
+              "Key": "mcu-movies",
+              "Title": "Marvel Cinematic Universe",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "marvel cinematic universe (mcu)"
+              ]
+            },
+            {
+              "Key": "comic-books",
+              "Title": "From Comic Panels to Screen",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on comic",
+                "superhero team",
+                "secret identity"
+              ]
+            },
+            {
+              "Key": "3d-animation",
+              "Title": "3D Animated Worlds",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "3d animation"
+              ]
+            },
+            {
+              "Key": "classic-cartoons",
+              "Title": "Hand-Drawn & Cartoon Favorites",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cartoon",
+                "live action and animation"
+              ]
+            },
+            {
+              "Key": "manga-movies",
+              "Title": "Manga Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on manga"
+              ]
+            },
+            {
+              "Key": "witches-wizards",
+              "Title": "Witches, Wizards & Spells",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "witch",
+                "wizard",
+                "castle"
+              ]
+            },
+            {
+              "Key": "dragons-quests",
+              "Title": "Dragons, Castles & Epic Quests",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "dragon",
+                "quest",
+                "fantasy world",
+                "good versus evil"
+              ]
+            },
+            {
+              "Key": "fairy-tales",
+              "Title": "Fairy Tales & Folklore",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on fairy tale",
+                "princess"
+              ]
+            },
+            {
+              "Key": "talking-animals-toys",
+              "Title": "Talking Animals & Living Toys",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "anthropomorphism",
+                "animals",
+                "toy comes to life"
+              ]
+            },
+            {
+              "Key": "friendship-bonds",
+              "Title": "Ride-or-Die Friendships & Siblings",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "friendship",
+                "friends",
+                "sibling relationship"
+              ]
+            },
+            {
+              "Key": "nyc-stories",
+              "Title": "Set in New York City",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "new york city"
+              ]
+            },
+            {
+              "Key": "la-hollywood",
+              "Title": "L.A. & Hollywood Stories",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "los angeles, california"
+              ]
+            },
+            {
+              "Key": "ghosts-demons",
+              "Title": "Ghosts, Demons & The Occult",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "ghost",
+                "demon",
+                "supernatural horror",
+                "supernatural"
+              ]
+            },
+            {
+              "Key": "slashers-killers",
+              "Title": "Slashers, Killers & Murder Mysteries",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "serial killer",
+                "murder",
+                "sadism"
+              ]
+            },
+            {
+              "Key": "zombies-monsters",
+              "Title": "Zombies, Creatures & Survival Horror",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "zombie",
+                "survival horror",
+                "monster",
+                "creature"
+              ]
+            },
+            {
+              "Key": "aliens-first-contact",
+              "Title": "Aliens & First Contact",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "alien",
+                "alien invasion",
+                "alien life-form"
+              ]
+            },
+            {
+              "Key": "space-odysseys",
+              "Title": "Space Operas & Deep-Space Voyages",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "space opera",
+                "space travel",
+                "spacecraft"
+              ]
+            },
+            {
+              "Key": "true-stories",
+              "Title": "Inspired by True Stories",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on true story",
+                "biography"
+              ]
+            },
+            {
+              "Key": "dreams-surreal",
+              "Title": "Fever Dreams & Surreal Cinema",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "dreams",
+                "surrealism",
+                "philosophical"
+              ]
+            },
+            {
+              "Key": "martial-arts-brawls",
+              "Title": "Martial Arts & Showdowns",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "martial arts",
+                "fight",
+                "battle"
+              ]
+            },
+            {
+              "Key": "revenge-thrillers",
+              "Title": "Tales of Revenge",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "revenge"
+              ]
+            },
+            {
+              "Key": "ya-adaptations",
+              "Title": "Young Adult Book Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "based on young adult novel"
+              ]
+            },
+            {
+              "Key": "female-leads-auteurs",
+              "Title": "Leading Women & Female Directors",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "female protagonist",
+                "woman director"
+              ]
+            },
+            {
+              "Key": "nostalgia-throwbacks",
+              "Title": "Pure Nostalgia",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "nostalgic",
+                "1980s",
+                "1960s"
+              ]
+            },
+            {
+              "Key": "feel-good-inspiring",
+              "Title": "Hopeful & Inspirational",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "hopeful",
+                "inspirational",
+                "cheerful",
+                "joyful"
+              ]
             }
           ]
         },
@@ -788,7 +1535,9 @@
               ],
               "TagsAny": [
                 "comforting",
-                "lighthearted"
+                "lighthearted",
+                "playful",
+                "amused"
               ]
             },
             {
@@ -876,7 +1625,10 @@
                 "Series"
               ],
               "TagsAny": [
-                "dark comedy"
+                "dark comedy",
+                "black comedy",
+                "dark humor",
+                "cynical"
               ]
             },
             {
@@ -888,7 +1640,10 @@
               ],
               "TagsAny": [
                 "psychological thriller",
-                "psychological horror"
+                "psychological horror",
+                "psychological",
+                "paranoia",
+                "suspenseful"
               ]
             },
             {
@@ -993,71 +1748,225 @@
               ]
             },
             {
-              "Key": "tv-drama",
-              "Title": "Drama Worth Your Time",
+              "Key": "manga-light-novel-tv",
+              "Title": "Manga & Light Novel Adaptations",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "based on manga",
+                "based on light novel"
+              ]
+            },
+            {
+              "Key": "shounen-martial-arts-tv",
+              "Title": "Shounen & Martial Arts",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "shounen",
+                "martial arts",
+                "combat"
+              ]
+            },
+            {
+              "Key": "workplace-tv",
+              "Title": "Clock In: Workplace Chaos",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "workplace",
+                "workplace comedy",
+                "office",
+                "work",
+                "mockumentary",
+                "small business",
+                "hospital",
+                "fast food restaurant"
+              ]
+            },
+            {
+              "Key": "adult-animation-tv",
+              "Title": "Adult Swim & Late-Night Toons",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "adult animation",
+                "adult humor",
+                "absurdism",
+                "psychedelic",
+                "slacker"
+              ]
+            },
+            {
+              "Key": "cartoon-favorites-tv",
+              "Title": "Cartoon & Animated Classics",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "Nickelodeon",
+                "Cartoon Network",
+                "Paramount+",
+                "FOX"
+              ]
+            },
+            {
+              "Key": "satire-parody-tv",
+              "Title": "Biting Satire & Parody",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "satire",
+                "parody",
+                "social satire",
+                "mockumentary",
+                "scathing"
+              ]
+            },
+            {
+              "Key": "sitcoms-hangout-tv",
+              "Title": "Sitcoms & Hangout Comedies",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "sitcom",
+                "group of friends",
+                "high school friends",
+                "playful",
+                "amused"
+              ]
+            },
+            {
+              "Key": "survival-high-stakes-tv",
+              "Title": "High-Stakes Survival",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "survival",
+                "death game",
+                "epidemic",
+                "post-apocalyptic future",
+                "virus",
+                "war",
+                "rebellion"
+              ]
+            },
+            {
+              "Key": "supernatural-powers-tv",
+              "Title": "Curses, Psychics & Superpowers",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "supernatural",
+                "sorcery",
+                "psychic power",
+                "super power",
+                "magic"
+              ]
+            },
+            {
+              "Key": "mystery-conspiracy-tv",
+              "Title": "Whodunits, Secrets & Conspiracies",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "whodunit",
+                "detective",
+                "impostor",
+                "conspiracy",
+                "spy thriller",
+                "memory",
+                "alternative reality"
+              ]
+            },
+            {
+              "Key": "anthology-feuds-tv",
+              "Title": "Anthologies, Grudges & Rivalries",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "anthology",
+                "revenge",
+                "rivalry",
+                "sibling rivalry"
+              ]
+            },
+            {
+              "Key": "action-adventure-tv",
+              "Title": "Action & Adventure Series",
+              "Enabled": true,
               "Types": [
                 "Series"
               ],
               "GenresAny": [
-                "Drama"
-              ],
-              "Enabled": true
+                "Action & Adventure"
+              ]
             },
             {
-              "Key": "tv-comedy",
-              "Title": "Familiar TV Favorites",
+              "Key": "prestige-streaming-tv",
+              "Title": "Prestige Streaming Originals",
+              "Enabled": true,
               "Types": [
                 "Series"
               ],
-              "GenresAny": [
-                "Comedy"
-              ],
-              "Enabled": true
+              "StudiosAny": [
+                "HBO",
+                "Max",
+                "HBO Max",
+                "Apple TV",
+                "Apple TV+",
+                "Netflix",
+                "Prime Video",
+                "Hulu",
+                "Disney+",
+                "Crave"
+              ]
             },
             {
-              "Key": "tv-anime",
-              "Title": "Animated Worlds",
+              "Key": "classic-throwback-tv",
+              "Title": "90s & 2000s Throwback TV",
+              "Enabled": true,
               "Types": [
                 "Series"
               ],
-              "GenresAny": [
-                "Animation",
-                "Anime"
-              ],
-              "Enabled": true
+              "Years": [
+                1989,
+                2012
+              ]
             },
             {
-              "Key": "tv-scifi",
-              "Title": "Strange Worlds",
+              "Key": "new-era-hits-tv",
+              "Title": "2020s Breakout Series",
+              "Enabled": true,
               "Types": [
                 "Series"
               ],
-              "GenresAny": [
-                "Sci-Fi & Fantasy",
-                "Science Fiction",
-                "Fantasy"
+              "Years": [
+                2020,
+                2029
               ],
-              "Enabled": true
-            },
-            {
-              "Key": "tv-crime",
-              "Title": "Crime and Consequences",
-              "Types": [
-                "Series"
-              ],
-              "GenresAny": [
-                "Crime"
-              ],
-              "Enabled": true
-            },
-            {
-              "Key": "tv-acclaimed",
-              "Title": "Highly Rated TV",
-              "Types": [
-                "Series"
-              ],
-              "MinRating": 8,
-              "Enabled": true
+              "MinRating": 8
             }
           ]
         }
@@ -1076,10 +1985,10 @@
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
 .fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
-.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none}
+.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
-.fx-card-more{position:absolute;right:7px;top:7px;border-radius:50%!important;min-width:44px;min-height:44px;background:rgba(16,17,19,.86)!important;padding:0!important;font-size:24px!important}
+.fx-card-more,.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"],.cardOverlayContainer button[data-action="menu"],.cardFooter button[data-action="menu"]){display:none!important}
 @keyframes fx-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .fx-card-visual{position:relative;width:100%;aspect-ratio:16/9;background:#101113;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .fx-card-visual.is-loading,.fx-skeleton-box,.fx-skeleton-title,.fx-skeleton-line{background:linear-gradient(90deg,#16181b 25%,#23262b 50%,#16181b 75%)!important;background-size:200% 100%!important;animation:fx-shimmer 1.5s infinite linear}
@@ -1113,7 +2022,7 @@
 .fx-tv .fx-card-entry:focus-within{z-index:3}.fx-discovery button,.fx-dialog button{min-height:44px;touch-action:manipulation}
 .fx-discovery{padding-bottom:calc(36px + env(safe-area-inset-bottom,0px))}
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
-@media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.fx-discovery{padding:10px 14px 25px;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:clamp(154px,44vw,215px);flex-basis:clamp(154px,44vw,215px)}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:19px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
 /* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS/native rows never flash. */
 [data-fx-hero-anchor="true"]{min-height:1px}
@@ -1133,7 +2042,6 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-see-more-arrow{width:48px;height:48px;border-radius:999px;background:#e50914;border:0;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;line-height:1}
 .fx-see-more-label{font-size:1rem;font-weight:700;color:#fff}
 .fx-see-more-sub{font-size:.78rem;color:rgba(255,255,255,.72);line-height:1.3}
-.fx-card-more{opacity:0;transition:opacity .15s}.fx-card-entry:hover .fx-card-more,.fx-card-entry:focus-within .fx-card-more,.fx-tv .fx-card-more{opacity:1}
 .fx-dialog{width:min(1040px,94vw);max-width:1040px;background:#101113;border:1px solid #26292e;border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.72)}
 .fx-inline-studio{color:#f1f2f4;background:#101113;border:1px solid #26292e;border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
 .fx-inline-studio button{font:inherit;color:#f1f2f4;background:#1a1c20;border:1px solid #26292e;border-radius:10px;padding:8px 14px;min-height:40px;cursor:pointer}
@@ -1193,8 +2101,7 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-advanced{margin-top:18px;border:1px solid #26292e;border-radius:12px;padding:8px 14px;background:#101113}.fx-advanced>summary{padding:8px 4px;cursor:pointer;font-weight:600}.fx-advanced textarea{margin-top:12px}
 .fx-editor-alert{color:#fde047;font-weight:600}
 @supports not (aspect-ratio:2/3){.fx-card-portrait .fx-card-visual{height:0;padding-bottom:150%}}
-@media(hover:none){.fx-card-more{opacity:1}}
-@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:38vw;flex-basis:38vw}.fx-editor-tabs{top:-15px}}
+@media(max-width:600px){.fx-card-entry.fx-card-portrait{width:clamp(98px,28vw,136px);flex-basis:clamp(98px,28vw,136px)}.fx-editor-tabs{top:-15px}}
 .fx-track{scrollbar-width:none;-ms-overflow-style:none}.fx-track::-webkit-scrollbar{display:none;width:0;height:0}
 .fx-shelf{margin-bottom:24px}.fx-row-head{margin-bottom:14px}.fx-name{font-weight:700}
 .fx-toolbar{justify-content:space-between;margin:4px 0 22px;position:relative;z-index:5}
@@ -1213,7 +2120,22 @@ html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .
 .fx-discovery button.fx-dropdown-item.is-selected{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
 .fx-profile-settings{display:block;width:100%;padding:18px;text-align:left;background:#1a1c20;color:#f1f2f4;border:1px solid #26292e;border-radius:12px;margin-bottom:14px;font:inherit;font-weight:700;cursor:pointer}
 
-/* Unify Page Header & View Switcher Title Size/Weight Across Movies, Shows, Live TV, and Collections (Single Red Bar) */
+/* Keep Library/Collections Top Subheader Non-Sticky at the Top of the Document & Unify Title Size/Weight */
+header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root){
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  filter:none!important;
+  transform:none!important;
+}
+header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) + div[aria-hidden="true"]{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
@@ -1637,7 +2559,7 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPa
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
 /* Dedicated Search Page (#searchPage) & Leaving Soon Nav Suppression */
-[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]{
+[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]:not([data-sleekfin-header-overflowed="true"]){
   display:inline-flex!important;
 }
 [data-fx-leaving-hidden="true"],
@@ -2350,16 +3272,334 @@ a.fx-download-option.is-selected{
   min-width:min(160px,100%)!important;
 }
 
+/* Settings Row Parity, Legacy Home Settings Toggle, Download Toast & Mobile OSD Gesture Pill */
+button.fx-settings-menu-row{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  font:inherit!important;
+  color:#f1f2f4!important;
+  box-sizing:border-box!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+button.fx-settings-menu-row .listItemIcon{
+  color:rgba(255,255,255,.76)!important;
+  font-size:22px!important;
+  margin-right:16px!important;
+  flex:0 0 auto!important;
+}
+button.fx-settings-menu-row .listItemBody{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  padding:0!important;
+}
+button.fx-settings-menu-row .listItemBodyText{
+  font-size:15px!important;
+  font-weight:500!important;
+  color:#f1f2f4!important;
+  margin:0!important;
+}
+.fx-legacy-home-settings{
+  margin:20px 0 0!important;
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:14px 18px!important;
+  box-sizing:border-box!important;
+}
+.fx-legacy-home-settings > summary{
+  cursor:pointer!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  color:rgba(255,255,255,.78)!important;
+  padding:4px 2px!important;
+  user-select:none!important;
+}
+.fx-legacy-home-settings[open] > summary{
+  margin-bottom:16px!important;
+  color:#fff!important;
+}
+.fx-toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(88px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%) translateY(8px);
+  opacity:0;
+  pointer-events:none;
+  z-index:100020;
+  padding:10px 18px;
+  border-radius:999px;
+  background:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.02)),rgba(18,19,23,.92);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 36px rgba(0,0,0,.6);
+  color:#fff;
+  font-size:13.5px;
+  font-weight:600;
+  white-space:nowrap;
+  max-width:calc(100vw - 32px);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.fx-toast.is-visible{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.fx-osd-gesture-pill{
+  position:fixed;
+  z-index:100015;
+  pointer-events:none;
+  padding:9px 18px;
+  border-radius:999px;
+  background:rgba(14,15,18,.78);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 10px 28px rgba(0,0,0,.55);
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.02em;
+  opacity:0;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.fx-osd-gesture-pill[hidden]{
+  display:none!important;
+}
+.fx-osd-gesture-pill-speed{
+  top:calc(22px + env(safe-area-inset-top,0px));
+  left:50%;
+  transform:translateX(-50%) scale(.96);
+}
+.fx-osd-gesture-pill-speed.is-visible{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+}
+.fx-osd-gesture-pill-right{
+  top:50%;
+  right:12%;
+  transform:translateY(-50%) scale(.94);
+}
+.fx-osd-gesture-pill-right.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+.fx-osd-gesture-pill-left{
+  top:50%;
+  left:12%;
+  transform:translateY(-50%) scale(.94);
+}
+.fx-osd-gesture-pill-left.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+
+/* Smooth Touch Scrolling on Native Scrollers */
+.emby-scroller{
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+
+/* Mobile Layout, Bottom Nav Priority, Overflow Prevention, Compact Cards & Detail Button Alignment */
+@media(max-width:899px){
+  html,body{
+    max-width:100%;
+    overflow-x:clip;
+  }
+  .mainAnimatedPages,
+  .page:not(#videoOsdPage),
+  #indexPage,
+  #moviesPage,
+  #tvshowsPage,
+  #tvRecommendedPage,
+  #boxsetsPage,
+  #searchPage,
+  #itemDetailPage,
+  #userProfilePage,
+  #myPreferencesMenuPage,
+  #quickConnectPreferencesPage,
+  #displayPreferencesPage,
+  #homeScreenPreferencesPage,
+  #languagePreferencesPage,
+  #subtitlePreferencesPage,
+  #controlsPreferencesPage,
+  .userPreferencesPage{
+    max-width:100vw!important;
+    box-sizing:border-box!important;
+    overflow-x:clip!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+    padding:16px 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
+    max-width:100%!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+    padding:16px!important;
+    max-width:100%!important;
+  }
+  .fx-discovery{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #searchPage#searchPage .searchResults{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
+    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+  }
+  /* Prioritize Home, Movies, and Shows on the Mobile Bottom Bar; Overflow Collections, Discover, Live TV & Settings into Menu */
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy]{
+    max-width:min(calc(100vw - 20px),348px)!important;
+  }
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])){
+    height:auto!important;
+    min-height:10px!important;
+    padding-top:env(safe-area-inset-top,0px)!important;
+    padding-bottom:0!important;
+  }
+}
+@media(max-width:360px){
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-zone="tabs"]{
+    padding-inline:9px!important;
+    font-size:12px!important;
+  }
+}
+
 @media(max-width:768px){
+  .fx-discovery{
+    padding-inline:14px!important;
+  }
+  .fx-inline-studio{
+    padding:16px 14px!important;
+  }
+  .fx-editor-section{
+    padding:14px!important;
+  }
+  .fx-rule-form{
+    padding:14px!important;
+  }
   .fx-toolbar h1,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"],
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"] .MuiTypography-root,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:24px!important;line-height:30px!important}
-  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:20px!important;line-height:28px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:22px!important;line-height:28px!important}
+  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:18.5px!important;line-height:25px!important}
+  .fx-shelf{margin-bottom:20px}
+  .fx-row-head{margin-bottom:10px}
+  .fx-track{gap:10px;padding:2px 2px 10px}
+  .fx-card-entry{
+    width:clamp(154px,44vw,215px)!important;
+    flex:0 0 clamp(154px,44vw,215px)!important;
+  }
+  .fx-card-entry.fx-card-portrait{
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+  }
+  .fx-name,
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{
+    font-size:12.5px!important;
+    margin-top:6px!important;
+  }
+  .fx-badge{
+    font-size:10.5px!important;
+    padding:2px 7px!important;
+  }
+  .fx-see-more-arrow{
+    width:38px!important;
+    height:38px!important;
+    font-size:1.2rem!important;
+  }
+  .fx-see-more-label{
+    font-size:.88rem!important;
+  }
+  .fx-see-more-sub{
+    font-size:.72rem!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer{
+    column-gap:10px!important;
+    gap:10px!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer > :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"]){
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+    max-width:clamp(98px,28vw,136px)!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller .itemsContainer > :is(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+    width:clamp(154px,44vw,215px)!important;
+    flex:0 0 clamp(154px,44vw,215px)!important;
+    max-width:clamp(154px,44vw,215px)!important;
+  }
+  #searchPage#searchPage .searchResults .emby-scroller .itemsContainer > :is(.squareCard,.overflowSquareCard){
+    width:clamp(98px,28vw,136px)!important;
+    flex:0 0 clamp(98px,28vw,136px)!important;
+    max-width:clamp(98px,28vw,136px)!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap,
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.portraitCard,.overflowPortraitCard){
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px 10px!important;
+    padding-top:16px!important;
+    padding-left:14px!important;
+    padding-inline-start:14px!important;
+    padding-right:14px!important;
+    padding-inline-end:14px!important;
+  }
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap:has(.backdropCard,.overflowBackdropCard,.sixteenNineCard){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px 10px!important;
+  }
+  #searchPage#searchPage .searchFields{
+    padding:6px 14px 18px!important;
+  }
+  #searchPage#searchPage .searchSuggestions{
+    width:calc(100% - 28px)!important;
+    padding:16px!important;
+  }
   .fx-header-search.is-open{width:clamp(180px,56vw,280px)}
   .fx-search-grid{grid-template-columns:repeat(auto-fill,minmax(44vw,1fr))}
+}
+
+@media(max-width:767px){
+  /* Clean Two-Row Media Detail Actions on Mobile: Row 1 = Play + Download, Row 2 = Centered Icon Actions */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]){
+    display:flex!important;
+    flex-wrap:wrap!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:12px!important;
+    width:100%!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-spacer{
+    display:none!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload){
+    order:1!important;
+    flex:1 1 calc(50% - 6px)!important;
+    min-width:120px!important;
+    justify-content:center!important;
+    margin:0!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],.btnPlay,.btnResume,.btnReplay){
+    flex:1 1 100%!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)){
+    order:2!important;
+    flex:0 0 var(--sleekfin-details-button-height,44px)!important;
+    margin:0!important;
+    margin-left:0!important;
+    margin-top:0!important;
+  }
 }
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
@@ -2465,11 +3705,11 @@ a.fx-download-option.is-selected{
       if (typeof config.endless !== "boolean" || typeof config.hideWatched !== "boolean") throw Error("endless and hideWatched must be true or false.");
       for (const page of ["home", "movies", "shows"]) {
         const profile = (_a = config.pages) == null ? void 0 : _a[page];
-        if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 100) throw Error(`${page}: use up to 100 rules.`);
+        if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);
         if (!Array.isArray(profile.anchors) || profile.anchors.some((a) => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
         if (!Array.isArray(profile.families) || profile.families.some((f) => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
-        if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 100 || profile.opening.some((t) => typeof t !== "string" || !(t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
-        if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 200 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
+        if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 250 || profile.opening.some((t) => typeof t !== "string" || !(t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
+        if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 500 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
         const keys = /* @__PURE__ */ new Set();
         for (const r of profile.rules) {
           if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
@@ -2592,6 +3832,23 @@ a.fx-download-option.is-selected{
       }
       return page ? { page, ...page !== "home" ? { view } : {}, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
     }
+    const normalizeGuid = (id) => String(id || "").replace(/-/g, "").toLowerCase();
+    const leavingSoonState = {
+      viewIds: /* @__PURE__ */ new Set(["5ebc3f61ab8138bcfac3c68317a6be0b", "98081fc4b7413c896b48aaf1e35e8457"]),
+      itemIds: /* @__PURE__ */ new Set(),
+      loadedViews: /* @__PURE__ */ new Set()
+    };
+    function isLeavingSoonItem(item) {
+      if (!item || typeof item !== "object") return false;
+      const id = normalizeGuid(item.Id);
+      const parentId = normalizeGuid(item.ParentId);
+      const seriesId = normalizeGuid(item.SeriesId);
+      if (id && (leavingSoonState.viewIds.has(id) || leavingSoonState.itemIds.has(id))) return true;
+      if (parentId && leavingSoonState.viewIds.has(parentId)) return true;
+      if (seriesId && (leavingSoonState.viewIds.has(seriesId) || leavingSoonState.itemIds.has(seriesId))) return true;
+      if (/leaving\s+soon/i.test(String(item.Name || "")) || /leaving\s+soon/i.test(String(item.SeriesName || ""))) return true;
+      return false;
+    }
     class JellyfinClient {
       constructor(api, current = () => true) {
         var _a;
@@ -2654,9 +3911,27 @@ a.fx-download-option.is-selected{
         return { ready, records };
       }
       async inventory(route, progress) {
+        var _a;
         const views = await this.json(`Users/${encodeURIComponent(this.userId)}/Views`);
-        this.views = (views.Items || []).filter((v) => ["movies", "tvshows", "", null, void 0].includes(v.CollectionType) && !/leaving\s+soon/i.test(v.Name || ""));
-        const folders = route.parentId ? [{ Id: route.parentId }] : this.views.filter((v) => route.page === "home" || !v.CollectionType || v.CollectionType === (route.page === "movies" ? "movies" : "tvshows"));
+        const rawViews = views.Items || [];
+        const leavingViews = rawViews.filter((v) => /leaving\s+soon/i.test((v == null ? void 0 : v.Name) || "") || leavingSoonState.viewIds.has(normalizeGuid(v == null ? void 0 : v.Id)));
+        for (const lv of leavingViews) {
+          const gid = normalizeGuid(lv == null ? void 0 : lv.Id);
+          if (gid) leavingSoonState.viewIds.add(gid);
+          if (gid && !leavingSoonState.loadedViews.has(gid) && typeof ((_a = this.api) == null ? void 0 : _a.getItems) === "function") {
+            leavingSoonState.loadedViews.add(gid);
+            Promise.resolve(this.api.getItems(this.userId, { ParentId: lv.Id, Recursive: true, IncludeItemTypes: "Movie,Series", Limit: 500 })).then((res) => {
+              for (const it of (res == null ? void 0 : res.Items) || []) {
+                const iid = normalizeGuid(it == null ? void 0 : it.Id);
+                if (iid) leavingSoonState.itemIds.add(iid);
+              }
+            }).catch(() => {
+            });
+          }
+        }
+        this.views = rawViews.filter((v) => ["movies", "tvshows", "", null, void 0].includes(v.CollectionType) && !isLeavingSoonItem(v));
+        const safeParentId = route.parentId && !leavingSoonState.viewIds.has(normalizeGuid(route.parentId)) ? route.parentId : "";
+        const folders = safeParentId ? [{ Id: safeParentId }] : this.views.filter((v) => route.page === "home" || !v.CollectionType || v.CollectionType === (route.page === "movies" ? "movies" : "tvshows"));
         const type = route.page === "movies" ? "Movie" : route.page === "shows" ? "Series" : "Movie,Series";
         const all = /* @__PURE__ */ new Map(), seasons = /* @__PURE__ */ new Map();
         const tasks = [];
@@ -2750,12 +4025,12 @@ a.fx-download-option.is-selected{
         }
         const results = await Promise.all(tasks);
         this.assertCurrent();
-        const combined = [...((_a = results[0]) == null ? void 0 : _a.Items) || [], ...((_b = results[1]) == null ? void 0 : _b.Items) || []];
+        const combined = [...((_a = results[0]) == null ? void 0 : _a.Items) || [], ...((_b = results[1]) == null ? void 0 : _b.Items) || []].filter((i) => !isLeavingSoonItem(i));
         if (!combined.length && this.prefetchedSections.has("ContinueWatchingNextUp")) {
           try {
             const pref = await this.prefetchedSections.get("ContinueWatchingNextUp");
             this.prefetchedSections.delete("ContinueWatchingNextUp");
-            if ((_c = pref == null ? void 0 : pref.Items) == null ? void 0 : _c.length) return this.groupResume(pref.Items, inventory).slice(0, limit);
+            if ((_c = pref == null ? void 0 : pref.Items) == null ? void 0 : _c.length) return this.groupResume(pref.Items.filter((i) => !isLeavingSoonItem(i)), inventory).slice(0, limit);
           } catch {
           }
         }
@@ -2774,7 +4049,7 @@ a.fx-download-option.is-selected{
         return items.length ? [{ key: "ContinueWatchingNextUp", title: "Continue Watching / Next Up", family: "anchor", items }] : [];
       }
       async anchor(id, route, inventory, config) {
-        var _a;
+        var _a, _b, _c;
         const typed = (list) => route.page === "home" ? list : list.filter((i) => route.page === "movies" ? i.Type === "Movie" || i.SourceType === "movie" : ["Series", "Episode"].includes(i.Type) || i.SourceType === "tv");
         const arrival = (item) => {
           var _a2;
@@ -2791,8 +4066,8 @@ a.fx-download-option.is-selected{
           try {
             const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
             if (items.length) {
-              let list = typed(items);
-              if (route.parentId) {
+              let list = typed(items).filter((i) => !isLeavingSoonItem(i));
+              if ((route.parentId || leavingSoonState.itemIds.size > 0) && ((_b = inventory.items) == null ? void 0 : _b.length)) {
                 const allowed = new Set(inventory.items.map((i) => i.Id));
                 list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
               }
@@ -2849,8 +4124,8 @@ a.fx-download-option.is-selected{
           const prefetched = this.prefetchedSections.get(id);
           if (prefetched) this.prefetchedSections.delete(id);
           const response = prefetched ? await prefetched : await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
-          let list = typed(response.Items || []);
-          if (route.parentId && !id.startsWith("Discover")) {
+          let list = typed(response.Items || []).filter((i) => id.startsWith("Discover") || !isLeavingSoonItem(i));
+          if ((route.parentId || leavingSoonState.itemIds.size > 0) && !id.startsWith("Discover") && ((_c = inventory.items) == null ? void 0 : _c.length)) {
             const allowed = new Set(inventory.items.map((i) => i.Id));
             list = list.filter((i) => allowed.has(i.Id) || allowed.has(i.SeriesId));
           }
@@ -2863,7 +4138,7 @@ a.fx-download-option.is-selected{
           this.assertCurrent();
           if (id !== "ContinueWatchingNextUp") throw error;
           const resume = await this.json("Items/Resume", { UserId: this.userId, Limit: config.cardsPerShelf, ...route.parentId ? { ParentId: route.parentId } : {}, Fields: "DateCreated,PrimaryImageAspectRatio", EnableImages: true });
-          return { key: id, title: "Continue Watching", family: "anchor", items: this.groupResume(typed(resume.Items || []), inventory).slice(0, config.cardsPerShelf) };
+          return { key: id, title: "Continue Watching", family: "anchor", items: this.groupResume(typed(resume.Items || []).filter((i) => !isLeavingSoonItem(i)), inventory).slice(0, config.cardsPerShelf) };
         }
       }
     }
@@ -3545,7 +4820,7 @@ a.fx-download-option.is-selected{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.2";
+      const VERSION = "0.5.3";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -3895,8 +5170,73 @@ a.fx-download-option.is-selected{
         } catch {
         }
       }
+      function patchApiClientLeavingSoon(api) {
+        if (!api || typeof api !== "object" || api._fxLeavingPatched) return;
+        try {
+          api._fxLeavingPatched = true;
+        } catch {
+          return;
+        }
+        const isDashboard = () => /^#!?\/?(?:dashboard|configurationpage)/i.test(String(location.hash || ""));
+        const rememberViews = (items) => {
+          var _a2;
+          if (!Array.isArray(items)) return;
+          const uid = (_a2 = api.getCurrentUserId) == null ? void 0 : _a2.call(api);
+          for (const v of items) {
+            const gid = normalizeGuid(v == null ? void 0 : v.Id);
+            if (/leaving\s+soon/i.test(String((v == null ? void 0 : v.Name) || "")) || gid && leavingSoonState.viewIds.has(gid)) {
+              if (gid) leavingSoonState.viewIds.add(gid);
+              if (gid && uid && !leavingSoonState.loadedViews.has(gid) && typeof origGetItems === "function") {
+                leavingSoonState.loadedViews.add(gid);
+                Promise.resolve(origGetItems(uid, { ParentId: v.Id, Recursive: true, IncludeItemTypes: "Movie,Series", Limit: 500 })).then((res) => {
+                  for (const it of (res == null ? void 0 : res.Items) || []) {
+                    const iid = normalizeGuid(it == null ? void 0 : it.Id);
+                    if (iid) leavingSoonState.itemIds.add(iid);
+                  }
+                }).catch(() => {
+                });
+              }
+            }
+          }
+        };
+        const origGetItems = typeof api.getItems === "function" ? api.getItems.bind(api) : null;
+        if (typeof api.getUserViews === "function") {
+          const origViews = api.getUserViews.bind(api);
+          api.getUserViews = function(...args) {
+            return Promise.resolve(origViews(...args)).then((res) => {
+              if (res && Array.isArray(res.Items)) {
+                rememberViews(res.Items);
+                if (!isDashboard()) {
+                  const filtered = res.Items.filter((v) => !isLeavingSoonItem(v));
+                  if (filtered.length !== res.Items.length) {
+                    return { ...res, Items: filtered, TotalRecordCount: filtered.length };
+                  }
+                }
+              }
+              return res;
+            });
+          };
+        }
+        if (origGetItems) {
+          api.getItems = function(userId, options, ...rest) {
+            return Promise.resolve(origGetItems(userId, options, ...rest)).then((res) => {
+              var _a2;
+              if (!res || !Array.isArray(res.Items) || isDashboard()) return res;
+              const requestedParent = normalizeGuid(options == null ? void 0 : options.ParentId);
+              if (requestedParent && leavingSoonState.viewIds.has(requestedParent)) return res;
+              if (!leavingSoonState.viewIds.size && !leavingSoonState.itemIds.size) return res;
+              const filtered = res.Items.filter((it) => !isLeavingSoonItem(it));
+              if (filtered.length !== res.Items.length) {
+                return { ...res, Items: filtered, TotalRecordCount: Math.max(0, ((_a2 = res.TotalRecordCount) != null ? _a2 : res.Items.length) - (res.Items.length - filtered.length)) };
+              }
+              return res;
+            });
+          };
+        }
+      }
       function hideLeavingSoonNav() {
         var _a2, _b2;
+        if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
         try {
           const raw = (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, "sleekfin:header-sources:v2");
           if (raw && /leaving\s+soon/i.test(raw)) {
@@ -3934,6 +5274,22 @@ a.fx-download-option.is-selected{
             }
           }
         });
+        document.querySelectorAll("#indexPage .card, #indexPage .verticalSection, #homeScreenPreferencesPage .viewItem, #homeScreenPreferencesPage .checkboxList > *, #homeScreenPreferencesPage .folderList > *, #homeScreenPreferencesPage .listItem, #homeScreenPreferencesPage label, #userProfilePage .folderAccessListContainer label, #userProfilePage .checkboxList > *").forEach((node) => {
+          var _a3, _b3;
+          if ((_a3 = node.classList) == null ? void 0 : _a3.contains("verticalSection")) {
+            const heading = ((_b3 = node.querySelector("h2, .sectionTitle")) == null ? void 0 : _b3.textContent) || "";
+            if (!/leaving\s+soon/i.test(heading)) return;
+          } else {
+            const idAttr = normalizeGuid(node.getAttribute("data-id") || node.getAttribute("data-itemid") || "");
+            const text = (node.getAttribute("aria-label") || node.getAttribute("title") || node.textContent || "").trim();
+            const matchedId = idAttr && (leavingSoonState.viewIds.has(idAttr) || leavingSoonState.itemIds.has(idAttr));
+            if (!matchedId && !/leaving\s+soon/i.test(text)) return;
+          }
+          if (node.getAttribute("data-fx-leaving-hidden") !== "true") {
+            node.setAttribute("data-fx-leaving-hidden", "true");
+            node.style.display = "none";
+          }
+        });
         if (changed && typeof Event === "function") {
           const fire = () => {
             var _a3;
@@ -3944,6 +5300,57 @@ a.fx-download-option.is-selected{
           };
           if (typeof requestAnimationFrame === "function") requestAnimationFrame(fire);
           else setTimeout(fire, 0);
+        }
+      }
+      function syncMobileOverflowDrawer(api = window.ApiClient) {
+        var _a2;
+        const drawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
+        if (!drawer) return;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+          drawer.querySelectorAll("[data-fx-overflow-settings]").forEach((n) => n.remove());
+          return;
+        }
+        const existingItems = [...drawer.querySelectorAll("button[data-sleekfin-header-overflow-item], a[data-sleekfin-header-overflow-item]")];
+        if (!existingItems.length) return;
+        const listHost = existingItems[0].parentElement;
+        if (!listHost) return;
+        const isSettingsActive = /^#!?\/?mypreferences/i.test(String(location.hash || ""));
+        let settingsBtn = drawer.querySelector('[data-fx-overflow-settings="true"]');
+        if (!settingsBtn) {
+          const sample = existingItems.find((b) => (b.getAttribute("data-sleekfin-header-overflow-item") || "") !== "jellyfin:user-menu") || existingItems[0];
+          settingsBtn = element("button", (sample == null ? void 0 : sample.className) || "");
+          settingsBtn.type = "button";
+          settingsBtn.dataset.fxOverflowSettings = "true";
+          settingsBtn.setAttribute("data-sleekfin-header-overflow-item", "fx:settings");
+          settingsBtn.title = "Settings";
+          settingsBtn.setAttribute("aria-label", "Settings");
+          const vis = element("span");
+          vis.dataset.sleekfinHeaderSourceVisual = "true";
+          const icon = element("span", "material-icons settings");
+          icon.dataset.sleekfinHeaderSourceIcon = "true";
+          icon.setAttribute("aria-hidden", "true");
+          const lbl = element("span", "", "Settings");
+          lbl.dataset.sleekfinHeaderSourceLabel = "true";
+          vis.append(icon, lbl);
+          settingsBtn.append(vis);
+          settingsBtn.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeDrawers();
+            scrollToTop();
+            location.hash = "#/mypreferencesmenu";
+            schedule();
+          });
+          const beforeAnchor = listHost.querySelector('[data-sleekfin-header-overflow-item="jellyfin:search"], [data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+          if (beforeAnchor && beforeAnchor.parentElement === listHost) listHost.insertBefore(settingsBtn, beforeAnchor);
+          else listHost.append(settingsBtn);
+        }
+        if (isSettingsActive) {
+          settingsBtn.setAttribute("aria-current", "page");
+          settingsBtn.dataset.sleekfinCurrent = "true";
+        } else {
+          settingsBtn.removeAttribute("aria-current");
+          delete settingsBtn.dataset.sleekfinCurrent;
         }
       }
       function syncHomeModeAttr(api = window.ApiClient) {
@@ -4051,11 +5458,55 @@ a.fx-download-option.is-selected{
           });
         }
       }
+      const LEGACY_DUPLICATE_SHOW_KEYS = /* @__PURE__ */ new Set(["tv-drama", "tv-comedy", "tv-anime", "tv-scifi", "tv-crime", "tv-acclaimed"]);
+      const LEGACY_DEFAULT_RULE_COUNTS = { home: 32, movies: 26, shows: 28 };
       function upgradeLegacyConfig(cfg) {
-        if (cfg && typeof cfg === "object" && cfg.cardsPerShelf === 8) {
+        var _a2;
+        if (!cfg || typeof cfg !== "object") return cfg;
+        if (cfg.cardsPerShelf === 8) {
           cfg.cardsPerShelf = 20;
         }
+        if (cfg.pages && (DEFAULT_CONFIG2 == null ? void 0 : DEFAULT_CONFIG2.pages)) {
+          for (const page of ["home", "movies", "shows"]) {
+            const prof = cfg.pages[page];
+            const supplied = (_a2 = DEFAULT_CONFIG2.pages[page]) == null ? void 0 : _a2.rules;
+            if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
+            if (page === "shows") {
+              const pinned = new Set(Array.isArray(prof.opening) ? prof.opening : []);
+              const layouts = prof.layouts && typeof prof.layouts === "object" ? prof.layouts : null;
+              prof.rules = prof.rules.filter((r) => {
+                if (!LEGACY_DUPLICATE_SHOW_KEYS.has(r == null ? void 0 : r.Key)) return true;
+                const tok = `rule:${r.Key}`;
+                return pinned.has(tok) || Boolean(layouts && tok in layouts);
+              });
+            }
+            if (prof.rules.length <= LEGACY_DEFAULT_RULE_COUNTS[page]) {
+              const existingKeys = new Set(prof.rules.map((r) => r == null ? void 0 : r.Key).filter(Boolean));
+              for (const rule of supplied) {
+                if ((rule == null ? void 0 : rule.Key) && !existingKeys.has(rule.Key)) {
+                  prof.rules.push(cloneJson(rule));
+                  existingKeys.add(rule.Key);
+                } else if (page === "shows" && ["comfort", "dark-side-laughs", "mind-benders"].includes(rule == null ? void 0 : rule.Key)) {
+                  const target = prof.rules.find((r) => (r == null ? void 0 : r.Key) === rule.Key);
+                  if (target && Array.isArray(target.TagsAny) && target.TagsAny.length <= 2) {
+                    target.TagsAny = [...rule.TagsAny];
+                  }
+                }
+              }
+            }
+          }
+        }
         return cfg;
+      }
+      function isCompactTouchViewport() {
+        var _a2, _b2, _c2, _d2;
+        try {
+          return Boolean(
+            ((_b2 = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(max-width: 768px)")) == null ? void 0 : _b2.matches) || ((_d2 = (_c2 = window.matchMedia) == null ? void 0 : _c2.call(window, "(pointer: coarse)")) == null ? void 0 : _d2.matches) && (window.innerWidth || 1024) <= 900
+          );
+        } catch {
+          return false;
+        }
       }
       function readConfig(api) {
         try {
@@ -4162,9 +5613,12 @@ a.fx-download-option.is-selected{
       function imageChoices(item, api, layout = "landscape") {
         var _a2, _b2, _c2, _d2, _e2;
         const results = [];
+        const compact = isCompactTouchViewport();
+        const maxWidth = compact ? layout === "portrait" ? 300 : 440 : 700;
+        const quality = compact ? 82 : 88;
         const add = (id, type, tag, poster = false) => {
           if (!id || !tag) return;
-          const url = safeUrl(api.getImageUrl(id, { type, tag, maxWidth: 700, quality: 88, ...type === "Backdrop" ? { index: 0 } : {} }));
+          const url = safeUrl(api.getImageUrl(id, { type, tag, maxWidth, quality, ...type === "Backdrop" ? { index: 0 } : {} }));
           if (url) results.push({ url, poster });
         };
         add(item.Id, "Thumb", (_a2 = item.ImageTags) == null ? void 0 : _a2.Thumb);
@@ -4196,15 +5650,12 @@ a.fx-download-option.is-selected{
         }
         return item.Id ? `#/details?${q}` : "";
       }
-      function attachSimilarControls(entry, card, item, s, name) {
-        var _a2, _b2;
-        if (entry.querySelector(".fx-card-more")) return;
-        if (["Movie", "Series"].includes(item.Type) && ((_b2 = (_a2 = s.inventory) == null ? void 0 : _a2.items) == null ? void 0 : _b2.some((i) => i.Id === item.Id))) {
-          const more = button("\u22EF", () => moreLikeThis(item, s));
-          more.className = "fx-card-more";
-          more.title = "More like this";
-          more.setAttribute("aria-label", `More like ${name}`);
-          entry.append(more);
+      function attachSimilarControls(entry, card, item, s) {
+        var _a2, _b2, _c2;
+        (_a2 = entry.querySelector(".fx-card-more")) == null ? void 0 : _a2.remove();
+        if (card.dataset.fxSimilarBound === "true") return;
+        if (["Movie", "Series"].includes(item.Type) && ((_c2 = (_b2 = s.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.some((i) => i.Id === item.Id))) {
+          card.dataset.fxSimilarBound = "true";
           card.addEventListener("contextmenu", (event) => {
             event.preventDefault();
             moreLikeThis(item, s);
@@ -4327,17 +5778,34 @@ a.fx-download-option.is-selected{
         if (withSimilar) attachSimilarControls(entry, card, item, s, name);
         return entry;
       }
-      function snapScrollDelta(track, direction, fallbackStep) {
+      function snapScrollDelta(track, direction, fallbackStep, clampEnd = false) {
         var _a2;
+        const maxScroll = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+        const current = track.scrollLeft || 0;
+        if (clampEnd && maxScroll > 0) {
+          if (direction > 0 && current >= maxScroll - 2) return 0;
+          if (direction < 0 && current <= 2) return 0;
+        }
         const children = [...track.children];
-        if (children.length < 2) return direction * fallbackStep;
+        if (children.length < 2) {
+          const raw = direction * fallbackStep;
+          return clampEnd && maxScroll > 0 ? Math.max(-current, Math.min(maxScroll - current, raw)) : raw;
+        }
         const base = typeof ((_a2 = children[0]) == null ? void 0 : _a2.offsetLeft) === "number" ? children[0].offsetLeft : 0;
-        const snaps = children.map((c) => typeof c.offsetLeft === "number" ? c.offsetLeft - base : 0);
-        if (!snaps.some((x) => x > 0)) return direction * fallbackStep;
-        const current = track.scrollLeft;
-        const desired = current + direction * fallbackStep;
-        const candidates = snaps.filter((pos) => direction > 0 ? pos > current + 8 : pos < current - 8);
-        if (!candidates.length) return direction * fallbackStep;
+        let snaps = children.map((c) => typeof c.offsetLeft === "number" ? c.offsetLeft - base : 0);
+        if (!snaps.some((x) => x > 0)) {
+          const raw = direction * fallbackStep;
+          return clampEnd && maxScroll > 0 ? Math.max(-current, Math.min(maxScroll - current, raw)) : raw;
+        }
+        if (clampEnd && maxScroll > 0) {
+          snaps = [...new Set(snaps.map((pos) => Math.min(pos, maxScroll)))];
+        }
+        const desired = clampEnd && maxScroll > 0 ? Math.max(0, Math.min(maxScroll, current + direction * fallbackStep)) : current + direction * fallbackStep;
+        const candidates = snaps.filter((pos) => direction > 0 ? pos > current + 4 : pos < current - 4);
+        if (!candidates.length) {
+          if (clampEnd && maxScroll > 0) return direction > 0 ? Math.max(0, maxScroll - current) : -current;
+          return direction * fallbackStep;
+        }
         let best = candidates[0];
         for (const pos of candidates) {
           if (Math.abs(pos - desired) < Math.abs(best - desired)) best = pos;
@@ -4350,8 +5818,10 @@ a.fx-download-option.is-selected{
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
         const baseCount = row.items.length;
         const hasSeeMore = row.key === "DiscoverMovies" || row.key === "DiscoverTV" || row.items.some((i) => i.Type === "SeeMore");
-        if (hasSeeMore) track.dataset.noLoop = "true";
-        const copies = row.key !== "MyMedia" && !hasSeeMore && baseCount >= 2 ? s.route.view === "genres" ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)) : 1;
+        const compactTouch = isCompactTouchViewport();
+        const noLoop = hasSeeMore || row.key === "MyMedia" || compactTouch;
+        if (noLoop) track.dataset.noLoop = "true";
+        const copies = !noLoop && baseCount >= 2 ? s.route.view === "genres" ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)) : 1;
         const cycleWidth = () => {
           if (copies <= 1) return 0;
           const first = track.children[0], secondCycle = track.children[baseCount];
@@ -4364,8 +5834,17 @@ a.fx-download-option.is-selected{
           while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
           if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
         };
+        const finishProgrammatic = () => {
+          clearTimeout(track._fxScrollTimer);
+          track._fxProgrammatic = false;
+          normalizeLoop();
+        };
+        const bumpProgrammaticTimer = (ms = 200) => {
+          clearTimeout(track._fxScrollTimer);
+          track._fxScrollTimer = setTimeout(finishProgrammatic, ms);
+        };
         const scroll = (direction) => {
-          const cw = cycleWidth(), step = Math.max(250, Math.round(track.clientWidth * 0.85));
+          const cw = cycleWidth(), step = Math.max(180, Math.round((track.clientWidth || 320) * 0.85));
           if (cw > 0) {
             clearTimeout(track._fxScrollTimer);
             track._fxProgrammatic = true;
@@ -4378,30 +5857,43 @@ a.fx-download-option.is-selected{
             }
             track.style.scrollBehavior = prevBehavior;
             track._fxMoved = true;
-            const delta = snapScrollDelta(track, direction, step);
-            track.scrollBy({ left: delta, behavior: "smooth" });
-            track._fxScrollTimer = setTimeout(() => {
-              track._fxProgrammatic = false;
-              normalizeLoop();
-            }, 520);
+            const delta = snapScrollDelta(track, direction, step, false);
+            if (delta !== 0) {
+              track.scrollBy({ left: delta, behavior: "smooth" });
+              bumpProgrammaticTimer(750);
+            } else {
+              finishProgrammatic();
+            }
             return;
           }
           if (hasSeeMore) {
-            const delta = snapScrollDelta(track, direction, step);
-            track.scrollBy({ left: delta, behavior: "smooth" });
+            const delta = snapScrollDelta(track, direction, step, true);
+            if (delta !== 0) track.scrollBy({ left: delta, behavior: "smooth" });
             return;
           }
-          const end = Math.max(0, track.scrollWidth - track.clientWidth);
-          if (direction > 0 && track.scrollLeft >= end - 2) track.scrollLeft = 0;
-          else if (direction < 0 && track.scrollLeft <= 2) track.scrollLeft = end;
-          else {
-            const delta = snapScrollDelta(track, direction, step);
-            track.scrollBy({ left: delta, behavior: "smooth" });
+          const end = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+          if (direction > 0 && track.scrollLeft >= end - 2) {
+            if (typeof track.scrollTo === "function" && compactTouch) track.scrollTo({ left: 0, behavior: "smooth" });
+            else track.scrollLeft = 0;
+          } else if (direction < 0 && track.scrollLeft <= 2) {
+            if (typeof track.scrollTo === "function" && compactTouch) track.scrollTo({ left: end, behavior: "smooth" });
+            else track.scrollLeft = end;
+          } else {
+            const delta = snapScrollDelta(track, direction, step, true);
+            if (delta !== 0) track.scrollBy({ left: delta, behavior: "smooth" });
           }
         };
         track.addEventListener("scroll", () => {
           if (track.scrollLeft > 12) track._fxMoved = true;
+          if (track._fxProgrammatic) {
+            bumpProgrammaticTimer(180);
+            return;
+          }
           normalizeLoop();
+        }, { passive: true });
+        track.addEventListener("scrollend", () => {
+          if (track._fxProgrammatic) finishProgrammatic();
+          else normalizeLoop();
         }, { passive: true });
         track.addEventListener("wheel", (e) => {
           if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
@@ -4416,37 +5908,38 @@ a.fx-download-option.is-selected{
             }
             return;
           }
-          if (hasSeeMore) return;
+          if (noLoop) return;
           const end = track.scrollWidth - track.clientWidth;
           if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) {
             e.preventDefault();
             scroll(e.deltaX > 0 ? 1 : -1);
           }
         }, { passive: false });
-        let touchX;
-        track.addEventListener("touchstart", (e) => {
-          var _a3;
-          touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
-          const cw = cycleWidth();
-          if (cw > 0 && track.scrollLeft <= 12) {
-            track.scrollLeft += cw;
-            track._fxMoved = true;
-          }
-        }, { passive: true });
-        track.addEventListener("touchend", (e) => {
-          var _a3;
-          const delta = touchX - ((_a3 = e.changedTouches[0]) == null ? void 0 : _a3.clientX);
-          if (Math.abs(delta) > 40) {
+        if (!noLoop) {
+          let touchX;
+          track.addEventListener("touchstart", (e) => {
+            var _a3;
+            touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
             const cw = cycleWidth();
-            if (cw > 0) {
-              normalizeLoop();
-              return;
+            if (cw > 0 && track.scrollLeft <= 12) {
+              track.scrollLeft += cw;
+              track._fxMoved = true;
             }
-            if (hasSeeMore) return;
-            const end = track.scrollWidth - track.clientWidth;
-            if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
-          }
-        }, { passive: true });
+          }, { passive: true });
+          track.addEventListener("touchend", (e) => {
+            var _a3;
+            const delta = touchX - ((_a3 = e.changedTouches[0]) == null ? void 0 : _a3.clientX);
+            if (Math.abs(delta) > 40) {
+              const cw = cycleWidth();
+              if (cw > 0) {
+                normalizeLoop();
+                return;
+              }
+              const end = track.scrollWidth - track.clientWidth;
+              if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
+            }
+          }, { passive: true });
+        }
         const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
         back.setAttribute("aria-label", `Previous ${row.title}`);
         forward.setAttribute("aria-label", `More ${row.title}`);
@@ -5132,17 +6625,65 @@ a.fx-download-option.is-selected{
         if (detailTitle) return sanitizeFilename(detailTitle);
         return "";
       }
+      function showToast(text) {
+        let toast = document.querySelector(".fx-toast");
+        if (!toast) {
+          toast = element("div", "fx-toast");
+          toast.setAttribute("role", "status");
+          document.body.append(toast);
+        }
+        toast.textContent = text;
+        toast.classList.add("is-visible");
+        clearTimeout(toast._fxTimer);
+        toast._fxTimer = setTimeout(() => {
+          toast.classList.remove("is-visible");
+        }, 2400);
+      }
       function triggerUrlDownload(url, filename = "") {
         const a = element("a");
         a.href = url;
         a.setAttribute("download", filename || "");
         a.rel = "noopener noreferrer";
+        if (isCompactTouchViewport()) a.target = "_blank";
         document.body.append(a);
         a.click();
         a.remove();
       }
+      async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api }) {
+        var _a2, _b2, _c2, _d2, _e2, _f;
+        const absUrl = safeUrl(url, location.href) || url;
+        const nativeShell = window.NativeShell;
+        if (nativeShell && (typeof nativeShell.downloadFiles === "function" || typeof nativeShell.downloadFile === "function")) {
+          let itemObj = cachedItem || ((_a2 = state == null ? void 0 : state.byId) == null ? void 0 : _a2.get(itemId)) || ((_c2 = (_b2 = state == null ? void 0 : state.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.find((i) => i.Id === itemId)) || null;
+          const uid = (_d2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _d2.call(api);
+          if (!itemObj && uid && typeof (api == null ? void 0 : api.getJSON) === "function" && typeof (api == null ? void 0 : api.getUrl) === "function") {
+            try {
+              itemObj = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
+            } catch {
+            }
+          }
+          const finalBase = formatItemDownloadBase(itemObj) || baseTitle || "video";
+          const finalFilename = filename || `${finalBase}.mp4`;
+          const payload = {
+            url: absUrl,
+            item: itemObj || { Id: itemId, Name: finalBase, ServerId: ((_e2 = api == null ? void 0 : api.serverId) == null ? void 0 : _e2.call(api)) || "" },
+            itemId,
+            serverId: (itemObj == null ? void 0 : itemObj.ServerId) || ((_f = api == null ? void 0 : api.serverId) == null ? void 0 : _f.call(api)) || "",
+            title: (itemObj == null ? void 0 : itemObj.Name) || finalBase,
+            filename: finalFilename
+          };
+          if (typeof nativeShell.downloadFiles === "function") {
+            await nativeShell.downloadFiles([payload]);
+          } else {
+            await nativeShell.downloadFile(payload);
+          }
+          showToast("Added to Jellyfin Downloads");
+          return;
+        }
+        triggerUrlDownload(absUrl, filename);
+      }
       function openDownloadMenu(btn, itemId, api) {
-        var _a2, _b2;
+        var _a2, _b2, _c2, _d2, _e2;
         if (downloadMenu && downloadMenuTrigger === btn) {
           closeDownloadMenu();
           return;
@@ -5150,13 +6691,15 @@ a.fx-download-option.is-selected{
         closeDownloadMenu();
         downloadMenuTrigger = btn;
         let baseTitle = inferDownloadTitle(itemId, btn);
-        const token = ((_a2 = api.accessToken) == null ? void 0 : _a2.call(api)) || "";
+        let resolvedItem = ((_a2 = state == null ? void 0 : state.byId) == null ? void 0 : _a2.get(itemId)) || ((_c2 = (_b2 = state == null ? void 0 : state.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.find((i) => i.Id === itemId)) || null;
+        const token = ((_d2 = api.accessToken) == null ? void 0 : _d2.call(api)) || "";
         const resolveApiUrl = (path, params) => {
           var _a3;
           const raw = (_a3 = api.getUrl) == null ? void 0 : _a3.call(api, path, params);
-          if (typeof raw === "string") return raw;
+          if (typeof raw === "string") return safeUrl(raw, location.href) || raw;
           const qs = new URLSearchParams(params || {}).toString();
-          return `/${String(path).replace(/^\/+/, "")}${qs ? "?" + qs : ""}`;
+          const rel = `/${String(path).replace(/^\/+/, "")}${qs ? "?" + qs : ""}`;
+          return safeUrl(rel, location.href) || rel;
         };
         const fullUrl = resolveApiUrl(`Videos/${encodeURIComponent(itemId)}/stream.mp4`, {
           Static: "true",
@@ -5183,23 +6726,28 @@ a.fx-download-option.is-selected{
         menu.setAttribute("aria-label", "Download quality options");
         const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), "video")}.mp4`;
         const makeOption = (title, url) => {
-          const opt = element("a", "fx-download-option", title);
-          opt.href = url;
+          const opt = element("button", "fx-download-option", title);
+          opt.type = "button";
+          opt.dataset.downloadUrl = url;
           opt.setAttribute("download", fileFor());
-          opt.rel = "noopener noreferrer";
           opt.setAttribute("role", "menuitem");
-          opt.addEventListener("click", () => {
-            opt.setAttribute("download", fileFor());
-            setTimeout(closeDownloadMenu, 60);
+          opt.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const filename = fileFor();
+            opt.setAttribute("download", filename);
+            closeDownloadMenu();
+            startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api });
           });
           return opt;
         };
         const fullOpt = makeOption("Full Quality", fullUrl);
         const condensedOpt = makeOption("Condensed", transcodeUrl);
         menu.append(fullOpt, condensedOpt);
-        const uid = (_b2 = api.getCurrentUserId) == null ? void 0 : _b2.call(api);
+        const uid = (_e2 = api.getCurrentUserId) == null ? void 0 : _e2.call(api);
         if (uid && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
           Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`))).then((info) => {
+            if (info && typeof info === "object") resolvedItem = info;
             const refined = formatItemDownloadBase(info);
             if (refined) {
               baseTitle = refined;
@@ -5424,7 +6972,7 @@ a.fx-download-option.is-selected{
         s.client = new JellyfinClient(api, () => scopeKey(api) === scope);
         try {
           const profile = await s.client.preferences();
-          s.config = profile.config ? validateConfig(profile.config) : s.config;
+          s.config = profile.config ? validateConfig(upgradeLegacyConfig(profile.config)) : s.config;
           s.profileVersion = profile.version;
           s.syncAvailable = true;
         } catch {
@@ -5452,16 +7000,47 @@ a.fx-download-option.is-selected{
         const scope = ((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) ? scopeKey(api) : "";
         if (settingsScope && scope !== settingsScope) {
           closeDialog();
-          document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio]").forEach((n) => n.remove());
         }
         settingsScope = scope;
-        if (!scope || !/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash)) return;
-        const page = [...document.querySelectorAll(".userPreferencesPage")].find(visible);
-        if (!page || page.querySelector("[data-fx-settings-link]")) return;
-        const link = button("Discovery settings", () => openUserSettings(api));
-        link.dataset.fxSettingsLink = "true";
-        link.className = "fx-profile-settings";
-        page.prepend(link);
+        if (!scope) return;
+        if (/^#!?\/?mypreferencesmenu(?:[?]|$)/i.test(location.hash)) {
+          const page = [...document.querySelectorAll("#myPreferencesMenuPage,.userPreferencesPage")].find(visible);
+          if (page && !page.querySelector("[data-fx-settings-link]")) {
+            const section = page.querySelector(".verticalSection:has(.listItem-border)") || page.querySelector(".readOnlyContent .verticalSection") || page.querySelector(".verticalSection") || page;
+            const link = element("button", "emby-button listItem-border fx-settings-menu-row");
+            link.type = "button";
+            link.dataset.fxSettingsLink = "true";
+            const itemRow = element("div", "listItem");
+            const icon = element("span", "material-icons tune listItemIcon", "");
+            icon.setAttribute("aria-hidden", "true");
+            const body = element("div", "listItemBody");
+            body.append(element("div", "listItemBodyText", "Discovery"));
+            itemRow.append(icon, body);
+            link.append(itemRow);
+            link.addEventListener("click", () => openUserSettings(api));
+            const homeAnchor = section.querySelector('a[href*="mypreferenceshome"], [data-id="home"]');
+            if (homeAnchor && homeAnchor.parentElement === section) homeAnchor.after(link);
+            else section.append(link);
+          }
+        }
+        if (/^#!?\/?mypreferenceshome(?:[?]|$)/i.test(location.hash)) {
+          const homePref = [...document.querySelectorAll("#homeScreenPreferencesPage,.homeScreenPreferencesPage")].find(visible);
+          if (homePref && !homePref.querySelector("[data-fx-home-studio]")) {
+            const container = homePref.querySelector(".readOnlyContent") || homePref.querySelector(".content-primary") || homePref;
+            const nativeForm = container.querySelector("form,.homeScreenSettingsContainer");
+            if (nativeForm && !nativeForm.closest(".fx-legacy-home-settings")) {
+              const details = element("details", "fx-legacy-home-settings");
+              const summary = element("summary", "", "Legacy Jellyfin Home sections (used only when Normal Home is active)");
+              nativeForm.before(details);
+              details.append(summary, nativeForm);
+            }
+            const host = element("div");
+            host.dataset.fxHomeStudio = "true";
+            container.prepend(host);
+            mountInlineSettings(host, api);
+          }
+        }
       }
       function visible(node) {
         if (!(node == null ? void 0 : node.isConnected) || node.closest(".hide,[hidden],.hidePage")) return false;
@@ -5516,6 +7095,7 @@ a.fx-download-option.is-selected{
         const api = window.ApiClient, route = routeInfo(location.hash);
         syncSettings(api);
         syncLibraryViewMenu();
+        syncMobileOverflowDrawer(api);
         syncHomeModeAttr(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
@@ -5657,10 +7237,17 @@ a.fx-download-option.is-selected{
         var _a2, _b2;
         document.querySelectorAll(".mainDrawer.drawer-open,.touch-menu-la.drawer-open").forEach((d) => d.classList.remove("drawer-open"));
         (_b2 = (_a2 = document.body) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.remove("menu-open", "withSectionTabs");
-        document.querySelectorAll(".mainDrawer-backdrop,.backdrop-open,.MuiDrawer-root .MuiBackdrop-root").forEach((b) => {
+        document.querySelectorAll(".mainDrawer-backdrop,.backdrop-open,.MuiDrawer-root .MuiBackdrop-root,[data-sleekfin-header-overflow-backdrop]").forEach((b) => {
           var _a3;
           try {
             if (getComputedStyle(b).display !== "none" && getComputedStyle(b).visibility !== "hidden") (_a3 = b.click) == null ? void 0 : _a3.call(b);
+          } catch {
+          }
+        });
+        document.querySelectorAll('[data-sleekfin-header-overflow-toggle][aria-expanded="true"]').forEach((t) => {
+          var _a3;
+          try {
+            (_a3 = t.click) == null ? void 0 : _a3.call(t);
           } catch {
           }
         });
@@ -5700,7 +7287,7 @@ a.fx-download-option.is-selected{
           scrollToTop();
           setTimeout(scrollToTop, 40);
         }
-        const searchTrigger = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        const searchTrigger = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
         if (searchTrigger && ((_w = (_v = window.ApiClient) == null ? void 0 : _v.getCurrentUserId) == null ? void 0 : _w.call(_v))) {
           event.preventDefault();
           (_x = event.stopImmediatePropagation) == null ? void 0 : _x.call(event);
@@ -5719,9 +7306,10 @@ a.fx-download-option.is-selected{
           }, 80);
           return;
         }
-        const target = (_z = (_y = event.target).closest) == null ? void 0 : _z.call(_y, "[data-sleekfin-header-proxy-item],a[href]");
+        const target = (_z = (_y = event.target).closest) == null ? void 0 : _z.call(_y, "[data-sleekfin-header-proxy-item],[data-sleekfin-header-overflow-item],a[href]");
         if (!target) return;
-        const proxy = target.getAttribute("data-sleekfin-header-proxy-item") || "";
+        const proxy = target.getAttribute("data-sleekfin-header-proxy-item") || target.getAttribute("data-sleekfin-header-overflow-item") || "";
+        if (proxy === "fx:settings") return;
         let route = null;
         if (proxy === "jellyfin:movies") route = "#/movies";
         else if (proxy === "jellyfin:shows") route = "#/tv";
@@ -5740,7 +7328,7 @@ a.fx-download-option.is-selected{
         } else {
           route = target.getAttribute("href");
         }
-        if (!proxy && !target.closest("header,.headerTabs,[data-sleekfin-header-proxy]")) return;
+        if (!proxy && !target.closest("header,.headerTabs,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]")) return;
         if (!route) return;
         const normalized = route.startsWith("#") ? route : "#" + route.replace(/^\/+/, "/");
         if (/^#!?\/?(movies|tv|tvshows)(?:\.html)?(?:[?]|$)/i.test(normalized)) {
@@ -5894,8 +7482,181 @@ a.fx-download-option.is-selected{
         clearTimeout(held.timer);
         if (!held.fired && held.node.isConnected) held.node.click();
       }
+      const osdGesture = {
+        holdTimer: 0,
+        pillTimer: 0,
+        streakTimer: 0,
+        suppressClickUntil: 0,
+        touching: false,
+        moved: false,
+        holdActive: false,
+        savedRate: 1,
+        activeVideo: null,
+        startX: 0,
+        startY: 0,
+        startAt: 0,
+        lastTap: null,
+        streakZone: "",
+        streakSec: 0
+      };
+      function findActiveOsdVideo() {
+        const osd = document.getElementById("videoOsdPage");
+        if (!osd || osd.classList.contains("hide") || osd.classList.contains("hidePage") || osd.hidden) return null;
+        return document.querySelector("video.htmlvideoplayer") || osd.querySelector("video") || document.querySelector(".videoPlayerContainer video");
+      }
+      function showOsdGesturePill(label, position = "center", persistent = false) {
+        let pill = document.querySelector(".fx-osd-gesture-pill");
+        if (!pill) {
+          pill = element("div", "fx-osd-gesture-pill");
+          pill.setAttribute("aria-live", "polite");
+          document.body.append(pill);
+        }
+        clearTimeout(osdGesture.pillTimer);
+        pill.textContent = label;
+        pill.dataset.pos = position;
+        pill.classList.add("is-visible");
+        if (!persistent) {
+          osdGesture.pillTimer = setTimeout(() => {
+            pill.classList.remove("is-visible");
+          }, 720);
+        }
+      }
+      function hideOsdGesturePill() {
+        clearTimeout(osdGesture.pillTimer);
+        const pill = document.querySelector(".fx-osd-gesture-pill");
+        pill == null ? void 0 : pill.classList.remove("is-visible");
+      }
+      function releaseOsdSpeedHold() {
+        clearTimeout(osdGesture.holdTimer);
+        osdGesture.holdTimer = 0;
+        if (osdGesture.holdActive) {
+          if (osdGesture.activeVideo) {
+            try {
+              osdGesture.activeVideo.playbackRate = osdGesture.savedRate || 1;
+            } catch {
+            }
+          }
+          osdGesture.holdActive = false;
+          osdGesture.activeVideo = null;
+          hideOsdGesturePill();
+        }
+      }
+      function isOsdInteractiveTarget(target) {
+        var _a2;
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+      }
+      function onOsdTouchStart(event) {
+        var _a2;
+        if (!event.touches || event.touches.length !== 1) {
+          releaseOsdSpeedHold();
+          osdGesture.touching = false;
+          return;
+        }
+        const video = findActiveOsdVideo();
+        if (!video || isOsdInteractiveTarget(event.target)) return;
+        const t = event.touches[0];
+        const vw = window.innerWidth || ((_a2 = document.documentElement) == null ? void 0 : _a2.clientWidth) || 0;
+        if (!vw) return;
+        osdGesture.touching = true;
+        osdGesture.moved = false;
+        osdGesture.startX = t.clientX;
+        osdGesture.startY = t.clientY;
+        osdGesture.startAt = Date.now();
+        clearTimeout(osdGesture.holdTimer);
+        if (t.clientX >= vw * 0.72) {
+          osdGesture.holdTimer = setTimeout(() => {
+            if (!osdGesture.touching || osdGesture.moved || osdGesture.holdActive) return;
+            const v = findActiveOsdVideo();
+            if (!v || v.paused) return;
+            osdGesture.holdActive = true;
+            osdGesture.activeVideo = v;
+            osdGesture.savedRate = Number.isFinite(v.playbackRate) && v.playbackRate > 0 ? v.playbackRate : 1;
+            try {
+              v.playbackRate = 2;
+            } catch {
+            }
+            showOsdGesturePill("2\xD7 Speed \u25B8\u25B8", "top", true);
+          }, 320);
+        }
+      }
+      function onOsdTouchMove(event) {
+        var _a2;
+        if (!osdGesture.touching || !((_a2 = event.touches) == null ? void 0 : _a2.length)) return;
+        const t = event.touches[0];
+        if (Math.hypot(t.clientX - osdGesture.startX, t.clientY - osdGesture.startY) > 16) {
+          osdGesture.moved = true;
+          if (!osdGesture.holdActive) {
+            clearTimeout(osdGesture.holdTimer);
+            osdGesture.holdTimer = 0;
+          }
+        }
+      }
+      function onOsdTouchEnd(event) {
+        var _a2, _b2, _c2, _d2;
+        clearTimeout(osdGesture.holdTimer);
+        osdGesture.holdTimer = 0;
+        if (!osdGesture.touching) return;
+        osdGesture.touching = false;
+        if (osdGesture.holdActive) {
+          releaseOsdSpeedHold();
+          osdGesture.suppressClickUntil = Date.now() + 380;
+          if (event.cancelable) event.preventDefault();
+          (_a2 = event.stopImmediatePropagation) == null ? void 0 : _a2.call(event);
+          event.stopPropagation();
+          return;
+        }
+        if (event.type === "touchcancel" || osdGesture.moved || isOsdInteractiveTarget(event.target)) return;
+        const video = findActiveOsdVideo();
+        if (!video) return;
+        const now = Date.now();
+        if (now - osdGesture.startAt > 300) return;
+        const t = (_b2 = event.changedTouches) == null ? void 0 : _b2[0];
+        const x = t ? t.clientX : osdGesture.startX;
+        const y = t ? t.clientY : osdGesture.startY;
+        const vw = window.innerWidth || ((_c2 = document.documentElement) == null ? void 0 : _c2.clientWidth) || 0;
+        if (!vw) return;
+        const zone = x >= vw * 0.6 ? "right" : x <= vw * 0.4 ? "left" : "";
+        if (!zone) {
+          osdGesture.lastTap = null;
+          return;
+        }
+        const streakContinue = osdGesture.streakZone === zone && osdGesture.lastTap && now - osdGesture.lastTap.time <= 650;
+        const isDoubleTap = streakContinue || osdGesture.lastTap && osdGesture.lastTap.zone === zone && now - osdGesture.lastTap.time <= 340 && Math.hypot(x - osdGesture.lastTap.x, y - osdGesture.lastTap.y) <= 68;
+        osdGesture.lastTap = { zone, x, y, time: now };
+        if (!isDoubleTap) return;
+        const delta = zone === "right" ? 10 : -10;
+        osdGesture.streakZone = zone;
+        osdGesture.streakSec = streakContinue ? osdGesture.streakSec + delta : delta;
+        clearTimeout(osdGesture.streakTimer);
+        osdGesture.streakTimer = setTimeout(() => {
+          osdGesture.streakZone = "";
+          osdGesture.streakSec = 0;
+        }, 680);
+        const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Infinity;
+        const nextTime = Math.max(0, Math.min(dur, (Number(video.currentTime) || 0) + delta));
+        try {
+          video.currentTime = nextTime;
+        } catch {
+        }
+        const absSec = Math.abs(osdGesture.streakSec);
+        showOsdGesturePill(zone === "right" ? `+${absSec}s \u25B8\u25B8` : `\u25C2\u25C2 -${absSec}s`, zone, false);
+        osdGesture.suppressClickUntil = now + 380;
+        if (event.cancelable) event.preventDefault();
+        (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
+        event.stopPropagation();
+      }
+      function onOsdSuppressClick(event) {
+        var _a2;
+        if (Date.now() <= osdGesture.suppressClickUntil && findActiveOsdVideo() && !isOsdInteractiveTarget(event.target)) {
+          event.preventDefault();
+          (_a2 = event.stopImmediatePropagation) == null ? void 0 : _a2.call(event);
+          event.stopPropagation();
+        }
+      }
       function onRouteEvent() {
+        releaseOsdSpeedHold();
         syncLibraryViewMenu();
+        syncMobileOverflowDrawer(window.ApiClient);
         schedule();
       }
       function start() {
@@ -5903,8 +7664,10 @@ a.fx-download-option.is-selected{
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
+        if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
         patchLibraryViews();
         syncLibraryViewMenu();
+        syncMobileOverflowDrawer(window.ApiClient);
         syncHomeModeAttr(window.ApiClient);
         if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
           const rh = element("script");
@@ -5919,17 +7682,24 @@ a.fx-download-option.is-selected{
             return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu"));
           })) {
             hideLeavingSoonNav();
+            syncMobileOverflowDrawer(window.ApiClient);
           }
           if (records.some((r) => {
             var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
+            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+        document.addEventListener("click", onOsdSuppressClick, true);
         document.addEventListener("click", navSuggestions, true);
         window.addEventListener("hashchange", onRouteEvent);
         window.addEventListener("popstate", onRouteEvent);
         document.addEventListener("viewshow", onRouteEvent);
+        document.addEventListener("touchstart", onOsdTouchStart, { passive: true, capture: true });
+        document.addEventListener("touchmove", onOsdTouchMove, { passive: true, capture: true });
+        document.addEventListener("touchend", onOsdTouchEnd, { passive: false, capture: true });
+        document.addEventListener("touchcancel", onOsdTouchEnd, { passive: true, capture: true });
+        window.addEventListener("blur", releaseOsdSpeedHold);
         window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
         document.addEventListener("keydown", remoteKey, true);
         document.addEventListener("keyup", remoteKeyUp, true);
@@ -5954,6 +7724,8 @@ a.fx-download-option.is-selected{
           clearTimeout(timer);
           clearInterval(heartbeat);
           observer == null ? void 0 : observer.disconnect();
+          releaseOsdSpeedHold();
+          clearTimeout(osdGesture.streakTimer);
           cleanup(false);
           closeDownloadMenu();
           snapshots.clear();
@@ -5961,17 +7733,23 @@ a.fx-download-option.is-selected{
           (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-hide-count-chip");
           (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
           (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
+          document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("click", navSuggestions, true);
           window.removeEventListener("hashchange", onRouteEvent);
           window.removeEventListener("popstate", onRouteEvent);
           document.removeEventListener("viewshow", onRouteEvent);
           document.removeEventListener("scroll", scheduleScroll, true);
           window.removeEventListener("resize", scheduleScroll);
+          document.removeEventListener("touchstart", onOsdTouchStart, true);
+          document.removeEventListener("touchmove", onOsdTouchMove, true);
+          document.removeEventListener("touchend", onOsdTouchEnd, true);
+          document.removeEventListener("touchcancel", onOsdTouchEnd, true);
+          window.removeEventListener("blur", releaseOsdSpeedHold);
           window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
-          document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
           (_g = document.getElementById("fx-discovery-style")) == null ? void 0 : _g.remove();
           delete window.FazFortDiscovery;
         }

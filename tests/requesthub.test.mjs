@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const source=await readFile(new URL('../requests/dist/web.js',import.meta.url),'utf8');
-function fixture({deny=false,hash='#/home?requesthub=discover'}={}){
+function fixture({deny=false,hash='#/home?requesthub=discover',mobile=false}={}){
  const {document,window}=parseHTML('<html><head></head><body><header><div class="headerTabs"></div></header><div id="indexPage"><div id="native">Native Home</div></div></body></html>');
  window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollBy=function(){};
  let user='user-one';const listeners=new Map(),writes=[],reads=[];
@@ -15,7 +15,7 @@ function fixture({deny=false,hash='#/home?requesthub=discover'}={}){
   reads.push({path,query});if(deny)throw {status:403};if(path.endsWith('Details'))return {item,seasons:[1,2],canRequest:true};
   if(query.kind==='genres')return {results:[{id:1,name:'Action'}],pages:1};return {results:[item,futureItem],pages:2,canRequest:true};
  },ajax:async options=>{writes.push(JSON.parse(options.data));return {message:'Submitted for approval'};}};
- const win={ApiClient:api,addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
+ const win={ApiClient:api,innerWidth:mobile?390:1280,matchMedia:q=>({matches:mobile&&q.includes('max-width: 899px')}),addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
  const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
  vm.runInContext(source,ctx);const settle=async()=>{for(let n=0;n<100;n++)await Promise.resolve();};
  return {document,window,writes,reads,settle,stop:()=>win.JellyfinRequestHub.stop(),navigate(hash){location.hash=hash;listeners.get('hashchange')?.();},logout(){user=null;listeners.get('hashchange')?.();}};
@@ -110,5 +110,33 @@ test('Discover hides unreleased titles, replaces top-left title and deselects he
  assert.ok(firstTrack);
  assert.ok(firstTrack.querySelectorAll('.rh-card:not(.rh-see-more)').length<=20);
  assert.equal(firstTrack.lastElementChild?.classList.contains('rh-see-more'),true);
+ f.stop();
+});
+
+test('mobile viewport keeps Discover out of bottom header proxy and wires Discover after Collections in overflow drawer',async()=>{
+ const f=fixture({hash:'#/home',mobile:true});
+ const header=f.document.querySelector('header');
+ header.className='skinHeader';
+ const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
+ const homeBtn=f.document.createElement('button');homeBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:home');
+ const moviesBtn=f.document.createElement('button');moviesBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:view:movies');
+ const showsBtn=f.document.createElement('button');showsBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:view:shows');
+ const sep=f.document.createElement('span');sep.setAttribute('data-sleekfin-header-separator','true');
+ proxy.append(homeBtn,moviesBtn,showsBtn,sep);header.append(proxy);
+
+ const drawer=f.document.createElement('div');drawer.setAttribute('data-sleekfin-header-overflow-drawer','true');
+ const list=f.document.createElement('div');
+ const collectionsItem=f.document.createElement('button');collectionsItem.setAttribute('data-sleekfin-header-overflow-item','jellyfin:view:9d7ad6afe9afa2dab1a2f6e00ad28fa6');collectionsItem.textContent='Collections';
+ const liveTvItem=f.document.createElement('button');liveTvItem.setAttribute('data-sleekfin-header-overflow-item','source:v1:164f41b42f7a4221084a13ce51114045');liveTvItem.textContent='Live TV';
+ const searchItem=f.document.createElement('button');searchItem.setAttribute('data-sleekfin-header-overflow-item','jellyfin:search');searchItem.textContent='Search';
+ list.append(collectionsItem,liveTvItem,searchItem);drawer.append(list);f.document.body.append(drawer);
+
+ f.navigate('#/home?requesthub=discover');await f.settle();
+ assert.equal(proxy.querySelector('[data-rh-link="true"]'),null);
+ assert.equal(proxy.querySelector('[data-sleekfin-header-proxy-item="requesthub:discover"]'),null);
+ const overflowDiscover=drawer.querySelector('[data-sleekfin-header-overflow-item="requesthub:discover"]');
+ assert.ok(overflowDiscover);
+ assert.equal(collectionsItem.nextElementSibling,overflowDiscover);
+ assert.equal(overflowDiscover.dataset.sleekfinCurrent,'true');
  f.stop();
 });
