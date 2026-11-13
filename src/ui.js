@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.1';
+const VERSION = '0.5.2';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -92,10 +92,13 @@ function applyWebpackViewPatch(req) {
       const modMap = req(95753);
       const map = modMap?.A;
       if (map?.movies) {
+        const emptySuggestions = { suggestionSections: [], isMovieRecommendations: false };
         map.movies[1] = {
-          viewType: 'fx-suggestions',
+          viewType: 'suggestions',
           collectionType: 'movies',
+          sectionsView: emptySuggestions,
           itemType: [],
+          isPaginationEnabled: false,
           isBtnPlayAllEnabled: false,
           isBtnShuffleEnabled: false,
           isBtnFilterEnabled: false,
@@ -105,9 +108,11 @@ function applyWebpackViewPatch(req) {
           isAlphaPickerEnabled: false
         };
         map.movies[4] = {
-          viewType: 'fx-genres',
+          viewType: 'suggestions',
           collectionType: 'movies',
+          sectionsView: emptySuggestions,
           itemType: [],
+          isPaginationEnabled: false,
           isBtnPlayAllEnabled: false,
           isBtnShuffleEnabled: false,
           isBtnFilterEnabled: false,
@@ -132,10 +137,13 @@ function applyWebpackViewPatch(req) {
         });
       }
       if (map?.tvshows) {
+        const emptyTvSuggestions = { suggestionSections: [], isMovieRecommendations: false };
         map.tvshows[1] = {
-          viewType: 'fx-suggestions',
+          viewType: 'suggestions',
           collectionType: 'tvshows',
+          sectionsView: emptyTvSuggestions,
           itemType: [],
+          isPaginationEnabled: false,
           isBtnPlayAllEnabled: false,
           isBtnShuffleEnabled: false,
           isBtnFilterEnabled: false,
@@ -157,9 +165,11 @@ function applyWebpackViewPatch(req) {
           isAlphaPickerEnabled: false
         };
         map.tvshows[3] = {
-          viewType: 'fx-genres',
+          viewType: 'suggestions',
           collectionType: 'tvshows',
+          sectionsView: emptyTvSuggestions,
           itemType: [],
+          isPaginationEnabled: false,
           isBtnPlayAllEnabled: false,
           isBtnShuffleEnabled: false,
           isBtnFilterEnabled: false,
@@ -390,6 +400,8 @@ function syncLibraryViewMenu() {
   const isLiveTv = name.startsWith('livetv') || col === 'livetv';
   const isHomeOrSearch = name === '' || name === 'home' || name === 'index' || name === 'search';
   const movieOrTvTab = rawTab || '1';
+  const isCuratedTab = (isMovies && (movieOrTvTab === '1' || movieOrTvTab === '4'))
+    || (isTv && (movieOrTvTab === '1' || movieOrTvTab === '3'));
   const hideChip = (isMovies && movieOrTvTab !== '0' && movieOrTvTab !== '2')
     || (isTv && movieOrTvTab !== '0' && movieOrTvTab !== '2')
     || (isBoxsets && Boolean(rawTab && rawTab !== '0' && rawTab !== '1'))
@@ -402,6 +414,14 @@ function syncLibraryViewMenu() {
       }
     } else if (document.documentElement.hasAttribute('data-fx-hide-count-chip')) {
       document.documentElement.removeAttribute('data-fx-hide-count-chip');
+    }
+    if (isCuratedTab) {
+      if (document.documentElement.getAttribute('data-fx-curated-tab') !== 'true') {
+        document.documentElement.setAttribute('data-fx-curated-tab', 'true');
+      }
+      document.querySelectorAll('.docspinner').forEach(sp => sp.classList?.remove?.('mdlSpinnerActive', 'is-active'));
+    } else if (document.documentElement.hasAttribute('data-fx-curated-tab')) {
+      document.documentElement.removeAttribute('data-fx-curated-tab');
     }
   }
   if (!isMovies && !isTv) return;
@@ -1859,6 +1879,7 @@ window.FazFortDiscovery = {
   stop() {
     stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
+    document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);

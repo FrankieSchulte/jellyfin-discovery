@@ -315,11 +315,20 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/movies').views.map(v=>v.label)],['Movies','Library','Favorites','Genres']);
   assert.deepEqual([...viewsMod.u.find(x=>x.path==='/tv').views.map(v=>v.label)],['TV Shows','Library','Favorites','Genres']);
   assert.equal(mapMod.A.movies[0].isAlphabetPickerEnabled,false);
-  assert.equal(mapMod.A.movies[1].viewType,'fx-suggestions');
-  assert.equal(mapMod.A.movies[4].viewType,'fx-genres');
+  assert.equal(mapMod.A.movies[1].viewType,'suggestions');
+  assert.deepEqual([...mapMod.A.movies[1].sectionsView.suggestionSections],[]);
+  assert.equal(mapMod.A.movies[1].sectionsView.isMovieRecommendations,false);
+  assert.equal(mapMod.A.movies[1].isPaginationEnabled,false);
+  assert.equal(mapMod.A.movies[4].viewType,'suggestions');
+  assert.deepEqual([...mapMod.A.movies[4].sectionsView.suggestionSections],[]);
+  assert.equal(mapMod.A.movies[4].isPaginationEnabled,false);
   assert.equal(mapMod.A.tvshows[0].isAlphabetPickerEnabled,false);
-  assert.equal(mapMod.A.tvshows[1].viewType,'fx-suggestions');
-  assert.equal(mapMod.A.tvshows[3].viewType,'fx-genres');
+  assert.equal(mapMod.A.tvshows[1].viewType,'suggestions');
+  assert.deepEqual([...mapMod.A.tvshows[1].sectionsView.suggestionSections],[]);
+  assert.equal(mapMod.A.tvshows[1].isPaginationEnabled,false);
+  assert.equal(mapMod.A.tvshows[3].viewType,'suggestions');
+  assert.deepEqual([...mapMod.A.tvshows[3].sectionsView.suggestionSections],[]);
+  assert.equal(mapMod.A.tvshows[3].isPaginationEnabled,false);
   assert.equal(leavingSoonBtn.getAttribute('data-fx-leaving-hidden'),'true');
   assert.equal(leavingSoonBtn.style.display,'none');
   assert.equal(mapMod.A.tvshows[2].viewType,'favorites');
@@ -381,31 +390,63 @@ test('visual editor discovers possible categories from library metadata and togg
   assert.ok(draft.pages.home.rules.some(r=>r.Title==='Directed by Director 0'&&r.Enabled!==false));
   f.ctx.window.FazFortDiscovery.stop();
 });
-test('count chip attribute toggles only on non-grid routes and CSS scopes loginPage and searchPage headings',async()=>{
+test('count chip and curated-tab attributes toggle on curated routes, clear active docspinner, and CSS configures responsive even loginPage rows',async()=>{
   const f=fixture();await f.settle();
   const cssText=f.document.getElementById('fx-discovery-style')?.textContent||'';
   assert.ok(cssText.includes('#loginPage:is(.hide,.hidePage,[hidden])'));
   assert.ok(cssText.includes('#loginPage:not(.hide):not(.hidePage):not([hidden])'));
+  assert.ok(cssText.includes(':has(#divUsers > .card:nth-child(6):last-child)'));
+  assert.ok(cssText.includes(':has(#divUsers > .card:nth-child(7):last-child)'));
+  assert.ok(cssText.includes(':has(#divUsers > .card:nth-child(8):last-child)'));
+  assert.ok(cssText.includes(':has(#divUsers > .card:nth-child(9):last-child)'));
+  assert.ok(cssText.includes('--fx-login-cols:5'));
   assert.ok(cssText.includes('#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards)'));
   assert.ok(cssText.includes('padding-block:0!important'));
   assert.ok(cssText.includes('[data-fx-leaving-hidden="true"]'));
   assert.ok(cssText.includes('html[data-fx-hide-count-chip="true"]'));
+  assert.ok(cssText.includes('html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner)'));
+  assert.ok(cssText.includes('html[data-fx-curated-tab="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu)'));
+
+  const spinner=f.document.createElement('div');
+  spinner.className='docspinner mdl-spinner mdlSpinnerActive is-active';
+  f.document.body.append(spinner);
 
   assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
+
   f.navigate('#/movies?tab=1');
   assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
-  f.navigate('#/tv?tab=1');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-curated-tab'),'true');
+  assert.equal(spinner.classList.contains('mdlSpinnerActive'),false);
+  assert.equal(spinner.classList.contains('is-active'),false);
+
+  spinner.classList.add('mdlSpinnerActive');
+  f.navigate('#/tv?tab=3');
   assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-curated-tab'),'true');
+  assert.equal(spinner.classList.contains('mdlSpinnerActive'),false);
+
   f.navigate('#/movies?tab=4');
   assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-curated-tab'),'true');
+
   f.navigate('#/movies?tab=0');
   assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
+
   f.navigate('#/movies?tab=2');
   assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
+
   f.navigate('#/boxsets');
   assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
+
+  f.navigate('#/tv?tab=1');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-curated-tab'),'true');
 
   f.ctx.window.FazFortDiscovery.stop();
   assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-curated-tab'),false);
   assert.equal(f.document.documentElement.hasAttribute('data-fx-home-mode'),false);
 });

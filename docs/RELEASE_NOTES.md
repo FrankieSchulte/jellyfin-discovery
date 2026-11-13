@@ -1,11 +1,9 @@
-Jellyfin Discovery 0.5.1 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.2 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.1):
-- Eliminate the initial Home screen flash of `"Continue Watching / Next Up"` when a user's configured opening shelf starts with a custom category (`fastOpening` now respects `config.pages[page].opening` after loading profile preferences, extends cached boot-row TTL to 7 days, and hides native `.homeSectionsContainer` rows at frame 0 via CSS while preserving `.sleekfin-hero`).
-- Prevent `#loginPage` from bleeding into the background of `Collections` (`#boxsetsPage`) or other pages by scoping `#loginPage` flex rules to `:not(.hide):not(.hidePage):not([hidden])` and enforcing `display: none !important` when hidden.
-- Hide the total library item count chip (`.MuiChip-root`) on curated `Movies` (`tab=1`), `TV Shows` (`tab=1`), `Genres`, `Live TV`, `Home`, and `Search`, keeping it only on true grid views (`Library`, `Favorites`, `Collections`).
-- Overhaul `#searchPage` with `#searchPage#searchPage` specificity to override `sleekfin-media.css`: clean centered dark-glass search bar, dark-glass `"Suggestions"` card without 80px `.padded-left` offset, and flush search result category headers (`padding-block: 0 !important`) eliminating the empty top line and double-height red bar.
-- Permanently hide `Movies (Leaving Soon)` and `Shows (Leaving Soon)` from SleekFin's header proxy, overflow drawer, MUI drawer, and cached `sleekfin:header-sources:v2` entries, dispatching `resize` once to recalculate the header pill width.
+Discovery (0.5.2):
+- Eliminate the centered loading circle (`.docspinner` / `<Loading />`) on `Movies -> Movies`, `Movies -> Genres`, `Shows -> TV Shows`, and `Shows -> Genres` by mapping owned tabs in webpack module `95753` to `viewType: 'suggestions'` with empty `sectionsView` (`{ suggestionSections: [], isMovieRecommendations: false }`) so React never mounts `ItemsView`'s indefinite pending spinner, paired with `data-fx-curated-tab="true"` CSS/DOM cleanup.
+- Remove the top-right library pagination arrows (`< | >`) from `Movies -> Movies`, `Movies -> Genres`, `Shows -> TV Shows`, and `Shows -> Genres` (`isPaginationEnabled: false`, `viewType: 'suggestions'`, and `data-fx-curated-tab="true"` secondary toolbar filtering), while keeping horizontal scroll arrows on every category shelf and keeping pagination on `Library`, `Favorites`, and `Collections`.
+- Make the Sign-In page (`#loginPage`) responsive across desktop, split-screen, tablet, mobile, and short landscape viewports (`100dvh` scroll-safe `margin: auto` centering, adaptive container width, compact action bar), and split user rows evenly by count (`1x1`, `1x2`, `1x3`, `1x4`, `1x5`, `2x3`, `1x7`, `2x4`, `3x3`, `2x5+` with max 5 per row and centered partial rows).
 
-Request Hub (0.5.1):
-- Permanently hide `Movies (Leaving Soon)` and `Shows (Leaving Soon)` across SleekFin's header proxy, overflow drawer, and `sleekfin:header-sources:v2` session cache via `data-fx-leaving-hidden="true"` and immediate `MutationObserver` header syncing.
+Request Hub (0.5.2):
+- Clean up duplicate `hideLeavingSoonNav` definition and bump catalog version in lockstep with Discovery `0.5.2.0`.

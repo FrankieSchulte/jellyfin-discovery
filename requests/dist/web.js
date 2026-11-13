@@ -387,12 +387,6 @@
         if (p.scrollTop) p.scrollTop = 0;
       });
     }
-    function hideLeavingSoonNav() {
-      document.querySelectorAll("[data-sleekfin-header-proxy] button,[data-sleekfin-header-proxy] a,header button,header a,.mainDrawer a,.mainDrawer button").forEach((n) => {
-        const txt = (n.getAttribute("aria-label") || n.getAttribute("title") || n.textContent || "").trim();
-        if (/leaving\s+soon/i.test(txt) && n.style.display !== "none") n.style.display = "none";
-      });
-    }
     function syncHeaderActive() {
       var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
       hideLeavingSoonNav();

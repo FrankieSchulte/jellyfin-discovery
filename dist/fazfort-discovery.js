@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.1 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.2 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1270,6 +1270,18 @@ html:has(#liveTvSuggestedPage:not(.hide),#liveTvPage:not(.hide)) header.MuiAppBa
   display:none!important;
 }
 
+/* Suppress Centered Loading Spinner & Top-Right Library Pagination Arrows on Curated Movies/Shows & Genres Tabs */
+html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner),
+html:has(:is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(.hide) .fx-discovery:not(.fx-mode-full):not([hidden])) :is(.docspinner,.mdl-spinner.docspinner,#moviesPage .MuiCircularProgress-root,#tvshowsPage .MuiCircularProgress-root,#tvRecommendedPage .MuiCircularProgress-root){
+  display:none!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+html[data-fx-curated-tab="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu),
+html:has(:is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(.hide) .fx-discovery:not(.fx-mode-full):not([hidden])) header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu){
+  display:none!important;
+}
+
 /* SleekFin Three-Dots Style Dropdown Menus Across All Switchers (Movies, Shows, Live TV, Collections, Season X, Downloads & User Menu) Without Dimming Background */
 html.sleekfin-main-ui :is(.MuiPopover-root,.MuiMenu-root,#library-view-menu,#app-user-menu) > .MuiBackdrop-root,
 html.sleekfin-main-ui .MuiBackdrop-root.MuiBackdrop-invisible,
@@ -1949,24 +1961,33 @@ a.fx-download-option.is-selected{
 }
 
 /* Sign-In Page (#loginPage) Styled to Match SleekFin & Discovery Monochrome Dark Glass UI */
-#loginPage:is(.hide,.hidePage,[hidden]){
+#loginPage:is(.hide,.hidePage,[hidden]),
+#loginPage#loginPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
-#loginPage:not(.hide):not(.hidePage):not([hidden]){
+#loginPage:not(.hide):not(.hidePage):not([hidden]),
+#loginPage#loginPage:not(.hide):not(.hidePage):not([hidden]){
   background:radial-gradient(circle at 50% 18%,rgba(229,9,20,.12),transparent 52%),var(--sleekfin-bg,#070809)!important;
   min-height:100vh!important;
+  min-height:100dvh!important;
   display:flex!important;
+  flex-direction:column!important;
   align-items:center!important;
-  justify-content:center!important;
-  padding:32px 18px!important;
+  justify-content:flex-start!important;
+  padding:clamp(16px,3.5vh,40px) clamp(12px,3vw,32px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
   box-sizing:border-box!important;
 }
-#loginPage > .padded-left.padded-right,
-#loginPage > .content-primary{
-  max-width:760px!important;
-  width:min(760px,94vw)!important;
-  margin:0 auto!important;
-  padding:34px 32px!important;
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary){
+  --fx-login-cols:5;
+  --fx-login-gap:clamp(12px,1.6vw,20px);
+  --fx-login-card-max:168px;
+  --fx-login-box-max:1004px;
+  max-width:var(--fx-login-box-max)!important;
+  width:min(var(--fx-login-box-max),94vw)!important;
+  margin:auto!important;
+  padding:clamp(22px,3.2vw,34px) clamp(18px,3vw,32px)!important;
   background:linear-gradient(rgba(255,255,255,.04),rgba(255,255,255,.01)),rgba(16,17,19,.88)!important;
   backdrop-filter:blur(20px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(20px) saturate(140%)!important;
@@ -1975,12 +1996,41 @@ a.fx-download-option.is-selected{
   box-shadow:inset 0 1px rgba(255,255,255,.07),0 24px 64px rgba(0,0,0,.65)!important;
   box-sizing:border-box!important;
 }
-#loginPage > .padded-left.padded-right:not(:has(#divUsers:not(.hide):not(:empty))){
-  max-width:460px!important;
-  width:min(460px,94vw)!important;
+/* Even user-row splits: 1x1, 1x2, 1x3, 1x4, 1x5, 2x3 (6), 1x7 (7), 2x4 (8), 3x3 (9), 2x5+ (10+, max 5 per row) */
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):has(#divUsers > .card:nth-child(1):last-child){
+  --fx-login-cols:1;
+  --fx-login-card-max:176px;
+  --fx-login-box-max:440px;
 }
-#loginPage .readOnlyContent,
-#loginPage .manualLoginForm{
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):has(#divUsers > .card:nth-child(2):last-child){
+  --fx-login-cols:2;
+  --fx-login-card-max:174px;
+  --fx-login-box-max:490px;
+}
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):is(:has(#divUsers > .card:nth-child(3):last-child),:has(#divUsers > .card:nth-child(6):last-child),:has(#divUsers > .card:nth-child(9):last-child)){
+  --fx-login-cols:3;
+  --fx-login-card-max:172px;
+  --fx-login-box-max:640px;
+}
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):is(:has(#divUsers > .card:nth-child(4):last-child),:has(#divUsers > .card:nth-child(8):last-child)){
+  --fx-login-cols:4;
+  --fx-login-card-max:170px;
+  --fx-login-box-max:824px;
+}
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):has(#divUsers > .card:nth-child(5):last-child){
+  --fx-login-cols:5;
+  --fx-login-card-max:168px;
+  --fx-login-box-max:1004px;
+}
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):has(#divUsers > .card:nth-child(7):last-child){
+  --fx-login-cols:7;
+  --fx-login-card-max:148px;
+  --fx-login-box-max:1184px;
+}
+#loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):is(:has(.manualLoginForm:not(.hide)),:not(:has(.visualLoginForm:not(.hide))),:not(:has(#divUsers:not(:empty)))){
+  --fx-login-box-max:450px;
+}
+#loginPage#loginPage .manualLoginForm{
   max-width:420px!important;
   width:100%!important;
   margin:0 auto!important;
@@ -1990,7 +2040,12 @@ a.fx-download-option.is-selected{
   box-shadow:none!important;
   box-sizing:border-box!important;
 }
-#loginPage .visualLoginForm{
+#loginPage#loginPage .manualLoginForm > .padded-left.padded-right{
+  padding:0!important;
+  margin:0!important;
+  justify-content:flex-start!important;
+}
+#loginPage#loginPage .visualLoginForm{
   max-width:100%!important;
   width:100%!important;
   margin:0 auto!important;
@@ -2000,23 +2055,50 @@ a.fx-download-option.is-selected{
   box-shadow:none!important;
   box-sizing:border-box!important;
 }
-#loginPage :is(h1,.sectionTitle,.sectionTitle-cards){
-  font-size:26px!important;
-  line-height:32px!important;
+#loginPage#loginPage .readOnlyContent{
+  max-width:460px!important;
+  width:100%!important;
+  margin:6px auto 0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+  gap:8px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  box-sizing:border-box!important;
+}
+#loginPage#loginPage .readOnlyContent > :is(button,.raised){
+  flex:1 1 170px!important;
+  max-width:220px!important;
+  margin:0!important;
+}
+#loginPage#loginPage .readOnlyContent > .hide{
+  display:none!important;
+}
+#loginPage#loginPage .loginDisclaimerContainer{
+  flex:1 1 100%!important;
+  width:100%!important;
+  text-align:center!important;
+}
+#loginPage#loginPage :is(h1,.sectionTitle,.sectionTitle-cards){
+  font-size:clamp(22px,2.4vw,26px)!important;
+  line-height:1.25!important;
   font-weight:700!important;
   color:#fff!important;
   border-left:3px solid var(--sleekfin-accent,#e50914)!important;
   padding-left:10px!important;
-  margin:0 0 22px!important;
+  margin:0 0 clamp(16px,2.2vh,22px)!important;
   text-align:left!important;
 }
-#loginPage .inputLabel{
+#loginPage#loginPage .inputLabel{
   font-size:13px!important;
   font-weight:600!important;
   color:rgba(255,255,255,.82)!important;
   margin-bottom:6px!important;
 }
-#loginPage :is(input.emby-input,.inputContainer input){
+#loginPage#loginPage :is(input.emby-input,.inputContainer input){
   background:#0b0b0c!important;
   color:#f1f2f4!important;
   border:1px solid #26292e!important;
@@ -2027,12 +2109,12 @@ a.fx-download-option.is-selected{
   box-sizing:border-box!important;
   transition:border-color .15s ease,box-shadow .15s ease!important;
 }
-#loginPage :is(input.emby-input:focus,.inputContainer input:focus){
+#loginPage#loginPage :is(input.emby-input:focus,.inputContainer input:focus){
   outline:none!important;
   border-color:var(--sleekfin-accent,#e50914)!important;
   box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
 }
-#loginPage :is(.button-submit,button[type="submit"]){
+#loginPage#loginPage :is(.button-submit,button[type="submit"]){
   background:var(--sleekfin-accent,#e50914)!important;
   border:1px solid #ff2c37!important;
   color:#fff!important;
@@ -2043,10 +2125,10 @@ a.fx-download-option.is-selected{
   margin-top:10px!important;
   transition:background .15s ease!important;
 }
-#loginPage :is(.button-submit:hover,button[type="submit"]:hover){
+#loginPage#loginPage :is(.button-submit:hover,button[type="submit"]:hover){
   background:#f6121d!important;
 }
-#loginPage :is(.raised:not(.button-submit),.btnCancel,.btnManual,.btnForgotPassword){
+#loginPage#loginPage :is(.raised:not(.button-submit),.btnCancel,.btnManual,.btnForgotPassword){
   background:#1a1c20!important;
   border:1px solid #26292e!important;
   color:#f1f2f4!important;
@@ -2054,32 +2136,49 @@ a.fx-download-option.is-selected{
   min-height:42px!important;
   margin-top:8px!important;
 }
-#loginPage :is(.raised:not(.button-submit):hover,.btnCancel:hover,.btnManual:hover,.btnForgotPassword:hover){
+#loginPage#loginPage .readOnlyContent > :is(.raised:not(.button-submit),.btnManual,.btnForgotPassword){
+  margin-top:0!important;
+}
+#loginPage#loginPage :is(.raised:not(.button-submit):hover,.btnCancel:hover,.btnManual:hover,.btnForgotPassword:hover){
   background:#26292e!important;
 }
-#loginPage .checkboxOutline{
+#loginPage#loginPage .checkboxOutline{
   border-color:#26292e!important;
   background:#0b0b0c!important;
   border-radius:5px!important;
 }
-#loginPage #divUsers{
-  display:grid!important;
-  grid-template-columns:repeat(auto-fit,minmax(148px,176px))!important;
+#loginPage#loginPage #divUsers{
+  display:flex!important;
+  flex-wrap:wrap!important;
   justify-content:center!important;
-  gap:20px!important;
+  align-items:stretch!important;
+  gap:var(--fx-login-gap,18px)!important;
   width:100%!important;
-  margin:16px 0 24px!important;
+  margin:clamp(12px,2vh,18px) 0 clamp(16px,2.4vh,22px)!important;
   padding:0!important;
   box-sizing:border-box!important;
 }
-#loginPage #divUsers > .card{
-  width:100%!important;
-  max-width:176px!important;
-  min-width:148px!important;
+#loginPage#loginPage #divUsers > .card{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:0 1 calc((100% - (var(--fx-login-cols,5) - 1) * var(--fx-login-gap,18px) - 1px) / var(--fx-login-cols,5))!important;
+  width:calc((100% - (var(--fx-login-cols,5) - 1) * var(--fx-login-gap,18px) - 1px) / var(--fx-login-cols,5))!important;
+  max-width:var(--fx-login-card-max,168px)!important;
+  min-width:0!important;
   margin:0!important;
-  flex:none!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  cursor:pointer!important;
+  box-sizing:border-box!important;
 }
-#loginPage #divUsers .cardBox{
+#loginPage#loginPage #divUsers .cardBox{
+  flex:1 1 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;
   margin:0!important;
   padding:0!important;
   background:#16181b!important;
@@ -2088,22 +2187,31 @@ a.fx-download-option.is-selected{
   overflow:hidden!important;
   transition:border-color .16s ease,transform .16s ease,box-shadow .16s ease!important;
 }
-#loginPage #divUsers .card:hover .cardBox{
+#loginPage#loginPage #divUsers .card:hover .cardBox,
+#loginPage#loginPage #divUsers .card:focus-visible .cardBox{
   border-color:var(--sleekfin-accent,#e50914)!important;
   transform:translateY(-2px)!important;
   box-shadow:0 12px 28px rgba(0,0,0,.45)!important;
 }
-#loginPage #divUsers .cardScalable{
+#loginPage#loginPage #divUsers .cardScalable{
+  width:100%!important;
   aspect-ratio:1/1!important;
 }
-#loginPage #divUsers :is(.cardFooter,.innerCardFooter){
-  padding:10px 10px 12px!important;
+#loginPage#loginPage #divUsers .cardImageIcon.person{
+  font-size:clamp(38px,5vw,62px)!important;
+}
+#loginPage#loginPage #divUsers :is(.cardFooter,.innerCardFooter){
+  flex:1 1 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:clamp(8px,1.2vw,11px) 8px clamp(9px,1.4vw,12px)!important;
   background:#16181b!important;
   text-align:center!important;
 }
-#loginPage #divUsers :is(.cardText,.cardText-first,.cardText button,.cardText a){
-  font-size:14px!important;
-  line-height:1.35!important;
+#loginPage#loginPage #divUsers :is(.cardText,.cardText-first,.cardText button,.cardText a){
+  font-size:clamp(12.5px,1.2vw,14px)!important;
+  line-height:1.3!important;
   font-weight:600!important;
   color:#f1f2f4!important;
   text-align:center!important;
@@ -2114,6 +2222,47 @@ a.fx-download-option.is-selected{
   padding:0!important;
   margin:0!important;
   width:100%!important;
+}
+@media(max-width:920px){
+  #loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):has(#divUsers > .card:nth-child(7):last-child){
+    --fx-login-cols:4;
+    --fx-login-card-max:164px;
+    --fx-login-box-max:780px;
+  }
+}
+@media(max-width:680px){
+  #loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):is(:has(#divUsers > .card:nth-child(4):last-child),:has(#divUsers > .card:nth-child(8):last-child)){
+    --fx-login-cols:2;
+    --fx-login-card-max:172px;
+    --fx-login-box-max:460px;
+  }
+  #loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):is(:has(#divUsers > .card:nth-child(5):last-child),:has(#divUsers > .card:nth-child(7):last-child),:has(#divUsers > .card:nth-child(10))){
+    --fx-login-cols:3;
+    --fx-login-card-max:166px;
+    --fx-login-box-max:600px;
+  }
+}
+@media(max-width:460px){
+  #loginPage#loginPage > :is(.padded-left.padded-right,.content-primary):not(:has(#divUsers > .card:nth-child(1):last-child)){
+    --fx-login-cols:2;
+    --fx-login-gap:12px;
+    --fx-login-card-max:168px;
+  }
+  #loginPage#loginPage .readOnlyContent > :is(button,.raised){
+    flex:1 1 100%!important;
+    max-width:100%!important;
+  }
+}
+@media(max-height:700px){
+  #loginPage#loginPage:not(.hide):not(.hidePage):not([hidden]){
+    padding:12px 14px!important;
+  }
+  #loginPage#loginPage > :is(.padded-left.padded-right,.content-primary){
+    padding:18px 20px!important;
+  }
+  #loginPage#loginPage #divUsers{
+    margin:10px 0 14px!important;
+  }
 }
 
 /* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
@@ -3396,7 +3545,7 @@ a.fx-download-option.is-selected{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.1";
+      const VERSION = "0.5.2";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -3509,10 +3658,13 @@ a.fx-download-option.is-selected{
             const modMap = req(95753);
             const map = modMap == null ? void 0 : modMap.A;
             if (map == null ? void 0 : map.movies) {
+              const emptySuggestions = { suggestionSections: [], isMovieRecommendations: false };
               map.movies[1] = {
-                viewType: "fx-suggestions",
+                viewType: "suggestions",
                 collectionType: "movies",
+                sectionsView: emptySuggestions,
                 itemType: [],
+                isPaginationEnabled: false,
                 isBtnPlayAllEnabled: false,
                 isBtnShuffleEnabled: false,
                 isBtnFilterEnabled: false,
@@ -3522,9 +3674,11 @@ a.fx-download-option.is-selected{
                 isAlphaPickerEnabled: false
               };
               map.movies[4] = {
-                viewType: "fx-genres",
+                viewType: "suggestions",
                 collectionType: "movies",
+                sectionsView: emptySuggestions,
                 itemType: [],
+                isPaginationEnabled: false,
                 isBtnPlayAllEnabled: false,
                 isBtnShuffleEnabled: false,
                 isBtnFilterEnabled: false,
@@ -3549,10 +3703,13 @@ a.fx-download-option.is-selected{
               });
             }
             if (map == null ? void 0 : map.tvshows) {
+              const emptyTvSuggestions = { suggestionSections: [], isMovieRecommendations: false };
               map.tvshows[1] = {
-                viewType: "fx-suggestions",
+                viewType: "suggestions",
                 collectionType: "tvshows",
+                sectionsView: emptyTvSuggestions,
                 itemType: [],
+                isPaginationEnabled: false,
                 isBtnPlayAllEnabled: false,
                 isBtnShuffleEnabled: false,
                 isBtnFilterEnabled: false,
@@ -3574,9 +3731,11 @@ a.fx-download-option.is-selected{
                 isAlphaPickerEnabled: false
               };
               map.tvshows[3] = {
-                viewType: "fx-genres",
+                viewType: "suggestions",
                 collectionType: "tvshows",
+                sectionsView: emptyTvSuggestions,
                 itemType: [],
+                isPaginationEnabled: false,
                 isBtnPlayAllEnabled: false,
                 isBtnShuffleEnabled: false,
                 isBtnFilterEnabled: false,
@@ -3834,6 +3993,7 @@ a.fx-download-option.is-selected{
         const isLiveTv = name.startsWith("livetv") || col === "livetv";
         const isHomeOrSearch = name === "" || name === "home" || name === "index" || name === "search";
         const movieOrTvTab = rawTab || "1";
+        const isCuratedTab = isMovies && (movieOrTvTab === "1" || movieOrTvTab === "4") || isTv && (movieOrTvTab === "1" || movieOrTvTab === "3");
         const hideChip = isMovies && movieOrTvTab !== "0" && movieOrTvTab !== "2" || isTv && movieOrTvTab !== "0" && movieOrTvTab !== "2" || isBoxsets && Boolean(rawTab && rawTab !== "0" && rawTab !== "1") || isLiveTv || isHomeOrSearch;
         if (document.documentElement) {
           if (hideChip) {
@@ -3842,6 +4002,17 @@ a.fx-download-option.is-selected{
             }
           } else if (document.documentElement.hasAttribute("data-fx-hide-count-chip")) {
             document.documentElement.removeAttribute("data-fx-hide-count-chip");
+          }
+          if (isCuratedTab) {
+            if (document.documentElement.getAttribute("data-fx-curated-tab") !== "true") {
+              document.documentElement.setAttribute("data-fx-curated-tab", "true");
+            }
+            document.querySelectorAll(".docspinner").forEach((sp) => {
+              var _a3, _b2;
+              return (_b2 = (_a3 = sp.classList) == null ? void 0 : _a3.remove) == null ? void 0 : _b2.call(_a3, "mdlSpinnerActive", "is-active");
+            });
+          } else if (document.documentElement.hasAttribute("data-fx-curated-tab")) {
+            document.documentElement.removeAttribute("data-fx-curated-tab");
           }
         }
         if (!isMovies && !isTv) return;
@@ -5778,7 +5949,7 @@ a.fx-download-option.is-selected{
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g;
           stopped = true;
           clearTimeout(timer);
           clearInterval(heartbeat);
@@ -5788,7 +5959,8 @@ a.fx-download-option.is-selected{
           snapshots.clear();
           savedFeeds.clear();
           (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-hide-count-chip");
-          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-home-mode");
+          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
+          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
           document.removeEventListener("click", navSuggestions, true);
           window.removeEventListener("hashchange", onRouteEvent);
           window.removeEventListener("popstate", onRouteEvent);
@@ -5800,7 +5972,7 @@ a.fx-download-option.is-selected{
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
-          (_e2 = document.getElementById("fx-discovery-style")) == null ? void 0 : _e2.remove();
+          (_g = document.getElementById("fx-discovery-style")) == null ? void 0 : _g.remove();
           delete window.FazFortDiscovery;
         }
       };

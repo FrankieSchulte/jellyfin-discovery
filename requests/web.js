@@ -300,12 +300,6 @@ function scrollToTop(){
  if(document.body)document.body.scrollTop=0;
  document.querySelectorAll('.page:not(.hide),#indexPage,.homePage').forEach(p=>{if(p.scrollTop)p.scrollTop=0;});
 }
-function hideLeavingSoonNav(){
- document.querySelectorAll('[data-sleekfin-header-proxy] button,[data-sleekfin-header-proxy] a,header button,header a,.mainDrawer a,.mainDrawer button').forEach(n=>{
-  const txt=(n.getAttribute('aria-label')||n.getAttribute('title')||n.textContent||'').trim();
-  if(/leaving\s+soon/i.test(txt)&&n.style.display!=='none')n.style.display='none';
- });
-}
 function syncHeaderActive(){
  hideLeavingSoonNav();
  const active=isDiscoverHash();
