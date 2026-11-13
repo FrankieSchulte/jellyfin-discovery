@@ -129,6 +129,12 @@ export class JellyfinClient {
   }
   async fastOpening(route, config) {
     if (route.view === 'genres' || route.view === 'library' || route.view === 'favorites') return [];
+    const profile = config?.pages?.[route.page];
+    const opening = Array.isArray(profile?.opening) ? profile.opening : [];
+    const firstToken = opening.length
+      ? opening[0]
+      : (Array.isArray(profile?.anchors) && profile.anchors.length ? `anchor:${profile.anchors[0]}` : 'anchor:ContinueWatchingNextUp');
+    if (firstToken !== 'anchor:ContinueWatchingNextUp') return [];
     const limit = Math.min(config?.cardsPerShelf || 20, 20);
     const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
     this.assertCurrent();

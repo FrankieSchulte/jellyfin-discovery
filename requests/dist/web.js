@@ -944,8 +944,60 @@
         }
       }
     }
+    function hideLeavingSoonNav() {
+      var _a2, _b2;
+      try {
+        const raw = (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, "sleekfin:header-sources:v2");
+        if (raw && /leaving\s+soon/i.test(raw)) {
+          const parsed = JSON.parse(raw);
+          const keep = (entry) => !/leaving\s+soon/i.test(String((entry == null ? void 0 : entry.caption) || (entry == null ? void 0 : entry.label) || (entry == null ? void 0 : entry.title) || (entry == null ? void 0 : entry.name) || ""));
+          if (Array.isArray(parsed)) {
+            window.sessionStorage.setItem("sleekfin:header-sources:v2", JSON.stringify(parsed.filter(keep)));
+          } else if (parsed && typeof parsed === "object") {
+            for (const k of Object.keys(parsed)) {
+              if (Array.isArray(parsed[k])) parsed[k] = parsed[k].filter(keep);
+            }
+            window.sessionStorage.setItem("sleekfin:header-sources:v2", JSON.stringify(parsed));
+          }
+        }
+      } catch {
+      }
+      let changed = false;
+      document.querySelectorAll('[data-sleekfin-header-proxy] button,[data-sleekfin-header-proxy] a,[data-sleekfin-header-overflow-drawer] button,[data-sleekfin-header-overflow-drawer] a,header button,header a,.mainDrawer a,.mainDrawer button,.MuiDrawer-root a,.MuiDrawer-root button,#user-view-overflow-menu a,#user-view-overflow-menu li,#user-view-overflow-menu [role="menuitem"]').forEach((node) => {
+        var _a3, _b3, _c2, _d2, _e2, _f, _g;
+        const text = (node.getAttribute("aria-label") || node.getAttribute("title") || node.textContent || "").trim();
+        if (!/leaving\s+soon/i.test(text)) return;
+        if (node.getAttribute("data-fx-leaving-hidden") !== "true") {
+          node.setAttribute("data-fx-leaving-hidden", "true");
+          changed = true;
+        }
+        if (node.style && node.style.display !== "none") node.style.display = "none";
+        if (!((_a3 = node.closest) == null ? void 0 : _a3.call(node, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]"))) {
+          if (!node.hidden) node.hidden = true;
+          if (!((_b3 = node.classList) == null ? void 0 : _b3.contains("hide"))) (_d2 = (_c2 = node.classList) == null ? void 0 : _c2.add) == null ? void 0 : _d2.call(_c2, "hide");
+          const listItem = (_e2 = node.closest) == null ? void 0 : _e2.call(node, ".MuiDrawer-root .MuiListItem-root");
+          if (listItem && listItem.getAttribute("data-fx-leaving-hidden") !== "true") {
+            listItem.setAttribute("data-fx-leaving-hidden", "true");
+            listItem.hidden = true;
+            (_g = (_f = listItem.classList) == null ? void 0 : _f.add) == null ? void 0 : _g.call(_f, "hide");
+          }
+        }
+      });
+      if (changed && typeof Event === "function") {
+        const fire = () => {
+          var _a3;
+          try {
+            (_a3 = window.dispatchEvent) == null ? void 0 : _a3.call(window, new Event("resize"));
+          } catch {
+          }
+        };
+        if (typeof requestAnimationFrame === "function") requestAnimationFrame(fire);
+        else setTimeout(fire, 0);
+      }
+    }
     function reconcile() {
       var _a2, _b2;
+      hideLeavingSoonNav();
       const own = scope();
       if (session && own !== session) {
         permScope = "";
@@ -1012,8 +1064,14 @@
     const css = el("style");
     css.textContent = `
 [data-rh-hidden=true]{display:none!important}
+[data-fx-leaving-hidden="true"],
+html body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted [data-sleekfin-header-proxy] [data-fx-leaving-hidden="true"],
 [data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
-[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i]{display:none!important}
+[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[aria-label*="Leaving Soon" i]{display:none!important}
 .rh-source-btn[data-sleekfin-header-source-hidden="true"]{display:none!important}
 .rh-source-btn:not([data-sleekfin-header-source-hidden="true"]){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important;opacity:0!important;pointer-events:none!important}
 html[data-rh-active="true"] #indexPage,
@@ -1656,6 +1714,12 @@ a.rh-nav[aria-current=page]{
     observer = new MutationObserver((records) => {
       if (records.some((r) => {
         var _a2, _b2;
+        return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu"));
+      })) {
+        hideLeavingSoonNav();
+      }
+      if (records.some((r) => {
+        var _a2, _b2;
         return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage"));
       })) {
         clearTimeout(timer);
@@ -1665,6 +1729,7 @@ a.rh-nav[aria-current=page]{
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
     window.addEventListener("hashchange", reconcile);
     window.addEventListener("popstate", reconcile);
+    window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
     (_c = document.addEventListener) == null ? void 0 : _c.call(document, "viewshow", reconcile);
     (_d = document.addEventListener) == null ? void 0 : _d.call(document, "pageshow", reconcile);
     (_e = document.addEventListener) == null ? void 0 : _e.call(document, "keydown", handleRemoteKey, true);
@@ -1678,6 +1743,7 @@ a.rh-nav[aria-current=page]{
         clearInterval(heartbeat);
         window.removeEventListener("hashchange", reconcile);
         window.removeEventListener("popstate", reconcile);
+        window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
         (_a2 = document.removeEventListener) == null ? void 0 : _a2.call(document, "viewshow", reconcile);
         (_b2 = document.removeEventListener) == null ? void 0 : _b2.call(document, "pageshow", reconcile);
         (_c2 = document.removeEventListener) == null ? void 0 : _c2.call(document, "keydown", handleRemoteKey, true);

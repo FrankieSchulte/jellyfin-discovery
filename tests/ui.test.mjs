@@ -320,6 +320,7 @@ test('React library pages without pageTabContent mount discovery, customize drop
   assert.equal(mapMod.A.tvshows[0].isAlphabetPickerEnabled,false);
   assert.equal(mapMod.A.tvshows[1].viewType,'fx-suggestions');
   assert.equal(mapMod.A.tvshows[3].viewType,'fx-genres');
+  assert.equal(leavingSoonBtn.getAttribute('data-fx-leaving-hidden'),'true');
   assert.equal(leavingSoonBtn.style.display,'none');
   assert.equal(mapMod.A.tvshows[2].viewType,'favorites');
   assert.equal(mapMod.A.tvshows[2].collectionType,'tvshows');
@@ -379,4 +380,32 @@ test('visual editor discovers possible categories from library metadata and togg
   const draft=JSON.parse(dialog.querySelector('textarea').value);
   assert.ok(draft.pages.home.rules.some(r=>r.Title==='Directed by Director 0'&&r.Enabled!==false));
   f.ctx.window.FazFortDiscovery.stop();
+});
+test('count chip attribute toggles only on non-grid routes and CSS scopes loginPage and searchPage headings',async()=>{
+  const f=fixture();await f.settle();
+  const cssText=f.document.getElementById('fx-discovery-style')?.textContent||'';
+  assert.ok(cssText.includes('#loginPage:is(.hide,.hidePage,[hidden])'));
+  assert.ok(cssText.includes('#loginPage:not(.hide):not(.hidePage):not([hidden])'));
+  assert.ok(cssText.includes('#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards)'));
+  assert.ok(cssText.includes('padding-block:0!important'));
+  assert.ok(cssText.includes('[data-fx-leaving-hidden="true"]'));
+  assert.ok(cssText.includes('html[data-fx-hide-count-chip="true"]'));
+
+  assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  f.navigate('#/movies?tab=1');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  f.navigate('#/tv?tab=1');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  f.navigate('#/movies?tab=4');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-hide-count-chip'),'true');
+  f.navigate('#/movies?tab=0');
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  f.navigate('#/movies?tab=2');
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  f.navigate('#/boxsets');
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+
+  f.ctx.window.FazFortDiscovery.stop();
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-hide-count-chip'),false);
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-home-mode'),false);
 });

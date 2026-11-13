@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.0';
+const VERSION = '0.5.1';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -39,7 +39,7 @@ function readBootRows(s, configStr) {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
-    if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1000) return null;
+    if (Date.now() - (parsed.at || 0) > 7 * 24 * 3600 * 1000) return null;
     return { rows: parsed.rows, shuffle: parsed.shuffle };
   } catch { return null; }
 }
@@ -310,12 +310,61 @@ function patchLibraryViews() {
   } catch {}
 }
 function hideLeavingSoonNav() {
-  document.querySelectorAll('[data-sleekfin-header-proxy] button, [data-sleekfin-header-proxy] a, header button, header a, .mainDrawer a, .mainDrawer button').forEach(node => {
+  try {
+    const raw = window.sessionStorage?.getItem?.('sleekfin:header-sources:v2');
+    if (raw && /leaving\s+soon/i.test(raw)) {
+      const parsed = JSON.parse(raw);
+      const keep = entry => !/leaving\s+soon/i.test(String(entry?.caption || entry?.label || entry?.title || entry?.name || ''));
+      if (Array.isArray(parsed)) {
+        window.sessionStorage.setItem('sleekfin:header-sources:v2', JSON.stringify(parsed.filter(keep)));
+      } else if (parsed && typeof parsed === 'object') {
+        for (const k of Object.keys(parsed)) {
+          if (Array.isArray(parsed[k])) parsed[k] = parsed[k].filter(keep);
+        }
+        window.sessionStorage.setItem('sleekfin:header-sources:v2', JSON.stringify(parsed));
+      }
+    }
+  } catch {}
+  let changed = false;
+  document.querySelectorAll('[data-sleekfin-header-proxy] button, [data-sleekfin-header-proxy] a, [data-sleekfin-header-overflow-drawer] button, [data-sleekfin-header-overflow-drawer] a, header button, header a, .mainDrawer a, .mainDrawer button, .MuiDrawer-root a, .MuiDrawer-root button, #user-view-overflow-menu a, #user-view-overflow-menu li, #user-view-overflow-menu [role="menuitem"]').forEach(node => {
     const text = (node.getAttribute('aria-label') || node.getAttribute('title') || node.textContent || '').trim();
-    if (/leaving\s+soon/i.test(text) && node.style.display !== 'none') {
-      node.style.display = 'none';
+    if (!/leaving\s+soon/i.test(text)) return;
+    if (node.getAttribute('data-fx-leaving-hidden') !== 'true') {
+      node.setAttribute('data-fx-leaving-hidden', 'true');
+      changed = true;
+    }
+    if (node.style.display !== 'none') node.style.display = 'none';
+    if (!node.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]')) {
+      if (!node.hidden) node.hidden = true;
+      if (!node.classList?.contains('hide')) node.classList?.add?.('hide');
+      const listItem = node.closest?.('.MuiDrawer-root .MuiListItem-root');
+      if (listItem && listItem.getAttribute('data-fx-leaving-hidden') !== 'true') {
+        listItem.setAttribute('data-fx-leaving-hidden', 'true');
+        listItem.hidden = true;
+        listItem.classList?.add?.('hide');
+      }
     }
   });
+  if (changed && typeof Event === 'function') {
+    const fire = () => { try { window.dispatchEvent?.(new Event('resize')); } catch {} };
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(fire);
+    else setTimeout(fire, 0);
+  }
+}
+function syncHomeModeAttr(api = window.ApiClient) {
+  const rootEl = document.documentElement;
+  if (!rootEl) return;
+  let isNative = false;
+  if (state?.route?.page === 'home') {
+    isNative = !!(state.full || state.failed);
+  } else if (api?.getCurrentUserId?.()) {
+    try { isNative = localStorage.getItem(prefKey(api, 'home')) === 'native'; } catch {}
+  }
+  if (isNative) {
+    if (rootEl.getAttribute('data-fx-home-mode') !== 'native') rootEl.setAttribute('data-fx-home-mode', 'native');
+  } else if (rootEl.hasAttribute('data-fx-home-mode')) {
+    rootEl.removeAttribute('data-fx-home-mode');
+  }
 }
 function scrollToTop() {
   try { window.scrollTo(0, 0); } catch {}
@@ -334,10 +383,29 @@ function syncLibraryViewMenu() {
   const name = path.replace(/\.html$/, '').toLowerCase();
   const p = new URLSearchParams(query);
   const col = p.get('collectionType')?.toLowerCase();
+  const rawTab = p.get('tab');
   const isMovies = name === 'movies' || (name === 'list' && col === 'movies');
   const isTv = name === 'tv' || name === 'tvshows' || (name === 'list' && col === 'tvshows');
+  const isBoxsets = name === 'boxsets' || (name === 'list' && col === 'boxsets');
+  const isLiveTv = name.startsWith('livetv') || col === 'livetv';
+  const isHomeOrSearch = name === '' || name === 'home' || name === 'index' || name === 'search';
+  const movieOrTvTab = rawTab || '1';
+  const hideChip = (isMovies && movieOrTvTab !== '0' && movieOrTvTab !== '2')
+    || (isTv && movieOrTvTab !== '0' && movieOrTvTab !== '2')
+    || (isBoxsets && Boolean(rawTab && rawTab !== '0' && rawTab !== '1'))
+    || isLiveTv
+    || isHomeOrSearch;
+  if (document.documentElement) {
+    if (hideChip) {
+      if (document.documentElement.getAttribute('data-fx-hide-count-chip') !== 'true') {
+        document.documentElement.setAttribute('data-fx-hide-count-chip', 'true');
+      }
+    } else if (document.documentElement.hasAttribute('data-fx-hide-count-chip')) {
+      document.documentElement.removeAttribute('data-fx-hide-count-chip');
+    }
+  }
   if (!isMovies && !isTv) return;
-  const tab = p.get('tab') || '1';
+  const tab = movieOrTvTab;
   const expectedLabel = isMovies
     ? (tab === '0' ? 'Library' : tab === '2' ? 'Favorites' : tab === '4' ? 'Genres' : 'Movies')
     : (tab === '0' ? 'Library' : tab === '2' ? 'Favorites' : tab === '3' ? 'Genres' : 'TV Shows');
@@ -915,6 +983,7 @@ function setMode(s, full, remember = true) {
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
   syncNative(s, !(full || s.failed));
   if (remember) { try { localStorage.setItem(prefKey(s.api, s.route.page), full ? 'native' : 'discover'); } catch { s.status.textContent = 'View preference could not be saved in this browser.'; } }
+  syncHomeModeAttr(s.api);
   if (!s.started) initialize(s);
   else if (!full && s.planner && !s.slots.filter(slot => !slot.boot).length) loadMore(s);
   if (!full) scheduleScroll();
@@ -1064,33 +1133,29 @@ async function initialize(s) {
   if (s.started) return;
   s.started = true; s.status.textContent = ''; s.footer.hidden = true;
   try {
-    let localError;
-    try{s.config=readConfig(s.api);}catch(e){localError=e;}
+    let localError, hasLocalConfig = false;
+    try {
+      hasLocalConfig = !!localStorage.getItem(configKey(s.api));
+      s.config = readConfig(s.api);
+    } catch (e) { localError = e; }
+    let paintedBoot = false;
     if (s.config && !s.full) {
       s.profile = s.config.pages[s.route.page];
       const earlySaved = savedFeeds.get(s.key);
       if (earlySaved && Date.now() - earlySaved.at < 30 * 60000 && earlySaved.config === JSON.stringify(s.config) && earlySaved.rows?.length) {
         if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
         earlySaved.rows.slice(0, 4).forEach(row => appendRow(row, s, true));
-        syncNative(s, true);
-      } else {
+        paintedBoot = true;
+      } else if (hasLocalConfig) {
         const bootData = readBootRows(s, JSON.stringify(s.config));
         if (bootData?.rows?.length) {
           if (bootData.shuffle) s.shuffle = bootData.shuffle;
           bootData.rows.forEach(row => appendRow(row, s, true));
-          syncNative(s, true);
-        } else {
-          renderSkeletonRows(s, 3);
-          syncNative(s, true);
-          if (s.route.view !== 'genres') {
-            s.client.fastOpening(s.route, s.config).then(fastRows => {
-              if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
-              fastRows.forEach(row => appendRow(row, s, true));
-              syncNative(s, true);
-            }).catch(() => {});
-          }
+          paintedBoot = true;
         }
       }
+      if (!paintedBoot) renderSkeletonRows(s, 3);
+      syncNative(s, true);
     }
     if (!s.full && s.route.view !== 'genres') {
       const p = s.client.json('HomeScreen/Section/ContinueWatchingNextUp', { UserId: s.client.userId });
@@ -1103,7 +1168,8 @@ async function initialize(s) {
     const invPromise = cachedInv
       ? Promise.resolve(cachedInv)
       : s.client.inventory(s.route);
-    const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
+    invPromise.catch(() => {});
+    const prefRes = await prefPromise;
     s.client.assertCurrent();
     if (prefRes.ok) {
       s.profileVersion = prefRes.profile.version;
@@ -1117,6 +1183,23 @@ async function initialize(s) {
     }
     if(!s.config)throw localError||Error('No valid discovery configuration.');
     s.profile=s.config.pages[s.route.page];
+    if (!s.full && !paintedBoot) {
+      const bootData = readBootRows(s, JSON.stringify(s.config));
+      if (bootData?.rows?.length) {
+        if (bootData.shuffle) s.shuffle = bootData.shuffle;
+        bootData.rows.forEach(row => appendRow(row, s, true));
+        paintedBoot = true;
+        syncNative(s, true);
+      } else if (s.route.view !== 'genres') {
+        s.client.fastOpening(s.route, s.config).then(fastRows => {
+          if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
+          fastRows.forEach(row => appendRow(row, s, true));
+          syncNative(s, true);
+        }).catch(() => {});
+      }
+    }
+    const inv = await invPromise;
+    s.client.assertCurrent();
     s.inventory = inv;
     snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
     if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
@@ -1483,6 +1566,7 @@ function reconcile() {
   const api = window.ApiClient, route = routeInfo(location.hash);
   syncSettings(api);
   syncLibraryViewMenu();
+  syncHomeModeAttr(api);
   if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
@@ -1743,17 +1827,27 @@ function remoteKeyUp(event){
   event.preventDefault();event.stopPropagation();const held=selectHold;selectHold=null;clearTimeout(held.timer);
   if(!held.fired&&held.node.isConnected)held.node.click();
 }
+function onRouteEvent() {
+  syncLibraryViewMenu();
+  schedule();
+}
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
   patchLibraryViews();
+  syncLibraryViewMenu();
+  syncHomeModeAttr(window.ApiClient);
   if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
+    if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu'))) {
+      hideLeavingSoonNav();
+    }
     if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', schedule); document.addEventListener('viewshow', schedule);
+  document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', onRouteEvent); window.addEventListener('popstate', onRouteEvent); document.addEventListener('viewshow', onRouteEvent);
+  window.addEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
   document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', scheduleScroll);
   // Sign-out / server switch can occur without a hash change.
@@ -1764,7 +1858,10 @@ window.FazFortDiscovery = {
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
     stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
-    document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', schedule); document.removeEventListener('viewshow', schedule); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
+    document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
+    document.documentElement?.removeAttribute?.('data-fx-home-mode');
+    document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
+    window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
     document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }

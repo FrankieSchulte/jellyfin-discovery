@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.0 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.1 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1115,9 +1115,11 @@
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
 @media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
-/* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS rows never flash. */
+/* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS/native rows never flash. */
 [data-fx-hero-anchor="true"]{min-height:1px}
-[data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections){display:none!important}
+[data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
+html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
+html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > .sections > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery){display:none!important}
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #26292e;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -1257,6 +1259,14 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child
 /* Remove Play All & Shuffle Buttons Across Library Pages (Movies -> Library, Shows -> Library, Collections -> Collections) */
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Play all" i],button[title="Shuffle" i],button[aria-label="Play all" i],button[aria-label="Shuffle" i]),
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) :is(.btnPlayAll,.btnShuffle){
+  display:none!important;
+}
+
+/* Hide Total Library Item Count Chip on Curated Suggestions, Genres, Live TV, Home & Search (Keep Only on Library/Favorites/Collections Grids) */
+html[data-fx-hide-count-chip="true"] header.MuiAppBar-root .MuiChip-root,
+html:has(.fx-discovery:not(.fx-mode-full):not([hidden])) header.MuiAppBar-root .MuiChip-root,
+html:has(#boxsetsPage:not(.hide) .emby-scroller) header.MuiAppBar-root .MuiChip-root,
+html:has(#liveTvSuggestedPage:not(.hide),#liveTvPage:not(.hide)) header.MuiAppBar-root .MuiChip-root{
   display:none!important;
 }
 
@@ -1614,151 +1624,263 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{padding:6px 2px 0!important;font-weight:700!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
-/* Dedicated Search Page (#searchPage) Styled to Match SleekFin & Discovery Visual Identity */
+/* Dedicated Search Page (#searchPage) & Leaving Soon Nav Suppression */
 [data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]{
   display:inline-flex!important;
 }
+[data-fx-leaving-hidden="true"],
+html body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted [data-sleekfin-header-proxy] [data-fx-leaving-hidden="true"],
 [data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
 [data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[aria-label*="Leaving Soon" i],
 header :is(button,a)[title*="Leaving Soon" i],
 header :is(button,a)[aria-label*="Leaving Soon" i],
 .mainDrawer :is(button,a)[title*="Leaving Soon" i],
-.mainDrawer :is(button,a)[aria-label*="Leaving Soon" i]{
+.mainDrawer :is(button,a)[aria-label*="Leaving Soon" i],
+.MuiDrawer-root :is(button,a)[title*="Leaving Soon" i],
+.MuiDrawer-root :is(button,a)[aria-label*="Leaving Soon" i],
+#user-view-overflow-menu :is(a,li)[title*="Leaving Soon" i],
+#user-view-overflow-menu :is(a,li)[aria-label*="Leaving Soon" i]{
   display:none!important;
 }
-html:not(:has(header.MuiAppBar-root)) #searchPage{
-  padding-top:calc(var(--sleekfin-header-height,72px) + 18px)!important;
+#searchPage:is(.hide,.hidePage,[hidden]){
+  display:none!important;
 }
-html:has(header.MuiAppBar-root) #searchPage{
-  padding-top:18px!important;
+html:not(:has(header.MuiAppBar-root)) #searchPage#searchPage{
+  padding-top:calc(var(--sleekfin-header-height,80px) + 16px)!important;
+}
+html:has(header.MuiAppBar-root) #searchPage#searchPage{
+  padding-top:16px!important;
   margin-top:0!important;
 }
-#searchPage{
+#searchPage#searchPage{
   background:var(--sleekfin-bg,#070809)!important;
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFields{
-  padding:8px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 20px!important;
+#searchPage#searchPage .alphaPicker:empty{
+  display:none!important;
+}
+#searchPage#searchPage .searchFields{
+  padding:6px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 24px!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin:0!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFieldsInner{
+#searchPage#searchPage .searchFieldsInner{
   display:flex!important;
+  flex-direction:row!important;
   align-items:center!important;
-  gap:10px!important;
-  max-width:560px!important;
+  justify-content:flex-start!important;
+  gap:12px!important;
+  max-width:640px!important;
   width:100%!important;
+  height:50px!important;
+  min-height:50px!important;
   margin:0 auto!important;
-  padding:4px 16px!important;
-  background:#141519!important;
-  border:1px solid rgba(255,255,255,.14)!important;
+  padding:0 18px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),rgba(20,21,25,.92)!important;
+  border:1px solid rgba(255,255,255,.13)!important;
   border-radius:999px!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.06),0 12px 32px -8px rgba(0,0,0,.55)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 14px 34px -10px rgba(0,0,0,.6)!important;
   transition:border-color .16s ease,box-shadow .16s ease!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFieldsInner:focus-within{
+#searchPage#searchPage .searchFieldsInner:focus-within{
   border-color:var(--sleekfin-accent,#e50914)!important;
-  box-shadow:0 0 0 3px rgba(229,9,20,.2),0 12px 32px -8px rgba(0,0,0,.6)!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22),0 14px 34px -10px rgba(0,0,0,.68)!important;
 }
-#searchPage .searchFieldsInner .searchfields-icon{
-  color:rgba(255,255,255,.68)!important;
-  font-size:20px!important;
+#searchPage#searchPage .searchFieldsInner .searchfields-icon{
+  color:rgba(255,255,255,.65)!important;
+  font-size:22px!important;
+  width:22px!important;
+  height:22px!important;
   margin:0!important;
+  padding:0!important;
   position:static!important;
-  flex-shrink:0!important;
+  transform:none!important;
+  top:auto!important;
+  bottom:auto!important;
+  flex:0 0 22px!important;
   -webkit-align-self:center!important;
   align-self:center!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
   line-height:1!important;
-  height:auto!important;
 }
-#searchPage .searchFieldsInner .inputContainer{
-  flex:1!important;
+#searchPage#searchPage .searchFieldsInner:focus-within .searchfields-icon{
+  color:#fff!important;
+}
+#searchPage#searchPage .searchFieldsInner .inputContainer{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  width:auto!important;
+  height:100%!important;
   margin:0!important;
-  width:100%!important;
+  padding:0!important;
   display:flex!important;
   align-items:center!important;
-}
-#searchPage .searchFieldsInner .inputLabel{
-  display:none!important;
-}
-#searchPage :is(#searchTextInput,input.searchfields-txtSearch,.searchFieldsInner input){
   background:transparent!important;
   border:0!important;
+  box-shadow:none!important;
+}
+#searchPage#searchPage .searchFieldsInner .inputLabel{
+  display:none!important;
+}
+#searchPage#searchPage :is(#searchTextInput,input.emby-input,input.searchfields-txtSearch,.searchFieldsInner input){
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
   outline:0!important;
   box-shadow:none!important;
   color:#fff!important;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
-  font-size:15px!important;
+  font-size:15.5px!important;
   font-weight:500!important;
-  min-height:40px!important;
-  padding:6px 4px!important;
+  line-height:1.3!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
   width:100%!important;
   box-sizing:border-box!important;
 }
-#searchPage :is(#searchTextInput,input.searchfields-txtSearch,.searchFieldsInner input)::placeholder{
+#searchPage#searchPage :is(#searchTextInput,input.emby-input,input.searchfields-txtSearch,.searchFieldsInner input)::placeholder{
   color:rgba(255,255,255,.48)!important;
 }
-#searchPage .searchSuggestions{
+#searchPage#searchPage .searchSuggestions{
   max-width:960px!important;
-  margin:8px auto 32px!important;
-  padding:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
-  text-align:center!important;
+  width:calc(100% - 2 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)))!important;
+  margin:4px auto 40px!important;
+  padding:22px 26px 24px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),rgba(17,18,22,.84)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:16px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.05),0 16px 40px -12px rgba(0,0,0,.55)!important;
+  text-align:left!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchSuggestions :is(h2,.sectionTitle){
-  display:inline-flex!important;
-  align-items:center!important;
-  width:max-content!important;
-  max-width:100%!important;
-  margin:0 auto 18px!important;
-  padding-left:10px!important;
-  padding-inline-start:10px!important;
-  padding-right:0!important;
-  padding-inline-end:0!important;
+#searchPage#searchPage .searchSuggestions > div:first-child{
+  margin:0 0 16px!important;
+  padding:0!important;
+  text-align:left!important;
 }
-#searchPage .searchSuggestionsList{
+#searchPage#searchPage .searchSuggestions :is(h2,.sectionTitle,.sectionTitle.padded-left){
+  display:block!important;
+  width:auto!important;
+  max-width:100%!important;
+  font-size:22px!important;
+  line-height:28px!important;
+  font-weight:600!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  margin:0!important;
+  padding:0 0 0 10px!important;
+  padding-block:0!important;
+  padding-inline:10px 0!important;
+  text-align:left!important;
+}
+#searchPage#searchPage .searchSuggestionsList{
   display:flex!important;
   flex-wrap:wrap!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
   gap:10px!important;
+  margin:0!important;
   padding:0!important;
+  padding-inline:0!important;
 }
-#searchPage .searchSuggestionsList > div{
+#searchPage#searchPage .searchSuggestionsList > div{
   margin:0!important;
   display:inline-flex!important;
 }
-#searchPage .searchSuggestionsList a,
-#searchPage .searchSuggestions a.button-link{
+#searchPage#searchPage .searchSuggestionsList a,
+#searchPage#searchPage .searchSuggestions a.button-link{
   display:inline-flex!important;
   align-items:center!important;
   padding:8px 16px!important;
   margin:0!important;
   border-radius:999px!important;
-  background:#16181b!important;
-  border:1px solid #26292e!important;
-  color:rgba(255,255,255,.86)!important;
+  background:rgba(255,255,255,.055)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  color:rgba(255,255,255,.88)!important;
   text-decoration:none!important;
   font-size:13.5px!important;
   font-weight:500!important;
+  line-height:1.25!important;
   transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease!important;
 }
-#searchPage .searchSuggestionsList a:hover,
-#searchPage .searchSuggestions a.button-link:hover{
-  background:rgba(229,9,20,.18)!important;
+#searchPage#searchPage .searchSuggestionsList a:hover,
+#searchPage#searchPage .searchSuggestions a.button-link:hover{
+  background:rgba(229,9,20,.2)!important;
   border-color:var(--sleekfin-accent,#e50914)!important;
   color:#fff!important;
   transform:translateY(-1px)!important;
 }
-#searchPage .searchResults .verticalSection{
-  margin-bottom:28px!important;
+#searchPage#searchPage .searchResults{
+  padding:4px 0 56px!important;
+  margin:0!important;
 }
-#searchPage .searchResults :is(.sectionTitleContainer,.sectionTitleContainer-cards){
-  padding-top:8px!important;
-  margin-bottom:14px!important;
+#searchPage#searchPage .searchResults .verticalSection{
+  position:relative!important;
+  margin:0 0 28px!important;
+  padding:0!important;
+}
+#searchPage#searchPage .searchResults :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+  padding:0!important;
+  padding-block:0!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  margin:0 0 14px!important;
+}
+#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards){
+  display:block!important;
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:600!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  margin:0 calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 116px) 14px var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding:0 0 0 10px!important;
+  padding-block:0!important;
+  padding-inline:10px 0!important;
+}
+#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards)::before{
+  display:none!important;
+  content:none!important;
+}
+#searchPage#searchPage .searchResults .emby-scrollbuttons{
+  position:absolute!important;
+  top:0!important;
+  right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  left:auto!important;
+  height:32px!important;
+  min-height:32px!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  z-index:2!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller{
+  margin:0 calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px) 0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding:4px 0 12px!important;
+  padding-inline:0!important;
+  box-sizing:border-box!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller .itemsContainer{
+  column-gap:14px!important;
+  gap:14px!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller .itemsContainer > :is(.squareCard,.overflowSquareCard){
+  width:clamp(135px,14vw,195px)!important;
+  flex:0 0 clamp(135px,14vw,195px)!important;
+  max-width:clamp(135px,14vw,195px)!important;
 }
 
 /* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button) */
@@ -1827,7 +1949,10 @@ a.fx-download-option.is-selected{
 }
 
 /* Sign-In Page (#loginPage) Styled to Match SleekFin & Discovery Monochrome Dark Glass UI */
-#loginPage{
+#loginPage:is(.hide,.hidePage,[hidden]){
+  display:none!important;
+}
+#loginPage:not(.hide):not(.hidePage):not([hidden]){
   background:radial-gradient(circle at 50% 18%,rgba(229,9,20,.12),transparent 52%),var(--sleekfin-bg,#070809)!important;
   min-height:100vh!important;
   display:flex!important;
@@ -2488,7 +2613,12 @@ a.fx-download-option.is-selected{
         return this.groupResume(combined, inventory).slice(0, limit);
       }
       async fastOpening(route, config) {
+        var _a;
         if (route.view === "genres" || route.view === "library" || route.view === "favorites") return [];
+        const profile = (_a = config == null ? void 0 : config.pages) == null ? void 0 : _a[route.page];
+        const opening = Array.isArray(profile == null ? void 0 : profile.opening) ? profile.opening : [];
+        const firstToken = opening.length ? opening[0] : Array.isArray(profile == null ? void 0 : profile.anchors) && profile.anchors.length ? `anchor:${profile.anchors[0]}` : "anchor:ContinueWatchingNextUp";
+        if (firstToken !== "anchor:ContinueWatchingNextUp") return [];
         const limit = Math.min((config == null ? void 0 : config.cardsPerShelf) || 20, 20);
         const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
         this.assertCurrent();
@@ -3266,7 +3396,7 @@ a.fx-download-option.is-selected{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.0";
+      const VERSION = "0.5.1";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -3321,7 +3451,7 @@ a.fx-download-option.is-selected{
           if (!raw) return null;
           const parsed = JSON.parse(raw);
           if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
-          if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1e3) return null;
+          if (Date.now() - (parsed.at || 0) > 7 * 24 * 3600 * 1e3) return null;
           return { rows: parsed.rows, shuffle: parsed.shuffle };
         } catch {
           return null;
@@ -3607,12 +3737,74 @@ a.fx-download-option.is-selected{
         }
       }
       function hideLeavingSoonNav() {
-        document.querySelectorAll("[data-sleekfin-header-proxy] button, [data-sleekfin-header-proxy] a, header button, header a, .mainDrawer a, .mainDrawer button").forEach((node) => {
+        var _a2, _b2;
+        try {
+          const raw = (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, "sleekfin:header-sources:v2");
+          if (raw && /leaving\s+soon/i.test(raw)) {
+            const parsed = JSON.parse(raw);
+            const keep = (entry) => !/leaving\s+soon/i.test(String((entry == null ? void 0 : entry.caption) || (entry == null ? void 0 : entry.label) || (entry == null ? void 0 : entry.title) || (entry == null ? void 0 : entry.name) || ""));
+            if (Array.isArray(parsed)) {
+              window.sessionStorage.setItem("sleekfin:header-sources:v2", JSON.stringify(parsed.filter(keep)));
+            } else if (parsed && typeof parsed === "object") {
+              for (const k of Object.keys(parsed)) {
+                if (Array.isArray(parsed[k])) parsed[k] = parsed[k].filter(keep);
+              }
+              window.sessionStorage.setItem("sleekfin:header-sources:v2", JSON.stringify(parsed));
+            }
+          }
+        } catch {
+        }
+        let changed = false;
+        document.querySelectorAll('[data-sleekfin-header-proxy] button, [data-sleekfin-header-proxy] a, [data-sleekfin-header-overflow-drawer] button, [data-sleekfin-header-overflow-drawer] a, header button, header a, .mainDrawer a, .mainDrawer button, .MuiDrawer-root a, .MuiDrawer-root button, #user-view-overflow-menu a, #user-view-overflow-menu li, #user-view-overflow-menu [role="menuitem"]').forEach((node) => {
+          var _a3, _b3, _c2, _d2, _e2, _f, _g;
           const text = (node.getAttribute("aria-label") || node.getAttribute("title") || node.textContent || "").trim();
-          if (/leaving\s+soon/i.test(text) && node.style.display !== "none") {
-            node.style.display = "none";
+          if (!/leaving\s+soon/i.test(text)) return;
+          if (node.getAttribute("data-fx-leaving-hidden") !== "true") {
+            node.setAttribute("data-fx-leaving-hidden", "true");
+            changed = true;
+          }
+          if (node.style.display !== "none") node.style.display = "none";
+          if (!((_a3 = node.closest) == null ? void 0 : _a3.call(node, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]"))) {
+            if (!node.hidden) node.hidden = true;
+            if (!((_b3 = node.classList) == null ? void 0 : _b3.contains("hide"))) (_d2 = (_c2 = node.classList) == null ? void 0 : _c2.add) == null ? void 0 : _d2.call(_c2, "hide");
+            const listItem = (_e2 = node.closest) == null ? void 0 : _e2.call(node, ".MuiDrawer-root .MuiListItem-root");
+            if (listItem && listItem.getAttribute("data-fx-leaving-hidden") !== "true") {
+              listItem.setAttribute("data-fx-leaving-hidden", "true");
+              listItem.hidden = true;
+              (_g = (_f = listItem.classList) == null ? void 0 : _f.add) == null ? void 0 : _g.call(_f, "hide");
+            }
           }
         });
+        if (changed && typeof Event === "function") {
+          const fire = () => {
+            var _a3;
+            try {
+              (_a3 = window.dispatchEvent) == null ? void 0 : _a3.call(window, new Event("resize"));
+            } catch {
+            }
+          };
+          if (typeof requestAnimationFrame === "function") requestAnimationFrame(fire);
+          else setTimeout(fire, 0);
+        }
+      }
+      function syncHomeModeAttr(api = window.ApiClient) {
+        var _a2, _b2;
+        const rootEl = document.documentElement;
+        if (!rootEl) return;
+        let isNative = false;
+        if (((_a2 = state == null ? void 0 : state.route) == null ? void 0 : _a2.page) === "home") {
+          isNative = !!(state.full || state.failed);
+        } else if ((_b2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _b2.call(api)) {
+          try {
+            isNative = localStorage.getItem(prefKey(api, "home")) === "native";
+          } catch {
+          }
+        }
+        if (isNative) {
+          if (rootEl.getAttribute("data-fx-home-mode") !== "native") rootEl.setAttribute("data-fx-home-mode", "native");
+        } else if (rootEl.hasAttribute("data-fx-home-mode")) {
+          rootEl.removeAttribute("data-fx-home-mode");
+        }
       }
       function scrollToTop() {
         try {
@@ -3635,10 +3827,25 @@ a.fx-download-option.is-selected{
         const name = path.replace(/\.html$/, "").toLowerCase();
         const p = new URLSearchParams(query);
         const col = (_a2 = p.get("collectionType")) == null ? void 0 : _a2.toLowerCase();
+        const rawTab = p.get("tab");
         const isMovies = name === "movies" || name === "list" && col === "movies";
         const isTv = name === "tv" || name === "tvshows" || name === "list" && col === "tvshows";
+        const isBoxsets = name === "boxsets" || name === "list" && col === "boxsets";
+        const isLiveTv = name.startsWith("livetv") || col === "livetv";
+        const isHomeOrSearch = name === "" || name === "home" || name === "index" || name === "search";
+        const movieOrTvTab = rawTab || "1";
+        const hideChip = isMovies && movieOrTvTab !== "0" && movieOrTvTab !== "2" || isTv && movieOrTvTab !== "0" && movieOrTvTab !== "2" || isBoxsets && Boolean(rawTab && rawTab !== "0" && rawTab !== "1") || isLiveTv || isHomeOrSearch;
+        if (document.documentElement) {
+          if (hideChip) {
+            if (document.documentElement.getAttribute("data-fx-hide-count-chip") !== "true") {
+              document.documentElement.setAttribute("data-fx-hide-count-chip", "true");
+            }
+          } else if (document.documentElement.hasAttribute("data-fx-hide-count-chip")) {
+            document.documentElement.removeAttribute("data-fx-hide-count-chip");
+          }
+        }
         if (!isMovies && !isTv) return;
-        const tab = p.get("tab") || "1";
+        const tab = movieOrTvTab;
         const expectedLabel = isMovies ? tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "4" ? "Genres" : "Movies" : tab === "0" ? "Library" : tab === "2" ? "Favorites" : tab === "3" ? "Genres" : "TV Shows";
         const btn = document.querySelector('button[aria-controls="library-view-menu"]');
         if (btn) {
@@ -4395,6 +4602,7 @@ a.fx-download-option.is-selected{
             s.status.textContent = "View preference could not be saved in this browser.";
           }
         }
+        syncHomeModeAttr(s.api);
         if (!s.started) initialize(s);
         else if (!full && s.planner && !s.slots.filter((slot) => !slot.boot).length) loadMore(s);
         if (!full) scheduleScroll();
@@ -4573,44 +4781,37 @@ a.fx-download-option.is-selected{
         }
       }
       async function initialize(s) {
-        var _a2, _b2;
+        var _a2, _b2, _c2;
         if (s.started) return;
         s.started = true;
         s.status.textContent = "";
         s.footer.hidden = true;
         try {
-          let localError;
+          let localError, hasLocalConfig = false;
           try {
+            hasLocalConfig = !!localStorage.getItem(configKey(s.api));
             s.config = readConfig(s.api);
           } catch (e) {
             localError = e;
           }
+          let paintedBoot = false;
           if (s.config && !s.full) {
             s.profile = s.config.pages[s.route.page];
             const earlySaved = savedFeeds.get(s.key);
             if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === JSON.stringify(s.config) && ((_a2 = earlySaved.rows) == null ? void 0 : _a2.length)) {
               if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
               earlySaved.rows.slice(0, 4).forEach((row) => appendRow(row, s, true));
-              syncNative(s, true);
-            } else {
+              paintedBoot = true;
+            } else if (hasLocalConfig) {
               const bootData = readBootRows(s, JSON.stringify(s.config));
               if ((_b2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _b2.length) {
                 if (bootData.shuffle) s.shuffle = bootData.shuffle;
                 bootData.rows.forEach((row) => appendRow(row, s, true));
-                syncNative(s, true);
-              } else {
-                renderSkeletonRows(s, 3);
-                syncNative(s, true);
-                if (s.route.view !== "genres") {
-                  s.client.fastOpening(s.route, s.config).then((fastRows) => {
-                    if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
-                    fastRows.forEach((row) => appendRow(row, s, true));
-                    syncNative(s, true);
-                  }).catch(() => {
-                  });
-                }
+                paintedBoot = true;
               }
             }
+            if (!paintedBoot) renderSkeletonRows(s, 3);
+            syncNative(s, true);
           }
           if (!s.full && s.route.view !== "genres") {
             const p = s.client.json("HomeScreen/Section/ContinueWatchingNextUp", { UserId: s.client.userId });
@@ -4622,7 +4823,9 @@ a.fx-download-option.is-selected{
           const cachedInv = findCachedInventory(s.scope, s.route);
           const prefPromise = s.client.preferences().then((profile) => ({ ok: true, profile })).catch(() => ({ ok: false }));
           const invPromise = cachedInv ? Promise.resolve(cachedInv) : s.client.inventory(s.route);
-          const [prefRes, inv] = await Promise.all([prefPromise, invPromise]);
+          invPromise.catch(() => {
+          });
+          const prefRes = await prefPromise;
           s.client.assertCurrent();
           if (prefRes.ok) {
             s.profileVersion = prefRes.profile.version;
@@ -4639,6 +4842,24 @@ a.fx-download-option.is-selected{
           }
           if (!s.config) throw localError || Error("No valid discovery configuration.");
           s.profile = s.config.pages[s.route.page];
+          if (!s.full && !paintedBoot) {
+            const bootData = readBootRows(s, JSON.stringify(s.config));
+            if ((_c2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _c2.length) {
+              if (bootData.shuffle) s.shuffle = bootData.shuffle;
+              bootData.rows.forEach((row) => appendRow(row, s, true));
+              paintedBoot = true;
+              syncNative(s, true);
+            } else if (s.route.view !== "genres") {
+              s.client.fastOpening(s.route, s.config).then((fastRows) => {
+                if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
+                fastRows.forEach((row) => appendRow(row, s, true));
+                syncNative(s, true);
+              }).catch(() => {
+              });
+            }
+          }
+          const inv = await invPromise;
+          s.client.assertCurrent();
           s.inventory = inv;
           snapshots.set(cacheKey, { at: Date.now(), value: s.inventory });
           if (snapshots.size > 6) snapshots.delete(snapshots.keys().next().value);
@@ -5124,6 +5345,7 @@ a.fx-download-option.is-selected{
         const api = window.ApiClient, route = routeInfo(location.hash);
         syncSettings(api);
         syncLibraryViewMenu();
+        syncHomeModeAttr(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
           savedFeeds.clear();
@@ -5501,12 +5723,18 @@ a.fx-download-option.is-selected{
         clearTimeout(held.timer);
         if (!held.fired && held.node.isConnected) held.node.click();
       }
+      function onRouteEvent() {
+        syncLibraryViewMenu();
+        schedule();
+      }
       function start() {
         const style = element("style");
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
         patchLibraryViews();
+        syncLibraryViewMenu();
+        syncHomeModeAttr(window.ApiClient);
         if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
           const rh = element("script");
           rh.defer = true;
@@ -5517,13 +5745,21 @@ a.fx-download-option.is-selected{
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
+            return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu"));
+          })) {
+            hideLeavingSoonNav();
+          }
+          if (records.some((r) => {
+            var _a2, _b2;
             return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.rh-root,[data-sleekfin-header-proxy],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
           })) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
         document.addEventListener("click", navSuggestions, true);
-        window.addEventListener("hashchange", schedule);
-        document.addEventListener("viewshow", schedule);
+        window.addEventListener("hashchange", onRouteEvent);
+        window.addEventListener("popstate", onRouteEvent);
+        document.addEventListener("viewshow", onRouteEvent);
+        window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
         document.addEventListener("keydown", remoteKey, true);
         document.addEventListener("keyup", remoteKeyUp, true);
         document.addEventListener("focusin", rememberFocus);
@@ -5542,7 +5778,7 @@ a.fx-download-option.is-selected{
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2;
+          var _a2, _b2, _c2, _d2, _e2;
           stopped = true;
           clearTimeout(timer);
           clearInterval(heartbeat);
@@ -5551,16 +5787,20 @@ a.fx-download-option.is-selected{
           closeDownloadMenu();
           snapshots.clear();
           savedFeeds.clear();
+          (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-hide-count-chip");
+          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-home-mode");
           document.removeEventListener("click", navSuggestions, true);
-          window.removeEventListener("hashchange", schedule);
-          document.removeEventListener("viewshow", schedule);
+          window.removeEventListener("hashchange", onRouteEvent);
+          window.removeEventListener("popstate", onRouteEvent);
+          document.removeEventListener("viewshow", onRouteEvent);
           document.removeEventListener("scroll", scheduleScroll, true);
           window.removeEventListener("resize", scheduleScroll);
+          window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
-          (_a2 = document.getElementById("fx-discovery-style")) == null ? void 0 : _a2.remove();
+          (_e2 = document.getElementById("fx-discovery-style")) == null ? void 0 : _e2.remove();
           delete window.FazFortDiscovery;
         }
       };

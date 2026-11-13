@@ -786,7 +786,50 @@ function handleRemoteKey(e){
   }
  }
 }
+function hideLeavingSoonNav(){
+ try{
+  const raw=window.sessionStorage?.getItem?.('sleekfin:header-sources:v2');
+  if(raw&&/leaving\s+soon/i.test(raw)){
+   const parsed=JSON.parse(raw);
+   const keep=entry=>!/leaving\s+soon/i.test(String(entry?.caption||entry?.label||entry?.title||entry?.name||''));
+   if(Array.isArray(parsed)){
+    window.sessionStorage.setItem('sleekfin:header-sources:v2',JSON.stringify(parsed.filter(keep)));
+   }else if(parsed&&typeof parsed==='object'){
+    for(const k of Object.keys(parsed)){
+     if(Array.isArray(parsed[k]))parsed[k]=parsed[k].filter(keep);
+    }
+    window.sessionStorage.setItem('sleekfin:header-sources:v2',JSON.stringify(parsed));
+   }
+  }
+ }catch{}
+ let changed=false;
+ document.querySelectorAll('[data-sleekfin-header-proxy] button,[data-sleekfin-header-proxy] a,[data-sleekfin-header-overflow-drawer] button,[data-sleekfin-header-overflow-drawer] a,header button,header a,.mainDrawer a,.mainDrawer button,.MuiDrawer-root a,.MuiDrawer-root button,#user-view-overflow-menu a,#user-view-overflow-menu li,#user-view-overflow-menu [role="menuitem"]').forEach(node=>{
+  const text=(node.getAttribute('aria-label')||node.getAttribute('title')||node.textContent||'').trim();
+  if(!/leaving\s+soon/i.test(text))return;
+  if(node.getAttribute('data-fx-leaving-hidden')!=='true'){
+   node.setAttribute('data-fx-leaving-hidden','true');
+   changed=true;
+  }
+  if(node.style&&node.style.display!=='none')node.style.display='none';
+  if(!node.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]')){
+   if(!node.hidden)node.hidden=true;
+   if(!node.classList?.contains('hide'))node.classList?.add?.('hide');
+   const listItem=node.closest?.('.MuiDrawer-root .MuiListItem-root');
+   if(listItem&&listItem.getAttribute('data-fx-leaving-hidden')!=='true'){
+    listItem.setAttribute('data-fx-leaving-hidden','true');
+    listItem.hidden=true;
+    listItem.classList?.add?.('hide');
+   }
+  }
+ });
+ if(changed&&typeof Event==='function'){
+  const fire=()=>{try{window.dispatchEvent?.(new Event('resize'));}catch{}};
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(fire);
+  else setTimeout(fire,0);
+ }
+}
 function reconcile(){
+ hideLeavingSoonNav();
  const own=scope();
  if(session&&own!==session){
   permScope='';
@@ -845,8 +888,14 @@ function reconcile(){
 const css=el('style');
 css.textContent=`
 [data-rh-hidden=true]{display:none!important}
+[data-fx-leaving-hidden="true"],
+html body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted [data-sleekfin-header-proxy] [data-fx-leaving-hidden="true"],
 [data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
-[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i]{display:none!important}
+[data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[aria-label*="Leaving Soon" i]{display:none!important}
 .rh-source-btn[data-sleekfin-header-source-hidden="true"]{display:none!important}
 .rh-source-btn:not([data-sleekfin-header-source-hidden="true"]){position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important;opacity:0!important;pointer-events:none!important}
 html[data-rh-active="true"] #indexPage,
@@ -1487,6 +1536,9 @@ a.rh-nav[aria-current=page]{
 `;
 document.head.append(css);
 observer=new MutationObserver(records=>{
+ if(records.some(r=>r.type==='childList'&&r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu'))){
+  hideLeavingSoonNav();
+ }
  if(records.some(r=>!r.target?.closest?.('.rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage'))){
   clearTimeout(timer);
   timer=setTimeout(reconcile,80);
@@ -1495,6 +1547,7 @@ observer=new MutationObserver(records=>{
 observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
 window.addEventListener('hashchange',reconcile);
 window.addEventListener('popstate',reconcile);
+window.addEventListener('sleekfin:header-catalog-changed',hideLeavingSoonNav);
 document.addEventListener?.('viewshow',reconcile);
 document.addEventListener?.('pageshow',reconcile);
 document.addEventListener?.('keydown',handleRemoteKey,true);
@@ -1507,6 +1560,7 @@ window.JellyfinRequestHub={
   clearInterval(heartbeat);
   window.removeEventListener('hashchange',reconcile);
   window.removeEventListener('popstate',reconcile);
+  window.removeEventListener('sleekfin:header-catalog-changed',hideLeavingSoonNav);
   document.removeEventListener?.('viewshow',reconcile);
   document.removeEventListener?.('pageshow',reconcile);
   document.removeEventListener?.('keydown',handleRemoteKey,true);

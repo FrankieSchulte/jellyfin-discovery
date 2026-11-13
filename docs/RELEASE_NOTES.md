@@ -1,13 +1,11 @@
-Jellyfin Discovery 0.5.0 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.1 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.0):
-- Fix `#searchPage` search bar icon vertical alignment (`align-self: center !important`) and `"Suggestions"` heading red-bar spacing (`padding-left: 10px` without `.padded-left` page-gutter override).
-- Fix `#searchPage` typing freeze/crash by debouncing `useSearchParam` (`95988`) URL synchronization without React state ping-pong loops and capping `useSearchItems` (`42111`) section cards to 24 per category.
-- Hide `Movies (Leaving Soon)` (and any `Leaving Soon` library view) from the header bar, navigation drawer, and inventory views.
-- Add comfortable top spacing (`padding-top: 26px`) above the poster grids on `Movies -> Library`, `Movies -> Favorites`, `Shows -> Library`, `Shows -> Favorites`, `Collections -> Collections`, and `Collections -> Favorites`.
-- Eliminate the `Movies -> Genres` freeze by neutralizing hidden native React `suggestions`/`genres` queries and blurhash workers (`viewType: 'fx-suggestions'` / `'fx-genres'` in `95753`), skipping redundant per-row API hydration on Genres views, and reducing genre shelf clone copies.
-- Scroll to the top of the page when navigating via `"See More"` cards, header tabs, or library subpage view switchers.
+Discovery (0.5.1):
+- Eliminate the initial Home screen flash of `"Continue Watching / Next Up"` when a user's configured opening shelf starts with a custom category (`fastOpening` now respects `config.pages[page].opening` after loading profile preferences, extends cached boot-row TTL to 7 days, and hides native `.homeSectionsContainer` rows at frame 0 via CSS while preserving `.sleekfin-hero`).
+- Prevent `#loginPage` from bleeding into the background of `Collections` (`#boxsetsPage`) or other pages by scoping `#loginPage` flex rules to `:not(.hide):not(.hidePage):not([hidden])` and enforcing `display: none !important` when hidden.
+- Hide the total library item count chip (`.MuiChip-root`) on curated `Movies` (`tab=1`), `TV Shows` (`tab=1`), `Genres`, `Live TV`, `Home`, and `Search`, keeping it only on true grid views (`Library`, `Favorites`, `Collections`).
+- Overhaul `#searchPage` with `#searchPage#searchPage` specificity to override `sleekfin-media.css`: clean centered dark-glass search bar, dark-glass `"Suggestions"` card without 80px `.padded-left` offset, and flush search result category headers (`padding-block: 0 !important`) eliminating the empty top line and double-height red bar.
+- Permanently hide `Movies (Leaving Soon)` and `Shows (Leaving Soon)` from SleekFin's header proxy, overflow drawer, MUI drawer, and cached `sleekfin:header-sources:v2` entries, dispatching `resize` once to recalculate the header pill width.
 
-Request Hub (0.5.0):
-- Scroll to the top of the page when opening `Popular Movies` / `Popular Series` (`rhView=movies` / `rhView=tv`), genre/studio/network grids, or returning to the Discover overview.
-- Prevent `MutationObserver` feedback loops with the SleekFin header proxy and hide `Leaving Soon` header items.
+Request Hub (0.5.1):
+- Permanently hide `Movies (Leaving Soon)` and `Shows (Leaving Soon)` across SleekFin's header proxy, overflow drawer, and `sleekfin:header-sources:v2` session cache via `data-fx-leaving-hidden="true"` and immediate `MutationObserver` header syncing.

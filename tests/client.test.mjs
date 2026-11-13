@@ -57,3 +57,17 @@ test('resume groups episodes by series and retains the most recently resumed epi
     {Id:'film',Type:'Movie',Name:'Film'}],{items:[{Id:'show',Name:'Show',ImageTags:{Primary:'poster'},BackdropImageTags:['show-image']}]});
   assert.equal(result.length,2);assert.equal(result[0].Id,'show');assert.equal(result[0].ResumeItemId,'latest');assert.equal(result[0].Type,'Series');assert.deepEqual(result[0].BackdropImageTags,['show-image']);
 });
+test('fastOpening skips ContinueWatchingNextUp when first configured opening row is a custom rule',async()=>{
+  const {api}=apiFixture(()=>({Items:[]}));
+  let resumeCalls=0;
+  api.getJSON=async({p})=>{resumeCalls++;return p==='Items/Resume'?{Items:[{Id:id(1),Name:'Resume Film',Type:'Movie'}]}:{Items:[]};};
+  const client=new JellyfinClient(api);
+  const customConfig={cardsPerShelf:20,pages:{home:{opening:['rule:laugh','anchor:RecentlyAddedMovies'],anchors:['ContinueWatchingNextUp']}}};
+  assert.deepEqual(await client.fastOpening({page:'home',parentId:'',view:'home'},customConfig),[]);
+  assert.equal(resumeCalls,0);
+  const defaultConfig={cardsPerShelf:20,pages:{home:{opening:['anchor:ContinueWatchingNextUp','rule:laugh'],anchors:['ContinueWatchingNextUp']}}};
+  const fast=await client.fastOpening({page:'home',parentId:'',view:'home'},defaultConfig);
+  assert.equal(fast.length,1);
+  assert.equal(fast[0].key,'ContinueWatchingNextUp');
+  assert.ok(resumeCalls>=1);
+});

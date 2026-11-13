@@ -49,9 +49,12 @@ test('SleekFin header proxy receives Discover button before separator and regist
  const left=f.document.createElement('div');left.className='headerLeft';header.prepend(left);
  const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
  const homeBtn=f.document.createElement('button');homeBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:home');homeBtn.setAttribute('data-sleekfin-current','true');
+ const showsLeavingBtn=f.document.createElement('button');showsLeavingBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:view:shows-leaving');showsLeavingBtn.textContent='Shows (Leaving Soon)';
  const sep=f.document.createElement('span');sep.setAttribute('data-sleekfin-header-separator','true');
- proxy.append(homeBtn,sep);header.append(proxy);
+ proxy.append(showsLeavingBtn,homeBtn,sep);header.append(proxy);
  f.navigate('#/home?requesthub=discover');await f.settle();
+ assert.equal(showsLeavingBtn.getAttribute('data-fx-leaving-hidden'),'true');
+ assert.equal(showsLeavingBtn.style.display,'none');
  assert.ok(left.querySelector('#requesthub-discover-tab[data-rh-source="true"]'));
  const link=proxy.querySelector('[data-rh-link="true"]');
  assert.ok(link);

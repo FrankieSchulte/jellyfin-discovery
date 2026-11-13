@@ -50,9 +50,11 @@
 @supports not (aspect-ratio:16/9){.fx-card-visual{height:0;padding-bottom:56.25%}.fx-card-visual img{position:absolute;top:0;left:0}.fx-placeholder{top:30%;left:0;right:0}}
 @media(max-width:600px){.fx-discovery{padding:10px 16px 25px;padding-bottom:calc(25px + env(safe-area-inset-bottom,0px))}.fx-card-entry{width:72vw;flex-basis:72vw}.fx-toolbar{gap:7px}.fx-toolbar h2{width:100%;margin-bottom:5px}.fx-row-head h2{font-size:20px}.fx-dialog{padding:15px;max-height:85vh;max-height:85dvh}.fx-discovery button{padding:8px 10px}.fx-filter-field{flex:1 1 140px}.fx-similar-grid{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.fx-track{scroll-behavior:auto}}
-/* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS rows never flash. */
+/* Keep SleekFin's mount anchor visible; hide its native rows individually and immediately via CSS so late HSS/native rows never flash. */
 [data-fx-hero-anchor="true"]{min-height:1px}
-[data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections){display:none!important}
+[data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
+html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
+html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > .sections > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery){display:none!important}
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #26292e;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -192,6 +194,14 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child
 /* Remove Play All & Shuffle Buttons Across Library Pages (Movies -> Library, Shows -> Library, Collections -> Collections) */
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Play all" i],button[title="Shuffle" i],button[aria-label="Play all" i],button[aria-label="Shuffle" i]),
 :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,.libraryPage) :is(.btnPlayAll,.btnShuffle){
+  display:none!important;
+}
+
+/* Hide Total Library Item Count Chip on Curated Suggestions, Genres, Live TV, Home & Search (Keep Only on Library/Favorites/Collections Grids) */
+html[data-fx-hide-count-chip="true"] header.MuiAppBar-root .MuiChip-root,
+html:has(.fx-discovery:not(.fx-mode-full):not([hidden])) header.MuiAppBar-root .MuiChip-root,
+html:has(#boxsetsPage:not(.hide) .emby-scroller) header.MuiAppBar-root .MuiChip-root,
+html:has(#liveTvSuggestedPage:not(.hide),#liveTvPage:not(.hide)) header.MuiAppBar-root .MuiChip-root{
   display:none!important;
 }
 
@@ -549,151 +559,263 @@ html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{padding:6px 2px 0!important;font-weight:700!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
 
-/* Dedicated Search Page (#searchPage) Styled to Match SleekFin & Discovery Visual Identity */
+/* Dedicated Search Page (#searchPage) & Leaving Soon Nav Suppression */
 [data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"]{
   display:inline-flex!important;
 }
+[data-fx-leaving-hidden="true"],
+html body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted body [data-fx-leaving-hidden="true"],
+html.sleekfin-header-mounted [data-sleekfin-header-proxy] [data-fx-leaving-hidden="true"],
 [data-sleekfin-header-proxy] :is(button,a)[title*="Leaving Soon" i],
 [data-sleekfin-header-proxy] :is(button,a)[aria-label*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[title*="Leaving Soon" i],
+[data-sleekfin-header-overflow-drawer] :is(button,a)[aria-label*="Leaving Soon" i],
 header :is(button,a)[title*="Leaving Soon" i],
 header :is(button,a)[aria-label*="Leaving Soon" i],
 .mainDrawer :is(button,a)[title*="Leaving Soon" i],
-.mainDrawer :is(button,a)[aria-label*="Leaving Soon" i]{
+.mainDrawer :is(button,a)[aria-label*="Leaving Soon" i],
+.MuiDrawer-root :is(button,a)[title*="Leaving Soon" i],
+.MuiDrawer-root :is(button,a)[aria-label*="Leaving Soon" i],
+#user-view-overflow-menu :is(a,li)[title*="Leaving Soon" i],
+#user-view-overflow-menu :is(a,li)[aria-label*="Leaving Soon" i]{
   display:none!important;
 }
-html:not(:has(header.MuiAppBar-root)) #searchPage{
-  padding-top:calc(var(--sleekfin-header-height,72px) + 18px)!important;
+#searchPage:is(.hide,.hidePage,[hidden]){
+  display:none!important;
 }
-html:has(header.MuiAppBar-root) #searchPage{
-  padding-top:18px!important;
+html:not(:has(header.MuiAppBar-root)) #searchPage#searchPage{
+  padding-top:calc(var(--sleekfin-header-height,80px) + 16px)!important;
+}
+html:has(header.MuiAppBar-root) #searchPage#searchPage{
+  padding-top:16px!important;
   margin-top:0!important;
 }
-#searchPage{
+#searchPage#searchPage{
   background:var(--sleekfin-bg,#070809)!important;
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFields{
-  padding:8px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 20px!important;
+#searchPage#searchPage .alphaPicker:empty{
+  display:none!important;
+}
+#searchPage#searchPage .searchFields{
+  padding:6px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 24px!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin:0!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFieldsInner{
+#searchPage#searchPage .searchFieldsInner{
   display:flex!important;
+  flex-direction:row!important;
   align-items:center!important;
-  gap:10px!important;
-  max-width:560px!important;
+  justify-content:flex-start!important;
+  gap:12px!important;
+  max-width:640px!important;
   width:100%!important;
+  height:50px!important;
+  min-height:50px!important;
   margin:0 auto!important;
-  padding:4px 16px!important;
-  background:#141519!important;
-  border:1px solid rgba(255,255,255,.14)!important;
+  padding:0 18px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),rgba(20,21,25,.92)!important;
+  border:1px solid rgba(255,255,255,.13)!important;
   border-radius:999px!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.06),0 12px 32px -8px rgba(0,0,0,.55)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 14px 34px -10px rgba(0,0,0,.6)!important;
   transition:border-color .16s ease,box-shadow .16s ease!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchFieldsInner:focus-within{
+#searchPage#searchPage .searchFieldsInner:focus-within{
   border-color:var(--sleekfin-accent,#e50914)!important;
-  box-shadow:0 0 0 3px rgba(229,9,20,.2),0 12px 32px -8px rgba(0,0,0,.6)!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22),0 14px 34px -10px rgba(0,0,0,.68)!important;
 }
-#searchPage .searchFieldsInner .searchfields-icon{
-  color:rgba(255,255,255,.68)!important;
-  font-size:20px!important;
+#searchPage#searchPage .searchFieldsInner .searchfields-icon{
+  color:rgba(255,255,255,.65)!important;
+  font-size:22px!important;
+  width:22px!important;
+  height:22px!important;
   margin:0!important;
+  padding:0!important;
   position:static!important;
-  flex-shrink:0!important;
+  transform:none!important;
+  top:auto!important;
+  bottom:auto!important;
+  flex:0 0 22px!important;
   -webkit-align-self:center!important;
   align-self:center!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
   line-height:1!important;
-  height:auto!important;
 }
-#searchPage .searchFieldsInner .inputContainer{
-  flex:1!important;
+#searchPage#searchPage .searchFieldsInner:focus-within .searchfields-icon{
+  color:#fff!important;
+}
+#searchPage#searchPage .searchFieldsInner .inputContainer{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  width:auto!important;
+  height:100%!important;
   margin:0!important;
-  width:100%!important;
+  padding:0!important;
   display:flex!important;
   align-items:center!important;
-}
-#searchPage .searchFieldsInner .inputLabel{
-  display:none!important;
-}
-#searchPage :is(#searchTextInput,input.searchfields-txtSearch,.searchFieldsInner input){
   background:transparent!important;
   border:0!important;
+  box-shadow:none!important;
+}
+#searchPage#searchPage .searchFieldsInner .inputLabel{
+  display:none!important;
+}
+#searchPage#searchPage :is(#searchTextInput,input.emby-input,input.searchfields-txtSearch,.searchFieldsInner input){
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
   outline:0!important;
   box-shadow:none!important;
   color:#fff!important;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
-  font-size:15px!important;
+  font-size:15.5px!important;
   font-weight:500!important;
-  min-height:40px!important;
-  padding:6px 4px!important;
+  line-height:1.3!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
   width:100%!important;
   box-sizing:border-box!important;
 }
-#searchPage :is(#searchTextInput,input.searchfields-txtSearch,.searchFieldsInner input)::placeholder{
+#searchPage#searchPage :is(#searchTextInput,input.emby-input,input.searchfields-txtSearch,.searchFieldsInner input)::placeholder{
   color:rgba(255,255,255,.48)!important;
 }
-#searchPage .searchSuggestions{
+#searchPage#searchPage .searchSuggestions{
   max-width:960px!important;
-  margin:8px auto 32px!important;
-  padding:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
-  text-align:center!important;
+  width:calc(100% - 2 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)))!important;
+  margin:4px auto 40px!important;
+  padding:22px 26px 24px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),rgba(17,18,22,.84)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:16px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.05),0 16px 40px -12px rgba(0,0,0,.55)!important;
+  text-align:left!important;
   box-sizing:border-box!important;
 }
-#searchPage .searchSuggestions :is(h2,.sectionTitle){
-  display:inline-flex!important;
-  align-items:center!important;
-  width:max-content!important;
-  max-width:100%!important;
-  margin:0 auto 18px!important;
-  padding-left:10px!important;
-  padding-inline-start:10px!important;
-  padding-right:0!important;
-  padding-inline-end:0!important;
+#searchPage#searchPage .searchSuggestions > div:first-child{
+  margin:0 0 16px!important;
+  padding:0!important;
+  text-align:left!important;
 }
-#searchPage .searchSuggestionsList{
+#searchPage#searchPage .searchSuggestions :is(h2,.sectionTitle,.sectionTitle.padded-left){
+  display:block!important;
+  width:auto!important;
+  max-width:100%!important;
+  font-size:22px!important;
+  line-height:28px!important;
+  font-weight:600!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  margin:0!important;
+  padding:0 0 0 10px!important;
+  padding-block:0!important;
+  padding-inline:10px 0!important;
+  text-align:left!important;
+}
+#searchPage#searchPage .searchSuggestionsList{
   display:flex!important;
   flex-wrap:wrap!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
   gap:10px!important;
+  margin:0!important;
   padding:0!important;
+  padding-inline:0!important;
 }
-#searchPage .searchSuggestionsList > div{
+#searchPage#searchPage .searchSuggestionsList > div{
   margin:0!important;
   display:inline-flex!important;
 }
-#searchPage .searchSuggestionsList a,
-#searchPage .searchSuggestions a.button-link{
+#searchPage#searchPage .searchSuggestionsList a,
+#searchPage#searchPage .searchSuggestions a.button-link{
   display:inline-flex!important;
   align-items:center!important;
   padding:8px 16px!important;
   margin:0!important;
   border-radius:999px!important;
-  background:#16181b!important;
-  border:1px solid #26292e!important;
-  color:rgba(255,255,255,.86)!important;
+  background:rgba(255,255,255,.055)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  color:rgba(255,255,255,.88)!important;
   text-decoration:none!important;
   font-size:13.5px!important;
   font-weight:500!important;
+  line-height:1.25!important;
   transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease!important;
 }
-#searchPage .searchSuggestionsList a:hover,
-#searchPage .searchSuggestions a.button-link:hover{
-  background:rgba(229,9,20,.18)!important;
+#searchPage#searchPage .searchSuggestionsList a:hover,
+#searchPage#searchPage .searchSuggestions a.button-link:hover{
+  background:rgba(229,9,20,.2)!important;
   border-color:var(--sleekfin-accent,#e50914)!important;
   color:#fff!important;
   transform:translateY(-1px)!important;
 }
-#searchPage .searchResults .verticalSection{
-  margin-bottom:28px!important;
+#searchPage#searchPage .searchResults{
+  padding:4px 0 56px!important;
+  margin:0!important;
 }
-#searchPage .searchResults :is(.sectionTitleContainer,.sectionTitleContainer-cards){
-  padding-top:8px!important;
-  margin-bottom:14px!important;
+#searchPage#searchPage .searchResults .verticalSection{
+  position:relative!important;
+  margin:0 0 28px!important;
+  padding:0!important;
+}
+#searchPage#searchPage .searchResults :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+  padding:0!important;
+  padding-block:0!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  margin:0 0 14px!important;
+}
+#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards){
+  display:block!important;
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:600!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  margin:0 calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 116px) 14px var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding:0 0 0 10px!important;
+  padding-block:0!important;
+  padding-inline:10px 0!important;
+}
+#searchPage#searchPage .searchResults .verticalSection > :is(h2,.sectionTitle,.sectionTitle-cards)::before{
+  display:none!important;
+  content:none!important;
+}
+#searchPage#searchPage .searchResults .emby-scrollbuttons{
+  position:absolute!important;
+  top:0!important;
+  right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+  left:auto!important;
+  height:32px!important;
+  min-height:32px!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  z-index:2!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller{
+  margin:0 calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px) 0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding:4px 0 12px!important;
+  padding-inline:0!important;
+  box-sizing:border-box!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller .itemsContainer{
+  column-gap:14px!important;
+  gap:14px!important;
+}
+#searchPage#searchPage .searchResults .emby-scroller .itemsContainer > :is(.squareCard,.overflowSquareCard){
+  width:clamp(135px,14vw,195px)!important;
+  flex:0 0 clamp(135px,14vw,195px)!important;
+  max-width:clamp(135px,14vw,195px)!important;
 }
 
 /* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button) */
@@ -762,7 +884,10 @@ a.fx-download-option.is-selected{
 }
 
 /* Sign-In Page (#loginPage) Styled to Match SleekFin & Discovery Monochrome Dark Glass UI */
-#loginPage{
+#loginPage:is(.hide,.hidePage,[hidden]){
+  display:none!important;
+}
+#loginPage:not(.hide):not(.hidePage):not([hidden]){
   background:radial-gradient(circle at 50% 18%,rgba(229,9,20,.12),transparent 52%),var(--sleekfin-bg,#070809)!important;
   min-height:100vh!important;
   display:flex!important;
