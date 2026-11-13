@@ -247,11 +247,15 @@ test('SleekFin jellyfin:view header buttons navigate to Suggestions and close si
   assert.equal(drawer.classList.contains('drawer-open'),false);
   f.ctx.window.FazFortDiscovery.stop();
 });
-test('Home controls move to the user profile and stay open through reconciliation',async()=>{
+test('Settings menu omits separate Discovery row while Customize dialog stays open through reconciliation',async()=>{
   const f=fixture();await f.settle();assert.equal(f.document.querySelector('.fx-toolbar').hidden,true);
-  const profile=f.document.createElement('div');profile.className='userPreferencesPage';f.document.body.append(profile);f.document.getElementById('indexPage').classList.add('hide');
-  f.navigate('#/mypreferencesmenu');await f.settle();assert.ok(profile.querySelector('[data-fx-settings-link]'));
-  profile.querySelector('button').click();await f.settle();assert.ok(f.document.querySelector('#fx-customize'));
+  const profile=f.document.createElement('div');profile.id='myPreferencesMenuPage';profile.className='userPreferencesPage';
+  const staleLink=f.document.createElement('button');staleLink.setAttribute('data-fx-settings-link','true');profile.append(staleLink);
+  f.document.body.append(profile);f.document.getElementById('indexPage').classList.add('hide');
+  f.navigate('#/mypreferencesmenu');await f.settle();
+  assert.equal(profile.querySelector('[data-fx-settings-link]'),null);
+  await f.ctx.window.FazFortDiscovery.openSettings();
+  await f.settle();assert.ok(f.document.querySelector('#fx-customize'));
   f.navigate('#/mypreferencesmenu');await f.settle();assert.ok(f.document.querySelector('#fx-customize'));f.ctx.window.FazFortDiscovery.stop();
 });
 test('category arrows wrap at either horizontal edge and remote navigation loops cards',async()=>{
@@ -368,8 +372,34 @@ test('React library pages without pageTabContent mount discovery, customize drop
   await f.settle();
   assert.equal(nativeDownloaded.length,1);
   assert.equal(nativeDownloaded[0].filename,'Weapons.mp4');
+  assert.equal(nativeDownloaded[0].item?.Container,'mp4');
+  assert.equal(nativeDownloaded[0].item?.Path,'Weapons.mp4');
   assert.ok(nativeDownloaded[0].url.includes('VideoBitRate=1600000'));
   assert.equal(f.document.querySelector('.fx-toast.is-visible')?.textContent,'Added to Jellyfin Downloads');
+
+  const prevGetJson=f.api.getJSON;
+  const prevGetUrl=f.api.getUrl;
+  f.api.getUrl=(p,q)=>q?`/${p}?${new URLSearchParams(q).toString()}`:`/${p}`;
+  f.api.getJSON=async reqUrl=>{
+    if(String(reqUrl).includes('Items/movie-weapons'))return {Id:'movie-weapons',Name:'Weapons',Container:'mkv',MediaSources:[{Id:'ms1',Container:'mkv',MediaStreams:[{Type:'Video',Codec:'h264'},{Type:'Audio',Codec:'eac3'}]}]};
+    return prevGetJson({p:String(reqUrl).replace(/^\//,'')});
+  };
+  dlBtn.click();
+  await f.settle();
+  const mobileDlMenu=f.document.querySelector('.fx-download-menu.is-open');
+  assert.ok(mobileDlMenu);
+  const mobileDlLinks=[...mobileDlMenu.querySelectorAll('button.fx-download-option')];
+  assert.ok(mobileDlLinks[0].dataset.downloadUrl.includes('Static=false'));
+  assert.ok(mobileDlLinks[0].dataset.downloadUrl.includes('AllowVideoStreamCopy=true'));
+  mobileDlLinks[0].click();
+  await f.settle();
+  assert.equal(nativeDownloaded.length,2);
+  assert.ok(nativeDownloaded[1].url.includes('AllowVideoStreamCopy=true'));
+  assert.equal(nativeDownloaded[1].item?.Container,'mp4');
+  assert.equal(nativeDownloaded[1].item?.MediaSources?.[0]?.Container,'mp4');
+  f.api.getJSON=prevGetJson;
+  f.api.getUrl=prevGetUrl;
+  delete f.ctx.window.NativeShell;
 
   const seasonWrap=f.document.createElement('div');seasonWrap.className='sleekfin-details-season-select';
   const seasonSel=f.document.createElement('select');
@@ -464,14 +494,21 @@ test('count chip and curated-tab attributes toggle on curated routes, clear acti
   assert.equal(f.document.documentElement.hasAttribute('data-fx-home-mode'),false);
 });
 
-test('Settings integrates Discovery row inside verticalSection, mounts inline studio on Settings -> Home, filters Leaving Soon, wires mobile overflow Settings, and handles OSD touch gestures',async()=>{
+test('Settings consolidates Customize Home inside Settings -> Home, styles Display settings, adds mobile bottom Search & SVG Settings, and locks OSD playback without pause or iOS fullscreen',async()=>{
   const f=fixture();await f.settle();
   const cssText=f.document.getElementById('fx-discovery-style')?.textContent||'';
   assert.ok(cssText.includes('header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)'));
   assert.ok(cssText.includes('.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"]'));
   assert.ok(cssText.includes('#itemDetailPage .mainDetailButtons.sleekfin-details-actions'));
+  assert.ok(cssText.includes('#displayPreferencesPage button[type="submit"]'));
+  assert.ok(cssText.includes('#homeScreenPreferencesPage .fx-inline-studio'));
+  assert.ok(cssText.includes('#videoOsdPage:not(.hide):not(.hidePage):not([hidden])'));
+  assert.ok(cssText.includes('#itemDetailPage:not(.hide):not(.hidePage):not([hidden])'));
   assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="top"].is-visible'));
   assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="right"].is-visible'));
+
+  const firstShelf=f.document.querySelector('.fx-shelf');
+  assert.equal(firstShelf?.dataset?.shelfKey,'ContinueWatchingNextUp');
 
   f.document.getElementById('indexPage').classList.add('hide');
 
@@ -483,10 +520,7 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   section.append(profileRow,homeRow,playbackRow);menuPage.append(section);f.document.body.append(menuPage);
 
   f.navigate('#/mypreferencesmenu');await f.settle();
-  const discRow=section.querySelector('button.listItem-border.fx-settings-menu-row[data-fx-settings-link="true"]');
-  assert.ok(discRow);
-  assert.equal(homeRow.nextElementSibling,discRow);
-  assert.equal(discRow.querySelector('.listItemBodyText')?.textContent,'Discovery');
+  assert.equal(section.querySelector('[data-fx-settings-link]'),null);
 
   menuPage.classList.add('hide');
   const homePref=f.document.createElement('div');homePref.id='homeScreenPreferencesPage';homePref.className='page homeScreenPreferencesPage';
@@ -500,11 +534,18 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   const inlineStudio=readOnly.querySelector('[data-fx-home-studio="true"]');
   assert.ok(inlineStudio);
   assert.ok(inlineStudio.classList.contains('fx-inline-studio'));
+  assert.equal(inlineStudio.querySelector('.fx-home-studio-head.verticalSection h1')?.textContent,'Customize Home');
+  assert.ok(inlineStudio.querySelector('.fx-home-studio-save.verticalSection'));
   assert.ok(inlineStudio.querySelector('.fx-visual-editor'));
   assert.ok(form.closest('details.fx-legacy-home-settings'));
   assert.equal(leavingViewItem.getAttribute('data-fx-leaving-hidden'),'true');
   assert.equal(leavingViewItem.style.display,'none');
   assert.equal(normalViewItem.getAttribute('data-fx-leaving-hidden'),null);
+
+  const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
+  const homeTab=f.document.createElement('button');homeTab.setAttribute('data-sleekfin-header-proxy-item','jellyfin:home');
+  const overflowToggle=f.document.createElement('button');overflowToggle.setAttribute('data-sleekfin-header-overflow-toggle','true');
+  proxy.append(homeTab,overflowToggle);f.document.body.append(proxy);
 
   const drawer=f.document.createElement('div');drawer.setAttribute('data-sleekfin-header-overflow-drawer','true');
   const drawerList=f.document.createElement('div');
@@ -513,17 +554,32 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   drawerList.append(colBtn,searchBtn);drawer.append(drawerList);f.document.body.append(drawer);
 
   f.navigate('#/home');await f.settle();
+  const mobileSearchBtn=proxy.querySelector('[data-fx-mobile-search="true"]');
+  assert.ok(mobileSearchBtn);
+  assert.equal(mobileSearchBtn.nextElementSibling,overflowToggle);
+  assert.ok(mobileSearchBtn.querySelector('svg'));
+  mobileSearchBtn.click();
+  assert.equal(f.location.hash,'#/search');
+
   const overflowSettings=drawer.querySelector('[data-fx-overflow-settings="true"]');
   assert.ok(overflowSettings);
+  assert.equal(overflowSettings.getAttribute('data-sleekfin-header-overflow-full'),'true');
+  assert.ok(overflowSettings.querySelector('.fx-overflow-svg-icon svg'));
   assert.equal(overflowSettings.nextElementSibling,searchBtn);
   menuPage.classList.remove('hide');
   overflowSettings.click();
   assert.equal(f.location.hash,'#/mypreferencesmenu');
 
+  f.ctx.window.NativeShell={};
   const osd=f.document.createElement('div');osd.id='videoOsdPage';osd.className='page';
   const video=f.document.createElement('video');video.className='htmlvideoplayer';
   video.currentTime=20;video.duration=120;video.playbackRate=1;
-  Object.defineProperty(video,'paused',{configurable:true,get:()=>false});
+  let videoPaused=false;
+  let playCalls=0;
+  let enteredNativeFs=false;
+  video.play=()=>{videoPaused=false;playCalls++;return Promise.resolve();};
+  video.webkitEnterFullscreen=()=>{enteredNativeFs=true;};
+  Object.defineProperty(video,'paused',{configurable:true,get:()=>videoPaused});
   osd.append(video);f.document.body.append(osd);
   f.ctx.window.innerWidth=400;
 
@@ -539,11 +595,23 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   };
 
   fireTouch('touchstart',320,180);
+  const dragEv=fireTouch('touchmove',320,240);
+  assert.equal(dragEv.defaultPrevented,true);
+  fireTouch('touchend',320,180);
+
+  fireTouch('touchstart',320,180);
   fireTouch('touchend',320,180);
   fireTouch('touchstart',322,182);
   fireTouch('touchend',322,182);
   assert.equal(video.currentTime,30);
   assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'+10s ▸▸');
+  assert.equal(video.playsInline,true);
+  video.webkitEnterFullscreen();
+  assert.equal(enteredNativeFs,false);
+
+  const dblEv=new f.ctx.document.defaultView.Event('dblclick',{bubbles:true,cancelable:true});
+  video.dispatchEvent(dblEv);
+  assert.equal(dblEv.defaultPrevented,true);
 
   fireTouch('touchstart',324,180);
   fireTouch('touchend',324,180);
@@ -561,9 +629,24 @@ test('Settings integrates Discovery row inside verticalSection, mounts inline st
   f.flushTimeouts(320);
   assert.equal(video.playbackRate,2);
   assert.equal(f.document.querySelector('.fx-osd-gesture-pill.is-visible')?.textContent,'2× Speed ▸▸');
+  videoPaused=true;
+  const playCallsBefore=playCalls;
+  video.dispatchEvent(new f.ctx.document.defaultView.Event('pause'));
+  assert.ok(playCalls>playCallsBefore);
+  assert.equal(videoPaused,false);
+  const holdDrag=fireTouch('touchmove',360,260);
+  assert.equal(holdDrag.defaultPrevented,true);
+  assert.equal(video.playbackRate,2);
   fireTouch('touchend',360,180);
   assert.equal(video.playbackRate,1);
 
+  fireTouch('touchstart',40,180);
+  f.flushTimeouts(320);
+  assert.equal(video.playbackRate,2);
+  fireTouch('touchend',40,180);
+  assert.equal(video.playbackRate,1);
+
+  delete f.ctx.window.NativeShell;
   f.ctx.window.FazFortDiscovery.stop();
 });
 

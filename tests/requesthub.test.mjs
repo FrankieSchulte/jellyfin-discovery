@@ -113,8 +113,11 @@ test('Discover hides unreleased titles, replaces top-left title and deselects he
  f.stop();
 });
 
-test('mobile viewport keeps Discover out of bottom header proxy and wires Discover after Collections in overflow drawer',async()=>{
+test('mobile viewport keeps Discover out of bottom header proxy, wires Discover before Collections & Live TV in overflow drawer, and uses crisp SVG icon',async()=>{
  const f=fixture({hash:'#/home',mobile:true});
+ const cssText=f.document.querySelector('head style')?.textContent||'';
+ assert.ok(cssText.includes('html:not(.layout-tv) .rh-root :is(button,.rh-card,.rh-media-card,.rh-chip,.rh-row-arrow):is(:focus,:focus-visible,:active)'));
+ assert.ok(cssText.includes('border:2px solid rgba(255,255,255,0.24)'));
  const header=f.document.querySelector('header');
  header.className='skinHeader';
  const proxy=f.document.createElement('div');proxy.setAttribute('data-sleekfin-header-proxy','true');
@@ -136,7 +139,8 @@ test('mobile viewport keeps Discover out of bottom header proxy and wires Discov
  assert.equal(proxy.querySelector('[data-sleekfin-header-proxy-item="requesthub:discover"]'),null);
  const overflowDiscover=drawer.querySelector('[data-sleekfin-header-overflow-item="requesthub:discover"]');
  assert.ok(overflowDiscover);
- assert.equal(collectionsItem.nextElementSibling,overflowDiscover);
+ assert.equal(overflowDiscover.nextElementSibling,collectionsItem);
+ assert.ok(overflowDiscover.querySelector('.rh-compass-icon svg'));
  assert.equal(overflowDiscover.dataset.sleekfinCurrent,'true');
  f.stop();
 });

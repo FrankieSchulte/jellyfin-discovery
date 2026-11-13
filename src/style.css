@@ -162,7 +162,18 @@ header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) + div[aria-hidd
   height:0!important;
   min-height:0!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+@media(min-width:900px){
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child{
+    min-height:var(--sleekfin-header-height,80px)!important;
+  }
+}
+html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{
+  min-height:54px!important;
+  padding-top:12px!important;
+  padding-bottom:8px!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
   display:none!important;
@@ -177,6 +188,8 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{
   color:#fff!important;
   border-left:3px solid var(--sleekfin-accent,#e50914)!important;
   padding:2px 12px 2px 10px!important;
+  margin-left:0!important;
+  margin-inline-start:0!important;
   border-radius:0 10px 10px 0!important;
   text-transform:none!important;
   letter-spacing:normal!important;
@@ -578,8 +591,13 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSu
   margin:0!important;
 }
 
-html:not(:has(header.MuiAppBar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
-html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage){padding-top:0!important;margin-top:0!important}
+@media(min-width:900px){
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+    padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important;
+  }
+}
+html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage){padding-top:0!important;margin-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{padding:6px 2px 0!important;font-weight:700!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
@@ -609,10 +627,13 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
-html:not(:has(header.MuiAppBar-root)) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,80px) + 16px)!important;
+@media(min-width:900px){
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+    padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
+    margin-top:0!important;
+  }
 }
-html:has(header.MuiAppBar-root) #searchPage#searchPage{
+html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #searchPage#searchPage{
   padding-top:16px!important;
   margin-top:0!important;
 }
@@ -1214,13 +1235,21 @@ a.fx-download-option.is-selected{
 }
 
 /* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
-:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
-:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage){
+  padding-top:0!important;
+  margin-top:0!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
   max-width:1040px!important;
   width:100%!important;
   margin:0 auto!important;
-  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  padding:20px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
   box-sizing:border-box!important;
+}
+@media(min-width:900px){
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
+    padding:calc(var(--sleekfin-header-height,80px) + 20px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  }
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
   background:#101113!important;
@@ -1276,6 +1305,111 @@ a.fx-download-option.is-selected{
   padding:10px 20px!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
+  background:#f6121d!important;
+}
+
+/* Unify Settings -> Home (#homeScreenPreferencesPage) & Settings -> Display (#displayPreferencesPage, React/MUI) Card Boundaries */
+#homeScreenPreferencesPage .fx-inline-studio{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0 0 20px!important;
+  box-shadow:none!important;
+}
+#homeScreenPreferencesPage .fx-home-studio-head > p{
+  margin:0!important;
+  color:rgba(255,255,255,.72)!important;
+}
+#homeScreenPreferencesPage .fx-editor-tabs{
+  position:static!important;
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:14px 18px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+}
+#homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced){
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+}
+#homeScreenPreferencesPage .fx-home-studio-save .fx-dialog-actions{
+  margin-top:0!important;
+}
+#displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+  box-sizing:border-box!important;
+}
+#displayPreferencesPage :is(.MuiTypography-h1,.MuiTypography-h2,.MuiTypography-h5,h2){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 0 16px!important;
+}
+#displayPreferencesPage :is(.MuiOutlinedInput-root,.MuiFilledInput-root){
+  background:#0b0b0c!important;
+  color:#f1f2f4!important;
+  border-radius:10px!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-notchedOutline{
+  border-color:#26292e!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline{
+  border-color:rgba(255,255,255,.24)!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline{
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  border-width:1px!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
+}
+#displayPreferencesPage :is(.MuiSelect-select,.MuiInputBase-input){
+  color:#f1f2f4!important;
+}
+#displayPreferencesPage .MuiInputLabel-root{
+  color:rgba(255,255,255,.72)!important;
+}
+#displayPreferencesPage .MuiInputLabel-root.Mui-focused{
+  color:#fff!important;
+}
+#displayPreferencesPage .MuiFormControlLabel-label{
+  color:#f1f2f4!important;
+  font-size:14.5px!important;
+}
+#displayPreferencesPage .MuiFormHelperText-root{
+  color:rgba(255,255,255,.58)!important;
+}
+#displayPreferencesPage .MuiCheckbox-root{
+  color:rgba(255,255,255,.55)!important;
+}
+#displayPreferencesPage .MuiCheckbox-root.Mui-checked{
+  color:var(--sleekfin-accent,#e50914)!important;
+}
+#displayPreferencesPage button[type="submit"]{
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid #ff2c37!important;
+  color:#fff!important;
+  font-weight:700!important;
+  border-radius:10px!important;
+  min-height:42px!important;
+  padding:10px 22px!important;
+  text-transform:none!important;
+  box-shadow:none!important;
+  align-self:flex-start!important;
+}
+#displayPreferencesPage button[type="submit"]:hover{
   background:#f6121d!important;
 }
 
@@ -1441,21 +1575,107 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Mobile Layout, Bottom Nav Priority, Overflow Prevention, Compact Cards & Detail Button Alignment */
+/* Lock Video Playback (#videoOsdPage) in Place & Block Native iOS Fullscreen Entry */
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])),
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) body{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+#videoOsdPage:not(.hide):not(.hidePage):not([hidden]),
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) .videoPlayerContainer{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+}
+#videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
+  touch-action:pan-x!important;
+}
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+}
+@media(max-width:899px),(hover:none) and (pointer:coarse),(max-height:520px) and (pointer:coarse){
+  #videoOsdPage .btnFullscreen{
+    display:none!important;
+  }
+}
+
+/* Mobile Search Button on Bottom Bar & Overflow Menu Icon Parity */
+@media(min-width:900px){
+  .fx-mobile-search-btn{
+    display:none!important;
+  }
+}
+[data-sleekfin-header-overflow-drawer] button[data-sleekfin-header-overflow-item],
+[data-sleekfin-header-overflow-drawer] a[data-sleekfin-header-overflow-item]{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+[data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-visual]{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  min-width:18px!important;
+  min-height:18px!important;
+  line-height:1!important;
+}
+[data-sleekfin-header-overflow-drawer] button[data-sleekfin-header-overflow-full="true"] [data-sleekfin-header-overflow-visual]{
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+  justify-content:center!important;
+  gap:0!important;
+}
+[data-sleekfin-header-overflow-drawer] :is([data-sleekfin-header-source-icon],.fx-overflow-svg-icon,.rh-compass-icon,.rh-discover-svg-icon){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+[data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-visual] :is(svg,img){
+  width:18px!important;
+  height:18px!important;
+  font-size:18px!important;
+  flex:0 0 18px!important;
+  display:block!important;
+  margin:0!important;
+}
+
+/* Mobile Layout, Bottom Nav Priority, Scroll Restoration, Compact Cards & Detail Button Alignment */
 @media(max-width:899px){
   html,body{
     max-width:100%;
-    overflow-x:clip;
+    overflow-x:hidden;
   }
   .mainAnimatedPages,
-  .page:not(#videoOsdPage),
+  .page:not(#videoOsdPage):not(#itemDetailPage),
   #indexPage,
   #moviesPage,
   #tvshowsPage,
   #tvRecommendedPage,
   #boxsetsPage,
   #searchPage,
-  #itemDetailPage,
   #userProfilePage,
   #myPreferencesMenuPage,
   #quickConnectPreferencesPage,
@@ -1467,16 +1687,45 @@ button.fx-settings-menu-row .listItemBodyText{
   .userPreferencesPage{
     max-width:100vw!important;
     box-sizing:border-box!important;
-    overflow-x:clip!important;
+    overflow-x:hidden;
   }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
-    padding:16px 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
+  /* Restore Smooth Vertical Momentum Scroll on #itemDetailPage on Mobile (SleekFin locks body overflow: hidden) */
+  #itemDetailPage:not(.hide):not(.hidePage):not([hidden]),
+  html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details]:not(.hide):not(.hidePage):not([hidden]){
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    max-width:100vw!important;
+    height:100vh!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+    box-sizing:border-box!important;
+  }
+  #itemDetailPage :is([is="emby-scroller"],.emby-scroller,.sleekfin-details-episode-list,#castContent){
+    touch-action:pan-x pan-y!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
+    padding:calc(22px + env(safe-area-inset-top,0px)) 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
     max-width:100%!important;
   }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection),
+  #homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced),
+  #displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
     padding:16px!important;
     max-width:100%!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
+    margin-top:0!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
   }
   .fx-discovery{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
@@ -1488,32 +1737,75 @@ button.fx-settings-menu-row .listItemBodyText{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
-    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+    padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important;
   }
-  /* Prioritize Home, Movies, and Shows on the Mobile Bottom Bar; Overflow Collections, Discover, Live TV & Settings into Menu */
+  /* Prioritize Home, Movies, Shows + Search + ^ on Mobile Bottom Bar; Overflow Discover, Collections, Live TV & Settings into ^ Menu */
   html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy]{
-    max-width:min(calc(100vw - 20px),348px)!important;
+    max-width:min(calc(100vw - 16px),376px)!important;
   }
-  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])){
-    height:auto!important;
-    min-height:10px!important;
-    padding-top:env(safe-area-inset-top,0px)!important;
-    padding-bottom:0!important;
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item]{
+    padding-inline:10px!important;
+  }
+  .fx-mobile-search-btn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:var(--sleekfin-header-item-height,32px)!important;
+    height:var(--sleekfin-header-item-height,32px)!important;
+    min-width:var(--sleekfin-header-item-height,32px)!important;
+    min-height:var(--sleekfin-header-item-height,32px)!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:8px!important;
+    background:transparent!important;
+    color:var(--sleekfin-header-item-text,rgba(255,255,255,.72))!important;
+    cursor:pointer!important;
+    flex:0 0 auto!important;
+  }
+  .fx-mobile-search-btn[data-sleekfin-current="true"],
+  .fx-mobile-search-btn[aria-current="page"]{
+    background:var(--sleekfin-header-active-background,rgba(255,255,255,.12))!important;
+    color:var(--sleekfin-header-active-text,#fff)!important;
+  }
+  .fx-mobile-search-btn svg{
+    width:16px!important;
+    height:16px!important;
+    display:block!important;
+  }
+  [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"]{
+    display:none!important;
+  }
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child:not(:has([data-sleekfin-header-brand])){
+    height:0!important;
+    min-height:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+  html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{
+    padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+    padding-bottom:6px!important;
   }
 }
 @media(max-width:360px){
-  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-zone="tabs"]{
-    padding-inline:9px!important;
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item]{
+    padding-inline:8px!important;
     font-size:12px!important;
   }
 }
 
 @media(max-width:768px){
+  html.sleekfin-main-ui:root,
+  :root{
+    --sleekfin-page-gutter:14px!important;
+  }
   .fx-discovery{
     padding-inline:14px!important;
   }
   .fx-inline-studio{
-    padding:16px 14px!important;
+    padding:0!important;
   }
   .fx-editor-section{
     padding:14px!important;
@@ -1527,7 +1819,24 @@ button.fx-settings-menu-row .listItemBodyText{
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:22px!important;line-height:28px!important}
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+  html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-left:not(.sectionTitle):not(.sectionTitle-cards),
+  html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+    padding-left:14px!important;
+    padding-inline-start:14px!important;
+    padding-right:14px!important;
+    padding-inline-end:14px!important;
+  }
+  html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection > :is(h2.sectionTitle,.sectionTitle.padded-left,.sectionTitle-cards.padded-left){
+    margin-left:14px!important;
+    margin-right:14px!important;
+  }
+  html body :is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller,
+  #searchPage#searchPage .searchResults .emby-scroller{
+    margin-left:14px!important;
+    margin-right:14px!important;
+  }
   .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:18.5px!important;line-height:25px!important}
   .fx-shelf{margin-bottom:20px}
   .fx-row-head{margin-bottom:10px}
@@ -1605,7 +1914,7 @@ button.fx-settings-menu-row .listItemBodyText{
 }
 
 @media(max-width:767px){
-  /* Clean Two-Row Media Detail Actions on Mobile: Row 1 = Play + Download, Row 2 = Centered Icon Actions */
+  /* Clean Media Detail Actions on Mobile: Primary/Secondary Pill Rows + Full-Width Spacer + Icon-Only Circle Row */
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]){
     display:flex!important;
     flex-wrap:wrap!important;
@@ -1615,23 +1924,49 @@ button.fx-settings-menu-row .listItemBodyText{
     width:100%!important;
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-spacer{
-    display:none!important;
+    display:block!important;
+    order:2!important;
+    flex:0 0 100%!important;
+    width:100%!important;
+    height:0!important;
+    margin:-6px 0!important;
+    padding:0!important;
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload){
     order:1!important;
     flex:1 1 calc(50% - 6px)!important;
-    min-width:120px!important;
+    min-width:calc(50% - 6px)!important;
+    max-width:100%!important;
     justify-content:center!important;
     margin:0!important;
   }
-  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],.btnPlay,.btnResume,.btnReplay){
+  /* When 3 pills are visible (Resume + Play/Replay + Download), put Resume on Row 1 (100%) and Play + Download side-by-side on Row 2 (50% / 50%) */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):has(> :is([data-sleekfin-action-id="replay"],.btnReplay):not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"])):is(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"])),[data-sleekfin-can-download="true"]:has(> .btnDownload:not([hidden]):not([data-sleekfin-action-hidden="true"]))) > .sleekfin-button-primary{
+    order:0!important;
     flex:1 1 100%!important;
   }
+  /* When only 1 pill is visible (no Replay and no visible Download), span full width */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> :is([data-sleekfin-action-id="replay"],.btnReplay):not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))):not([data-sleekfin-can-download="true"]:has(> .btnDownload:not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],.btnPlay,.btnResume){
+    flex:1 1 100%!important;
+  }
+  /* Strictly icon-only 44x44 circle buttons on the secondary row (never spill "Add to favo..." text) */
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)){
-    order:2!important;
+    order:3!important;
     flex:0 0 var(--sleekfin-details-button-height,44px)!important;
+    width:var(--sleekfin-details-button-height,44px)!important;
+    height:var(--sleekfin-details-button-height,44px)!important;
+    min-width:var(--sleekfin-details-button-height,44px)!important;
+    max-width:var(--sleekfin-details-button-height,44px)!important;
+    padding:0!important;
+    border-radius:50%!important;
+    overflow:hidden!important;
+    font-size:0!important;
+    gap:0!important;
     margin:0!important;
     margin-left:0!important;
     margin-top:0!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)) :is(.sleekfin-button-label,.sleekfin-details-action-label,.detailButton-text,.button-text){
+    display:none!important;
   }
 }

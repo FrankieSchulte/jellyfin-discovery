@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.4 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.5 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2136,7 +2136,18 @@ header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) + div[aria-hidd
   height:0!important;
   min-height:0!important;
 }
-header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{min-height:48px!important;padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important}
+@media(min-width:900px){
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child{
+    min-height:var(--sleekfin-header-height,80px)!important;
+  }
+}
+html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{
+  min-height:54px!important;
+  padding-top:12px!important;
+  padding-bottom:8px!important;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+}
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
 header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]::before{
   display:none!important;
@@ -2151,6 +2162,8 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{
   color:#fff!important;
   border-left:3px solid var(--sleekfin-accent,#e50914)!important;
   padding:2px 12px 2px 10px!important;
+  margin-left:0!important;
+  margin-inline-start:0!important;
   border-radius:0 10px 10px 0!important;
   text-transform:none!important;
   letter-spacing:normal!important;
@@ -2552,8 +2565,13 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSu
   margin:0!important;
 }
 
-html:not(:has(header.MuiAppBar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):has(.fx-discovery){padding-top:calc(var(--sleekfin-header-height,72px) + 4px)!important}
-html:has(header.MuiAppBar-root) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage){padding-top:0!important;margin-top:0!important}
+@media(min-width:900px){
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+    padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important;
+  }
+}
+html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage){padding-top:0!important;margin-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{padding:6px 2px 0!important;font-weight:700!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
@@ -2583,10 +2601,13 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
-html:not(:has(header.MuiAppBar-root)) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,80px) + 16px)!important;
+@media(min-width:900px){
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+    padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
+    margin-top:0!important;
+  }
 }
-html:has(header.MuiAppBar-root) #searchPage#searchPage{
+html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #searchPage#searchPage{
   padding-top:16px!important;
   margin-top:0!important;
 }
@@ -3188,13 +3209,21 @@ a.fx-download-option.is-selected{
 }
 
 /* Standardize Profile & Settings Pages (Profile, Settings, Quick Connect, Display, Home, Playback, Subtitles, Controls) */
-:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
-:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage){
+  padding-top:0!important;
+  margin-top:0!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
   max-width:1040px!important;
   width:100%!important;
   margin:0 auto!important;
-  padding:18px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  padding:20px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
   box-sizing:border-box!important;
+}
+@media(min-width:900px){
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
+    padding:calc(var(--sleekfin-header-height,80px) + 20px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  }
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
   background:#101113!important;
@@ -3250,6 +3279,111 @@ a.fx-download-option.is-selected{
   padding:10px 20px!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
+  background:#f6121d!important;
+}
+
+/* Unify Settings -> Home (#homeScreenPreferencesPage) & Settings -> Display (#displayPreferencesPage, React/MUI) Card Boundaries */
+#homeScreenPreferencesPage .fx-inline-studio{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0 0 20px!important;
+  box-shadow:none!important;
+}
+#homeScreenPreferencesPage .fx-home-studio-head > p{
+  margin:0!important;
+  color:rgba(255,255,255,.72)!important;
+}
+#homeScreenPreferencesPage .fx-editor-tabs{
+  position:static!important;
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:14px 18px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+}
+#homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced){
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+}
+#homeScreenPreferencesPage .fx-home-studio-save .fx-dialog-actions{
+  margin-top:0!important;
+}
+#displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
+  background:#101113!important;
+  border:1px solid #26292e!important;
+  border-radius:16px!important;
+  padding:22px 24px!important;
+  margin:0 0 20px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+  box-sizing:border-box!important;
+}
+#displayPreferencesPage :is(.MuiTypography-h1,.MuiTypography-h2,.MuiTypography-h5,h2){
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:700!important;
+  color:#fff!important;
+  border-left:3px solid var(--sleekfin-accent,#e50914)!important;
+  padding-left:10px!important;
+  margin:0 0 16px!important;
+}
+#displayPreferencesPage :is(.MuiOutlinedInput-root,.MuiFilledInput-root){
+  background:#0b0b0c!important;
+  color:#f1f2f4!important;
+  border-radius:10px!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-notchedOutline{
+  border-color:#26292e!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline{
+  border-color:rgba(255,255,255,.24)!important;
+}
+#displayPreferencesPage .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline{
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  border-width:1px!important;
+  box-shadow:0 0 0 3px rgba(229,9,20,.22)!important;
+}
+#displayPreferencesPage :is(.MuiSelect-select,.MuiInputBase-input){
+  color:#f1f2f4!important;
+}
+#displayPreferencesPage .MuiInputLabel-root{
+  color:rgba(255,255,255,.72)!important;
+}
+#displayPreferencesPage .MuiInputLabel-root.Mui-focused{
+  color:#fff!important;
+}
+#displayPreferencesPage .MuiFormControlLabel-label{
+  color:#f1f2f4!important;
+  font-size:14.5px!important;
+}
+#displayPreferencesPage .MuiFormHelperText-root{
+  color:rgba(255,255,255,.58)!important;
+}
+#displayPreferencesPage .MuiCheckbox-root{
+  color:rgba(255,255,255,.55)!important;
+}
+#displayPreferencesPage .MuiCheckbox-root.Mui-checked{
+  color:var(--sleekfin-accent,#e50914)!important;
+}
+#displayPreferencesPage button[type="submit"]{
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid #ff2c37!important;
+  color:#fff!important;
+  font-weight:700!important;
+  border-radius:10px!important;
+  min-height:42px!important;
+  padding:10px 22px!important;
+  text-transform:none!important;
+  box-shadow:none!important;
+  align-self:flex-start!important;
+}
+#displayPreferencesPage button[type="submit"]:hover{
   background:#f6121d!important;
 }
 
@@ -3415,21 +3549,107 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Mobile Layout, Bottom Nav Priority, Overflow Prevention, Compact Cards & Detail Button Alignment */
+/* Lock Video Playback (#videoOsdPage) in Place & Block Native iOS Fullscreen Entry */
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])),
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) body{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+#videoOsdPage:not(.hide):not(.hidePage):not([hidden]),
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) .videoPlayerContainer{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+}
+#videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
+  touch-action:pan-x!important;
+}
+html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+}
+@media(max-width:899px),(hover:none) and (pointer:coarse),(max-height:520px) and (pointer:coarse){
+  #videoOsdPage .btnFullscreen{
+    display:none!important;
+  }
+}
+
+/* Mobile Search Button on Bottom Bar & Overflow Menu Icon Parity */
+@media(min-width:900px){
+  .fx-mobile-search-btn{
+    display:none!important;
+  }
+}
+[data-sleekfin-header-overflow-drawer] button[data-sleekfin-header-overflow-item],
+[data-sleekfin-header-overflow-drawer] a[data-sleekfin-header-overflow-item]{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+[data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-visual]{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  min-width:18px!important;
+  min-height:18px!important;
+  line-height:1!important;
+}
+[data-sleekfin-header-overflow-drawer] button[data-sleekfin-header-overflow-full="true"] [data-sleekfin-header-overflow-visual]{
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+  justify-content:center!important;
+  gap:0!important;
+}
+[data-sleekfin-header-overflow-drawer] :is([data-sleekfin-header-source-icon],.fx-overflow-svg-icon,.rh-compass-icon,.rh-discover-svg-icon){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+[data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-visual] :is(svg,img){
+  width:18px!important;
+  height:18px!important;
+  font-size:18px!important;
+  flex:0 0 18px!important;
+  display:block!important;
+  margin:0!important;
+}
+
+/* Mobile Layout, Bottom Nav Priority, Scroll Restoration, Compact Cards & Detail Button Alignment */
 @media(max-width:899px){
   html,body{
     max-width:100%;
-    overflow-x:clip;
+    overflow-x:hidden;
   }
   .mainAnimatedPages,
-  .page:not(#videoOsdPage),
+  .page:not(#videoOsdPage):not(#itemDetailPage),
   #indexPage,
   #moviesPage,
   #tvshowsPage,
   #tvRecommendedPage,
   #boxsetsPage,
   #searchPage,
-  #itemDetailPage,
   #userProfilePage,
   #myPreferencesMenuPage,
   #quickConnectPreferencesPage,
@@ -3441,16 +3661,45 @@ button.fx-settings-menu-row .listItemBodyText{
   .userPreferencesPage{
     max-width:100vw!important;
     box-sizing:border-box!important;
-    overflow-x:clip!important;
+    overflow-x:hidden;
   }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .readOnlyContent,
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) .content-primary{
-    padding:16px 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
+  /* Restore Smooth Vertical Momentum Scroll on #itemDetailPage on Mobile (SleekFin locks body overflow: hidden) */
+  #itemDetailPage:not(.hide):not(.hidePage):not([hidden]),
+  html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details]:not(.hide):not(.hidePage):not([hidden]){
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    max-width:100vw!important;
+    height:100vh!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+    box-sizing:border-box!important;
+  }
+  #itemDetailPage :is([is="emby-scroller"],.emby-scroller,.sleekfin-details-episode-list,#castContent){
+    touch-action:pan-x pan-y!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
+    padding:calc(22px + env(safe-area-inset-top,0px)) 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
     max-width:100%!important;
   }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection),
+  #homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced),
+  #displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
     padding:16px!important;
     max-width:100%!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
+    margin-top:0!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
   }
   .fx-discovery{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
@@ -3462,32 +3711,75 @@ button.fx-settings-menu-row .listItemBodyText{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
-    padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
+    padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important;
   }
-  /* Prioritize Home, Movies, and Shows on the Mobile Bottom Bar; Overflow Collections, Discover, Live TV & Settings into Menu */
+  /* Prioritize Home, Movies, Shows + Search + ^ on Mobile Bottom Bar; Overflow Discover, Collections, Live TV & Settings into ^ Menu */
   html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy]{
-    max-width:min(calc(100vw - 20px),348px)!important;
+    max-width:min(calc(100vw - 16px),376px)!important;
   }
-  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])){
-    height:auto!important;
-    min-height:10px!important;
-    padding-top:env(safe-area-inset-top,0px)!important;
-    padding-bottom:0!important;
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item]{
+    padding-inline:10px!important;
+  }
+  .fx-mobile-search-btn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:var(--sleekfin-header-item-height,32px)!important;
+    height:var(--sleekfin-header-item-height,32px)!important;
+    min-width:var(--sleekfin-header-item-height,32px)!important;
+    min-height:var(--sleekfin-header-item-height,32px)!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:8px!important;
+    background:transparent!important;
+    color:var(--sleekfin-header-item-text,rgba(255,255,255,.72))!important;
+    cursor:pointer!important;
+    flex:0 0 auto!important;
+  }
+  .fx-mobile-search-btn[data-sleekfin-current="true"],
+  .fx-mobile-search-btn[aria-current="page"]{
+    background:var(--sleekfin-header-active-background,rgba(255,255,255,.12))!important;
+    color:var(--sleekfin-header-active-text,#fff)!important;
+  }
+  .fx-mobile-search-btn svg{
+    width:16px!important;
+    height:16px!important;
+    display:block!important;
+  }
+  [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"]{
+    display:none!important;
+  }
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
+  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child:not(:has([data-sleekfin-header-brand])){
+    height:0!important;
+    min-height:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+  html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{
+    padding-top:calc(20px + env(safe-area-inset-top,0px))!important;
+    padding-bottom:6px!important;
   }
 }
 @media(max-width:360px){
-  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-zone="tabs"]{
-    padding-inline:9px!important;
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item]{
+    padding-inline:8px!important;
     font-size:12px!important;
   }
 }
 
 @media(max-width:768px){
+  html.sleekfin-main-ui:root,
+  :root{
+    --sleekfin-page-gutter:14px!important;
+  }
   .fx-discovery{
     padding-inline:14px!important;
   }
   .fx-inline-studio{
-    padding:16px 14px!important;
+    padding:0!important;
   }
   .fx-editor-section{
     padding:14px!important;
@@ -3501,7 +3793,24 @@ button.fx-settings-menu-row .listItemBodyText{
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
   header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > .MuiTypography-h6{font-size:22px!important;line-height:28px!important}
-  header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
+  html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{padding-inline:14px!important}
+  html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .padded-left:not(.sectionTitle):not(.sectionTitle-cards),
+  html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+    padding-left:14px!important;
+    padding-inline-start:14px!important;
+    padding-right:14px!important;
+    padding-inline-end:14px!important;
+  }
+  html body :is(#boxsetsPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#searchPage) .verticalSection > :is(h2.sectionTitle,.sectionTitle.padded-left,.sectionTitle-cards.padded-left){
+    margin-left:14px!important;
+    margin-right:14px!important;
+  }
+  html body :is(#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller,
+  #searchPage#searchPage .searchResults .emby-scroller{
+    margin-left:14px!important;
+    margin-right:14px!important;
+  }
   .fx-row-head h2,:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){font-size:18.5px!important;line-height:25px!important}
   .fx-shelf{margin-bottom:20px}
   .fx-row-head{margin-bottom:10px}
@@ -3579,7 +3888,7 @@ button.fx-settings-menu-row .listItemBodyText{
 }
 
 @media(max-width:767px){
-  /* Clean Two-Row Media Detail Actions on Mobile: Row 1 = Play + Download, Row 2 = Centered Icon Actions */
+  /* Clean Media Detail Actions on Mobile: Primary/Secondary Pill Rows + Full-Width Spacer + Icon-Only Circle Row */
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]){
     display:flex!important;
     flex-wrap:wrap!important;
@@ -3589,24 +3898,50 @@ button.fx-settings-menu-row .listItemBodyText{
     width:100%!important;
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-spacer{
-    display:none!important;
+    display:block!important;
+    order:2!important;
+    flex:0 0 100%!important;
+    width:100%!important;
+    height:0!important;
+    margin:-6px 0!important;
+    padding:0!important;
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload){
     order:1!important;
     flex:1 1 calc(50% - 6px)!important;
-    min-width:120px!important;
+    min-width:calc(50% - 6px)!important;
+    max-width:100%!important;
     justify-content:center!important;
     margin:0!important;
   }
-  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],.btnPlay,.btnResume,.btnReplay){
+  /* When 3 pills are visible (Resume + Play/Replay + Download), put Resume on Row 1 (100%) and Play + Download side-by-side on Row 2 (50% / 50%) */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):has(> :is([data-sleekfin-action-id="replay"],.btnReplay):not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"])):is(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"])),[data-sleekfin-can-download="true"]:has(> .btnDownload:not([hidden]):not([data-sleekfin-action-hidden="true"]))) > .sleekfin-button-primary{
+    order:0!important;
     flex:1 1 100%!important;
   }
+  /* When only 1 pill is visible (no Replay and no visible Download), span full width */
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]):not(:has(> :is([data-sleekfin-action-id="replay"],.btnReplay):not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))):not(:has(> .btnDownload:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]))):not([data-sleekfin-can-download="true"]:has(> .btnDownload:not([hidden]):not([data-sleekfin-action-hidden="true"]))) > :is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],.btnPlay,.btnResume){
+    flex:1 1 100%!important;
+  }
+  /* Strictly icon-only 44x44 circle buttons on the secondary row (never spill "Add to favo..." text) */
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)){
-    order:2!important;
+    order:3!important;
     flex:0 0 var(--sleekfin-details-button-height,44px)!important;
+    width:var(--sleekfin-details-button-height,44px)!important;
+    height:var(--sleekfin-details-button-height,44px)!important;
+    min-width:var(--sleekfin-details-button-height,44px)!important;
+    max-width:var(--sleekfin-details-button-height,44px)!important;
+    padding:0!important;
+    border-radius:50%!important;
+    overflow:hidden!important;
+    font-size:0!important;
+    gap:0!important;
     margin:0!important;
     margin-left:0!important;
     margin-top:0!important;
+  }
+  #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)) :is(.sleekfin-button-label,.sleekfin-details-action-label,.detailButton-text,.button-text){
+    display:none!important;
   }
 }
 `;
@@ -4020,6 +4355,16 @@ button.fx-settings-menu-row .listItemBodyText{
       }
       async fetchContinueWatching(route, inventory, limit = 16) {
         var _a, _b, _c;
+        if (this.prefetchedContinueWatching) {
+          const pending = this.prefetchedContinueWatching;
+          this.prefetchedContinueWatching = null;
+          try {
+            const pre = await pending;
+            this.assertCurrent();
+            if (Array.isArray(pre) && pre.length) return this.groupResume(pre.filter((i) => !isLeavingSoonItem(i)), inventory).slice(0, limit);
+          } catch {
+          }
+        }
         const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
         const fields = "DateCreated,PrimaryImageAspectRatio,ParentId";
         const mediaTypes = route.page === "movies" ? "Movie" : route.page === "shows" ? "Episode" : "Movie,Episode";
@@ -4043,6 +4388,27 @@ button.fx-settings-menu-row .listItemBodyText{
           }
         }
         return this.groupResume(combined, inventory).slice(0, limit);
+      }
+      prefetchContinueWatching(route, limit = 20) {
+        const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+        const fields = "DateCreated,PrimaryImageAspectRatio,ParentId";
+        const mediaTypes = route.page === "movies" ? "Movie" : route.page === "shows" ? "Episode" : "Movie,Episode";
+        const tasks = [
+          this.json("Items/Resume", { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+        ];
+        if (route.page !== "movies") {
+          tasks.push(
+            this.json("Shows/NextUp", { UserId: this.userId, Limit: limit, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+          );
+        }
+        const p = Promise.all(tasks).then((res) => {
+          var _a, _b;
+          return [...((_a = res[0]) == null ? void 0 : _a.Items) || [], ...((_b = res[1]) == null ? void 0 : _b.Items) || []];
+        });
+        p.catch(() => {
+        });
+        this.prefetchedContinueWatching = p;
+        return p;
       }
       async fastOpening(route, config) {
         var _a;
@@ -4070,7 +4436,7 @@ button.fx-settings-menu-row .listItemBodyText{
         const seeMoreItem = id === "DiscoverMovies" ? { Id: "fx-see-more:movies", Name: "All Popular Movies", Type: "SeeMore", SeeMoreKind: "movies", SeeMoreLabel: "See More", SeeMoreSub: "Popular Movies" } : id === "DiscoverTV" ? { Id: "fx-see-more:tv", Name: "All Popular Series", Type: "SeeMore", SeeMoreKind: "tv", SeeMoreLabel: "See More", SeeMoreSub: "Popular Series" } : null;
         if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
         if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
-        if (id === "ContinueWatchingNextUp" && !this.prefetchedSections.has(id) && typeof ((_a = this.api) == null ? void 0 : _a.getUrl) === "function") {
+        if (id === "ContinueWatchingNextUp" && typeof ((_a = this.api) == null ? void 0 : _a.getUrl) === "function") {
           try {
             const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
             if (items.length) {
@@ -4457,6 +4823,11 @@ button.fx-settings-menu-row .listItemBodyText{
           }),
           button("Use automatic ordering", () => {
             delete profile.opening;
+            if (!profile.anchors.includes("ContinueWatchingNextUp")) {
+              profile.anchors = ["ContinueWatchingNextUp", ...profile.anchors];
+            } else if (profile.anchors[0] !== "ContinueWatchingNextUp") {
+              profile.anchors = ["ContinueWatchingNextUp", ...profile.anchors.filter((a) => a !== "ContinueWatchingNextUp")];
+            }
             emit();
             draw();
           })
@@ -4828,7 +5199,7 @@ button.fx-settings-menu-row .listItemBodyText{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.4";
+      const VERSION = "0.5.5";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -5310,11 +5681,62 @@ button.fx-settings-menu-row .listItemBodyText{
           else setTimeout(fire, 0);
         }
       }
-      function syncMobileOverflowDrawer(api = window.ApiClient) {
-        var _a2;
+      const SETTINGS_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
+      const MOBILE_SEARCH_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7.5"></circle><line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line></svg>';
+      function syncMobileHeaderControls(api = window.ApiClient) {
+        var _a2, _b2;
+        const proxy = document.querySelector("[data-sleekfin-header-proxy]");
+        if (proxy) {
+          if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+            proxy.querySelectorAll("[data-fx-mobile-search]").forEach((n) => n.remove());
+          } else {
+            const overflowToggle = proxy.querySelector("[data-sleekfin-header-overflow-toggle]");
+            let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
+            if (overflowToggle) {
+              let createdSearch = false;
+              if (!mobileSearchBtn) {
+                mobileSearchBtn = element("button", "fx-mobile-search-btn");
+                mobileSearchBtn.type = "button";
+                mobileSearchBtn.dataset.fxMobileSearch = "true";
+                mobileSearchBtn.title = "Search";
+                mobileSearchBtn.setAttribute("aria-label", "Search");
+                mobileSearchBtn.innerHTML = MOBILE_SEARCH_SVG;
+                createdSearch = true;
+              }
+              if (mobileSearchBtn.nextElementSibling !== overflowToggle) {
+                proxy.insertBefore(mobileSearchBtn, overflowToggle);
+              }
+              if (createdSearch && typeof Event === "function") {
+                const notifyResize = () => {
+                  var _a3;
+                  try {
+                    (_a3 = window.dispatchEvent) == null ? void 0 : _a3.call(window, new Event("resize"));
+                  } catch {
+                  }
+                };
+                if (typeof requestAnimationFrame === "function") requestAnimationFrame(notifyResize);
+                else setTimeout(notifyResize, 0);
+              }
+              const isSearchRoute = /^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(String(location.hash || ""));
+              if (isSearchRoute) {
+                mobileSearchBtn.setAttribute("aria-current", "page");
+                mobileSearchBtn.dataset.sleekfinCurrent = "true";
+              } else {
+                mobileSearchBtn.removeAttribute("aria-current");
+                delete mobileSearchBtn.dataset.sleekfinCurrent;
+              }
+            }
+          }
+        }
+        const detailActions = document.querySelector("#itemDetailPage:not(.hide) .mainDetailButtons.sleekfin-details-actions");
+        if (detailActions && !detailActions.querySelector(".sleekfin-details-action-spacer")) {
+          const sp = element("span", "sleekfin-details-action-spacer");
+          sp.setAttribute("aria-hidden", "true");
+          detailActions.append(sp);
+        }
         const drawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
         if (!drawer) return;
-        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+        if (!((_b2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _b2.call(api))) {
           drawer.querySelectorAll("[data-fx-overflow-settings]").forEach((n) => n.remove());
           return;
         }
@@ -5330,17 +5752,19 @@ button.fx-settings-menu-row .listItemBodyText{
           settingsBtn.type = "button";
           settingsBtn.dataset.fxOverflowSettings = "true";
           settingsBtn.setAttribute("data-sleekfin-header-overflow-item", "fx:settings");
+          settingsBtn.setAttribute("data-sleekfin-header-overflow-full", "true");
           settingsBtn.title = "Settings";
           settingsBtn.setAttribute("aria-label", "Settings");
           const vis = element("span");
-          vis.dataset.sleekfinHeaderSourceVisual = "true";
-          const icon = element("span", "material-icons settings");
+          vis.dataset.sleekfinHeaderOverflowVisual = "true";
+          const icon = element("span", "fx-overflow-svg-icon");
           icon.dataset.sleekfinHeaderSourceIcon = "true";
           icon.setAttribute("aria-hidden", "true");
+          icon.innerHTML = SETTINGS_GEAR_SVG;
           const lbl = element("span", "", "Settings");
           lbl.dataset.sleekfinHeaderSourceLabel = "true";
-          vis.append(icon, lbl);
-          settingsBtn.append(vis);
+          vis.append(icon);
+          settingsBtn.append(vis, lbl);
           settingsBtn.addEventListener("click", (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
@@ -5360,6 +5784,9 @@ button.fx-settings-menu-row .listItemBodyText{
           settingsBtn.removeAttribute("aria-current");
           delete settingsBtn.dataset.sleekfinCurrent;
         }
+      }
+      function syncMobileOverflowDrawer(api = window.ApiClient) {
+        syncMobileHeaderControls(api);
       }
       function syncHomeModeAttr(api = window.ApiClient) {
         var _a2, _b2;
@@ -5479,6 +5906,13 @@ button.fx-settings-menu-row .listItemBodyText{
             const prof = cfg.pages[page];
             const supplied = (_a2 = DEFAULT_CONFIG2.pages[page]) == null ? void 0 : _a2.rules;
             if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
+            if (Array.isArray(prof.anchors)) {
+              if (!prof.anchors.includes("ContinueWatchingNextUp") && !Array.isArray(prof.opening)) {
+                prof.anchors.unshift("ContinueWatchingNextUp");
+              } else if (prof.anchors.includes("ContinueWatchingNextUp") && prof.anchors[0] !== "ContinueWatchingNextUp") {
+                prof.anchors = ["ContinueWatchingNextUp", ...prof.anchors.filter((a) => a !== "ContinueWatchingNextUp")];
+              }
+            }
             if (page === "shows") {
               const pinned = new Set(Array.isArray(prof.opening) ? prof.opening : []);
               const layouts = prof.layouts && typeof prof.layouts === "object" ? prof.layouts : null;
@@ -5511,6 +5945,19 @@ button.fx-settings-menu-row .listItemBodyText{
         try {
           return Boolean(
             ((_b2 = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(max-width: 768px)")) == null ? void 0 : _b2.matches) || ((_d2 = (_c2 = window.matchMedia) == null ? void 0 : _c2.call(window, "(pointer: coarse)")) == null ? void 0 : _d2.matches) && (window.innerWidth || 1024) <= 900
+          );
+        } catch {
+          return false;
+        }
+      }
+      function isTouchMobileDevice() {
+        var _a2, _b2;
+        try {
+          const nav = typeof navigator === "object" ? navigator : window.navigator;
+          const ua = String((nav == null ? void 0 : nav.userAgent) || "");
+          const touchMac = (nav == null ? void 0 : nav.platform) === "MacIntel" && ((nav == null ? void 0 : nav.maxTouchPoints) || 0) > 1;
+          return Boolean(
+            window.NativeShell || /iPhone|iPad|iPod|Android|Mobile/i.test(ua) || touchMac || ((_b2 = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(hover: none) and (pointer: coarse)")) == null ? void 0 : _b2.matches) || isCompactTouchViewport() || typeof window.innerWidth === "number" && window.innerWidth > 0 && Math.min(window.innerWidth, window.innerHeight || 9999) <= 520
           );
         } catch {
           return false;
@@ -6062,13 +6509,21 @@ button.fx-settings-menu-row .listItemBodyText{
           s.list.append(sec);
         }
       }
-      function appendRow(row, s, isBoot = false) {
+      function appendRow(row, s, isBoot = false, atIndex = -1) {
+        var _a2;
         s.list.querySelectorAll('[data-skeleton="true"]').forEach((n) => n.remove());
         const slot = { node: element("section", "fx-shelf"), data: row, live: false, boot: isBoot };
         if (isBoot) slot.node.dataset.bootRow = "true";
         slot.node.dataset.shelfKey = row.key;
-        s.list.append(slot.node);
-        s.slots.push(slot);
+        if (atIndex >= 0 && atIndex < s.slots.length) {
+          const refSlot = s.slots[atIndex];
+          if (((_a2 = refSlot == null ? void 0 : refSlot.node) == null ? void 0 : _a2.parentElement) === s.list) s.list.insertBefore(slot.node, refSlot.node);
+          else s.list.append(slot.node);
+          s.slots.splice(atIndex, 0, slot);
+        } else {
+          s.list.append(slot.node);
+          s.slots.push(slot);
+        }
         fillSlot(slot, s);
       }
       function filterPanel(s) {
@@ -6289,13 +6744,19 @@ button.fx-settings-menu-row .listItemBodyText{
             const id = token.slice(7);
             try {
               const row = await s.client.anchor(id, s.route, s.inventory, s.config);
-              if (row.items.length) return row;
+              if (row.items.length) {
+                s.anchorTurn = false;
+                return row;
+              }
             } catch {
               s.client.assertCurrent();
             }
           } else {
             const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7)) : null;
-            if (row) return row;
+            if (row) {
+              s.anchorTurn = true;
+              return row;
+            }
           }
         }
         while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
@@ -6311,7 +6772,7 @@ button.fx-settings-menu-row .listItemBodyText{
             }
           } else {
             s.anchorTurn = true;
-            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.filter((slot) => !slot.boot).length < s.profile.anchors.length * 2 ? "theme" : null);
+            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && (s.anchorIndex > 0 || opening.some((t) => t.startsWith("anchor:"))) && s.slots.filter((slot) => !slot.boot).length < s.profile.anchors.length * 2 ? "theme" : null);
             if (row) return row;
             if (s.anchorIndex >= s.profile.anchors.length) return null;
           }
@@ -6319,12 +6780,13 @@ button.fx-settings-menu-row .listItemBodyText{
         return null;
       }
       async function loadMore(s, automatic = false) {
-        var _a2;
+        var _a2, _b2;
         if (state !== s || s.loading || s.full || s.finished || !s.planner || automatic && s.pauseAutomatic) return;
         s.loading = true;
         s.more.disabled = true;
         s.more.textContent = "Loading\u2026";
         try {
+          let placedIndex = s.slots.filter((slot) => !slot.boot).length;
           for (let n = 0; n < s.config.batchSize; n++) {
             const row = s.pending || await nextRow(s);
             if (!row) {
@@ -6359,9 +6821,19 @@ button.fx-settings-menu-row .listItemBodyText{
                 delete existingBoot.node.dataset.bootRow;
                 existingBoot.node.dataset.shelfKey = hydratedRow.key;
                 existingBoot.data = hydratedRow;
+                const curIdx = s.slots.indexOf(existingBoot);
+                if (curIdx !== -1 && curIdx !== placedIndex) {
+                  s.slots.splice(curIdx, 1);
+                  const clamped = Math.min(placedIndex, s.slots.length);
+                  const refSlot = s.slots[clamped];
+                  if (((_b2 = refSlot == null ? void 0 : refSlot.node) == null ? void 0 : _b2.parentElement) === s.list) s.list.insertBefore(existingBoot.node, refSlot.node);
+                  else s.list.append(existingBoot.node);
+                  s.slots.splice(clamped, 0, existingBoot);
+                }
+                placedIndex++;
                 fillSlot(existingBoot, s);
               } else {
-                appendRow(hydratedRow, s);
+                appendRow(hydratedRow, s, false, placedIndex++);
               }
               s.failed = false;
               s.footer.hidden = s.full;
@@ -6453,7 +6925,7 @@ button.fx-settings-menu-row .listItemBodyText{
         }
       }
       async function initialize(s) {
-        var _a2, _b2, _c2;
+        var _a2, _b2, _c2, _d2;
         if (s.started) return;
         s.started = true;
         s.status.textContent = "";
@@ -6486,10 +6958,7 @@ button.fx-settings-menu-row .listItemBodyText{
             syncNative(s, true);
           }
           if (!s.full && s.route.view !== "genres") {
-            const p = s.client.json("HomeScreen/Section/ContinueWatchingNextUp", { UserId: s.client.userId });
-            p.catch(() => {
-            });
-            s.client.prefetchedSections.set("ContinueWatchingNextUp", p);
+            s.client.prefetchContinueWatching(s.route, Math.min(((_c2 = s.config) == null ? void 0 : _c2.cardsPerShelf) || 20, 20));
           }
           const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
           const cachedInv = findCachedInventory(s.scope, s.route);
@@ -6516,14 +6985,14 @@ button.fx-settings-menu-row .listItemBodyText{
           s.profile = s.config.pages[s.route.page];
           if (!s.full && !paintedBoot) {
             const bootData = readBootRows(s, JSON.stringify(s.config));
-            if ((_c2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _c2.length) {
+            if ((_d2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _d2.length) {
               if (bootData.shuffle) s.shuffle = bootData.shuffle;
               bootData.rows.forEach((row) => appendRow(row, s, true));
               paintedBoot = true;
               syncNative(s, true);
             } else if (s.route.view !== "genres") {
               s.client.fastOpening(s.route, s.config).then((fastRows) => {
-                if (state !== s || s.full || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
+                if (state !== s || s.full || s.failed || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
                 fastRows.forEach((row) => appendRow(row, s, true));
                 syncNative(s, true);
               }).catch(() => {
@@ -6657,26 +7126,90 @@ button.fx-settings-menu-row .listItemBodyText{
         a.click();
         a.remove();
       }
-      async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api }) {
-        var _a2, _b2, _c2, _d2, _e2, _f;
-        const absUrl = safeUrl(url, location.href) || url;
+      function normalizeMp4DownloadItem(itemObj, itemId, finalBase, finalFilename, serverId) {
+        const base = itemObj && typeof itemObj === "object" ? { ...itemObj } : { Id: itemId, Name: finalBase, ServerId: serverId };
+        base.Container = "mp4";
+        base.Path = finalFilename;
+        if (Array.isArray(base.MediaSources)) {
+          base.MediaSources = base.MediaSources.map((ms) => ms && typeof ms === "object" ? {
+            ...ms,
+            Container: "mp4",
+            Path: finalFilename,
+            SupportsDirectStream: true,
+            SupportsDirectPlay: true
+          } : ms);
+        }
+        return base;
+      }
+      function isQuickTimeNativeMp4(itemObj) {
+        if (!itemObj || typeof itemObj !== "object") return false;
+        const ms = Array.isArray(itemObj.MediaSources) ? itemObj.MediaSources[0] : null;
+        const container = String((ms == null ? void 0 : ms.Container) || itemObj.Container || "").toLowerCase();
+        if (container !== "mp4" && container !== "m4v" && container !== "mov") return false;
+        const streams = Array.isArray(ms == null ? void 0 : ms.MediaStreams) ? ms.MediaStreams : [];
+        if (!streams.length) return true;
+        const video = streams.find((s) => (s == null ? void 0 : s.Type) === "Video");
+        const audio = streams.find((s) => (s == null ? void 0 : s.Type) === "Audio");
+        const vOk = !video || /^(h264|avc1|hevc|hvc1|hev1)$/i.test(String(video.Codec || ""));
+        const aOk = !audio || /^(aac|mp3|ac3|eac3|alac)$/i.test(String(audio.Codec || ""));
+        return vOk && aOk;
+      }
+      function buildMp4RemuxUrl(itemId, api) {
+        var _a2, _b2;
+        const token = ((_a2 = api == null ? void 0 : api.accessToken) == null ? void 0 : _a2.call(api)) || "";
+        const params = {
+          Static: "false",
+          VideoCodec: "h264",
+          AudioCodec: "aac",
+          AllowVideoStreamCopy: "true",
+          AllowAudioStreamCopy: "true",
+          EnableAutoStreamCopy: "true",
+          VideoBitRate: "40000000",
+          MaxStreamingBitrate: "60000000",
+          AudioBitRate: "256000",
+          MaxAudioChannels: "2",
+          TranscodingProtocol: "http",
+          TranscodingContainer: "mp4",
+          PlaySessionId: "fx-dl-full-" + Date.now(),
+          ...token ? { api_key: token } : {}
+        };
+        const path = `Videos/${encodeURIComponent(itemId)}/stream.mp4`;
+        const raw = (_b2 = api == null ? void 0 : api.getUrl) == null ? void 0 : _b2.call(api, path, params);
+        if (typeof raw === "string") return safeUrl(raw, location.href) || raw;
+        const qs = new URLSearchParams(params).toString();
+        const rel = `/${path}${qs ? "?" + qs : ""}`;
+        return safeUrl(rel, location.href) || rel;
+      }
+      async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api, mode = "condensed" }) {
+        var _a2, _b2, _c2, _d2, _e2;
+        let absUrl = safeUrl(url, location.href) || url;
         const nativeShell = window.NativeShell;
-        if (nativeShell && (typeof nativeShell.downloadFiles === "function" || typeof nativeShell.downloadFile === "function")) {
-          let itemObj = cachedItem || ((_a2 = state == null ? void 0 : state.byId) == null ? void 0 : _a2.get(itemId)) || ((_c2 = (_b2 = state == null ? void 0 : state.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.find((i) => i.Id === itemId)) || null;
-          const uid = (_d2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _d2.call(api);
-          if (!itemObj && uid && typeof (api == null ? void 0 : api.getJSON) === "function" && typeof (api == null ? void 0 : api.getUrl) === "function") {
-            try {
-              itemObj = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
-            } catch {
-            }
+        const hasNativeDownloader = Boolean(nativeShell && (typeof nativeShell.downloadFiles === "function" || typeof nativeShell.downloadFile === "function"));
+        const mobileClient = hasNativeDownloader || isTouchMobileDevice();
+        let itemObj = cachedItem || ((_a2 = state == null ? void 0 : state.byId) == null ? void 0 : _a2.get(itemId)) || ((_c2 = (_b2 = state == null ? void 0 : state.inventory) == null ? void 0 : _b2.items) == null ? void 0 : _c2.find((i) => i.Id === itemId)) || null;
+        const uid = (_d2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _d2.call(api);
+        if (mobileClient && (!itemObj || !itemObj.Container && !itemObj.MediaSources) && uid && typeof (api == null ? void 0 : api.getJSON) === "function" && typeof (api == null ? void 0 : api.getUrl) === "function") {
+          try {
+            const fullInfo = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
+            if (fullInfo && typeof fullInfo === "object") itemObj = fullInfo;
+          } catch {
           }
-          const finalBase = formatItemDownloadBase(itemObj) || baseTitle || "video";
-          const finalFilename = filename || `${finalBase}.mp4`;
+        }
+        if (mobileClient && mode === "full" && !isQuickTimeNativeMp4(itemObj)) {
+          absUrl = buildMp4RemuxUrl(itemId, api);
+        }
+        const finalBase = formatItemDownloadBase(itemObj) || baseTitle || "video";
+        const rawFilename = filename || `${finalBase}.mp4`;
+        const finalFilename = rawFilename.replace(/\.[a-z0-9]{2,5}$/i, "") + ".mp4";
+        if (hasNativeDownloader) {
+          const serverId = (itemObj == null ? void 0 : itemObj.ServerId) || ((_e2 = api == null ? void 0 : api.serverId) == null ? void 0 : _e2.call(api)) || "";
+          const mp4Item = normalizeMp4DownloadItem(itemObj, itemId, finalBase, finalFilename, serverId);
           const payload = {
             url: absUrl,
-            item: itemObj || { Id: itemId, Name: finalBase, ServerId: ((_e2 = api == null ? void 0 : api.serverId) == null ? void 0 : _e2.call(api)) || "" },
+            item: mp4Item,
             itemId,
-            serverId: (itemObj == null ? void 0 : itemObj.ServerId) || ((_f = api == null ? void 0 : api.serverId) == null ? void 0 : _f.call(api)) || "",
+            serverId,
+            container: "mp4",
             title: (itemObj == null ? void 0 : itemObj.Name) || finalBase,
             filename: finalFilename
           };
@@ -6688,7 +7221,7 @@ button.fx-settings-menu-row .listItemBodyText{
           showToast("Added to Jellyfin Downloads");
           return;
         }
-        triggerUrlDownload(absUrl, filename);
+        triggerUrlDownload(absUrl, mobileClient ? finalFilename : filename || finalFilename);
       }
       function openDownloadMenu(btn, itemId, api) {
         var _a2, _b2, _c2, _d2, _e2;
@@ -6733,7 +7266,7 @@ button.fx-settings-menu-row .listItemBodyText{
         menu.setAttribute("role", "menu");
         menu.setAttribute("aria-label", "Download quality options");
         const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), "video")}.mp4`;
-        const makeOption = (title, url) => {
+        const makeOption = (title, url, mode) => {
           const opt = element("button", "fx-download-option", title);
           opt.type = "button";
           opt.dataset.downloadUrl = url;
@@ -6745,17 +7278,23 @@ button.fx-settings-menu-row .listItemBodyText{
             const filename = fileFor();
             opt.setAttribute("download", filename);
             closeDownloadMenu();
-            startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api });
+            startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api, mode });
           });
           return opt;
         };
-        const fullOpt = makeOption("Full Quality", fullUrl);
-        const condensedOpt = makeOption("Condensed", transcodeUrl);
+        const fullOpt = makeOption("Full Quality", fullUrl, "full");
+        const condensedOpt = makeOption("Condensed", transcodeUrl, "condensed");
         menu.append(fullOpt, condensedOpt);
         const uid = (_e2 = api.getCurrentUserId) == null ? void 0 : _e2.call(api);
         if (uid && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
           Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`))).then((info) => {
-            if (info && typeof info === "object") resolvedItem = info;
+            if (info && typeof info === "object") {
+              resolvedItem = info;
+              const isMob = Boolean(window.NativeShell && (typeof window.NativeShell.downloadFiles === "function" || typeof window.NativeShell.downloadFile === "function")) || isTouchMobileDevice();
+              if (isMob && !isQuickTimeNativeMp4(info)) {
+                fullOpt.dataset.downloadUrl = buildMp4RemuxUrl(itemId, api);
+              }
+            }
             const refined = formatItemDownloadBase(info);
             if (refined) {
               baseTitle = refined;
@@ -6837,7 +7376,7 @@ button.fx-settings-menu-row .listItemBodyText{
       }
       function buildSettingsContent(s, container, isDialog = true) {
         var _a2, _b2;
-        const title = element("h2", "", "Customize discovery");
+        const title = element(isDialog ? "h2" : "h1", isDialog ? "" : "sectionTitle", "Customize Home");
         const help = element("p", "fx-dialog-lead", s.syncAvailable ? "Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices." : "The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.");
         const input = element("textarea");
         input.spellcheck = false;
@@ -6956,9 +7495,17 @@ button.fx-settings-menu-row .listItemBodyText{
           }
         });
         advanced.replaceChildren(element("summary", "", "Advanced: JSON import / export"), file, input, exportButton, reset);
-        if (isDialog) actions.replaceChildren(apply, button("Cancel", closeDialog));
-        else actions.replaceChildren(apply);
-        container.append(title, help, device, visual, advanced, error, actions);
+        if (isDialog) {
+          actions.replaceChildren(apply, button("Cancel", closeDialog));
+          container.append(title, help, device, visual, advanced, error, actions);
+        } else {
+          actions.replaceChildren(apply);
+          const headCard = element("section", "verticalSection fx-home-studio-head");
+          headCard.append(title, help, device);
+          const saveCard = element("section", "verticalSection fx-home-studio-save");
+          saveCard.append(error, actions);
+          container.append(headCard, visual, advanced, saveCard);
+        }
       }
       function customize(s) {
         closeDialog();
@@ -7011,27 +7558,8 @@ button.fx-settings-menu-row .listItemBodyText{
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio]").forEach((n) => n.remove());
         }
         settingsScope = scope;
+        document.querySelectorAll("[data-fx-settings-link]").forEach((n) => n.remove());
         if (!scope) return;
-        if (/^#!?\/?mypreferencesmenu(?:[?]|$)/i.test(location.hash)) {
-          const page = [...document.querySelectorAll("#myPreferencesMenuPage,.userPreferencesPage")].find(visible);
-          if (page && !page.querySelector("[data-fx-settings-link]")) {
-            const section = page.querySelector(".verticalSection:has(.listItem-border)") || page.querySelector(".readOnlyContent .verticalSection") || page.querySelector(".verticalSection") || page;
-            const link = element("button", "emby-button listItem-border fx-settings-menu-row");
-            link.type = "button";
-            link.dataset.fxSettingsLink = "true";
-            const itemRow = element("div", "listItem");
-            const icon = element("span", "material-icons tune listItemIcon", "");
-            icon.setAttribute("aria-hidden", "true");
-            const body = element("div", "listItemBody");
-            body.append(element("div", "listItemBodyText", "Discovery"));
-            itemRow.append(icon, body);
-            link.append(itemRow);
-            link.addEventListener("click", () => openUserSettings(api));
-            const homeAnchor = section.querySelector('a[href*="mypreferenceshome"], [data-id="home"]');
-            if (homeAnchor && homeAnchor.parentElement === section) homeAnchor.after(link);
-            else section.append(link);
-          }
-        }
         if (/^#!?\/?mypreferenceshome(?:[?]|$)/i.test(location.hash)) {
           const homePref = [...document.querySelectorAll("#homeScreenPreferencesPage,.homeScreenPreferencesPage")].find(visible);
           if (homePref && !homePref.querySelector("[data-fx-home-studio]")) {
@@ -7295,7 +7823,7 @@ button.fx-settings-menu-row .listItemBodyText{
           scrollToTop();
           setTimeout(scrollToTop, 40);
         }
-        const searchTrigger = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, '[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
+        const searchTrigger = (_u = (_t = event.target).closest) == null ? void 0 : _u.call(_t, '[data-fx-mobile-search="true"], [data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
         if (searchTrigger && ((_w = (_v = window.ApiClient) == null ? void 0 : _v.getCurrentUserId) == null ? void 0 : _w.call(_v))) {
           event.preventDefault();
           (_x = event.stopImmediatePropagation) == null ? void 0 : _x.call(event);
@@ -7507,10 +8035,106 @@ button.fx-settings-menu-row .listItemBodyText{
         streakZone: "",
         streakSec: 0
       };
+      let savedVideoFullscreenHooks = null;
+      function shouldBlockNativeVideoFullscreen(videoEl) {
+        var _a2, _b2, _c2;
+        if (stopped || !isTouchMobileDevice()) return false;
+        if (findActiveOsdVideo()) return true;
+        return Boolean(((_b2 = (_a2 = videoEl == null ? void 0 : videoEl.classList) == null ? void 0 : _a2.contains) == null ? void 0 : _b2.call(_a2, "htmlvideoplayer")) || ((_c2 = videoEl == null ? void 0 : videoEl.closest) == null ? void 0 : _c2.call(videoEl, "#videoOsdPage, .videoPlayerContainer")));
+      }
+      function installNativeFullscreenGuard() {
+        var _a2;
+        const VideoCtor = window.HTMLVideoElement || ((_a2 = document.defaultView) == null ? void 0 : _a2.HTMLVideoElement) || globalThis.HTMLVideoElement;
+        const proto = VideoCtor == null ? void 0 : VideoCtor.prototype;
+        if (!proto || savedVideoFullscreenHooks) return;
+        savedVideoFullscreenHooks = {
+          proto,
+          hasEnter: Object.prototype.hasOwnProperty.call(proto, "webkitEnterFullscreen"),
+          enter: proto.webkitEnterFullscreen,
+          hasEnterCap: Object.prototype.hasOwnProperty.call(proto, "webkitEnterFullScreen"),
+          enterCap: proto.webkitEnterFullScreen,
+          hasMode: Object.prototype.hasOwnProperty.call(proto, "webkitSetPresentationMode"),
+          mode: proto.webkitSetPresentationMode
+        };
+        try {
+          proto.webkitEnterFullscreen = function(...args) {
+            var _a3;
+            if (shouldBlockNativeVideoFullscreen(this)) return;
+            return (_a3 = savedVideoFullscreenHooks == null ? void 0 : savedVideoFullscreenHooks.enter) == null ? void 0 : _a3.apply(this, args);
+          };
+          proto.webkitEnterFullScreen = function(...args) {
+            var _a3;
+            if (shouldBlockNativeVideoFullscreen(this)) return;
+            return (_a3 = savedVideoFullscreenHooks == null ? void 0 : savedVideoFullscreenHooks.enterCap) == null ? void 0 : _a3.apply(this, args);
+          };
+          if (typeof savedVideoFullscreenHooks.mode === "function") {
+            proto.webkitSetPresentationMode = function(mode, ...rest) {
+              var _a3;
+              if (mode === "fullscreen" && shouldBlockNativeVideoFullscreen(this)) return;
+              return (_a3 = savedVideoFullscreenHooks == null ? void 0 : savedVideoFullscreenHooks.mode) == null ? void 0 : _a3.call(this, mode, ...rest);
+            };
+          }
+        } catch {
+        }
+      }
+      function restoreNativeFullscreenGuard() {
+        if (!savedVideoFullscreenHooks) return;
+        const { proto, hasEnter, enter, hasEnterCap, enterCap, hasMode, mode } = savedVideoFullscreenHooks;
+        savedVideoFullscreenHooks = null;
+        try {
+          if (hasEnter) proto.webkitEnterFullscreen = enter;
+          else delete proto.webkitEnterFullscreen;
+          if (hasEnterCap) proto.webkitEnterFullScreen = enterCap;
+          else delete proto.webkitEnterFullScreen;
+          if (hasMode) proto.webkitSetPresentationMode = mode;
+        } catch {
+        }
+      }
+      function ensureOsdVideoPrepared(video) {
+        var _a2, _b2, _c2, _d2;
+        if (!video) return;
+        try {
+          video.playsInline = true;
+          (_a2 = video.setAttribute) == null ? void 0 : _a2.call(video, "playsinline", "");
+          (_b2 = video.setAttribute) == null ? void 0 : _b2.call(video, "webkit-playsinline", "");
+        } catch {
+        }
+        if (video._fxOsdPrepared) return;
+        video._fxOsdPrepared = true;
+        if (typeof video.webkitEnterFullscreen === "function" && Object.prototype.hasOwnProperty.call(video, "webkitEnterFullscreen")) {
+          const orig = video.webkitEnterFullscreen;
+          video.webkitEnterFullscreen = function(...args) {
+            if (shouldBlockNativeVideoFullscreen(this)) return;
+            return orig.apply(this, args);
+          };
+        }
+        (_c2 = video.addEventListener) == null ? void 0 : _c2.call(video, "webkitbeginfullscreen", () => {
+          var _a3;
+          if (shouldBlockNativeVideoFullscreen(video)) {
+            try {
+              (_a3 = video.webkitExitFullscreen) == null ? void 0 : _a3.call(video);
+            } catch {
+            }
+          }
+        });
+        (_d2 = video.addEventListener) == null ? void 0 : _d2.call(video, "pause", () => {
+          var _a3;
+          if (osdGesture.holdActive && osdGesture.activeVideo === video && !video.ended) {
+            try {
+              const p = (_a3 = video.play) == null ? void 0 : _a3.call(video);
+              if (p == null ? void 0 : p.catch) p.catch(() => {
+              });
+            } catch {
+            }
+          }
+        });
+      }
       function findActiveOsdVideo() {
         const osd = document.getElementById("videoOsdPage");
         if (!osd || osd.classList.contains("hide") || osd.classList.contains("hidePage") || osd.hidden) return null;
-        return document.querySelector("video.htmlvideoplayer") || osd.querySelector("video") || document.querySelector(".videoPlayerContainer video");
+        const v = document.querySelector("video.htmlvideoplayer") || osd.querySelector("video") || document.querySelector(".videoPlayerContainer video");
+        if (v) ensureOsdVideoPrepared(v);
+        return v;
       }
       function showOsdGesturePill(label, position = "center", persistent = false) {
         let pill = document.querySelector(".fx-osd-gesture-pill");
@@ -7535,23 +8159,37 @@ button.fx-settings-menu-row .listItemBodyText{
         pill == null ? void 0 : pill.classList.remove("is-visible");
       }
       function releaseOsdSpeedHold() {
+        var _a2;
         clearTimeout(osdGesture.holdTimer);
         osdGesture.holdTimer = 0;
         if (osdGesture.holdActive) {
-          if (osdGesture.activeVideo) {
+          const v = osdGesture.activeVideo;
+          osdGesture.holdActive = false;
+          osdGesture.activeVideo = null;
+          if (v) {
             try {
-              osdGesture.activeVideo.playbackRate = osdGesture.savedRate || 1;
+              v.playbackRate = osdGesture.savedRate || 1;
+            } catch {
+            }
+            try {
+              if (v.paused && !v.ended) {
+                const p = (_a2 = v.play) == null ? void 0 : _a2.call(v);
+                if (p == null ? void 0 : p.catch) p.catch(() => {
+                });
+              }
             } catch {
             }
           }
-          osdGesture.holdActive = false;
-          osdGesture.activeVideo = null;
           hideOsdGesturePill();
         }
       }
       function isOsdInteractiveTarget(target) {
         var _a2;
         return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+      }
+      function isOsdScrollableOrSliderTarget(target) {
+        var _a2;
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, '[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .actionSheet, .actionSheetScroller, .smoothScrollY, .fx-download-menu'));
       }
       function onOsdTouchStart(event) {
         var _a2;
@@ -7571,16 +8209,26 @@ button.fx-settings-menu-row .listItemBodyText{
         osdGesture.startY = t.clientY;
         osdGesture.startAt = Date.now();
         clearTimeout(osdGesture.holdTimer);
-        if (t.clientX >= vw * 0.72) {
+        if (t.clientX >= vw * 0.72 || t.clientX <= vw * 0.28) {
           osdGesture.holdTimer = setTimeout(() => {
+            var _a3;
             if (!osdGesture.touching || osdGesture.moved || osdGesture.holdActive) return;
             const v = findActiveOsdVideo();
-            if (!v || v.paused) return;
+            if (!v || v.ended) return;
+            ensureOsdVideoPrepared(v);
             osdGesture.holdActive = true;
             osdGesture.activeVideo = v;
             osdGesture.savedRate = Number.isFinite(v.playbackRate) && v.playbackRate > 0 ? v.playbackRate : 1;
             try {
               v.playbackRate = 2;
+            } catch {
+            }
+            try {
+              if (v.paused && !v.ended) {
+                const p = (_a3 = v.play) == null ? void 0 : _a3.call(v);
+                if (p == null ? void 0 : p.catch) p.catch(() => {
+                });
+              }
             } catch {
             }
             showOsdGesturePill("2\xD7 Speed \u25B8\u25B8", "top", true);
@@ -7589,6 +8237,10 @@ button.fx-settings-menu-row .listItemBodyText{
       }
       function onOsdTouchMove(event) {
         var _a2;
+        const activeVideo = findActiveOsdVideo();
+        if (activeVideo && (osdGesture.holdActive || !isOsdScrollableOrSliderTarget(event.target))) {
+          if (event.cancelable) event.preventDefault();
+        }
         if (!osdGesture.touching || !((_a2 = event.touches) == null ? void 0 : _a2.length)) return;
         const t = event.touches[0];
         if (Math.hypot(t.clientX - osdGesture.startX, t.clientY - osdGesture.startY) > 16) {
@@ -7600,7 +8252,7 @@ button.fx-settings-menu-row .listItemBodyText{
         }
       }
       function onOsdTouchEnd(event) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2;
         clearTimeout(osdGesture.holdTimer);
         osdGesture.holdTimer = 0;
         if (!osdGesture.touching) return;
@@ -7623,15 +8275,18 @@ button.fx-settings-menu-row .listItemBodyText{
         const y = t ? t.clientY : osdGesture.startY;
         const vw = window.innerWidth || ((_c2 = document.documentElement) == null ? void 0 : _c2.clientWidth) || 0;
         if (!vw) return;
-        const zone = x >= vw * 0.6 ? "right" : x <= vw * 0.4 ? "left" : "";
-        if (!zone) {
-          osdGesture.lastTap = null;
-          return;
-        }
-        const streakContinue = osdGesture.streakZone === zone && osdGesture.lastTap && now - osdGesture.lastTap.time <= 650;
+        const zone = x >= vw * 0.6 ? "right" : x <= vw * 0.4 ? "left" : "center";
+        const streakContinue = zone !== "center" && osdGesture.streakZone === zone && osdGesture.lastTap && now - osdGesture.lastTap.time <= 650;
         const isDoubleTap = streakContinue || osdGesture.lastTap && osdGesture.lastTap.zone === zone && now - osdGesture.lastTap.time <= 340 && Math.hypot(x - osdGesture.lastTap.x, y - osdGesture.lastTap.y) <= 68;
         osdGesture.lastTap = { zone, x, y, time: now };
         if (!isDoubleTap) return;
+        if (zone === "center") {
+          osdGesture.suppressClickUntil = now + 380;
+          if (event.cancelable) event.preventDefault();
+          (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
+          event.stopPropagation();
+          return;
+        }
         const delta = zone === "right" ? 10 : -10;
         osdGesture.streakZone = zone;
         osdGesture.streakSec = streakContinue ? osdGesture.streakSec + delta : delta;
@@ -7650,14 +8305,38 @@ button.fx-settings-menu-row .listItemBodyText{
         showOsdGesturePill(zone === "right" ? `+${absSec}s \u25B8\u25B8` : `\u25C2\u25C2 -${absSec}s`, zone, false);
         osdGesture.suppressClickUntil = now + 380;
         if (event.cancelable) event.preventDefault();
-        (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
+        (_e2 = event.stopImmediatePropagation) == null ? void 0 : _e2.call(event);
         event.stopPropagation();
       }
+      function onOsdDblClick(event) {
+        var _a2, _b2, _c2;
+        if (!isTouchMobileDevice()) return;
+        if (findActiveOsdVideo() || ((_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage, .videoPlayerContainer"))) {
+          event.preventDefault();
+          (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+          event.stopPropagation();
+        }
+      }
+      function onOsdContextMenu(event) {
+        var _a2, _b2, _c2;
+        if (!isTouchMobileDevice()) return;
+        if ((findActiveOsdVideo() || ((_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage, .videoPlayerContainer"))) && !isOsdInteractiveTarget(event.target)) {
+          event.preventDefault();
+          (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+          event.stopPropagation();
+        }
+      }
       function onOsdSuppressClick(event) {
-        var _a2;
+        var _a2, _b2, _c2, _d2;
+        if (isTouchMobileDevice() && ((_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .btnFullscreen"))) {
+          event.preventDefault();
+          (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+          event.stopPropagation();
+          return;
+        }
         if (Date.now() <= osdGesture.suppressClickUntil && findActiveOsdVideo() && !isOsdInteractiveTarget(event.target)) {
           event.preventDefault();
-          (_a2 = event.stopImmediatePropagation) == null ? void 0 : _a2.call(event);
+          (_d2 = event.stopImmediatePropagation) == null ? void 0 : _d2.call(event);
           event.stopPropagation();
         }
       }
@@ -7672,6 +8351,7 @@ button.fx-settings-menu-row .listItemBodyText{
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
+        installNativeFullscreenGuard();
         if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
         patchLibraryViews();
         syncLibraryViewMenu();
@@ -7687,7 +8367,7 @@ button.fx-settings-menu-row .listItemBodyText{
         observer = new MutationObserver((records) => {
           if (records.some((r) => {
             var _a2, _b2;
-            return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu"));
+            return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage"));
           })) {
             hideLeavingSoonNav();
             syncMobileOverflowDrawer(window.ApiClient);
@@ -7699,12 +8379,14 @@ button.fx-settings-menu-row .listItemBodyText{
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
         document.addEventListener("click", onOsdSuppressClick, true);
+        document.addEventListener("dblclick", onOsdDblClick, true);
+        document.addEventListener("contextmenu", onOsdContextMenu, true);
         document.addEventListener("click", navSuggestions, true);
         window.addEventListener("hashchange", onRouteEvent);
         window.addEventListener("popstate", onRouteEvent);
         document.addEventListener("viewshow", onRouteEvent);
         document.addEventListener("touchstart", onOsdTouchStart, { passive: true, capture: true });
-        document.addEventListener("touchmove", onOsdTouchMove, { passive: true, capture: true });
+        document.addEventListener("touchmove", onOsdTouchMove, { passive: false, capture: true });
         document.addEventListener("touchend", onOsdTouchEnd, { passive: false, capture: true });
         document.addEventListener("touchcancel", onOsdTouchEnd, { passive: true, capture: true });
         window.addEventListener("blur", releaseOsdSpeedHold);
@@ -7733,6 +8415,7 @@ button.fx-settings-menu-row .listItemBodyText{
           clearInterval(heartbeat);
           observer == null ? void 0 : observer.disconnect();
           releaseOsdSpeedHold();
+          restoreNativeFullscreenGuard();
           clearTimeout(osdGesture.streakTimer);
           cleanup(false);
           closeDownloadMenu();
@@ -7742,6 +8425,8 @@ button.fx-settings-menu-row .listItemBodyText{
           (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
           (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
           document.removeEventListener("click", onOsdSuppressClick, true);
+          document.removeEventListener("dblclick", onOsdDblClick, true);
+          document.removeEventListener("contextmenu", onOsdContextMenu, true);
           document.removeEventListener("click", navSuggestions, true);
           window.removeEventListener("hashchange", onRouteEvent);
           window.removeEventListener("popstate", onRouteEvent);
@@ -7757,7 +8442,7 @@ button.fx-settings-menu-row .listItemBodyText{
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
-          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
           (_g = document.getElementById("fx-discovery-style")) == null ? void 0 : _g.remove();
           delete window.FazFortDiscovery;
         }

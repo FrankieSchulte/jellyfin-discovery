@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.4';
+const VERSION = '0.5.5';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -436,7 +436,52 @@ function hideLeavingSoonNav() {
     else setTimeout(fire, 0);
   }
 }
-function syncMobileOverflowDrawer(api = window.ApiClient) {
+const SETTINGS_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
+const MOBILE_SEARCH_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7.5"></circle><line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line></svg>';
+function syncMobileHeaderControls(api = window.ApiClient) {
+  const proxy = document.querySelector('[data-sleekfin-header-proxy]');
+  if (proxy) {
+    if (!api?.getCurrentUserId?.()) {
+      proxy.querySelectorAll('[data-fx-mobile-search]').forEach(n => n.remove());
+    } else {
+      const overflowToggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
+      let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
+      if (overflowToggle) {
+        let createdSearch = false;
+        if (!mobileSearchBtn) {
+          mobileSearchBtn = element('button', 'fx-mobile-search-btn');
+          mobileSearchBtn.type = 'button';
+          mobileSearchBtn.dataset.fxMobileSearch = 'true';
+          mobileSearchBtn.title = 'Search';
+          mobileSearchBtn.setAttribute('aria-label', 'Search');
+          mobileSearchBtn.innerHTML = MOBILE_SEARCH_SVG;
+          createdSearch = true;
+        }
+        if (mobileSearchBtn.nextElementSibling !== overflowToggle) {
+          proxy.insertBefore(mobileSearchBtn, overflowToggle);
+        }
+        if (createdSearch && typeof Event === 'function') {
+          const notifyResize = () => { try { window.dispatchEvent?.(new Event('resize')); } catch {} };
+          if (typeof requestAnimationFrame === 'function') requestAnimationFrame(notifyResize);
+          else setTimeout(notifyResize, 0);
+        }
+        const isSearchRoute = /^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(String(location.hash || ''));
+        if (isSearchRoute) {
+          mobileSearchBtn.setAttribute('aria-current', 'page');
+          mobileSearchBtn.dataset.sleekfinCurrent = 'true';
+        } else {
+          mobileSearchBtn.removeAttribute('aria-current');
+          delete mobileSearchBtn.dataset.sleekfinCurrent;
+        }
+      }
+    }
+  }
+  const detailActions = document.querySelector('#itemDetailPage:not(.hide) .mainDetailButtons.sleekfin-details-actions');
+  if (detailActions && !detailActions.querySelector('.sleekfin-details-action-spacer')) {
+    const sp = element('span', 'sleekfin-details-action-spacer');
+    sp.setAttribute('aria-hidden', 'true');
+    detailActions.append(sp);
+  }
   const drawer = document.querySelector('[data-sleekfin-header-overflow-drawer]');
   if (!drawer) return;
   if (!api?.getCurrentUserId?.()) {
@@ -455,17 +500,19 @@ function syncMobileOverflowDrawer(api = window.ApiClient) {
     settingsBtn.type = 'button';
     settingsBtn.dataset.fxOverflowSettings = 'true';
     settingsBtn.setAttribute('data-sleekfin-header-overflow-item', 'fx:settings');
+    settingsBtn.setAttribute('data-sleekfin-header-overflow-full', 'true');
     settingsBtn.title = 'Settings';
     settingsBtn.setAttribute('aria-label', 'Settings');
     const vis = element('span');
-    vis.dataset.sleekfinHeaderSourceVisual = 'true';
-    const icon = element('span', 'material-icons settings');
+    vis.dataset.sleekfinHeaderOverflowVisual = 'true';
+    const icon = element('span', 'fx-overflow-svg-icon');
     icon.dataset.sleekfinHeaderSourceIcon = 'true';
     icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = SETTINGS_GEAR_SVG;
     const lbl = element('span', '', 'Settings');
     lbl.dataset.sleekfinHeaderSourceLabel = 'true';
-    vis.append(icon, lbl);
-    settingsBtn.append(vis);
+    vis.append(icon);
+    settingsBtn.append(vis, lbl);
     settingsBtn.addEventListener('click', ev => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -485,6 +532,9 @@ function syncMobileOverflowDrawer(api = window.ApiClient) {
     settingsBtn.removeAttribute('aria-current');
     delete settingsBtn.dataset.sleekfinCurrent;
   }
+}
+function syncMobileOverflowDrawer(api = window.ApiClient) {
+  syncMobileHeaderControls(api);
 }
 function syncHomeModeAttr(api = window.ApiClient) {
   const rootEl = document.documentElement;
@@ -599,6 +649,13 @@ function upgradeLegacyConfig(cfg) {
       const prof = cfg.pages[page];
       const supplied = DEFAULT_CONFIG.pages[page]?.rules;
       if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
+      if (Array.isArray(prof.anchors)) {
+        if (!prof.anchors.includes('ContinueWatchingNextUp') && !Array.isArray(prof.opening)) {
+          prof.anchors.unshift('ContinueWatchingNextUp');
+        } else if (prof.anchors.includes('ContinueWatchingNextUp') && prof.anchors[0] !== 'ContinueWatchingNextUp') {
+          prof.anchors = ['ContinueWatchingNextUp', ...prof.anchors.filter(a => a !== 'ContinueWatchingNextUp')];
+        }
+      }
       if (page === 'shows') {
         const pinned = new Set(Array.isArray(prof.opening) ? prof.opening : []);
         const layouts = prof.layouts && typeof prof.layouts === 'object' ? prof.layouts : null;
@@ -631,6 +688,21 @@ function isCompactTouchViewport() {
     return Boolean(
       window.matchMedia?.('(max-width: 768px)')?.matches ||
       (window.matchMedia?.('(pointer: coarse)')?.matches && (window.innerWidth || 1024) <= 900)
+    );
+  } catch { return false; }
+}
+function isTouchMobileDevice() {
+  try {
+    const nav = typeof navigator === 'object' ? navigator : window.navigator;
+    const ua = String(nav?.userAgent || '');
+    const touchMac = nav?.platform === 'MacIntel' && (nav?.maxTouchPoints || 0) > 1;
+    return Boolean(
+      window.NativeShell ||
+      /iPhone|iPad|iPod|Android|Mobile/i.test(ua) ||
+      touchMac ||
+      window.matchMedia?.('(hover: none) and (pointer: coarse)')?.matches ||
+      isCompactTouchViewport() ||
+      (typeof window.innerWidth === 'number' && window.innerWidth > 0 && Math.min(window.innerWidth, window.innerHeight || 9999) <= 520)
     );
   } catch { return false; }
 }
@@ -1083,11 +1155,21 @@ function renderSkeletonRows(s, count = 3) {
     s.list.append(sec);
   }
 }
-function appendRow(row, s, isBoot = false) {
+function appendRow(row, s, isBoot = false, atIndex = -1) {
   s.list.querySelectorAll('[data-skeleton="true"]').forEach(n => n.remove());
   const slot = { node: element('section', 'fx-shelf'), data: row, live: false, boot: isBoot };
   if (isBoot) slot.node.dataset.bootRow = 'true';
-  slot.node.dataset.shelfKey = row.key; s.list.append(slot.node); s.slots.push(slot); fillSlot(slot, s);
+  slot.node.dataset.shelfKey = row.key;
+  if (atIndex >= 0 && atIndex < s.slots.length) {
+    const refSlot = s.slots[atIndex];
+    if (refSlot?.node?.parentElement === s.list) s.list.insertBefore(slot.node, refSlot.node);
+    else s.list.append(slot.node);
+    s.slots.splice(atIndex, 0, slot);
+  } else {
+    s.list.append(slot.node);
+    s.slots.push(slot);
+  }
+  fillSlot(slot, s);
 }
 function filterPanel(s) {
   s.panel.replaceChildren();
@@ -1225,11 +1307,11 @@ async function nextRow(s) {
     const token=opening[s.openingIndex||0];s.openingIndex=(s.openingIndex||0)+1;
     if(token.startsWith('anchor:')){
       const id=token.slice(7);
-      try{const row=await s.client.anchor(id,s.route,s.inventory,s.config);if(row.items.length)return row;}
+      try{const row=await s.client.anchor(id,s.route,s.inventory,s.config);if(row.items.length){s.anchorTurn=false;return row;}}
       catch{s.client.assertCurrent();}
     }else{
       const row=token.startsWith('rule:')?s.planner.take(token):s.planner.shelves.some(r=>r.family===token.slice(7))?s.planner.next(token.slice(7)):null;
-      if(row)return row;
+      if(row){s.anchorTurn=true;return row;}
     }
   }
   while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
@@ -1243,7 +1325,7 @@ async function nextRow(s) {
       } catch { s.client.assertCurrent(); }
     } else {
       s.anchorTurn = true;
-      const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && s.anchorIndex > 0 && s.slots.filter(slot => !slot.boot).length < s.profile.anchors.length * 2 ? 'theme' : null);
+      const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && (s.anchorIndex > 0 || opening.some(t => t.startsWith('anchor:'))) && s.slots.filter(slot => !slot.boot).length < s.profile.anchors.length * 2 ? 'theme' : null);
       if (row) return row;
       if (s.anchorIndex >= s.profile.anchors.length) return null;
     }
@@ -1254,6 +1336,7 @@ async function loadMore(s, automatic = false) {
   if (state !== s || s.loading || s.full || s.finished || !s.planner || (automatic && s.pauseAutomatic)) return;
   s.loading = true; s.more.disabled = true; s.more.textContent = 'Loading…';
   try {
+    let placedIndex = s.slots.filter(slot => !slot.boot).length;
     for (let n = 0; n < s.config.batchSize; n++) {
       const row = s.pending || await nextRow(s);
       if (!row) { s.finished = true; break; }
@@ -1282,9 +1365,19 @@ async function loadMore(s, automatic = false) {
           delete existingBoot.node.dataset.bootRow;
           existingBoot.node.dataset.shelfKey = hydratedRow.key;
           existingBoot.data = hydratedRow;
+          const curIdx = s.slots.indexOf(existingBoot);
+          if (curIdx !== -1 && curIdx !== placedIndex) {
+            s.slots.splice(curIdx, 1);
+            const clamped = Math.min(placedIndex, s.slots.length);
+            const refSlot = s.slots[clamped];
+            if (refSlot?.node?.parentElement === s.list) s.list.insertBefore(existingBoot.node, refSlot.node);
+            else s.list.append(existingBoot.node);
+            s.slots.splice(clamped, 0, existingBoot);
+          }
+          placedIndex++;
           fillSlot(existingBoot, s);
         } else {
-          appendRow(hydratedRow, s);
+          appendRow(hydratedRow, s, false, placedIndex++);
         }
         s.failed = false;
         s.footer.hidden = s.full;
@@ -1388,9 +1481,7 @@ async function initialize(s) {
       syncNative(s, true);
     }
     if (!s.full && s.route.view !== 'genres') {
-      const p = s.client.json('HomeScreen/Section/ContinueWatchingNextUp', { UserId: s.client.userId });
-      p.catch(() => {});
-      s.client.prefetchedSections.set('ContinueWatchingNextUp', p);
+      s.client.prefetchContinueWatching(s.route, Math.min(s.config?.cardsPerShelf || 20, 20));
     }
     const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
     const cachedInv = findCachedInventory(s.scope, s.route);
@@ -1422,7 +1513,7 @@ async function initialize(s) {
         syncNative(s, true);
       } else if (s.route.view !== 'genres') {
         s.client.fastOpening(s.route, s.config).then(fastRows => {
-          if (state !== s || s.full || s.planner || s.slots.length || !fastRows?.length) return;
+          if (state !== s || s.full || s.failed || s.planner || s.slots.length || !fastRows?.length) return;
           fastRows.forEach(row => appendRow(row, s, true));
           syncNative(s, true);
         }).catch(() => {});
@@ -1542,24 +1633,87 @@ function triggerUrlDownload(url, filename = '') {
   a.click();
   a.remove();
 }
-async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api }) {
-  const absUrl = safeUrl(url, location.href) || url;
+function normalizeMp4DownloadItem(itemObj, itemId, finalBase, finalFilename, serverId) {
+  const base = itemObj && typeof itemObj === 'object' ? { ...itemObj } : { Id: itemId, Name: finalBase, ServerId: serverId };
+  base.Container = 'mp4';
+  base.Path = finalFilename;
+  if (Array.isArray(base.MediaSources)) {
+    base.MediaSources = base.MediaSources.map(ms => ms && typeof ms === 'object' ? {
+      ...ms,
+      Container: 'mp4',
+      Path: finalFilename,
+      SupportsDirectStream: true,
+      SupportsDirectPlay: true
+    } : ms);
+  }
+  return base;
+}
+function isQuickTimeNativeMp4(itemObj) {
+  if (!itemObj || typeof itemObj !== 'object') return false;
+  const ms = Array.isArray(itemObj.MediaSources) ? itemObj.MediaSources[0] : null;
+  const container = String(ms?.Container || itemObj.Container || '').toLowerCase();
+  if (container !== 'mp4' && container !== 'm4v' && container !== 'mov') return false;
+  const streams = Array.isArray(ms?.MediaStreams) ? ms.MediaStreams : [];
+  if (!streams.length) return true;
+  const video = streams.find(s => s?.Type === 'Video');
+  const audio = streams.find(s => s?.Type === 'Audio');
+  const vOk = !video || /^(h264|avc1|hevc|hvc1|hev1)$/i.test(String(video.Codec || ''));
+  const aOk = !audio || /^(aac|mp3|ac3|eac3|alac)$/i.test(String(audio.Codec || ''));
+  return vOk && aOk;
+}
+function buildMp4RemuxUrl(itemId, api) {
+  const token = api?.accessToken?.() || '';
+  const params = {
+    Static: 'false',
+    VideoCodec: 'h264',
+    AudioCodec: 'aac',
+    AllowVideoStreamCopy: 'true',
+    AllowAudioStreamCopy: 'true',
+    EnableAutoStreamCopy: 'true',
+    VideoBitRate: '40000000',
+    MaxStreamingBitrate: '60000000',
+    AudioBitRate: '256000',
+    MaxAudioChannels: '2',
+    TranscodingProtocol: 'http',
+    TranscodingContainer: 'mp4',
+    PlaySessionId: 'fx-dl-full-' + Date.now(),
+    ...(token ? { api_key: token } : {})
+  };
+  const path = `Videos/${encodeURIComponent(itemId)}/stream.mp4`;
+  const raw = api?.getUrl?.(path, params);
+  if (typeof raw === 'string') return safeUrl(raw, location.href) || raw;
+  const qs = new URLSearchParams(params).toString();
+  const rel = `/${path}${qs ? '?' + qs : ''}`;
+  return safeUrl(rel, location.href) || rel;
+}
+async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem, api, mode = 'condensed' }) {
+  let absUrl = safeUrl(url, location.href) || url;
   const nativeShell = window.NativeShell;
-  if (nativeShell && (typeof nativeShell.downloadFiles === 'function' || typeof nativeShell.downloadFile === 'function')) {
-    let itemObj = cachedItem || state?.byId?.get(itemId) || state?.inventory?.items?.find(i => i.Id === itemId) || null;
-    const uid = api?.getCurrentUserId?.();
-    if (!itemObj && uid && typeof api?.getJSON === 'function' && typeof api?.getUrl === 'function') {
-      try {
-        itemObj = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
-      } catch {}
-    }
-    const finalBase = formatItemDownloadBase(itemObj) || baseTitle || 'video';
-    const finalFilename = filename || `${finalBase}.mp4`;
+  const hasNativeDownloader = Boolean(nativeShell && (typeof nativeShell.downloadFiles === 'function' || typeof nativeShell.downloadFile === 'function'));
+  const mobileClient = hasNativeDownloader || isTouchMobileDevice();
+  let itemObj = cachedItem || state?.byId?.get(itemId) || state?.inventory?.items?.find(i => i.Id === itemId) || null;
+  const uid = api?.getCurrentUserId?.();
+  if (mobileClient && (!itemObj || (!itemObj.Container && !itemObj.MediaSources)) && uid && typeof api?.getJSON === 'function' && typeof api?.getUrl === 'function') {
+    try {
+      const fullInfo = await api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`));
+      if (fullInfo && typeof fullInfo === 'object') itemObj = fullInfo;
+    } catch {}
+  }
+  if (mobileClient && mode === 'full' && !isQuickTimeNativeMp4(itemObj)) {
+    absUrl = buildMp4RemuxUrl(itemId, api);
+  }
+  const finalBase = formatItemDownloadBase(itemObj) || baseTitle || 'video';
+  const rawFilename = filename || `${finalBase}.mp4`;
+  const finalFilename = rawFilename.replace(/\.[a-z0-9]{2,5}$/i, '') + '.mp4';
+  if (hasNativeDownloader) {
+    const serverId = itemObj?.ServerId || api?.serverId?.() || '';
+    const mp4Item = normalizeMp4DownloadItem(itemObj, itemId, finalBase, finalFilename, serverId);
     const payload = {
       url: absUrl,
-      item: itemObj || { Id: itemId, Name: finalBase, ServerId: api?.serverId?.() || '' },
+      item: mp4Item,
       itemId,
-      serverId: itemObj?.ServerId || api?.serverId?.() || '',
+      serverId,
+      container: 'mp4',
       title: itemObj?.Name || finalBase,
       filename: finalFilename
     };
@@ -1571,7 +1725,7 @@ async function startMediaDownload({ url, itemId, baseTitle, filename, cachedItem
     showToast('Added to Jellyfin Downloads');
     return;
   }
-  triggerUrlDownload(absUrl, filename);
+  triggerUrlDownload(absUrl, mobileClient ? finalFilename : (filename || finalFilename));
 }
 function openDownloadMenu(btn, itemId, api) {
   if (downloadMenu && downloadMenuTrigger === btn) {
@@ -1615,7 +1769,7 @@ function openDownloadMenu(btn, itemId, api) {
   menu.setAttribute('aria-label', 'Download quality options');
 
   const fileFor = () => `${baseTitle || sanitizeFilename(inferDownloadTitle(itemId, btn), 'video')}.mp4`;
-  const makeOption = (title, url) => {
+  const makeOption = (title, url, mode) => {
     const opt = element('button', 'fx-download-option', title);
     opt.type = 'button';
     opt.dataset.downloadUrl = url;
@@ -1627,19 +1781,25 @@ function openDownloadMenu(btn, itemId, api) {
       const filename = fileFor();
       opt.setAttribute('download', filename);
       closeDownloadMenu();
-      startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api });
+      startMediaDownload({ url, itemId, baseTitle, filename, cachedItem: resolvedItem, api, mode });
     });
     return opt;
   };
 
-  const fullOpt = makeOption('Full Quality', fullUrl);
-  const condensedOpt = makeOption('Condensed', transcodeUrl);
+  const fullOpt = makeOption('Full Quality', fullUrl, 'full');
+  const condensedOpt = makeOption('Condensed', transcodeUrl, 'condensed');
   menu.append(fullOpt, condensedOpt);
   const uid = api.getCurrentUserId?.();
   if (uid && typeof api.getJSON === 'function' && typeof api.getUrl === 'function') {
     Promise.resolve(api.getJSON(api.getUrl(`Users/${encodeURIComponent(uid)}/Items/${encodeURIComponent(itemId)}`)))
       .then(info => {
-        if (info && typeof info === 'object') resolvedItem = info;
+        if (info && typeof info === 'object') {
+          resolvedItem = info;
+          const isMob = Boolean(window.NativeShell && (typeof window.NativeShell.downloadFiles === 'function' || typeof window.NativeShell.downloadFile === 'function')) || isTouchMobileDevice();
+          if (isMob && !isQuickTimeNativeMp4(info)) {
+            fullOpt.dataset.downloadUrl = buildMp4RemuxUrl(itemId, api);
+          }
+        }
         const refined = formatItemDownloadBase(info);
         if (refined) {
           baseTitle = refined;
@@ -1710,7 +1870,7 @@ function download(name, obj) {
   const a = element('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function buildSettingsContent(s, container, isDialog = true) {
-  const title = element('h2', '', 'Customize discovery');
+  const title = element(isDialog ? 'h2' : 'h1', isDialog ? '' : 'sectionTitle', 'Customize Home');
   const help = element('p', 'fx-dialog-lead', s.syncAvailable ? 'Home, Movies and Shows have separate rules. Apply saves these preferences to your Jellyfin user for other compatible devices.' : 'The server companion is unavailable. Apply saves to this browser; export/import can transfer your rules.');
   const input = element('textarea'); input.spellcheck = false; input.setAttribute('aria-label', 'Discovery configuration JSON');
   try { input.value = JSON.stringify(s.config || readConfig(s.api), null, 2); } catch { input.value = localStorage.getItem(configKey(s.api)) || JSON.stringify(DEFAULT_CONFIG, null, 2); }
@@ -1765,9 +1925,17 @@ function buildSettingsContent(s, container, isDialog = true) {
     } catch (e) { error.textContent = e.message; }
   });
   advanced.replaceChildren(element('summary','','Advanced: JSON import / export'),file,input,exportButton,reset);
-  if(isDialog)actions.replaceChildren(apply,button('Cancel',closeDialog));
-  else actions.replaceChildren(apply);
-  container.append(title,help,device,visual,advanced,error,actions);
+  if(isDialog){
+    actions.replaceChildren(apply,button('Cancel',closeDialog));
+    container.append(title,help,device,visual,advanced,error,actions);
+  }else{
+    actions.replaceChildren(apply);
+    const headCard=element('section','verticalSection fx-home-studio-head');
+    headCard.append(title,help,device);
+    const saveCard=element('section','verticalSection fx-home-studio-save');
+    saveCard.append(error,actions);
+    container.append(headCard,visual,advanced,saveCard);
+  }
 }
 function customize(s) {
   closeDialog();
@@ -1805,27 +1973,8 @@ function syncSettings(api){
     document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio]').forEach(n=>n.remove());
   }
   settingsScope=scope;
+  document.querySelectorAll('[data-fx-settings-link]').forEach(n=>n.remove());
   if(!scope)return;
-  if(/^#!?\/?mypreferencesmenu(?:[?]|$)/i.test(location.hash)){
-    const page=[...document.querySelectorAll('#myPreferencesMenuPage,.userPreferencesPage')].find(visible);
-    if(page&&!page.querySelector('[data-fx-settings-link]')){
-      const section=page.querySelector('.verticalSection:has(.listItem-border)')||page.querySelector('.readOnlyContent .verticalSection')||page.querySelector('.verticalSection')||page;
-      const link=element('button','emby-button listItem-border fx-settings-menu-row');
-      link.type='button';
-      link.dataset.fxSettingsLink='true';
-      const itemRow=element('div','listItem');
-      const icon=element('span','material-icons tune listItemIcon','');
-      icon.setAttribute('aria-hidden','true');
-      const body=element('div','listItemBody');
-      body.append(element('div','listItemBodyText','Discovery'));
-      itemRow.append(icon,body);
-      link.append(itemRow);
-      link.addEventListener('click',()=>openUserSettings(api));
-      const homeAnchor=section.querySelector('a[href*="mypreferenceshome"], [data-id="home"]');
-      if(homeAnchor&&homeAnchor.parentElement===section)homeAnchor.after(link);
-      else section.append(link);
-    }
-  }
   if(/^#!?\/?mypreferenceshome(?:[?]|$)/i.test(location.hash)){
     const homePref=[...document.querySelectorAll('#homeScreenPreferencesPage,.homeScreenPreferencesPage')].find(visible);
     if(homePref&&!homePref.querySelector('[data-fx-home-studio]')){
@@ -2019,7 +2168,7 @@ function navSuggestions(event){
     scrollToTop();
     setTimeout(scrollToTop, 40);
   }
-  const searchTrigger = event.target.closest?.('[data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
+  const searchTrigger = event.target.closest?.('[data-fx-mobile-search="true"], [data-sleekfin-header-proxy] button[data-sleekfin-header-proxy-item="jellyfin:search"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"], .skinHeader .headerSearchButton');
   if (searchTrigger && window.ApiClient?.getCurrentUserId?.()) {
     event.preventDefault();
     event.stopImmediatePropagation?.();
@@ -2170,10 +2319,88 @@ const osdGesture = {
   streakZone: '',
   streakSec: 0
 };
+let savedVideoFullscreenHooks = null;
+function shouldBlockNativeVideoFullscreen(videoEl) {
+  if (stopped || !isTouchMobileDevice()) return false;
+  if (findActiveOsdVideo()) return true;
+  return Boolean(videoEl?.classList?.contains?.('htmlvideoplayer') || videoEl?.closest?.('#videoOsdPage, .videoPlayerContainer'));
+}
+function installNativeFullscreenGuard() {
+  const VideoCtor = window.HTMLVideoElement || document.defaultView?.HTMLVideoElement || globalThis.HTMLVideoElement;
+  const proto = VideoCtor?.prototype;
+  if (!proto || savedVideoFullscreenHooks) return;
+  savedVideoFullscreenHooks = {
+    proto,
+    hasEnter: Object.prototype.hasOwnProperty.call(proto, 'webkitEnterFullscreen'),
+    enter: proto.webkitEnterFullscreen,
+    hasEnterCap: Object.prototype.hasOwnProperty.call(proto, 'webkitEnterFullScreen'),
+    enterCap: proto.webkitEnterFullScreen,
+    hasMode: Object.prototype.hasOwnProperty.call(proto, 'webkitSetPresentationMode'),
+    mode: proto.webkitSetPresentationMode
+  };
+  try {
+    proto.webkitEnterFullscreen = function (...args) {
+      if (shouldBlockNativeVideoFullscreen(this)) return;
+      return savedVideoFullscreenHooks?.enter?.apply(this, args);
+    };
+    proto.webkitEnterFullScreen = function (...args) {
+      if (shouldBlockNativeVideoFullscreen(this)) return;
+      return savedVideoFullscreenHooks?.enterCap?.apply(this, args);
+    };
+    if (typeof savedVideoFullscreenHooks.mode === 'function') {
+      proto.webkitSetPresentationMode = function (mode, ...rest) {
+        if (mode === 'fullscreen' && shouldBlockNativeVideoFullscreen(this)) return;
+        return savedVideoFullscreenHooks?.mode?.call(this, mode, ...rest);
+      };
+    }
+  } catch {}
+}
+function restoreNativeFullscreenGuard() {
+  if (!savedVideoFullscreenHooks) return;
+  const { proto, hasEnter, enter, hasEnterCap, enterCap, hasMode, mode } = savedVideoFullscreenHooks;
+  savedVideoFullscreenHooks = null;
+  try {
+    if (hasEnter) proto.webkitEnterFullscreen = enter; else delete proto.webkitEnterFullscreen;
+    if (hasEnterCap) proto.webkitEnterFullScreen = enterCap; else delete proto.webkitEnterFullScreen;
+    if (hasMode) proto.webkitSetPresentationMode = mode;
+  } catch {}
+}
+function ensureOsdVideoPrepared(video) {
+  if (!video) return;
+  try {
+    video.playsInline = true;
+    video.setAttribute?.('playsinline', '');
+    video.setAttribute?.('webkit-playsinline', '');
+  } catch {}
+  if (video._fxOsdPrepared) return;
+  video._fxOsdPrepared = true;
+  if (typeof video.webkitEnterFullscreen === 'function' && Object.prototype.hasOwnProperty.call(video, 'webkitEnterFullscreen')) {
+    const orig = video.webkitEnterFullscreen;
+    video.webkitEnterFullscreen = function (...args) {
+      if (shouldBlockNativeVideoFullscreen(this)) return;
+      return orig.apply(this, args);
+    };
+  }
+  video.addEventListener?.('webkitbeginfullscreen', () => {
+    if (shouldBlockNativeVideoFullscreen(video)) {
+      try { video.webkitExitFullscreen?.(); } catch {}
+    }
+  });
+  video.addEventListener?.('pause', () => {
+    if (osdGesture.holdActive && osdGesture.activeVideo === video && !video.ended) {
+      try {
+        const p = video.play?.();
+        if (p?.catch) p.catch(() => {});
+      } catch {}
+    }
+  });
+}
 function findActiveOsdVideo() {
   const osd = document.getElementById('videoOsdPage');
   if (!osd || osd.classList.contains('hide') || osd.classList.contains('hidePage') || osd.hidden) return null;
-  return document.querySelector('video.htmlvideoplayer') || osd.querySelector('video') || document.querySelector('.videoPlayerContainer video');
+  const v = document.querySelector('video.htmlvideoplayer') || osd.querySelector('video') || document.querySelector('.videoPlayerContainer video');
+  if (v) ensureOsdVideoPrepared(v);
+  return v;
 }
 function showOsdGesturePill(label, position = 'center', persistent = false) {
   let pill = document.querySelector('.fx-osd-gesture-pill');
@@ -2201,16 +2428,26 @@ function releaseOsdSpeedHold() {
   clearTimeout(osdGesture.holdTimer);
   osdGesture.holdTimer = 0;
   if (osdGesture.holdActive) {
-    if (osdGesture.activeVideo) {
-      try { osdGesture.activeVideo.playbackRate = osdGesture.savedRate || 1; } catch {}
-    }
+    const v = osdGesture.activeVideo;
     osdGesture.holdActive = false;
     osdGesture.activeVideo = null;
+    if (v) {
+      try { v.playbackRate = osdGesture.savedRate || 1; } catch {}
+      try {
+        if (v.paused && !v.ended) {
+          const p = v.play?.();
+          if (p?.catch) p.catch(() => {});
+        }
+      } catch {}
+    }
     hideOsdGesturePill();
   }
 }
 function isOsdInteractiveTarget(target) {
   return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+}
+function isOsdScrollableOrSliderTarget(target) {
+  return Boolean(target?.closest?.('[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .actionSheet, .actionSheetScroller, .smoothScrollY, .fx-download-menu'));
 }
 function onOsdTouchStart(event) {
   if (!event.touches || event.touches.length !== 1) {
@@ -2229,20 +2466,31 @@ function onOsdTouchStart(event) {
   osdGesture.startY = t.clientY;
   osdGesture.startAt = Date.now();
   clearTimeout(osdGesture.holdTimer);
-  if (t.clientX >= vw * 0.72) {
+  if (t.clientX >= vw * 0.72 || t.clientX <= vw * 0.28) {
     osdGesture.holdTimer = setTimeout(() => {
       if (!osdGesture.touching || osdGesture.moved || osdGesture.holdActive) return;
       const v = findActiveOsdVideo();
-      if (!v || v.paused) return;
+      if (!v || v.ended) return;
+      ensureOsdVideoPrepared(v);
       osdGesture.holdActive = true;
       osdGesture.activeVideo = v;
       osdGesture.savedRate = Number.isFinite(v.playbackRate) && v.playbackRate > 0 ? v.playbackRate : 1;
       try { v.playbackRate = 2; } catch {}
+      try {
+        if (v.paused && !v.ended) {
+          const p = v.play?.();
+          if (p?.catch) p.catch(() => {});
+        }
+      } catch {}
       showOsdGesturePill('2× Speed ▸▸', 'top', true);
     }, 320);
   }
 }
 function onOsdTouchMove(event) {
+  const activeVideo = findActiveOsdVideo();
+  if (activeVideo && (osdGesture.holdActive || !isOsdScrollableOrSliderTarget(event.target))) {
+    if (event.cancelable) event.preventDefault();
+  }
   if (!osdGesture.touching || !event.touches?.length) return;
   const t = event.touches[0];
   if (Math.hypot(t.clientX - osdGesture.startX, t.clientY - osdGesture.startY) > 16) {
@@ -2276,12 +2524,8 @@ function onOsdTouchEnd(event) {
   const y = t ? t.clientY : osdGesture.startY;
   const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
   if (!vw) return;
-  const zone = x >= vw * 0.60 ? 'right' : (x <= vw * 0.40 ? 'left' : '');
-  if (!zone) {
-    osdGesture.lastTap = null;
-    return;
-  }
-  const streakContinue = osdGesture.streakZone === zone && osdGesture.lastTap && (now - osdGesture.lastTap.time) <= 650;
+  const zone = x >= vw * 0.60 ? 'right' : (x <= vw * 0.40 ? 'left' : 'center');
+  const streakContinue = zone !== 'center' && osdGesture.streakZone === zone && osdGesture.lastTap && (now - osdGesture.lastTap.time) <= 650;
   const isDoubleTap = streakContinue || (
     osdGesture.lastTap &&
     osdGesture.lastTap.zone === zone &&
@@ -2290,6 +2534,13 @@ function onOsdTouchEnd(event) {
   );
   osdGesture.lastTap = { zone, x, y, time: now };
   if (!isDoubleTap) return;
+  if (zone === 'center') {
+    osdGesture.suppressClickUntil = now + 380;
+    if (event.cancelable) event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+    return;
+  }
   const delta = zone === 'right' ? 10 : -10;
   osdGesture.streakZone = zone;
   osdGesture.streakSec = streakContinue ? osdGesture.streakSec + delta : delta;
@@ -2308,7 +2559,29 @@ function onOsdTouchEnd(event) {
   event.stopImmediatePropagation?.();
   event.stopPropagation();
 }
+function onOsdDblClick(event) {
+  if (!isTouchMobileDevice()) return;
+  if (findActiveOsdVideo() || event.target?.closest?.('#videoOsdPage, .videoPlayerContainer')) {
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+  }
+}
+function onOsdContextMenu(event) {
+  if (!isTouchMobileDevice()) return;
+  if ((findActiveOsdVideo() || event.target?.closest?.('#videoOsdPage, .videoPlayerContainer')) && !isOsdInteractiveTarget(event.target)) {
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+  }
+}
 function onOsdSuppressClick(event) {
+  if (isTouchMobileDevice() && event.target?.closest?.('#videoOsdPage .btnFullscreen')) {
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+    return;
+  }
   if (Date.now() <= osdGesture.suppressClickUntil && findActiveOsdVideo() && !isOsdInteractiveTarget(event.target)) {
     event.preventDefault();
     event.stopImmediatePropagation?.();
@@ -2323,6 +2596,7 @@ function onRouteEvent() {
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
+  installNativeFullscreenGuard();
   if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
   patchLibraryViews();
   syncLibraryViewMenu();
@@ -2332,7 +2606,7 @@ function start() {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu'))) {
+    if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage'))) {
       hideLeavingSoonNav();
       syncMobileOverflowDrawer(window.ApiClient);
     }
@@ -2340,9 +2614,11 @@ function start() {
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   document.addEventListener('click', onOsdSuppressClick, true);
+  document.addEventListener('dblclick', onOsdDblClick, true);
+  document.addEventListener('contextmenu', onOsdContextMenu, true);
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', onRouteEvent); window.addEventListener('popstate', onRouteEvent); document.addEventListener('viewshow', onRouteEvent);
   document.addEventListener('touchstart', onOsdTouchStart, { passive: true, capture: true });
-  document.addEventListener('touchmove', onOsdTouchMove, { passive: true, capture: true });
+  document.addEventListener('touchmove', onOsdTouchMove, { passive: false, capture: true });
   document.addEventListener('touchend', onOsdTouchEnd, { passive: false, capture: true });
   document.addEventListener('touchcancel', onOsdTouchEnd, { passive: true, capture: true });
   window.addEventListener('blur', releaseOsdSpeedHold);
@@ -2356,11 +2632,13 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
     document.removeEventListener('click', onOsdSuppressClick, true);
+    document.removeEventListener('dblclick', onOsdDblClick, true);
+    document.removeEventListener('contextmenu', onOsdContextMenu, true);
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('touchstart', onOsdTouchStart, true);
     document.removeEventListener('touchmove', onOsdTouchMove, true);
@@ -2369,7 +2647,7 @@ window.FazFortDiscovery = {
     window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],.fx-osd-gesture-pill,.fx-toast').forEach(n=>n.remove());
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast').forEach(n=>n.remove());
     document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };

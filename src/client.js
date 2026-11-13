@@ -140,6 +140,15 @@ export class JellyfinClient {
     });
   }
   async fetchContinueWatching(route, inventory, limit = 16) {
+    if (this.prefetchedContinueWatching) {
+      const pending = this.prefetchedContinueWatching;
+      this.prefetchedContinueWatching = null;
+      try {
+        const pre = await pending;
+        this.assertCurrent();
+        if (Array.isArray(pre) && pre.length) return this.groupResume(pre.filter(i => !isLeavingSoonItem(i)), inventory).slice(0, limit);
+      } catch {}
+    }
     const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
     const fields = 'DateCreated,PrimaryImageAspectRatio,ParentId';
     const mediaTypes = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Episode' : 'Movie,Episode';
@@ -162,6 +171,23 @@ export class JellyfinClient {
       } catch {}
     }
     return this.groupResume(combined, inventory).slice(0, limit);
+  }
+  prefetchContinueWatching(route, limit = 20) {
+    const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
+    const fields = 'DateCreated,PrimaryImageAspectRatio,ParentId';
+    const mediaTypes = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Episode' : 'Movie,Episode';
+    const tasks = [
+      this.json('Items/Resume', { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+    ];
+    if (route.page !== 'movies') {
+      tasks.push(
+        this.json('Shows/NextUp', { UserId: this.userId, Limit: limit, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+      );
+    }
+    const p = Promise.all(tasks).then(res => [...(res[0]?.Items || []), ...(res[1]?.Items || [])]);
+    p.catch(() => {});
+    this.prefetchedContinueWatching = p;
+    return p;
   }
   async fastOpening(route, config) {
     if (route.view === 'genres' || route.view === 'library' || route.view === 'favorites') return [];
@@ -189,7 +215,7 @@ export class JellyfinClient {
         : null;
     if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };
-    if (id === 'ContinueWatchingNextUp' && !this.prefetchedSections.has(id) && typeof this.api?.getUrl === 'function') {
+    if (id === 'ContinueWatchingNextUp' && typeof this.api?.getUrl === 'function') {
       try {
         const items = await this.fetchContinueWatching(route, inventory, config.cardsPerShelf);
         if (items.length) {

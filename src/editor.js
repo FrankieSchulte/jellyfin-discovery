@@ -221,7 +221,15 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
         profile.opening=['anchor:ContinueWatchingNextUp',...pinned,'anchor:RecentlyAddedMovies','family:director','family:actor'];
         emit();draw();
       }),
-      button('Use automatic ordering',()=>{delete profile.opening;emit();draw();})
+      button('Use automatic ordering',()=>{
+        delete profile.opening;
+        if(!profile.anchors.includes('ContinueWatchingNextUp')){
+          profile.anchors=['ContinueWatchingNextUp',...profile.anchors];
+        }else if(profile.anchors[0]!=='ContinueWatchingNextUp'){
+          profile.anchors=['ContinueWatchingNextUp',...profile.anchors.filter(a=>a!=='ContinueWatchingNextUp')];
+        }
+        emit();draw();
+      })
     );
     openingSec.append(presetRow);
 

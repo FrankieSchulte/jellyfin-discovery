@@ -243,9 +243,10 @@
       dialog.setAttribute("aria-modal", "true");
       dialog.tabIndex = -1;
       const previous = document.activeElement, close = () => {
-        var _a2;
+        var _a2, _b2, _c2, _d2;
         overlay.remove();
-        (_a2 = previous == null ? void 0 : previous.focus) == null ? void 0 : _a2.call(previous);
+        if ((_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.contains("layout-tv")) (_c2 = previous == null ? void 0 : previous.focus) == null ? void 0 : _c2.call(previous);
+        else (_d2 = previous == null ? void 0 : previous.blur) == null ? void 0 : _d2.call(previous);
       };
       overlay.onclick = (e) => {
         if (e.target === overlay) close();
@@ -810,11 +811,34 @@
       setTimeout(reconcile, 40);
       setTimeout(reconcile, 150);
     }
+    const DISCOVER_COMPASS_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>';
+    function createDiscoverIconSpan(asSourceIcon = false) {
+      const icon = el("span", "", "rh-compass-icon");
+      icon.setAttribute("aria-hidden", "true");
+      if (asSourceIcon) icon.dataset.sleekfinHeaderSourceIcon = "true";
+      icon.innerHTML = DISCOVER_COMPASS_SVG;
+      return icon;
+    }
+    function upgradeNativeDiscoverIcon(btn) {
+      if (!btn) return;
+      const legacyIcon = btn.querySelector(".material-icons.explore");
+      if (legacyIcon) {
+        legacyIcon.className = "rh-compass-icon";
+        legacyIcon.innerHTML = DISCOVER_COMPASS_SVG;
+      }
+    }
     function ensureNavigation(active) {
-      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
       if (permAllowed !== true) {
         removeNavigation();
         return;
+      }
+      try {
+        const cached = (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, "sleekfin:header-sources:v2");
+        if (cached && cached.includes("material-icons explore")) {
+          window.sessionStorage.removeItem("sleekfin:header-sources:v2");
+        }
+      } catch {
       }
       const sourceHost = document.querySelector(".skinHeader .headerLeft") || document.querySelector("header.MuiAppBar-root .MuiToolbar-root .MuiStack-root");
       let addedSource = false;
@@ -826,8 +850,7 @@
         src.dataset.headerLabel = "Discover";
         src.title = "Discover";
         src.setAttribute("aria-label", "Discover");
-        const icon = el("span", "", "material-icons explore");
-        icon.setAttribute("aria-hidden", "true");
+        const icon = createDiscoverIconSpan(true);
         const label = el("span", "Discover", "emby-button-foreground");
         src.append(icon, label);
         src.onclick = openDiscoverRoute;
@@ -835,7 +858,7 @@
         addedSource = true;
       }
       if (addedSource) {
-        if ((_b2 = (_a2 = window.SleekFinFeatures) == null ? void 0 : _a2.header) == null ? void 0 : _b2.refresh) {
+        if ((_d2 = (_c2 = window.SleekFinFeatures) == null ? void 0 : _c2.header) == null ? void 0 : _d2.refresh) {
           try {
             window.SleekFinFeatures.header.refresh();
           } catch {
@@ -843,14 +866,30 @@
         }
         if (typeof Event === "function") {
           try {
-            (_c2 = window.dispatchEvent) == null ? void 0 : _c2.call(window, new Event("resize"));
+            (_e2 = window.dispatchEvent) == null ? void 0 : _e2.call(window, new Event("resize"));
           } catch {
           }
         }
       }
-      const isMobileHeader = Boolean((_e2 = (_d2 = window.matchMedia) == null ? void 0 : _d2.call(window, "(max-width: 899px)")) == null ? void 0 : _e2.matches);
+      const isMobileHeader = Boolean((_g = (_f = window.matchMedia) == null ? void 0 : _f.call(window, "(max-width: 899px)")) == null ? void 0 : _g.matches);
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
+      const ensureBeforeCollectionsOrLiveTv = (host, discoverNode, itemsSelector) => {
+        if (!host || !discoverNode || discoverNode.parentElement !== host) return;
+        const siblings = [...host.querySelectorAll(itemsSelector)];
+        const lowerPriority = siblings.find((b) => {
+          if (b === discoverNode) return false;
+          const k = (b.getAttribute("data-sleekfin-header-proxy-item") || b.getAttribute("data-sleekfin-header-overflow-item") || "").toLowerCase();
+          const txt = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+          return k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
+        });
+        if (lowerPriority && lowerPriority.parentElement === host) {
+          const children = [...host.children];
+          if (children.indexOf(discoverNode) > children.indexOf(lowerPriority)) {
+            host.insertBefore(discoverNode, lowerPriority);
+          }
+        }
+      };
       if (proxy) {
         document.querySelectorAll("[data-rh-link]").forEach((n) => {
           if (!proxy.contains(n) && !(overflowDrawer && overflowDrawer.contains(n))) n.remove();
@@ -865,6 +904,7 @@
         if (isMobileHeader) {
           proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
           if (nativeProxyBtn) {
+            upgradeNativeDiscoverIcon(nativeProxyBtn);
             nativeProxyBtn.dataset.rhLink = "true";
             nativeProxyBtn.onclick = openDiscoverRoute;
           }
@@ -879,8 +919,10 @@
             });
             if (nativeOverflowBtn) {
               overflowDrawer.querySelectorAll('[data-sleekfin-header-overflow-item="requesthub:discover"]').forEach((n) => n.remove());
+              upgradeNativeDiscoverIcon(nativeOverflowBtn);
               nativeOverflowBtn.dataset.rhLink = "true";
               nativeOverflowBtn.onclick = openDiscoverRoute;
+              ensureBeforeCollectionsOrLiveTv(nativeOverflowBtn.parentElement, nativeOverflowBtn, "button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]");
             } else if (existingOverflowItems.length && !overflowDrawer.querySelector('[data-sleekfin-header-overflow-item="requesthub:discover"]')) {
               const listHost = existingOverflowItems[0].parentElement;
               if (listHost) {
@@ -888,21 +930,20 @@
                 const btn = button("", openDiscoverRoute, (sample == null ? void 0 : sample.className) || "rh-nav");
                 btn.dataset.rhLink = "true";
                 btn.setAttribute("data-sleekfin-header-overflow-item", "requesthub:discover");
+                btn.setAttribute("data-sleekfin-header-overflow-full", "true");
                 btn.title = "Discover";
                 btn.setAttribute("aria-label", "Discover");
                 const vis = el("span", "");
-                vis.dataset.sleekfinHeaderSourceVisual = "true";
-                const icon = el("span", "", "material-icons explore");
-                icon.dataset.sleekfinHeaderSourceIcon = "true";
-                icon.setAttribute("aria-hidden", "true");
+                vis.dataset.sleekfinHeaderOverflowVisual = "true";
+                const icon = createDiscoverIconSpan(true);
                 const label = el("span", "Discover");
                 label.dataset.sleekfinHeaderSourceLabel = "true";
-                vis.append(icon, label);
-                btn.append(vis);
+                vis.append(icon);
+                btn.append(vis, label);
                 const collectionsItem = existingOverflowItems.find((b) => /collections/i.test((b.getAttribute("aria-label") || b.textContent || "").trim()));
                 const beforeFallback = listHost.querySelector('[data-sleekfin-header-overflow-item^="source:"],[data-fx-overflow-settings],[data-sleekfin-header-overflow-item="jellyfin:search"],[data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
                 if (collectionsItem && collectionsItem.parentElement === listHost) {
-                  listHost.insertBefore(btn, collectionsItem.nextSibling);
+                  listHost.insertBefore(btn, collectionsItem);
                 } else if (beforeFallback && beforeFallback.parentElement === listHost) {
                   listHost.insertBefore(btn, beforeFallback);
                 } else {
@@ -912,30 +953,35 @@
             }
           }
         } else {
-          (_g = (_f = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _f.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _g.forEach((n) => n.remove());
+          (_i = (_h = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _h.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _i.forEach((n) => n.remove());
           if (nativeProxyBtn) {
             proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
+            upgradeNativeDiscoverIcon(nativeProxyBtn);
             nativeProxyBtn.dataset.rhLink = "true";
             nativeProxyBtn.onclick = openDiscoverRoute;
+            ensureBeforeCollectionsOrLiveTv(proxy, nativeProxyBtn, "button[data-sleekfin-header-proxy-item]");
           } else if (!proxy.querySelector("[data-rh-link]")) {
             const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
             const btn = button("", openDiscoverRoute, "rh-nav");
             btn.dataset.rhLink = "true";
             btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
             btn.dataset.sleekfinHeaderZone = "tabs";
-            btn.dataset.sleekfinHeaderDisplay = ((_h = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _h.sleekfinHeaderDisplay) || "both";
+            btn.dataset.sleekfinHeaderDisplay = ((_j = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _j.sleekfinHeaderDisplay) || "both";
             btn.title = "Discover";
             btn.setAttribute("aria-label", "Discover");
             const vis = el("span", "");
             vis.dataset.sleekfinHeaderSourceVisual = "true";
-            const icon = el("span", "", "material-icons explore");
-            icon.dataset.sleekfinHeaderSourceIcon = "true";
-            icon.setAttribute("aria-hidden", "true");
+            const icon = createDiscoverIconSpan(true);
             const label = el("span", "Discover");
             label.dataset.sleekfinHeaderSourceLabel = "true";
             vis.append(icon, label);
             btn.append(vis);
-            const anchor = proxy.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
+            const collectionsProxy = [...proxy.querySelectorAll("button[data-sleekfin-header-proxy-item]")].find((b) => {
+              const k = (b.getAttribute("data-sleekfin-header-proxy-item") || "").toLowerCase();
+              const txt = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+              return k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
+            });
+            const anchor = collectionsProxy || proxy.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
             if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
             else proxy.append(btn);
           }
@@ -1196,8 +1242,22 @@ html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy]
 .rh-root,.rh-main,.rh-row,.rh-track,.rh-see-more,.rh-row-status,.rh-grid-section,.rh-grid,.rh-grid-footer{
  overflow-anchor:none;
 }
+.rh-compass-icon{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:18px!important;
+ height:18px!important;
+ flex:0 0 18px!important;
+ line-height:1!important;
+}
+.rh-compass-icon svg{
+ width:18px!important;
+ height:18px!important;
+ display:block!important;
+}
 .rh-root{
- padding:var(--sleekfin-header-height, 72px) var(--sleekfin-page-gutter, clamp(16px, 4vw, 80px)) 48px;
+ padding:calc(var(--sleekfin-header-height, 72px) + 18px) var(--sleekfin-page-gutter, clamp(16px, 4vw, 80px)) 48px;
  color:inherit;
  width:100%;
  clear:both;
@@ -1296,7 +1356,17 @@ html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy]
  padding:4px 12px;
  font-size:0.8rem;
 }
-.rh-root button:focus-visible,.rh-root .rh-card:focus,.rh-nav:focus-visible{
+.rh-root :is(button,.rh-card,.rh-media-card,.rh-chip,.rh-row-arrow),
+.rh-nav{
+ -webkit-tap-highlight-color:transparent;
+}
+html:not(.layout-tv) .rh-root :is(button,.rh-card,.rh-media-card,.rh-chip,.rh-row-arrow):is(:focus,:focus-visible,:active),
+html:not(.layout-tv) .rh-nav:is(:focus,:focus-visible,:active){
+ outline:none!important;
+ box-shadow:none!important;
+}
+html.layout-tv .rh-root :is(button,.rh-card,.rh-media-card):focus-visible,
+html.layout-tv .rh-nav:focus-visible{
  outline:3px solid #fff;
  outline-offset:3px;
  box-shadow:0 0 0 5px rgba(229,9,20,0.5);
@@ -1412,6 +1482,25 @@ a.rh-nav[aria-current=page]{
 .rh-media-card:hover .rh-media-frame{
  transform:scale(1.025);
  border-color:rgba(255,255,255,0.34);
+}
+.rh-genre-card .rh-media-frame{
+ border:2px solid rgba(255,255,255,0.24);
+}
+.rh-genre-card .rh-media-frame::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:inherit;
+ box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.22);
+ pointer-events:none;
+ z-index:3;
+ transition:box-shadow .16s ease;
+}
+.rh-genre-card:hover .rh-media-frame{
+ border-color:rgba(255,255,255,0.46);
+}
+.rh-genre-card:hover .rh-media-frame::after{
+ box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.38);
 }
 .rh-genre-card .rh-media-frame img{
  position:absolute;
@@ -1775,9 +1864,9 @@ a.rh-nav[aria-current=page]{
 }
 @media(max-width:899px){
  .rh-root{
-  padding:calc(16px + env(safe-area-inset-top, 0px)) 14px calc(96px + env(safe-area-inset-bottom, 0px));
+  padding:calc(24px + env(safe-area-inset-top, 0px)) 14px calc(100px + env(safe-area-inset-bottom, 0px));
   max-width:100vw;
-  overflow-x:clip;
+  overflow-x:hidden;
  }
 }
 @media(max-width:768px){
