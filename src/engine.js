@@ -20,9 +20,10 @@ export function monthAgo(now) {
   cutoff.setUTCDate(Math.min(day, lastDay));
   return cutoff;
 }
-export function recent(date, now) {
+export function recent(date, now, days = 7) {
   const time = Date.parse(date);
-  return Number.isFinite(time) && time >= monthAgo(now).getTime() && time <= now.getTime();
+  const cutoff = now.getTime() - days * 86400000;
+  return Number.isFinite(time) && time >= cutoff && time <= now.getTime();
 }
 export function seasonBadges(seasons, now) {
   const map = new Map();
@@ -216,4 +217,141 @@ export function routeInfo(hashValue) {
   if(page&&page!=='home'){if(tab==='0')view='library';else if(tab===(page==='movies'?'4':'3'))view='genres';else if(tab&&tab!=='1')return null;}
   const cat = p.get('fxCat') || '';
   return page ? { page, ...(page!=='home'?{view}:{}), ...(cat?{cat}:{}), parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
+}
+export function searchAndRankInventory(items, query, config = null, extraItems = []) {
+  const q = normalize(query);
+  if (!q) return [];
+  const escapeRx = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const wordRx = new RegExp(`(?:^|[^a-z0-9])${escapeRx(q)}(?:$|[^a-z0-9])`);
+  const qWords = q.split(/\s+/).filter(Boolean);
+  const isLeaving = it => !it || /leaving\s+soon/i.test(String(it.Name || '')) || /leaving\s+soon/i.test(String(it.SeriesName || '')) || /\/leaving-soon\//i.test(String(it.Path || ''));
+
+  // Deduplicate inventory + server-search items (Movie & Series only, strictly skipping Episode)
+  const primarySet = new Set();
+  const byKey = new Map();
+  const unique = [];
+  const keysOf = it => {
+    const ks = [];
+    const id = String(it.Id || '').toLowerCase().replace(/-/g, '');
+    if (id) ks.push(`id:${id}`);
+    const tmdb = it.ProviderIds?.Tmdb || it.ProviderIds?.tmdb;
+    if (tmdb && it.Type) ks.push(`${it.Type}:tmdb:${tmdb}`);
+    if (it.Name && it.Type) ks.push(`${it.Type}:title:${normalize(it.Name)}:${it.ProductionYear || ''}`);
+    return ks;
+  };
+  const extraIds = new Set();
+  for (const it of (extraItems || [])) {
+    if (it?.Id) extraIds.add(String(it.Id).toLowerCase().replace(/-/g, ''));
+  }
+  const ingest = (list, isPrimary) => {
+    for (const it of (list || [])) {
+      if (!it || !['Movie', 'Series'].includes(it.Type) || isLeaving(it)) continue;
+      const ks = keysOf(it);
+      const hitKey = ks.find(k => byKey.has(k));
+      if (!hitKey) {
+        const idx = unique.length;
+        unique.push(it);
+        if (isPrimary) primarySet.add(idx);
+        ks.forEach(k => byKey.set(k, idx));
+      } else if (isPrimary && !primarySet.has(byKey.get(hitKey))) {
+        const idx = byKey.get(hitKey);
+        unique[idx] = { ...unique[idx], ...it };
+        primarySet.add(idx);
+        ks.forEach(k => byKey.set(k, idx));
+      }
+    }
+  };
+  ingest(items, true);
+  ingest(extraItems, false);
+
+  // Collect matching curated shelf rules (e.g. searching "christmas" matches the Christmas Movies rule & its tags)
+  const matchingRules = [];
+  if (config?.pages && q.length >= 2) {
+    const seenRuleKeys = new Set();
+    for (const pageName of ['home', 'movies', 'shows']) {
+      for (const r of (config.pages[pageName]?.rules || [])) {
+        if (!r || r.Enabled === false || seenRuleKeys.has(`${pageName}:${r.Key}`)) continue;
+        const rk = normalize(r.Key).replace(/-/g, ' ');
+        const rt = normalize(r.Title);
+        const ruleTagMatch = (r.TagsAny || []).some(t => {
+          const nt = normalize(t);
+          return nt === q || wordRx.test(nt);
+        });
+        if (rk === q || rt === q || (q.length >= 3 && (wordRx.test(rt) || rk.includes(q))) || ruleTagMatch) {
+          seenRuleKeys.add(`${pageName}:${r.Key}`);
+          matchingRules.push(r);
+        }
+      }
+    }
+  }
+
+  const scored = [];
+  for (const item of unique) {
+    const name = normalize(item.Name);
+    const origTitle = normalize(item.OriginalTitle);
+    let titleTier = 0;
+    if (name === q || (origTitle && origTitle === q)) titleTier = 10000;
+    else if (name.startsWith(q) || (origTitle && origTitle.startsWith(q))) titleTier = 9200;
+    else if (wordRx.test(name) || (origTitle && wordRx.test(origTitle))) titleTier = 8600;
+    else if (name.includes(q) || (origTitle && origTitle.includes(q))) titleTier = 8000;
+    else if (qWords.length > 1 && qWords.every(w => name.includes(w))) titleTier = 7500;
+
+    let alignScore = 0;
+    if (q.length >= 2) {
+      let exactTags = 0, wordTags = 0, subTags = 0;
+      for (const rawTag of (item.Tags || [])) {
+        const nt = normalize(rawTag);
+        if (!nt) continue;
+        if (nt === q) exactTags++;
+        else if (wordRx.test(nt)) wordTags++;
+        else if (q.length >= 3 && (nt.includes(q) || (nt.length >= 4 && q.includes(nt)))) subTags++;
+      }
+      if (exactTags > 0) alignScore += 600 + (exactTags - 1) * 80 + wordTags * 60 + subTags * 35;
+      else if (wordTags > 0) alignScore += 440 + (wordTags - 1) * 60 + subTags * 35;
+      else if (subTags > 0) alignScore += 280 + (subTags - 1) * 40;
+
+      if (matchingRules.length && matchingRules.some(r => matches(r, item, false))) {
+        alignScore += 350;
+      }
+
+      for (const rawGenre of (item.Genres || [])) {
+        const ng = normalize(rawGenre);
+        if (ng === q) { alignScore += 250; break; }
+        if (q.length >= 3 && ng.includes(q)) { alignScore += 170; break; }
+      }
+
+      if (q.length >= 3) {
+        let creditBoost = 0;
+        for (const p of (item.People || [])) {
+          const np = normalize(p?.Name);
+          if (!np) continue;
+          if (np === q) { creditBoost = Math.max(creditBoost, 240); break; }
+          if (wordRx.test(np) || np.includes(q)) creditBoost = Math.max(creditBoost, 150);
+        }
+        alignScore += creditBoost;
+        for (const st of (item.Studios || [])) {
+          const ns = normalize(st?.Name);
+          if (ns === q || (ns && (wordRx.test(ns) || ns.includes(q)))) { alignScore += 140; break; }
+        }
+      }
+    }
+
+    const normId = String(item.Id || '').toLowerCase().replace(/-/g, '');
+    if (titleTier === 0 && alignScore === 0 && normId && extraIds.has(normId)) {
+      alignScore = 90;
+    }
+
+    if (titleTier > 0 || alignScore > 0) {
+      scored.push({ item, titleTier, alignScore });
+    }
+  }
+
+  scored.sort((a, b) =>
+    Number(b.titleTier > 0) - Number(a.titleTier > 0) ||
+    b.titleTier - a.titleTier ||
+    b.alignScore - a.alignScore ||
+    (b.item.CommunityRating ?? 0) - (a.item.CommunityRating ?? 0) ||
+    String(a.item.SortName || a.item.Name || '').localeCompare(String(b.item.SortName || b.item.Name || ''))
+  );
+  return scored.map(s => s.item);
 }

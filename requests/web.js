@@ -2,7 +2,7 @@
 (()=>{'use strict';
 if(!Element.prototype.replaceChildren)Element.prototype.replaceChildren=function(...nodes){while(this.firstChild)this.removeChild(this.firstChild);this.append(...nodes);};
 window.JellyfinRequestHub?.stop?.();
-let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,lastRouteView='',hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null,permScope='',permAllowed=null,permPending=null;
+let root=null,mainHost=null,pageTitleNode=null,searchInput=null,searchTimer=null,subviewActive=false,lastRouteView='',hidden=[],generation=0,session='',timer,observer,gridScrollHandler=null,permScope='',permAllowed=null,permPending=null,ownedScope='',ownedTmdb=new Set(),ownedPending=null;
 const el=(tag,text='',cls='')=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn,cls='')=>{const n=el('button',text,cls);n.type='button';n.onclick=fn;return n;};
 const scope=()=>{const api=window.ApiClient;return api?.getCurrentUserId?.()?`${api.serverId?.()}:${api.getCurrentUserId()}`:'';};
@@ -115,8 +115,29 @@ const NETWORKS=[
  [13,'Nickelodeon','/ikZXxg6GnwpzqiZbRPhJGaZapqB.png'],
  [3353,'Peacock','/gIAcGTjKKr0KOHL5s4O36roJ8p7.png']
 ];
+function ensureOwnedLibrary(own){
+ const client=window.ApiClient,uid=client?.getCurrentUserId?.();
+ if(!own||!uid||typeof client?.getItems!=='function')return Promise.resolve();
+ if(ownedScope===own&&(ownedTmdb.size>0||ownedPending))return ownedPending||Promise.resolve();
+ ownedScope=own;
+ ownedTmdb=new Set();
+ ownedPending=Promise.resolve(client.getItems(uid,{Recursive:true,IncludeItemTypes:'Movie,Series',Fields:'ProviderIds',Limit:5000})).then(res=>{
+  ownedPending=null;
+  if(scope()!==own)return;
+  const next=new Set();
+  for(const it of res?.Items||[]){
+   const raw=it?.ProviderIds?.Tmdb||it?.ProviderIds?.tmdb;
+   const id=Number(raw);
+   if(id>0&&(it.Type==='Movie'||it.Type==='Series'))next.add(`${it.Type==='Movie'?'movie':'tv'}:${id}`);
+  }
+  ownedTmdb=next;
+ }).catch(()=>{ownedPending=null;});
+ return ownedPending;
+}
 function isReleased(item){
  if(!['movie','tv'].includes(item?.type))return false;
+ if(Number(item.status)===5)return false;
+ if(item.id>0&&!(item.type==='tv'&&Number(item.status)===4)&&ownedTmdb.has(`${item.type}:${Number(item.id)}`))return false;
  if(item.status>=4)return true;
  if(item.voteCount!==undefined&&Number(item.voteCount)<=0)return false;
  if(item.releaseDate!==undefined){
@@ -378,6 +399,7 @@ async function gridView(host,title,kind,filter=null,query=null){
   try{
    let added=0;
    const frag=document.createDocumentFragment();
+   await ensureOwnedLibrary(scope());
    while(page<pages&&added<20&&realCount()+added<300){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!sec.isConnected)return;
@@ -519,7 +541,8 @@ async function rail(host,title,kind,filter=null,query=null){
   try{
    let added=0;
    const frag=document.createDocumentFragment();
-   while(page<pages&&added<20&&page<4){
+   await ensureOwnedLibrary(scope());
+   while(page<pages&&added<20&&page<8){
     const data=await api('Browse',{kind,page:page+1,...(filter?{filter}:{}),...(query?{query}:{})});
     if(token!==generation||!row.isConnected)return;
     page++;pages=data.pages||1;
@@ -945,6 +968,9 @@ function reconcile(){
   permScope='';
   permAllowed=null;
   permPending=null;
+  ownedScope='';
+  ownedTmdb=new Set();
+  ownedPending=null;
   cleanup();
  }
  session=own;
@@ -952,6 +978,9 @@ function reconcile(){
   permScope='';
   permAllowed=null;
   permPending=null;
+  ownedScope='';
+  ownedTmdb=new Set();
+  ownedPending=null;
   removeNavigation();
   cleanup();
   return;
@@ -1677,14 +1706,14 @@ a.rh-nav[aria-current=page]{
  .rh-poster{height:0;padding-bottom:150%}
  .rh-poster img{position:absolute;top:0;left:0}
 }
-@media(max-width:899px){
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
  .rh-root{
   padding:calc(24px + env(safe-area-inset-top, 0px)) 14px calc(100px + env(safe-area-inset-bottom, 0px));
   max-width:100vw;
   overflow-x:hidden;
  }
 }
-@media(max-width:768px){
+@media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
  .rh-page-title{font-size:22px;line-height:28px}
  .rh-row{margin-bottom:20px}
  .rh-row-head{margin-bottom:10px}

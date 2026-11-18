@@ -10,10 +10,11 @@ function fixture({deny=false,hash='#/home?requesthub=discover',mobile=false}={})
  let user='user-one';const listeners=new Map(),writes=[],reads=[];
  const location={hash};
  const item={id:42,type:'tv',title:'Series <script>untrusted</script>',overview:'Description',poster:'https://image.tmdb.org/t/p/w500/cover.jpg',status:0,releaseDate:'2024-01-15'};
+ const availableItem={id:77,type:'movie',title:'Already Downloaded Movie',overview:'Owned',poster:'https://image.tmdb.org/t/p/w500/owned.jpg',status:5,releaseDate:'2024-01-15'};
  const futureItem={id:99,type:'movie',title:'Unreleased Future Movie',overview:'Future',poster:'https://image.tmdb.org/t/p/w500/future.jpg',status:0,releaseDate:'2099-12-31'};
  const api={getCurrentUserId:()=>user,serverId:()=> 'server',getUrl:(path,query)=>({path,query}),getJSON:async ({path,query})=>{
   reads.push({path,query});if(deny)throw {status:403};if(path.endsWith('Details'))return {item,seasons:[1,2],canRequest:true};
-  if(query.kind==='genres')return {results:[{id:1,name:'Action'}],pages:1};return {results:[item,futureItem],pages:2,canRequest:true};
+  if(query.kind==='genres')return {results:[{id:1,name:'Action'}],pages:1};return {results:[item,availableItem,futureItem],pages:2,canRequest:true};
  },ajax:async options=>{writes.push(JSON.parse(options.data));return {message:'Submitted for approval'};}};
  const win={ApiClient:api,innerWidth:mobile?390:1280,matchMedia:q=>({matches:mobile&&q.includes('max-width: 899px')}),addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
  const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
@@ -74,6 +75,7 @@ test('SleekFin header proxy receives Discover button before separator and regist
 test('Discover hides unreleased titles, replaces top-left title and deselects header tab on subpages, renders scrollable Genre/Studio/Network cards and live search',async()=>{
  const f=fixture({hash:'#/home?requesthub=discover'});await f.settle();
  assert.equal([...f.document.querySelectorAll('.rh-card strong')].some(n=>n.textContent.includes('Unreleased Future Movie')),false);
+ assert.equal([...f.document.querySelectorAll('.rh-card strong')].some(n=>n.textContent.includes('Already Downloaded Movie')),false);
  assert.equal([...f.document.querySelectorAll('.rh-row-head button')].some(b=>b.textContent==='Load more'),false);
  assert.equal([...f.document.querySelectorAll('.rh-toolbar button')].length,0);
  const searchInput=f.document.querySelector('.rh-search input');

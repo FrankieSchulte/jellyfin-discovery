@@ -55,4 +55,8 @@ Check(!ConfigPolicy.Valid(JsonDocument.Parse(editorConfig.ToJsonString()).RootEl
 editorConfig["pages"]!["home"]!["opening"]=new System.Text.Json.Nodes.JsonArray("family:director");
 editorConfig["pages"]!["home"]!["layouts"]!["rule:popcorn"]="stretch";
 Check(!ConfigPolicy.Valid(JsonDocument.Parse(editorConfig.ToJsonString()).RootElement),"Unsupported artwork layouts are rejected");
+var remuxedMovie = Guid.NewGuid();
+var historicalDate = now.AddDays(-60);
+ledger.Observe(new(remuxedMovie, "Movie", true, default, 0, historicalDate), now);
+Check(ledger.Arrivals[remuxedMovie].AddedAt == historicalDate, "Historical DateCreated is preserved across remux/rescan instead of minting fake recent arrival");
 Console.WriteLine($"{checks} native ledger and validation checks passed.");

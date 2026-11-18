@@ -1,12 +1,12 @@
-Jellyfin Discovery 0.5.6 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.7 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.6):
-- Eliminate initial Home, Movies, and Shows category flash/swap by validating boot caches against the active plugin version and local calendar day (`dayInZone`), painting valid boot rows synchronously at `t=0ms` for all users, keeping session-stable daily shuffle seeds until explicit `Restart feed`, adding proactive CSS hiding for `#moviesPage` / `#tvshowsPage` native tabs, and updating `state.native` in place without tearing down `.fx-discovery` when `.pageTabContent` mounts asynchronously.
-- Fix `Recently Added in Movies` & `Recently Added in Shows` race condition so already-mounted slots and boot caches automatically refresh in place as soon as `FazFortDiscovery/Tracking` resolves.
-- Extend `Christmas Movies` across both November and December (`Months: [11, 12]`, including `christmas`, `christmas eve`, `christmas party`, `christmas tree`, `santa claus`, and `saving christmas` tags) and prioritize active seasonal shelves at the top of the theme queue (`Row 2` right below `Continue Watching / Next Up` on Home and Movies).
-- Add clickable category headings (`h2.fx-clickable-heading`) across Home, Movies, Shows, and Genres that open a dedicated Category Subpage (`?fxCat=...`) displaying every matching title in a responsive poster grid with `←` back navigation, browser history, and TV `Escape`/`Back` support.
-- Upgrade `#searchPage` (`@jellyfin/sdk` `getItemsApi` module `71857` & `useSearchItems` module `42111`) to deduplicate items across libraries, strip `Leaving Soon` entries, and match library items by `Tags`, `Genres`, and category themes (e.g., searching `"Christmas"` surfaces all Christmas-tagged movies).
-- Restore smooth vertical scrolling on expanded Library Filters dropdowns (`.MuiPopover-root .MuiPaper-root` & `.MuiAccordionDetails-root`), unify Filter popover accordions/checkboxes and `.fx-filters` with the dark frosted-glass dropdown UI, and guard against blurry micro-logos (`< 180×30`).
+Discovery (0.5.7):
+- Restore full desktop top spacing in half-width window mode across Library, Movies, Shows, Collections, Favorites, Search, and Settings by scoping compact phone top-padding and toolbar-collapse rules strictly to touch/phone viewports.
+- Fix `Recently Added` badges across Movies & Shows by preserving historical `DateCreated` timestamps in `ArrivalMonitor` / `Ledger.Observe` across remuxes and rescans and tightening the client `recent()` window to 7 days.
+- Exclude already-downloaded and available Movies and TV Shows from `Discover Movies` and `Discover TV Shows` shelves across Home, Movies, and Shows.
+- Replace `#searchPage` horizontal carousels with a unified, uncapped Library-style poster grid titled `Results for "xxx"` (Movies and Shows only, no individual Episode clutter), sorted with title matches first followed by closest tag, curated-category, genre, and cast/director alignment.
+- Restore the clean `v0.5.5` Profile dropdown (`#app-user-menu`), unify all dropdowns (`#library-view-menu`, `#filter-popover`, Sort, View, Season X, SleekFin popups, and Downloads) with identical frosted-glass opacity, `blur(18px)`, typography, and `fx-dropdown-enter` entrance animation, and anchor all open dropdowns in place so they stay stationary when scrolling down.
+- Overhaul the Library Filters popover (`#filter-popover`): thinner `216px` width, thin category-scroll chevron arrows (`›`), zero-lag removal of the 2,500-item `Tags` checkbox list, an auto-mirroring `Year` / `Year Range` input (`From` – `To`), and a bottom `Reset filters` button.
 
-Request Hub (0.5.6):
-- Version parity bump (`0.5.6.0`) with Discovery `0.5.6` and seamless deep-link handoff from `Discover Movies` / `Discover TV Shows` category headings.
+Request Hub (0.5.7):
+- Exclude already-downloaded and available Movies and TV Shows (`mediaInfo.status == 5` or playable in the Jellyfin library) across all Discover rails, subviews, genres, studios, networks, and search results, and preserve desktop half-width top spacing.

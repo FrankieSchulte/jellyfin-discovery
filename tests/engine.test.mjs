@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, routeInfo, seasonBadges, validateConfig } from '../src/engine.js';
+import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, routeInfo, searchAndRankInventory, seasonBadges, validateConfig } from '../src/engine.js';
 const config = JSON.parse(await readFile(new URL('../config/default.json', import.meta.url)));
 const now = new Date('2026-11-04T12:00:00Z');
 const items = Array.from({length: 48}, (_, n) => ({ Id: n.toString(16).padStart(32,'0'), Name: 'Item '+n, Type: n % 3 ? 'Movie' : 'Series', Genres: ['Action', 'Comedy'], Tags: ['space', 'superhero'], CommunityRating: n % 2 ? 8 : 6, RunTimeTicks: 90*600000000, ProductionYear: 2000 + n % 20, People: [{ Name: 'Director '+(n % 4), Type: 'Director' }, { Name: 'Actor '+(n % 3), Type: 'Actor' }], Studios:[{Name:'Studio'}], UserData:{ Played: n % 5 === 0 } }));
@@ -15,22 +15,24 @@ test('invalid, duplicate, null and malformed filters rejected', () => {
   }
   const c=structuredClone(config);c.pages.home.rules.push(c.pages.home.rules[0]);assert.throws(()=>validateConfig(c));
 });
-test('calendar-month badge boundary including month ends', () => {
+test('seven-day recent badge boundary and monthAgo helper', () => {
   assert.equal(monthAgo(new Date('2026-03-31T12:00:00Z')).toISOString(), '2026-02-28T12:00:00.000Z');
-  assert.ok(recent('2026-10-04T12:00:00Z',now));
-  assert.ok(!recent('2026-10-04T11:59:59Z',now));
+  assert.ok(recent('2026-10-28T12:00:00Z',now));
+  assert.ok(!recent('2026-10-28T11:59:59Z',now));
+  assert.ok(!recent('2026-10-15T12:00:00Z',now));
   assert.ok(!recent('2026-11-05',now));
   assert.ok(!recent(undefined,now));
 });
-test('new season ignores episodes, first seasons, specials and old seasons', () => {
-  const seasons=[{Id:'s',Type:'Season',SeriesId:'good',IndexNumber:2,DateCreated:'2026-10-20'},
-    {Type:'Episode',SeriesId:'episode',IndexNumber:2,DateCreated:'2026-10-20'},
-    {Type:'Season',SeriesId:'first',IndexNumber:1,DateCreated:'2026-10-20'},
-    {Type:'Season',SeriesId:'special',IndexNumber:0,DateCreated:'2026-10-20'},
-    {Type:'Season',SeriesId:'old',IndexNumber:2,DateCreated:'2026-01-01'}];
+test('new season ignores episodes, first seasons, specials and seasons older than 7 days', () => {
+  const seasons=[{Id:'s',Type:'Season',SeriesId:'good',IndexNumber:2,DateCreated:'2026-10-30'},
+    {Type:'Episode',SeriesId:'episode',IndexNumber:2,DateCreated:'2026-10-30'},
+    {Type:'Season',SeriesId:'first',IndexNumber:1,DateCreated:'2026-10-30'},
+    {Type:'Season',SeriesId:'special',IndexNumber:0,DateCreated:'2026-10-30'},
+    {Type:'Season',SeriesId:'old',IndexNumber:2,DateCreated:'2026-10-15'}];
   const map=seasonBadges(seasons,now);assert.deepEqual([...map.keys()],['good']);
   assert.equal(badgeFor({Id:'good',Type:'Series',DateCreated:'2026-11-01'},map,now),'New Season');
-  assert.equal(badgeFor({Id:'other',Type:'Movie',DateCreated:'2026-10-20'},map,now),'Recently Added');
+  assert.equal(badgeFor({Id:'other',Type:'Movie',DateCreated:'2026-10-30'},map,now),'Recently Added');
+  assert.equal(badgeFor({Id:'older',Type:'Movie',DateCreated:'2026-10-15'},map,now),'');
 });
 test('rules match OR within filters, AND across filters and exclude absent rating/runtime', () => {
   const rule={Types:['Movie'],TagsAny:['SPACE','time travel'],GenresAny:['Action'],MinRating:8,MaxMinutes:120};
@@ -116,4 +118,21 @@ test('Suggestions default, explicit Library/Genres and Request Hub routes remain
   assert.equal(routeInfo('#/movies').view,'suggestions');assert.equal(routeInfo('#/tv?tab=1').view,'suggestions');
   assert.equal(routeInfo('#/movies?tab=0').view,'library');assert.equal(routeInfo('#/movies?tab=4').view,'genres');assert.equal(routeInfo('#/tv?tab=3').view,'genres');
   assert.equal(routeInfo('#/movies?tab=2'),null);assert.equal(routeInfo('#/home?requesthub=discover'),null);
+});
+test('searchAndRankInventory ranks title matches first, then closest tag alignment, excludes episodes, and stays uncapped',()=>{
+  const pool=[
+    {Id:'ep1',Name:'Christmas Episode',Type:'Episode',Tags:['christmas']},
+    {Id:'m-diehard',Name:'Die Hard',Type:'Movie',Tags:['christmas party','hostage'],CommunityRating:8.2},
+    {Id:'m-wonderful',Name:"It's a Wonderful Life",Type:'Movie',Tags:['christmas','christmas eve','saving christmas'],CommunityRating:8.6},
+    {Id:'m-nightmare',Name:'The Nightmare Before Christmas',Type:'Movie',Tags:['halloween','christmas','santa claus'],CommunityRating:7.9},
+    {Id:'m-leaving',Name:'Christmas Leaving Soon',Type:'Movie',Path:'/media/leaving-soon/movies/x.mkv',Tags:['christmas']},
+    ...Array.from({length:60},(_,i)=>({Id:`tag-${i}`,Name:`Winter Film ${String(i).padStart(2,'0')}`,Type:'Movie',Tags:['christmas tree']}))
+  ];
+  const ranked=searchAndRankInventory(pool,'Christmas',config);
+  assert.equal(ranked.length,63);
+  assert.equal(ranked.some(i=>i.Type==='Episode'),false);
+  assert.equal(ranked.some(i=>i.Id==='m-leaving'),false);
+  assert.equal(ranked[0].Id,'m-nightmare');
+  assert.equal(ranked[1].Id,'m-wonderful');
+  assert.equal(ranked[2].Id,'m-diehard');
 });

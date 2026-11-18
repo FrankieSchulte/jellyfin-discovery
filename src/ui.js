@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.6';
+const VERSION = '0.5.7';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -9,8 +9,9 @@ const snapshots = new Map();
 const savedFeeds = new Map();
 const loadedImages = new Set();
 const sessionShuffles = new Map();
-let searchInvInflight = null;
+let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
 const searchInvListeners = new Set();
+const searchUiState = { query: '', remoteQuery: '', remoteItems: [], remoteTimer: 0, token: 0, lastSignature: '', tracking: null, trackingScope: '' };
 let activeDialog = null, lastScope = '', selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
@@ -18,7 +19,7 @@ const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrent
 const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
 const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
-const trackingCacheKey = scope => `fazfort-discovery:tracking:v1:${scope}`;
+const trackingCacheKey = scope => `fazfort-discovery:tracking:v2:${scope}`;
 function getSessionShuffle(scope, page, day, forceNew = false) {
   const k = `${scope}:${day}:${page}`;
   if (!forceNew && sessionShuffles.has(k)) return sessionShuffles.get(k);
@@ -128,72 +129,443 @@ function ensureSearchInventory(api = window.ApiClient) {
   });
   return searchInvInflight;
 }
-function dedupeSearchList(items, canonicalIds = null) {
-  if (!Array.isArray(items) || !items.length) return [];
-  const filtered = items.filter(it => it && !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String(it.Path || '')));
-  const chosenByKey = new Map();
-  const order = [];
-  const itemKeys = it => {
-    const keys = [];
-    const rawId = String(it.Id || '').toLowerCase().replace(/-/g, '');
-    if (rawId) keys.push(`id:${rawId}`);
-    const tmdb = it.ProviderIds?.Tmdb || it.ProviderIds?.tmdb;
-    if (tmdb && it.Type) keys.push(`${it.Type}:tmdb:${tmdb}`);
-    if (['Movie', 'Series', 'BoxSet'].includes(it.Type) && it.Name) {
-      keys.push(`${it.Type}:title:${normalize(it.Name)}:${it.ProductionYear || ''}`);
-    } else if (it.Type === 'Person' && it.Name) {
-      keys.push(`Person:${normalize(it.Name)}`);
-    }
-    return keys;
+function installFiltersFetchGuard() {
+  const f = window.fetch;
+  if (typeof f !== 'function' || f._fxFiltersGuarded) return;
+  savedWindowFetch = f;
+  const wrappedFetch = async function(input, init) {
+    const resp = await f.call(this, input, init);
+    try {
+      const urlStr = typeof input === 'string' ? input : (input?.url || '');
+      if (/\/Items\/Filters2(?:\?|$)/i.test(urlStr) && resp && typeof resp.clone === 'function') {
+        const cloned = resp.clone();
+        const data = await cloned.json();
+        if (data && typeof data === 'object' && Array.isArray(data.Tags) && data.Tags.length > 0) {
+          const stripped = JSON.stringify({ ...data, Tags: [] });
+          if (typeof Response === 'function') {
+            return new Response(stripped, {
+              status: resp.status || 200,
+              statusText: resp.statusText || 'OK',
+              headers: resp.headers || { 'Content-Type': 'application/json' }
+            });
+          }
+          return {
+            ok: true,
+            status: resp.status || 200,
+            headers: resp.headers,
+            json: async () => ({ ...data, Tags: [] }),
+            text: async () => stripped,
+            clone: function() { return this; }
+          };
+        }
+      }
+    } catch {}
+    return resp;
   };
-  const isCanonical = it => Boolean(canonicalIds && it?.Id && canonicalIds.has(it.Id));
-  for (const it of filtered) {
-    const keys = itemKeys(it);
-    const existingKey = keys.find(k => chosenByKey.has(k));
-    if (!existingKey) {
-      const idx = order.length;
-      order.push(it);
-      keys.forEach(k => chosenByKey.set(k, idx));
-    } else {
-      const idx = chosenByKey.get(existingKey);
-      const prev = order[idx];
-      if (isCanonical(it) && !isCanonical(prev)) {
-        order[idx] = it;
-        keys.forEach(k => chosenByKey.set(k, idx));
+  wrappedFetch._fxFiltersGuarded = true;
+  try { window.fetch = wrappedFetch; } catch {}
+}
+function restoreFiltersFetchGuard() {
+  if (!savedWindowFetch) return;
+  try { window.fetch = savedWindowFetch; } catch {}
+  savedWindowFetch = null;
+}
+function findFilterPopoverProps(popover) {
+  const candidates = [
+    popover?.querySelector?.('.MuiPaper-root'),
+    popover,
+    popover?.querySelector?.('.MuiAccordion-root')
+  ].filter(Boolean);
+  for (const node of candidates) {
+    for (const key of Object.keys(node)) {
+      if (!key.startsWith('__reactFiber$') && !key.startsWith('__reactInternalInstance$')) continue;
+      let cur = node[key];
+      let depth = 0;
+      while (cur && depth++ < 28) {
+        const mp = cur.memoizedProps || cur.pendingProps;
+        if (mp && typeof mp.setLibraryViewSettings === 'function') {
+          return mp;
+        }
+        cur = cur.return;
       }
     }
   }
-  return order;
+  return popover?._fxFilterProps || null;
 }
-function findTagAndGenreMatches(invItems, query, { includeTypes = null, parentId = '', api = window.ApiClient } = {}) {
-  const q = normalize(query);
-  if (!q || q.length < 2 || !Array.isArray(invItems) || !invItems.length) return [];
-  const cfg = (() => { try { return readConfig(api) || DEFAULT_CONFIG; } catch { return DEFAULT_CONFIG; } })();
-  const matchingRules = (cfg?.pages?.home?.rules || []).filter(r => r && r.Enabled !== false && (
-    normalize(r.Key) === q || (q.length >= 4 && normalize(r.Title).includes(q))
-  ));
-  const serverId = api?.serverId?.() || '';
-  const matched = [];
-  for (const item of invItems) {
-    if (!item || isLeavingSoonItem(item)) continue;
-    if (includeTypes && includeTypes.length && !includeTypes.includes(item.Type)) continue;
-    if (parentId && item.ParentId && String(item.ParentId).toLowerCase().replace(/-/g, '') !== String(parentId).toLowerCase().replace(/-/g, '')) {
-      // Allow topParentId mismatch when ParentId is a season/folder, only skip if view mismatch is known
+function hasActiveLibraryFilters(filtersObj) {
+  if (!filtersObj || typeof filtersObj !== 'object') return false;
+  for (const val of Object.values(filtersObj)) {
+    if (Array.isArray(val) ? val.length > 0 : Boolean(val)) return true;
+  }
+  return false;
+}
+function enhanceFilterPopover(popover) {
+  if (!popover) return;
+  const props = findFilterPopoverProps(popover);
+  if (props) popover._fxFilterProps = props;
+  const paper = popover.querySelector('.MuiPaper-root');
+  if (!paper) return;
+
+  // 1. Remove Tags section completely so it never clutters or lags the popover
+  const tagsHeader = paper.querySelector('#filtersTags-header');
+  const tagsAcc = tagsHeader?.closest?.('.MuiAccordion-root');
+  if (tagsAcc) tagsAcc.style.display = 'none';
+
+  // 2. Replace the long Years checkbox list with auto-mirroring Year / Year Range inputs
+  const yearsContent = paper.querySelector('#filtersYears-content');
+  if (yearsContent) {
+    yearsContent.dataset.fxYearsEnhanced = 'true';
+    const host = yearsContent.querySelector('.MuiAccordionDetails-root') || yearsContent;
+    let rangeBox = host.querySelector('.fx-year-range');
+    const activeYears = Array.isArray(popover._fxFilterProps?.libraryViewSettings?.Filters?.Years)
+      ? popover._fxFilterProps.libraryViewSettings.Filters.Years.map(Number).filter(Number.isFinite)
+      : [];
+    if (!rangeBox) {
+      rangeBox = element('div', 'fx-year-range');
+      const fromInput = element('input', 'fx-year-input fx-year-from');
+      fromInput.type = 'text';
+      fromInput.inputMode = 'numeric';
+      fromInput.maxLength = 4;
+      fromInput.placeholder = 'Year';
+      fromInput.setAttribute('aria-label', 'Start year');
+      const sep = element('span', 'fx-year-range-sep', '–');
+      sep.setAttribute('aria-hidden', 'true');
+      const toInput = element('input', 'fx-year-input fx-year-to');
+      toInput.type = 'text';
+      toInput.inputMode = 'numeric';
+      toInput.maxLength = 4;
+      toInput.placeholder = 'To';
+      toInput.setAttribute('aria-label', 'End year');
+      rangeBox.append(fromInput, sep, toInput);
+      host.prepend(rangeBox);
+
+      rangeBox._toEdited = activeYears.length > 1 && Math.min(...activeYears) !== Math.max(...activeYears);
+      let yearTimer = 0;
+      const applyYearFilter = () => {
+        clearTimeout(yearTimer);
+        const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
+        if (!curProps || typeof curProps.setLibraryViewSettings !== 'function') return;
+        const rawFrom = fromInput.value.trim();
+        const rawTo = toInput.value.trim();
+        if (!rawFrom && !rawTo) {
+          rangeBox._toEdited = false;
+          curProps.setLibraryViewSettings(prev => ({
+            ...prev,
+            StartIndex: 0,
+            Filters: { ...(prev?.Filters || {}), Years: undefined }
+          }));
+          syncResetBtnState();
+          return;
+        }
+        if (rawFrom.length !== 4 || (rawTo && rawTo.length !== 4)) return;
+        const y1 = Number(rawFrom);
+        const y2 = rawTo.length === 4 ? Number(rawTo) : y1;
+        if (!Number.isInteger(y1) || !Number.isInteger(y2) || y1 < 1888 || y2 < 1888 || y1 > 2100 || y2 > 2100) return;
+        const lo = Math.min(y1, y2);
+        const hi = Math.max(y1, y2);
+        const opts = Array.isArray(curProps.yearsOptions) ? curProps.yearsOptions : [];
+        let nextYears = [];
+        if (opts.length) {
+          nextYears = opts
+            .map(o => Number(o?.Value ?? o?.Name ?? o))
+            .filter(y => Number.isInteger(y) && y >= lo && y <= hi);
+        } else {
+          for (let y = lo; y <= hi; y++) nextYears.push(y);
+        }
+        curProps.setLibraryViewSettings(prev => ({
+          ...prev,
+          StartIndex: 0,
+          Filters: { ...(prev?.Filters || {}), Years: nextYears }
+        }));
+        syncResetBtnState(true);
+      };
+      const scheduleYearApply = () => {
+        clearTimeout(yearTimer);
+        yearTimer = setTimeout(applyYearFilter, 150);
+      };
+      fromInput.addEventListener('input', () => {
+        const clean = fromInput.value.replace(/\D+/g, '').slice(0, 4);
+        if (fromInput.value !== clean) fromInput.value = clean;
+        if (!rangeBox._toEdited) {
+          toInput.value = clean;
+        }
+        if (!clean && !toInput.value) {
+          applyYearFilter();
+        } else {
+          scheduleYearApply();
+        }
+      });
+      toInput.addEventListener('focus', () => {
+        try { toInput.select?.(); } catch {}
+      });
+      toInput.addEventListener('input', () => {
+        const clean = toInput.value.replace(/\D+/g, '').slice(0, 4);
+        if (toInput.value !== clean) toInput.value = clean;
+        if (!clean && !fromInput.value) {
+          rangeBox._toEdited = false;
+          applyYearFilter();
+          return;
+        }
+        rangeBox._toEdited = clean !== '' && clean !== fromInput.value;
+        scheduleYearApply();
+      });
+      for (const inp of [fromInput, toInput]) {
+        inp.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
+            applyYearFilter();
+          }
+        });
+      }
     }
-    const tagHit = (item.Tags || []).some(t => {
-      const nt = normalize(t);
-      return nt === q || (q.length >= 3 && nt.includes(q));
-    });
-    const genreHit = !tagHit && (item.Genres || []).some(g => {
-      const ng = normalize(g);
-      return ng === q || (q.length >= 3 && ng.includes(q));
-    });
-    const ruleHit = !tagHit && !genreHit && matchingRules.some(r => matches(r, item));
-    if (tagHit || genreHit || ruleHit) {
-      matched.push(item.ServerId ? item : { ...item, ServerId: serverId });
+    const fromInput = rangeBox.querySelector('.fx-year-from');
+    const toInput = rangeBox.querySelector('.fx-year-to');
+    const isTypingYear = document.activeElement === fromInput || document.activeElement === toInput;
+    if (!isTypingYear && fromInput && toInput) {
+      if (activeYears.length > 0) {
+        const minY = Math.min(...activeYears);
+        const maxY = Math.max(...activeYears);
+        fromInput.value = String(minY);
+        toInput.value = String(maxY);
+        rangeBox._toEdited = minY !== maxY;
+      } else {
+        fromInput.value = '';
+        toInput.value = '';
+        rangeBox._toEdited = false;
+      }
     }
   }
-  return matched;
+
+  // 3. Add Reset filters button at the bottom of the Filter dropdown
+  let footer = paper.querySelector('.fx-filter-footer');
+  if (!footer) {
+    footer = element('div', 'fx-filter-footer');
+    const resetBtn = element('button', 'fx-filter-reset-btn', 'Reset filters');
+    resetBtn.type = 'button';
+    resetBtn.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const rangeBox = paper.querySelector('.fx-year-range');
+      if (rangeBox) {
+        const fi = rangeBox.querySelector('.fx-year-from');
+        const ti = rangeBox.querySelector('.fx-year-to');
+        if (fi) fi.value = '';
+        if (ti) ti.value = '';
+        rangeBox._toEdited = false;
+      }
+      const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
+      if (curProps && typeof curProps.setLibraryViewSettings === 'function') {
+        curProps.setLibraryViewSettings(prev => ({
+          ...prev,
+          StartIndex: 0,
+          Filters: {}
+        }));
+      }
+      resetBtn.classList.remove('is-active');
+    });
+    footer.append(resetBtn);
+    paper.append(footer);
+  }
+  function syncResetBtnState(forceActive = null) {
+    const btn = paper.querySelector('.fx-filter-reset-btn');
+    if (!btn) return;
+    const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
+    const active = forceActive !== null ? forceActive : hasActiveLibraryFilters(curProps?.libraryViewSettings?.Filters);
+    btn.classList.toggle('is-active', Boolean(active));
+  }
+  syncResetBtnState();
+}
+function anchorOpenPopovers() {
+  const scrollY = Math.round(window.scrollY ?? window.pageYOffset ?? document.documentElement?.scrollTop ?? 0);
+  const scrollX = Math.round(window.scrollX ?? window.pageXOffset ?? document.documentElement?.scrollLeft ?? 0);
+  document.querySelectorAll('.MuiPopover-root').forEach(pop => {
+    const isHidden = pop.getAttribute('aria-hidden') === 'true' || pop.classList.contains('MuiModal-hidden');
+    if (isHidden) {
+      delete pop.dataset.fxAnchoredOpen;
+      return;
+    }
+    if (pop.dataset.fxAnchoredOpen !== 'true') {
+      pop.dataset.fxAnchoredOpen = 'true';
+      pop.style?.setProperty?.('--fx-popover-scroll-y', `${scrollY}px`);
+      pop.style?.setProperty?.('--fx-popover-scroll-x', `${scrollX}px`);
+    }
+    if (pop.id === 'filter-popover' || pop.querySelector('#filtersYears-content, #filtersGenres-header')) {
+      enhanceFilterPopover(pop);
+    }
+  });
+  document.querySelectorAll('.sleekfin-popup-layer').forEach(layer => {
+    if (layer.dataset.fxAnchored !== 'true') {
+      layer.dataset.fxAnchored = 'true';
+      layer.style?.setProperty?.('--fx-popover-scroll-y', `${scrollY}px`);
+      layer.style?.setProperty?.('--fx-popover-scroll-x', `${scrollX}px`);
+    }
+  });
+  document.querySelectorAll('.sleekfin-details-dropdown-menu').forEach(dd => {
+    if (dd.dataset.fxAnchored !== 'true' && !dd.closest('#itemDetailPage[style*="fixed"]')) {
+      dd.dataset.fxAnchored = 'true';
+      const rawTop = parseFloat(dd.style?.top || '');
+      const rawLeft = parseFloat(dd.style?.left || '');
+      if (Number.isFinite(rawTop)) dd.style.top = `${Math.round(rawTop + scrollY)}px`;
+      if (Number.isFinite(rawLeft)) dd.style.left = `${Math.round(rawLeft + scrollX)}px`;
+    }
+  });
+}
+function ensureSearchTracking(api, invItems) {
+  if (!api?.getCurrentUserId?.() || !Array.isArray(invItems) || !invItems.length) return Promise.resolve(new Map());
+  const sc = scopeKey(api);
+  if (searchUiState.tracking instanceof Map && searchUiState.trackingScope === sc && searchUiState.tracking.size > 0) {
+    return Promise.resolve(searchUiState.tracking);
+  }
+  const cached = readTrackingCache(sc);
+  if (cached.size > 0) {
+    searchUiState.tracking = cached;
+    searchUiState.trackingScope = sc;
+    return Promise.resolve(cached);
+  }
+  if (searchTrackInflight) return searchTrackInflight;
+  const client = new JellyfinClient(api, () => !stopped);
+  searchTrackInflight = client.tracking(invItems).then(res => {
+    searchTrackInflight = null;
+    const map = res?.records instanceof Map ? res.records : new Map();
+    if (res?.ready) writeTrackingCache(sc, map);
+    searchUiState.tracking = map;
+    searchUiState.trackingScope = sc;
+    return map;
+  }).catch(() => {
+    searchTrackInflight = null;
+    return new Map();
+  });
+  return searchTrackInflight;
+}
+function renderSearchLibraryResults(searchPage, api, queryText, inv) {
+  if (!searchPage?.isConnected) return;
+  let host = searchPage.querySelector('.fx-search-library');
+  if (!host) {
+    host = element('section', 'fx-search-library');
+    const fields = searchPage.querySelector('.searchFields');
+    if (fields && fields.parentElement === searchPage) fields.after(host);
+    else searchPage.append(host);
+  }
+  host.hidden = false;
+  const cfg = (() => { try { return state?.config || readConfig(api) || DEFAULT_CONFIG; } catch { return DEFAULT_CONFIG; } })();
+  const invItems = inv?.items || [];
+  const extraItems = searchUiState.remoteQuery === queryText ? searchUiState.remoteItems : [];
+  const ranked = searchAndRankInventory(invItems, queryText, cfg, extraItems);
+  const sc = scopeKey(api);
+  const trackingMap = state?.tracking instanceof Map && state.tracking.size
+    ? state.tracking
+    : (searchUiState.trackingScope === sc && searchUiState.tracking instanceof Map ? searchUiState.tracking : readTrackingCache(sc));
+  const nowDate = new Date();
+  const badgesMap = inv?.seasons ? seasonBadges(inv.seasons, nowDate) : new Map();
+  const sig = `${sc}:${queryText}:${invItems.length}:${extraItems.length}:${trackingMap.size}:${ranked.map(i => i.Id).join(',')}`;
+  if (searchUiState.lastSignature === sig && host.querySelector('.fx-search-library-head')) return;
+  searchUiState.lastSignature = sig;
+
+  const head = element('div', 'fx-search-library-head');
+  const titleH1 = element('h1', 'fx-search-library-title', `Results for "${queryText}"`);
+  head.append(titleH1);
+  if (!inv && !extraItems.length) {
+    const loadingP = element('p', 'fx-search-library-empty', 'Searching library…');
+    host.replaceChildren(head, loadingP);
+    return;
+  }
+  const countBadge = element('span', 'fx-subpage-count', String(ranked.length));
+  head.append(countBadge);
+  if (!ranked.length) {
+    const emptyP = element('p', 'fx-search-library-empty', `No movies or shows matched "${queryText}".`);
+    host.replaceChildren(head, emptyP);
+    return;
+  }
+  const cardCtx = {
+    api,
+    now: nowDate,
+    badges: badgesMap,
+    tracking: trackingMap,
+    inventory: inv || { items: ranked },
+    slots: []
+  };
+  const grid = element('div', 'fx-search-library-grid');
+  for (const item of ranked) {
+    grid.append(renderCard(item, cardCtx, false, 'portrait'));
+  }
+  host.replaceChildren(head, grid);
+}
+function syncSearchPage(api = window.ApiClient) {
+  const searchPage = document.getElementById('searchPage');
+  if (!searchPage || !visible(searchPage) || !api?.getCurrentUserId?.()) {
+    clearTimeout(searchUiState.remoteTimer);
+    return;
+  }
+  const inp = searchPage.querySelector('#searchTextInput, input.searchfields-txtSearch, .searchFieldsInner input, input[type="search"], input[type="text"]');
+  if (inp && !inp._fxSearchBound) {
+    inp._fxSearchBound = true;
+    const onInputChange = () => syncSearchPage(window.ApiClient || api);
+    inp.addEventListener('input', onInputChange);
+    inp.addEventListener('search', onInputChange);
+    inp.addEventListener('change', onInputChange);
+  }
+  const urlQuery = new URLSearchParams(String(location.hash || '').split('?')[1] || '').get('query') || '';
+  const queryText = String(inp ? inp.value : urlQuery).trim();
+  if (!queryText) {
+    clearTimeout(searchUiState.remoteTimer);
+    searchUiState.query = '';
+    searchUiState.lastSignature = '';
+    searchPage.removeAttribute('data-fx-search-active');
+    const host = searchPage.querySelector('.fx-search-library');
+    if (host) host.hidden = true;
+    return;
+  }
+  if (searchPage.getAttribute('data-fx-search-active') !== 'true') {
+    searchPage.setAttribute('data-fx-search-active', 'true');
+  }
+  const sc = scopeKey(api);
+  const cachedSnap = snapshots.get(`${sc}:home:`)?.value || null;
+  if (searchUiState.query !== queryText) {
+    searchUiState.query = queryText;
+    searchUiState.lastSignature = '';
+    clearTimeout(searchUiState.remoteTimer);
+    const reqToken = ++searchUiState.token;
+    if (typeof api.getItems === 'function') {
+      searchUiState.remoteTimer = setTimeout(() => {
+        const uid = api.getCurrentUserId?.();
+        if (!uid || stopped || searchUiState.token !== reqToken) return;
+        Promise.resolve(api.getItems(uid, {
+          searchTerm: queryText,
+          Recursive: true,
+          IncludeItemTypes: 'Movie,Series',
+          Limit: 100,
+          Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds',
+          EnableImages: true,
+          EnableUserData: true,
+          ImageTypeLimit: 1,
+          EnableImageTypes: 'Primary,Backdrop,Thumb'
+        })).then(res => {
+          if (stopped || searchUiState.token !== reqToken || searchUiState.query !== queryText) return;
+          searchUiState.remoteQuery = queryText;
+          searchUiState.remoteItems = Array.isArray(res?.Items) ? res.Items.filter(it => ['Movie', 'Series'].includes(it?.Type) && !isLeavingSoonItem(it)) : [];
+          renderSearchLibraryResults(searchPage, api, queryText, snapshots.get(`${sc}:home:`)?.value || null);
+        }).catch(() => {});
+      }, 160);
+    }
+  }
+  renderSearchLibraryResults(searchPage, api, queryText, cachedSnap);
+  if (!cachedSnap) {
+    ensureSearchInventory(api).then(inv => {
+      if (stopped || !inv || searchUiState.query !== queryText) return;
+      renderSearchLibraryResults(searchPage, api, queryText, inv);
+      ensureSearchTracking(api, inv.items).then(() => {
+        if (!stopped && searchUiState.query === queryText) {
+          renderSearchLibraryResults(searchPage, api, queryText, inv);
+        }
+      });
+    });
+  } else if (!(searchUiState.tracking instanceof Map && searchUiState.trackingScope === sc)) {
+    ensureSearchTracking(api, cachedSnap.items).then(() => {
+      if (!stopped && searchUiState.query === queryText) {
+        renderSearchLibraryResults(searchPage, api, queryText, cachedSnap);
+      }
+    });
+  }
 }
 function applyWebpackViewPatch(req) {
   if (!req?.m) return;
@@ -396,154 +768,6 @@ function applyWebpackViewPatch(req) {
       if (req.c?.[95988]) {
         delete req.c[95988];
         try { req(95988); } catch {}
-      }
-    }
-    if (req.m[71857] && !req.m[71857]._fxPatched) {
-      const orig71857 = req.m[71857];
-      const wrapped71857 = function(module, exports, wreq) {
-        orig71857(module, exports, wreq);
-        try {
-          const origFactory = exports.Q;
-          if (typeof origFactory === 'function') {
-            const wrappedFactory = function(sdkApi, ...rest) {
-              const clientObj = origFactory.call(this, sdkApi, ...rest);
-              if (clientObj && typeof clientObj.getItems === 'function' && !clientObj._fxGetItemsWrapped) {
-                const origGetItems = clientObj.getItems.bind(clientObj);
-                clientObj.getItems = async function(params, options) {
-                  const searchTerm = typeof params?.searchTerm === 'string' ? params.searchTerm.trim() : '';
-                  if (!searchTerm) {
-                    const plainResp = await origGetItems(params, options);
-                    if (plainResp?.data && Array.isArray(plainResp.data.Items)) {
-                      const cleaned = plainResp.data.Items.filter(it => !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String(it?.Path || '')));
-                      if (cleaned.length !== plainResp.data.Items.length) {
-                        return { ...plainResp, data: { ...plainResp.data, Items: cleaned } };
-                      }
-                    }
-                    return plainResp;
-                  }
-                  const [resp, inv] = await Promise.all([
-                    origGetItems(params, options),
-                    ensureSearchInventory(window.ApiClient)
-                  ]);
-                  if (!resp?.data || !Array.isArray(resp.data.Items)) return resp;
-                  const invItems = inv?.items || [];
-                  const canonicalIds = invItems.length ? new Set(invItems.map(i => i.Id)) : null;
-                  const includeTypes = Array.isArray(params?.includeItemTypes) ? params.includeItemTypes : null;
-                  const tagMatches = findTagAndGenreMatches(invItems, searchTerm, {
-                    includeTypes,
-                    parentId: params?.parentId || '',
-                    api: window.ApiClient
-                  });
-                  const combined = dedupeSearchList([...resp.data.Items, ...tagMatches], canonicalIds);
-                  const perTypeCounts = new Map();
-                  const capped = combined.filter(it => {
-                    const t = it?.Type || 'Other';
-                    const c = (perTypeCounts.get(t) || 0) + 1;
-                    perTypeCounts.set(t, c);
-                    return c <= 48;
-                  });
-                  return {
-                    ...resp,
-                    data: {
-                      ...resp.data,
-                      Items: capped,
-                      TotalRecordCount: capped.length
-                    }
-                  };
-                };
-                clientObj._fxGetItemsWrapped = true;
-              }
-              return clientObj;
-            };
-            try {
-              Object.defineProperty(exports, 'Q', { configurable: true, enumerable: true, get: () => wrappedFactory });
-            } catch {
-              exports.Q = wrappedFactory;
-            }
-          }
-        } catch {}
-      };
-      wrapped71857._fxPatched = true;
-      req.m[71857] = wrapped71857;
-      if (req.c?.[71857]) {
-        delete req.c[71857];
-        try { req(71857); } catch {}
-      }
-    }
-    if (req.m[42111] && !req.m[42111]._fxPatched) {
-      const orig42111 = req.m[42111];
-      const wrapped42111 = function(module, exports, wreq) {
-        orig42111(module, exports, wreq);
-        try {
-          const origHook = exports.u;
-          if (typeof origHook === 'function') {
-            const react = (() => { try { return wreq(63696); } catch { try { return wreq(96540); } catch { return null; } } })();
-            const cappedHook = function(parentId, collectionType, query) {
-              const trimmed = typeof query === 'string' ? query.trim() : '';
-              const [, bump] = typeof react?.useState === 'function' ? react.useState(0) : [0, null];
-              if (typeof react?.useEffect === 'function' && bump) {
-                react.useEffect(() => {
-                  if (trimmed.length < 2) return undefined;
-                  const onInv = () => bump(v => v + 1);
-                  searchInvListeners.add(onInv);
-                  ensureSearchInventory(window.ApiClient);
-                  return () => searchInvListeners.delete(onInv);
-                }, [trimmed]);
-              } else if (trimmed.length >= 2) {
-                ensureSearchInventory(window.ApiClient);
-              }
-              const res = origHook(parentId, collectionType, trimmed);
-              if (res && Array.isArray(res.data)) {
-                const sc = window.ApiClient?.getCurrentUserId?.() ? scopeKey(window.ApiClient) : '';
-                const homeSnap = sc ? snapshots.get(`${sc}:home:`) : null;
-                const invItems = homeSnap?.value?.items || [];
-                const canonicalIds = invItems.length ? new Set(invItems.map(i => i.Id)) : null;
-                const wantMovie = !collectionType || String(collectionType).toLowerCase() === 'movies';
-                const wantShow = !collectionType || String(collectionType).toLowerCase() === 'tvshows';
-                const tagMatches = trimmed.length >= 2
-                  ? findTagAndGenreMatches(invItems, trimmed, {
-                      includeTypes: [wantMovie ? 'Movie' : '', wantShow ? 'Series' : ''].filter(Boolean),
-                      parentId: parentId || '',
-                      api: window.ApiClient
-                    })
-                  : [];
-                const movieTagItems = tagMatches.filter(i => i.Type === 'Movie');
-                const showTagItems = tagMatches.filter(i => i.Type === 'Series');
-                let hasMovieSec = false, hasShowSec = false;
-                const nextSections = res.data.map(sec => {
-                  if (!sec || !Array.isArray(sec.items)) return sec;
-                  const isMoviesSec = sec.title === 'Movies' || sec.title === 'HeaderMovies' || sec.items[0]?.Type === 'Movie';
-                  const isShowsSec = sec.title === 'Shows' || sec.title === 'HeaderSeries' || sec.items[0]?.Type === 'Series';
-                  let merged = sec.items;
-                  if (isMoviesSec) { hasMovieSec = true; merged = [...sec.items, ...movieTagItems]; }
-                  else if (isShowsSec) { hasShowSec = true; merged = [...sec.items, ...showTagItems]; }
-                  const deduped = dedupeSearchList(merged, canonicalIds).slice(0, 48);
-                  return { ...sec, items: deduped };
-                }).filter(sec => !sec || !Array.isArray(sec.items) || sec.items.length > 0);
-                if (!hasMovieSec && movieTagItems.length) {
-                  nextSections.unshift({ title: 'Movies', items: dedupeSearchList(movieTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
-                }
-                if (!hasShowSec && showTagItems.length) {
-                  const insertAt = nextSections[0]?.title === 'Movies' ? 1 : 0;
-                  nextSections.splice(insertAt, 0, { title: 'Shows', items: dedupeSearchList(showTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
-                }
-                return { ...res, data: nextSections };
-              }
-              return res;
-            };
-            try {
-              Object.defineProperty(exports, 'u', { configurable: true, enumerable: true, get: () => cappedHook });
-            } catch {
-              exports.u = cappedHook;
-            }
-          }
-        } catch {}
-      };
-      wrapped42111._fxPatched = true;
-      req.m[42111] = wrapped42111;
-      if (req.c?.[42111]) {
-        delete req.c[42111];
-        try { req(42111); } catch {}
       }
     }
   } catch {}
@@ -2246,14 +2470,32 @@ function openDownloadMenu(btn, itemId, api) {
       })
       .catch(() => {});
   }
-  document.body.append(menu);
+  positionDropdownMenu(menu, btn, 8, 200);
+}
+function positionDropdownMenu(menu, triggerEl, offsetY = 8, estWidth = 200) {
+  const detailHost = triggerEl?.closest?.('#itemDetailPage');
+  const isFixedDetail = Boolean(detailHost && getComputedStyle(detailHost).position === 'fixed');
+  const host = isFixedDetail ? detailHost : document.body;
+  host.append(menu);
   downloadMenu = menu;
-  const rect = typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null;
+  const rect = typeof triggerEl?.getBoundingClientRect === 'function' ? triggerEl.getBoundingClientRect() : null;
   if (rect && (rect.width > 0 || rect.height > 0)) {
-    const top = Math.min((window.innerHeight || 800) - 150, Math.max(12, Math.round(rect.bottom + 8)));
-    const left = Math.min((window.innerWidth || 1280) - 290, Math.max(12, Math.round(rect.left)));
-    menu.style.top = `${top}px`;
-    menu.style.left = `${left}px`;
+    if (isFixedDetail) {
+      const hRect = typeof detailHost.getBoundingClientRect === 'function' ? detailHost.getBoundingClientRect() : { top: 0, left: 0 };
+      const top = Math.max(12, Math.round(rect.bottom - (hRect.top || 0) + (detailHost.scrollTop || 0) + offsetY));
+      const maxLeft = Math.max(12, (detailHost.clientWidth || window.innerWidth || 390) - estWidth - 12);
+      const left = Math.min(maxLeft, Math.max(12, Math.round(rect.left - (hRect.left || 0) + (detailHost.scrollLeft || 0))));
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+    } else {
+      const docY = window.scrollY ?? window.pageYOffset ?? document.documentElement?.scrollTop ?? 0;
+      const docX = window.scrollX ?? window.pageXOffset ?? document.documentElement?.scrollLeft ?? 0;
+      const top = Math.max(12, Math.round(rect.bottom + docY + offsetY));
+      const maxLeft = Math.max(12, (window.innerWidth || 1280) + docX - estWidth - 12);
+      const left = Math.min(maxLeft, Math.max(12, Math.round(rect.left + docX)));
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+    }
   } else {
     menu.style.top = '120px';
     menu.style.left = '80px';
@@ -2289,18 +2531,7 @@ function openSeasonMenu(seasonWrap, select) {
     item.setAttribute('aria-checked', opt.value === select.value ? 'true' : 'false');
     menu.append(item);
   });
-  document.body.append(menu);
-  downloadMenu = menu;
-  const rect = typeof seasonWrap.getBoundingClientRect === 'function' ? seasonWrap.getBoundingClientRect() : null;
-  if (rect && (rect.width > 0 || rect.height > 0)) {
-    const top = Math.min((window.innerHeight || 800) - 240, Math.max(12, Math.round(rect.bottom + 6)));
-    const left = Math.min((window.innerWidth || 1280) - 220, Math.max(12, Math.round(rect.left)));
-    menu.style.top = `${top}px`;
-    menu.style.left = `${left}px`;
-  } else {
-    menu.style.top = '160px';
-    menu.style.left = '80px';
-  }
+  positionDropdownMenu(menu, seasonWrap, 6, 215);
 }
 function download(name, obj) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
@@ -2490,8 +2721,10 @@ function reconcile() {
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(api);
   syncHomeModeAttr(api);
+  anchorOpenPopovers();
+  syncSearchPage(api);
   guardMicroLogos();
-  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
+  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';searchUiState.tracking=null;searchUiState.trackingScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
@@ -3064,22 +3297,29 @@ function onRouteEvent() {
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
   installNativeFullscreenGuard();
+  installFiltersFetchGuard();
   if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
   patchLibraryViews();
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(window.ApiClient);
   syncHomeModeAttr(window.ApiClient);
+  anchorOpenPopovers();
+  syncSearchPage(window.ApiClient);
   if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
+    anchorOpenPopovers();
     if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage'))) {
       hideLeavingSoonNav();
       syncMobileOverflowDrawer(window.ApiClient);
     }
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (records.some(r => r.target?.closest?.('#searchPage') && !r.target?.closest?.('.fx-search-library'))) {
+      syncSearchPage(window.ApiClient);
+    }
+    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
   });
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden'] });
   document.addEventListener('click', onOsdSuppressClick, true);
   document.addEventListener('dblclick', onOsdDblClick, true);
   document.addEventListener('contextmenu', onOsdContextMenu, true);
@@ -3099,11 +3339,13 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(searchUiState.remoteTimer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
     document.documentElement?.removeAttribute?.('data-fx-subpage');
+    document.getElementById('searchPage')?.removeAttribute?.('data-fx-search-active');
+    document.querySelectorAll('.fx-search-library').forEach(n => n.remove());
     document.removeEventListener('click', onOsdSuppressClick, true);
     document.removeEventListener('dblclick', onOsdDblClick, true);
     document.removeEventListener('contextmenu', onOsdContextMenu, true);

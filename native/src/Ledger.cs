@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace FazFort.Discovery;
 
-public sealed record Observation(Guid Id, string Type, bool Playable, Guid SeriesId = default, int SeasonNumber = 0);
+public sealed record Observation(Guid Id, string Type, bool Playable, Guid SeriesId = default, int SeasonNumber = 0, DateTimeOffset? CreatedAt = null);
 public sealed class Arrival
 {
     public DateTimeOffset? AddedAt { get; set; }
@@ -42,13 +42,14 @@ public sealed class Ledger
     {
         if (!BaselineComplete || item.Id == Guid.Empty || (item.Type != "Series" && !item.Playable)) return false;
         if (!KnownItems.Add(item.Id)) return false;
-        if (item.Type == "Movie") Get(item.Id).AddedAt = now;
+        var effective = item.CreatedAt is { } created && created < now.AddHours(-2) ? created : now;
+        if (item.Type == "Movie") Get(item.Id).AddedAt = effective;
         else if (item.Type == "Series") PendingSeries.Add(item.Id);
         else if (item.Type == "Episode" && item.SeriesId != Guid.Empty)
         {
             bool seriesNew = KnownItems.Add(item.SeriesId);
-            if (PendingSeries.Remove(item.SeriesId) || seriesNew) Get(item.SeriesId).AddedAt = now;
-            if (KnownSeasons.Add(SeasonKey(item)) && item.SeasonNumber >= 2) Get(item.SeriesId).NewSeasonAt = now;
+            if (PendingSeries.Remove(item.SeriesId) || seriesNew) Get(item.SeriesId).AddedAt = effective;
+            if (KnownSeasons.Add(SeasonKey(item)) && item.SeasonNumber >= 2) Get(item.SeriesId).NewSeasonAt = effective;
         }
         return true;
     }

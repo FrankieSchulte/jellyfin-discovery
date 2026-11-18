@@ -1,12 +1,44 @@
 using System.Text.Json;
+using Jellyfin.Data.Enums;
+using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Jellyfin.RequestHub;
 public sealed class RequestBody {public string Type{get;set;}="";public int Id{get;set;}public int[] Seasons{get;set;}=[];}
 [ApiController,Route("RequestHub"),Authorize]
-public sealed class HubController(SeerrGateway gateway,IUserManager users):ControllerBase
+public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibraryManager? library=null):ControllerBase
 {
+    private static readonly object OwnedLock=new();
+    private static DateTimeOffset OwnedCachedAt=DateTimeOffset.MinValue;
+    private static HashSet<int> CachedMovies=[];
+    private static HashSet<int> CachedSeries=[];
+    private static (HashSet<int> Movies,HashSet<int> Series) GetOwnedTmdb(ILibraryManager? lib)
+    {
+        if(lib is null)return([],[]);
+        var now=DateTimeOffset.UtcNow;
+        lock(OwnedLock){if(now-OwnedCachedAt<TimeSpan.FromSeconds(45))return(CachedMovies,CachedSeries);}
+        var movies=new HashSet<int>();var seriesItems=new List<(Guid Id,int Tmdb)>();var playableSeries=new HashSet<Guid>();
+        int offset=0;
+        for(;;)
+        {
+            var batch=lib.GetItemList(new InternalItemsQuery{IncludeItemTypes=[BaseItemKind.Movie,BaseItemKind.Series,BaseItemKind.Episode],Recursive=true,StartIndex=offset,Limit=1000,DtoOptions=new(){EnableImages=false,EnableUserData=false}});
+            foreach(var item in batch)
+            {
+                bool playable=!item.IsVirtualItem&&!string.IsNullOrWhiteSpace(item.Path)&&item.RunTimeTicks>0;
+                if(item is Episode ep){if(playable&&ep.SeriesId!=Guid.Empty)playableSeries.Add(ep.SeriesId);continue;}
+                if(item.ProviderIds is null||(!item.ProviderIds.TryGetValue("Tmdb",out var raw)&&!item.ProviderIds.TryGetValue("tmdb",out raw))||!int.TryParse(raw,out var tmdb)||tmdb<=0)continue;
+                var kind=item.GetBaseItemKind();
+                if(kind==BaseItemKind.Movie&&playable)movies.Add(tmdb);
+                else if(kind==BaseItemKind.Series)seriesItems.Add((item.Id,tmdb));
+            }
+            offset+=batch.Count;
+            if(batch.Count<1000||offset>=500000)break;
+        }
+        var series=seriesItems.Where(s=>playableSeries.Contains(s.Id)).Select(s=>s.Tmdb).ToHashSet();
+        lock(OwnedLock){CachedMovies=movies;CachedSeries=series;OwnedCachedAt=now;return(movies,series);}
+    }
     private UserLink? Link(){var c=Plugin.Instance.Configuration;if(!c.Enabled)return null;var claim=User.Claims.FirstOrDefault(c=>c.Type.Equals("Jellyfin-UserId",StringComparison.OrdinalIgnoreCase))?.Value;return Guid.TryParse(claim,out var id)&&users.GetUserById(id)is not null?HubPolicy.OwnMapping(c.Users,id):null;}
     private async Task<IActionResult> Run(Func<UserLink,Task<IActionResult>> action){var link=Link();if(link is null)return StatusCode(403,new{error="Request Hub is disabled or your account has not been mapped by the administrator."});try{return await action(link);}catch(HubException e){return StatusCode(e.Status is 403 or 409 or 429?e.Status:502,new{error=e.Status==403?"Jellyseerr denied this operation. Check account permissions and request quota.":e.Status==409?"This title or season has already been requested.":"Jellyseerr could not complete the operation. Try again later."});}catch(Exception e)when(e is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException or KeyNotFoundException){return StatusCode(502,new{error="Jellyseerr is unavailable or returned an unsupported response."});}}
     [HttpGet("Status")]
@@ -17,7 +49,9 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users):Contr
         using var response=await gateway.Send(link,path,null,HttpContext.RequestAborted);var root=response.RootElement;
         if(kind=="genres")return Ok(new{results=root.EnumerateArray().Select(g=>new{id=g.GetProperty("id").GetInt32(),name=g.GetProperty("name").GetString(),backdrop=g.TryGetProperty("backdrops",out var b)&&b.ValueKind==JsonValueKind.Array&&b.GetArrayLength()>0?HubPolicy.Backdrop((b.GetArrayLength()>4?b[4]:b[0]).GetString()):null}).ToArray(),pages=1});
         var today=DateOnly.FromDateTime(DateTime.UtcNow);
-        var items=root.GetProperty("results").EnumerateArray().Where(i=>(kind!="search"||i.TryGetProperty("mediaType",out var t)&&t.GetString()is "movie" or "tv")&&Projection.IsReleased(i,today)).Select(i=>Projection.Item(i,kind is "movies" or "genre" or "studio"?"movie":kind is "tv" or "network"?"tv":null)).ToArray();
+        var fallbackType=kind is "movies" or "genre" or "studio"?"movie":kind is "tv" or "network"?"tv":null;
+        var (ownedMovies,ownedSeries)=GetOwnedTmdb(library);
+        var items=root.GetProperty("results").EnumerateArray().Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries)).Select(i=>Projection.Item(i,fallbackType)).ToArray();
         return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});
     });
     [HttpGet("Details")]

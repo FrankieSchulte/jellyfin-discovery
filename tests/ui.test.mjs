@@ -677,34 +677,20 @@ test('patchApiClientLeavingSoon filters Leaving Soon libraries and child items f
   f.ctx.window.FazFortDiscovery.stop();
 });
 
-test('category subpages open all matching items on heading click, search matches tags & deduplicates, filters scroll, and Movies tab insertion avoids double-mount swap',async()=>{
+test('category subpages open all matching items on heading click, unified search grid ranks title then tags without episodes, filter popover supports year range & reset, and dropdowns stay stationary on scroll',async()=>{
   const f=fixture();await f.settle();
 
-  // 1. Scrollable & styled filter popover CSS
+  // 1. Unified dropdown, half-width top spacing, thinner filter popover & stationary scroll CSS
   const styleText=f.document.getElementById('fx-discovery-style')?.textContent||'';
   assert.ok(styleText.includes('overflow-y:auto!important'));
+  assert.ok(styleText.includes('--Paper-overlay:none!important'));
+  assert.ok(styleText.includes('width:216px!important'));
   assert.ok(styleText.includes('.MuiPopover-root .MuiAccordionSummary-root'));
   assert.ok(styleText.includes('.MuiPopover-root .MuiAccordionDetails-root'));
+  assert.ok(styleText.includes('--fx-popover-scroll-y'));
+  assert.ok(styleText.includes('.fx-download-menu{\n  position:absolute;'));
 
-  // 2. Clicking a category heading opens the subpage with all uncapped matching items (>20) and back button restores feed
-  const themeShelf=[...f.document.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
-  assert.ok(themeShelf);
-  const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
-  assert.ok(heading);
-  heading.click();
-  await f.settle();
-  const subpage=f.document.querySelector('.fx-subpage');
-  assert.ok(subpage);
-  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),'true');
-  assert.ok(f.location.hash.includes('fxCat='));
-  const subpageCards=subpage.querySelectorAll('.fx-subpage-grid .fx-card');
-  assert.ok(subpageCards.length>20);
-  subpage.querySelector('.fx-subpage-back').click();
-  await f.settle();
-  assert.equal(f.document.querySelector('.fx-subpage'),null);
-  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),null);
-
-  // 3. Late .pageTabContent[data-index="1"] insertion on #moviesPage does NOT tear down or swap mounted shelves
+  // 2. Late .pageTabContent[data-index="1"] insertion on #moviesPage does NOT tear down or swap mounted shelves, and clicking a category heading opens all uncapped matching items (>20)
   const moviesPage=f.document.getElementById('moviesPage');
   moviesPage.replaceChildren();
   f.document.getElementById('indexPage').classList.add('hide');
@@ -725,36 +711,114 @@ test('category subpages open all matching items on heading click, search matches
   assert.deepEqual([...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey),initialRowKeys);
   assert.equal(lateTab.getAttribute('data-fx-native-hidden'),'true');
 
-  // 4. Search SDK module 71857 deduplicates Leaving Soon / duplicate movies and appends tag matches (e.g. searching "space")
-  let sdkExports={
-    Q:()=>({
-      getItems:async params=>({
-        data:{
-          Items:[
-            {Id:'dup-leaving',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/leaving-soon/movies/media/Frankenweenie/f.mkv',ProviderIds:{Tmdb:'62214'}},
-            {Id:'dup-main-1',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/movies/Frankenweenie/f.mkv',ProviderIds:{Tmdb:'62214'}},
-            {Id:'dup-main-2',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/movies/Frankenweenie/f2.mkv',ProviderIds:{Tmdb:'62214'}}
-          ],
-          TotalRecordCount:3
-        }
-      })
-    })
-  };
-  const fakeReq71857=modId=>modId===71857?sdkExports:null;
-  fakeReq71857.m={
-    71857:(module,exports)=>{Object.assign(exports,sdkExports);}
-  };
-  fakeReq71857.c={};
-  f.ctx.window.webpackChunk={push:([_id,_mods,cb])=>cb?.(fakeReq71857)};
-  f.ctx.window.FazFortDiscovery.restart();
+  const themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
+  assert.ok(themeShelf);
+  const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
+  assert.ok(heading);
+  heading.click();
   await f.settle();
-  const patched71857={};
-  fakeReq71857.m[71857]({},patched71857,fakeReq71857);
-  const searchResp=await patched71857.Q({}).getItems({searchTerm:'space',includeItemTypes:['Movie']});
-  const frankenHits=searchResp.data.Items.filter(i=>i.Name==='Frankenweenie');
-  assert.equal(frankenHits.length,1);
-  assert.equal(frankenHits[0].Id,'dup-main-1');
-  assert.ok(searchResp.data.Items.some(i=>i.Name.startsWith('Movie ')));
+  const subpage=mountedRoot.querySelector('.fx-subpage');
+  assert.ok(subpage);
+  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),'true');
+  assert.ok(f.location.hash.includes('fxCat='));
+  const subpageCards=subpage.querySelectorAll('.fx-subpage-grid .fx-card');
+  assert.equal(subpageCards.length,30);
+  subpage.querySelector('.fx-subpage-back').click();
+  await f.settle();
+  assert.equal(mountedRoot.querySelector('.fx-subpage'),null);
+  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),null);
+
+  // 4. Unified #searchPage "Results for "xxx"" library grid ranks title hits first, then tag hits, and skips Episodes
+  moviesPage.classList.add('hide');
+  const searchPage=f.document.createElement('div');
+  searchPage.id='searchPage';
+  searchPage.className='page';
+  const searchFields=f.document.createElement('div');
+  searchFields.className='searchFields';
+  const searchInp=f.document.createElement('input');
+  searchInp.id='searchTextInput';
+  searchInp.type='search';
+  searchFields.append(searchInp);
+  const searchSuggestions=f.document.createElement('div');
+  searchSuggestions.className='searchSuggestions';
+  searchPage.append(searchFields,searchSuggestions);
+  f.document.body.append(searchPage);
+  f.navigate('#/search');
+  await f.settle();
+
+  searchInp.value='space';
+  searchInp.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
+  f.flushTimeouts(160);
+  await f.settle();
+  assert.equal(searchPage.getAttribute('data-fx-search-active'),'true');
+  const searchLib=searchPage.querySelector('.fx-search-library');
+  assert.ok(searchLib);
+  assert.equal(searchLib.hidden,false);
+  assert.equal(searchLib.querySelector('.fx-search-library-title')?.textContent,'Results for "space"');
+  const gridCards=searchLib.querySelectorAll('.fx-search-library-grid .fx-card');
+  assert.equal(gridCards.length,45); // all 45 Movie + Series fixture items carry the 'space' tag, uncapped!
+
+  searchInp.value='';
+  searchInp.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
+  assert.equal(searchPage.hasAttribute('data-fx-search-active'),false);
+  assert.equal(searchLib.hidden,true);
+
+  // 5. Filter popover strips Tags, auto-mirrors Year -> End Year, supports range override, Reset filters, and anchors scrollY
+  f.ctx.window.scrollY=340;
+  let filterState={StartIndex:0,Filters:{Genres:['Action']}};
+  const filterPop=f.document.createElement('div');
+  filterPop.id='filter-popover';
+  filterPop.className='MuiPopover-root';
+  const filterPaper=f.document.createElement('div');
+  filterPaper.className='MuiPaper-root';
+  const tagsAcc=f.document.createElement('div');
+  tagsAcc.className='MuiAccordion-root';
+  const tagsHdr=f.document.createElement('div');
+  tagsHdr.id='filtersTags-header';
+  tagsAcc.append(tagsHdr);
+  const yearsContent=f.document.createElement('div');
+  yearsContent.id='filtersYears-content';
+  const yearsDetails=f.document.createElement('div');
+  yearsDetails.className='MuiAccordionDetails-root';
+  yearsContent.append(yearsDetails);
+  filterPaper.append(tagsAcc,yearsContent);
+  filterPop.append(filterPaper);
+  filterPaper.__reactFiber$unit={
+    return:{
+      memoizedProps:{
+        get libraryViewSettings(){return filterState;},
+        yearsOptions:[2012,2014,2015,2016,2018,2020].map(y=>({Name:String(y),Value:y})),
+        setLibraryViewSettings:updater=>{
+          filterState=typeof updater==='function'?updater(filterState):updater;
+        }
+      }
+    }
+  };
+  f.document.body.append(filterPop);
+  f.notify();
+  assert.equal(filterPop.dataset.fxAnchoredOpen,'true');
+  assert.equal(tagsAcc.style.display,'none');
+  const fromYear=filterPaper.querySelector('.fx-year-from');
+  const toYear=filterPaper.querySelector('.fx-year-to');
+  const resetBtn=filterPaper.querySelector('.fx-filter-reset-btn');
+  assert.ok(fromYear&&toYear&&resetBtn);
+  assert.equal(resetBtn.classList.contains('is-active'),true);
+
+  fromYear.value='2014';
+  fromYear.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
+  assert.equal(toYear.value,'2014'); // Automatically mirrored!
+  f.flushTimeouts(150);
+  assert.deepEqual([...filterState.Filters.Years],[2014]);
+
+  toYear.value='2018';
+  toYear.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
+  f.flushTimeouts(150);
+  assert.deepEqual([...filterState.Filters.Years],[2014,2015,2016,2018]);
+
+  resetBtn.click();
+  assert.deepEqual([...Object.keys(filterState.Filters)],[]);
+  assert.equal(fromYear.value,'');
+  assert.equal(toYear.value,'');
 
   f.ctx.window.FazFortDiscovery.stop();
 });

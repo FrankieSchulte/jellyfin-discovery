@@ -66,8 +66,11 @@ public sealed class ArrivalMonitor(ILibraryManager library, DiscoveryStore store
         string type = item.GetBaseItemKind().ToString();
         if (type is not ("Movie" or "Series" or "Episode")) return null;
         bool playable = !item.IsVirtualItem && !string.IsNullOrWhiteSpace(item.Path) && item.RunTimeTicks > 0;
+        DateTimeOffset? createdAt = item.DateCreated.Year > 1970
+            ? new DateTimeOffset(DateTime.SpecifyKind(item.DateCreated, DateTimeKind.Utc))
+            : null;
         return item is Episode episode
-            ? new(item.Id, type, playable, episode.SeriesId, episode.ParentIndexNumber ?? 0)
-            : new(item.Id, type, playable);
+            ? new(item.Id, type, playable, episode.SeriesId, episode.ParentIndexNumber ?? 0, createdAt)
+            : new(item.Id, type, playable, default, 0, createdAt);
     }
 }

@@ -71,3 +71,33 @@ test('fastOpening skips ContinueWatchingNextUp when first configured opening row
   assert.equal(fast[0].key,'ContinueWatchingNextUp');
   assert.ok(resumeCalls>=1);
 });
+test('DiscoverMovies anchor excludes status=5 and owned library TMDb movies while paginating across pages',async()=>{
+  const {api}=apiFixture(()=>({Items:[]}));
+  const seenPages=[];
+  api.getJSON=async({p,q})=>{
+    assert.equal(p,'RequestHub/Browse');
+    seenPages.push(q.page);
+    if(q.page===1){
+      return {
+        pages:2,
+        results:[
+          {id:10,type:'movie',title:'Owned By Status',status:5,releaseDate:'2024-05-01'},
+          {id:11,type:'movie',title:'Owned By Library Tmdb',status:0,releaseDate:'2024-05-01'},
+          {id:12,type:'movie',title:'Fresh Discover 1',status:0,releaseDate:'2024-05-01'}
+        ]
+      };
+    }
+    return {
+      pages:2,
+      results:[
+        {id:13,type:'movie',title:'Fresh Discover 2',status:0,releaseDate:'2024-06-01'}
+      ]
+    };
+  };
+  const client=new JellyfinClient(api);
+  const inv={items:[{Id:id(1),Name:'Owned By Library Tmdb',Type:'Movie',ProviderIds:{Tmdb:'11'}}]};
+  const row=await client.anchor('DiscoverMovies',{page:'home'},inv,{cardsPerShelf:20});
+  assert.deepEqual(seenPages,[1,2]);
+  const realTitles=row.items.filter(i=>i.Type!=='SeeMore').map(i=>i.Name);
+  assert.deepEqual(realTitles,['Fresh Discover 1','Fresh Discover 2']);
+});

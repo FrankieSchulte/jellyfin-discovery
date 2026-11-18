@@ -235,27 +235,51 @@ export class JellyfinClient {
         this.assertCurrent();
       }
     }
+    const wantKindType = id === 'DiscoverMovies' ? 'Movie' : id === 'DiscoverTV' ? 'Series' : '';
+    const ownedTmdbIds = new Set();
+    const ownedTitleKeys = new Set();
+    if (wantKindType && Array.isArray(inventory?.items)) {
+      for (const local of inventory.items) {
+        if (!local || local.Type !== wantKindType || isLeavingSoonItem(local)) continue;
+        const tid = Number(local.ProviderIds?.Tmdb || local.ProviderIds?.tmdb);
+        if (tid > 0) ownedTmdbIds.add(tid);
+        if (local.Name) ownedTitleKeys.add(`${String(local.Name).trim().toLowerCase()}:${local.ProductionYear || ''}`);
+      }
+    }
     if ((id === 'DiscoverMovies' || id === 'DiscoverTV') && !this.prefetchedSections.has(id)) {
       try {
         const kind = id === 'DiscoverMovies' ? 'movies' : 'tv';
         const targetCount = Math.max(config.cardsPerShelf || 20, 20);
         const today = new Date().toISOString().slice(0, 10);
-        const isReleased = r => !r?.releaseDate || String(r.releaseDate).slice(0, 10) <= today;
-        const rh = await this.json('RequestHub/Browse', { kind, page: 1 });
-        let rawList = Array.isArray(rh?.results) ? rh.results.filter(isReleased) : [];
-        if (rawList.length > 0 && rawList.length < targetCount && (rh?.totalPages || 1) >= 2) {
+        const isEligibleDiscover = r => {
+          if (!r) return false;
+          if (r.releaseDate && String(r.releaseDate).slice(0, 10) > today) return false;
+          if (Number(r.status) === 5) return false;
+          const rid = Number(r.id);
+          if (rid > 0 && !(kind === 'tv' && Number(r.status) === 4) && ownedTmdbIds.has(rid)) return false;
+          const rYear = r.year || (r.releaseDate ? String(r.releaseDate).slice(0, 4) : '');
+          if (r.title && !(kind === 'tv' && Number(r.status) === 4) && ownedTitleKeys.has(`${String(r.title).trim().toLowerCase()}:${rYear}`)) return false;
+          return true;
+        };
+        const rawList = [];
+        const seenIds = new Set();
+        let totalPages = 1;
+        for (let page = 1; page <= 6 && rawList.length < targetCount && page <= totalPages; page++) {
+          let rh;
           try {
-            const rh2 = await this.json('RequestHub/Browse', { kind, page: 2 });
-            if (Array.isArray(rh2?.results)) {
-              const seenIds = new Set(rawList.map(r => r.id));
-              for (const r of rh2.results.filter(isReleased)) {
-                if (!seenIds.has(r.id)) {
-                  seenIds.add(r.id);
-                  rawList.push(r);
-                }
-              }
-            }
-          } catch {}
+            rh = await this.json('RequestHub/Browse', { kind, page });
+          } catch (err) {
+            if (page === 1) throw err;
+            break;
+          }
+          totalPages = Number(rh?.pages ?? rh?.totalPages ?? 1) || 1;
+          const batch = Array.isArray(rh?.results) ? rh.results : [];
+          if (!batch.length) break;
+          for (const r of batch) {
+            if (!isEligibleDiscover(r) || seenIds.has(r.id)) continue;
+            seenIds.add(r.id);
+            rawList.push(r);
+          }
         }
         if (rawList.length) {
           const mapped = rawList.slice(0, targetCount).map(r => ({
@@ -282,6 +306,14 @@ export class JellyfinClient {
       if (prefetched) this.prefetchedSections.delete(id);
       const response = prefetched ? await prefetched : await this.json(`HomeScreen/Section/${id}`, { UserId: this.userId });
       let list = typed(response.Items || []).filter(i => id.startsWith('Discover') || !isLeavingSoonItem(i));
+      if (id.startsWith('Discover') && (ownedTmdbIds.size > 0 || ownedTitleKeys.size > 0)) {
+        list = list.filter(i => {
+          const tid = Number(i?.ProviderIds?.Tmdb || i?.ProviderIds?.tmdb || i?.ProviderIds?.Jellyseerr);
+          if (tid > 0 && ownedTmdbIds.has(tid)) return false;
+          if (i?.Name && ownedTitleKeys.has(`${String(i.Name).trim().toLowerCase()}:${i.ProductionYear || ''}`)) return false;
+          return true;
+        });
+      }
       if ((route.parentId || leavingSoonState.itemIds.size > 0) && !id.startsWith('Discover') && inventory.items?.length) {
         const allowed = new Set(inventory.items.map(i => i.Id));
         list = list.filter(i => allowed.has(i.Id) || allowed.has(i.SeriesId));

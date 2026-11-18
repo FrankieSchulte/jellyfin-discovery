@@ -27,13 +27,27 @@ public static class Projection
 {
     private static string Text(JsonElement item,string field)=>item.TryGetProperty(field,out var v)&&v.ValueKind==JsonValueKind.String?(v.GetString()??""):"";
     public static string ReleaseDate(JsonElement item)=>Text(item,"releaseDate") is {Length:>0} rd?rd:Text(item,"firstAirDate");
+    public static int StatusOf(JsonElement item)=>item.TryGetProperty("mediaInfo",out var media)&&media.ValueKind==JsonValueKind.Object&&media.TryGetProperty("status",out var st)&&st.TryGetInt32(out var s)?s:0;
+    public static bool IsAvailable(JsonElement item)=>StatusOf(item)==5;
     public static bool IsReleased(JsonElement item,DateOnly today)
     {
         var raw=ReleaseDate(item);
         if(raw.Length<10||!DateOnly.TryParseExact(raw[..10],"yyyy-MM-dd",System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None,out var date)||date>today)return false;
-        var status=item.TryGetProperty("mediaInfo",out var media)&&media.ValueKind==JsonValueKind.Object&&media.TryGetProperty("status",out var st)&&st.TryGetInt32(out var s)?s:0;
+        var status=StatusOf(item);
         if(status>=4)return true;
         if(item.TryGetProperty("voteCount",out var vc)&&vc.TryGetInt32(out var votes)&&votes<=0)return false;
+        return true;
+    }
+    public static bool ShouldIncludeBrowseItem(JsonElement item,string? fallbackType,DateOnly today,IReadOnlySet<int>? ownedMovies=null,IReadOnlySet<int>? ownedSeries=null)
+    {
+        if(!IsReleased(item,today))return false;
+        int status=StatusOf(item);
+        if(status==5)return false;
+        string resolvedType=fallbackType??Text(item,"mediaType");
+        if(resolvedType is not("movie" or "tv"))return false;
+        int id=item.TryGetProperty("id",out var idProp)&&idProp.TryGetInt32(out var number)?number:0;
+        if(id>0&&resolvedType=="movie"&&ownedMovies?.Contains(id)==true)return false;
+        if(id>0&&resolvedType=="tv"&&status!=4&&ownedSeries?.Contains(id)==true)return false;
         return true;
     }
     public static object Item(JsonElement item,string? type=null)=>new {
@@ -41,6 +55,6 @@ public static class Projection
         type=type??Text(item,"mediaType"),title=Text(item,"title") is {Length:>0} t?t:Text(item,"name"),
         overview=Text(item,"overview"),poster=HubPolicy.Poster(Text(item,"posterPath")),
         releaseDate=ReleaseDate(item),
-        status=item.TryGetProperty("mediaInfo",out var media)&&media.ValueKind==JsonValueKind.Object&&media.TryGetProperty("status",out var status)&&status.TryGetInt32(out var n)?n:0
+        status=StatusOf(item)
     };
 }

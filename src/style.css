@@ -28,7 +28,7 @@ html[data-fx-subpage="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .f
 .fx-subpage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(135px,13vw,195px),1fr));gap:20px 16px;align-items:start}
 .fx-subpage-grid .fx-card-entry,.fx-subpage-grid .fx-card-entry.fx-card-portrait{width:100%!important;flex-basis:auto!important}
 .fx-subpage-grid .fx-card-portrait .fx-card-visual img{object-fit:cover}
-@media(max-width:768px){
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
   html[data-fx-subpage="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:20px!important}
   .fx-subpage-title{font-size:22px;line-height:28px}
   .fx-subpage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}
@@ -187,10 +187,8 @@ header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) + div[aria-hidd
   height:0!important;
   min-height:0!important;
 }
-@media(min-width:900px){
-  header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child{
-    min-height:var(--sleekfin-header-height,80px)!important;
-  }
+header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child{
+  min-height:var(--sleekfin-header-height,80px)!important;
 }
 html body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root,
 html.sleekfin-media-mounted body header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{
@@ -268,8 +266,46 @@ html:has(:is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(.hide) .fx-discove
   display:none!important;
 }
 
-/* SleekFin Three-Dots Style Dropdown Menus Across All Switchers (Movies, Shows, Live TV, Collections, Season X, Downloads & User Menu) Without Dimming Background */
-html.sleekfin-main-ui :is(.MuiPopover-root,.MuiMenu-root,#library-view-menu,#app-user-menu) > .MuiBackdrop-root,
+/* Unified Downloads-Style Dropdown Menus Across All Switchers (Profile, Movies, Shows, Collections, Filters, Sort, View, Season X & Downloads) — Stationary on Scroll & No Dimmed Backdrop */
+html:has(.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)):not(:has(.MuiDialog-root:not([aria-hidden="true"]))) body{
+  overflow-y:auto!important;
+  padding-right:0!important;
+}
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden){
+  position:absolute!important;
+  top:var(--fx-popover-scroll-y,0px)!important;
+  left:var(--fx-popover-scroll-x,0px)!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  height:100vh!important;
+  pointer-events:none!important;
+}
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiBackdrop-root{
+  position:fixed!important;
+  inset:0!important;
+  pointer-events:auto!important;
+}
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPaper-root{
+  pointer-events:auto!important;
+}
+.sleekfin-popup-layer[data-fx-anchored="true"]{
+  position:absolute!important;
+  top:var(--fx-popover-scroll-y,0px)!important;
+  left:var(--fx-popover-scroll-x,0px)!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  height:100vh!important;
+}
+.sleekfin-popup-layer[data-fx-anchored="true"] > .sleekfin-popup-backdrop{
+  position:fixed!important;
+  inset:0!important;
+}
+.sleekfin-details-dropdown-menu[data-fx-anchored="true"]{
+  position:absolute!important;
+}
+html.sleekfin-main-ui :is(.MuiPopover-root,.MuiMenu-root,#library-view-menu,#app-user-menu,#filter-popover) > .MuiBackdrop-root,
 html.sleekfin-main-ui .MuiBackdrop-root.MuiBackdrop-invisible,
 .MuiPopover-root > .MuiBackdrop-root,
 .MuiMenu-root > .MuiBackdrop-root,
@@ -287,28 +323,70 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
 .MuiMenu-paper,
 #library-view-menu .MuiPaper-root,
 #app-user-menu .MuiPaper-root,
+#filter-popover .MuiPaper-root,
+.fx-dropdown-menu,
+.fx-feed-menu-actions,
+html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropdown-menu),
 .dialog.actionSheet,
 .dialog.filterDialog{
-  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.88)!important;
+  --Paper-overlay:none!important;
+  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82)!important;
+  background-color:rgba(22,22,24,.82)!important;
+  background-image:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01))!important;
   backdrop-filter:blur(18px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
-  border:1px solid rgba(255,255,255,.08)!important;
+  border:1px solid rgba(255,255,255,.07)!important;
   border-radius:12px!important;
   box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   padding:6px!important;
+  box-sizing:border-box!important;
+}
+.MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
+.MuiPopover-root.MuiModal-hidden .MuiPaper-root{
+  animation:none!important;
+}
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root,
+.fx-dropdown-menu:not([hidden]),
+.fx-feed-menu[open] > .fx-feed-menu-actions,
+html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropdown-menu){
+  transform-origin:top left!important;
+  transition:none!important;
+  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
+}
+#app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root,
+#filter-popover:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root{
+  transform-origin:top right!important;
+}
+.MuiPopover-root .MuiPaper-root:not(#app-user-menu .MuiPaper-root):not(#library-view-menu .MuiPaper-root){
   overflow-x:hidden!important;
   overflow-y:auto!important;
-  max-height:min(calc(100dvh - 32px),78vh)!important;
+  max-height:min(calc(100dvh - 32px),74vh)!important;
   overscroll-behavior:contain!important;
   -webkit-overflow-scrolling:touch!important;
   scrollbar-width:thin;
   scrollbar-color:rgba(255,255,255,.22) transparent;
 }
+#app-user-menu .MuiPaper-root,
+#library-view-menu .MuiPaper-root{
+  overflow:hidden!important;
+  margin-top:8px!important;
+}
+#library-view-menu .MuiPaper-root{
+  min-width:176px!important;
+}
+#filter-popover .MuiPaper-root,
 .MuiPopover-root .MuiPaper-root:has(.MuiAccordion-root,.MuiFormGroup-root){
-  min-width:250px!important;
-  max-width:min(340px,calc(100vw - 24px))!important;
+  width:216px!important;
+  min-width:204px!important;
+  max-width:224px!important;
   padding:6px!important;
+  margin-top:8px!important;
+}
+#filter-popover .MuiAccordion-root:has(#filtersTags-header),
+.MuiPopover-root .MuiAccordion-root:has(#filtersTags-header){
+  display:none!important;
 }
 .MuiPopover-root .MuiAccordion-root{
   background:transparent!important;
@@ -322,17 +400,18 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   display:none!important;
 }
 .MuiPopover-root .MuiAccordionSummary-root{
-  min-height:38px!important;
-  padding:6px 10px!important;
+  min-height:36px!important;
+  padding:5px 8px!important;
   border-radius:8px!important;
   background:transparent!important;
-  color:rgba(255,255,255,.78)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   transition:background-color .14s ease,color .14s ease!important;
 }
 .MuiPopover-root .MuiAccordionSummary-root:hover,
 .MuiPopover-root .MuiAccordionSummary-root.Mui-expanded{
-  background:rgba(255,255,255,.10)!important;
-  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
 }
 .MuiPopover-root .MuiAccordionSummary-content{
   margin:0 6px!important;
@@ -340,20 +419,44 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   font-size:13px!important;
   font-weight:500!important;
   line-height:1.25!important;
+  color:inherit!important;
 }
 .MuiPopover-root .MuiAccordionSummary-content .MuiTypography-root{
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:13px!important;
   font-weight:500!important;
+  line-height:1.25!important;
   color:inherit!important;
 }
 .MuiPopover-root .MuiAccordionSummary-expandIconWrapper{
-  color:rgba(255,255,255,.65)!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:16px!important;
+  height:16px!important;
+  color:rgba(255,255,255,.72)!important;
+  transition:transform .16s cubic-bezier(.22,1,.36,1),color .14s ease!important;
+}
+.MuiPopover-root .MuiAccordionSummary-expandIconWrapper svg{
+  display:none!important;
+}
+.MuiPopover-root .MuiAccordionSummary-expandIconWrapper::before{
+  content:""!important;
+  display:block!important;
+  width:16px!important;
+  height:16px!important;
+  background-color:currentColor!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+}
+.MuiPopover-root .MuiAccordionSummary-root:hover .MuiAccordionSummary-expandIconWrapper,
+.MuiPopover-root .MuiAccordionSummary-root.Mui-expanded .MuiAccordionSummary-expandIconWrapper{
+  color:#fff!important;
 }
 .MuiPopover-root .MuiAccordionDetails-root{
-  padding:4px 8px 8px 12px!important;
+  padding:4px 6px 6px 8px!important;
   border-top:1px solid rgba(255,255,255,.06)!important;
-  max-height:240px!important;
+  max-height:210px!important;
   overflow-y:auto!important;
   overscroll-behavior:contain!important;
   scrollbar-width:thin;
@@ -364,47 +467,124 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
 }
 .MuiPopover-root .MuiFormControlLabel-root{
   margin:0!important;
-  padding:4px 8px!important;
+  padding:3px 6px!important;
   border-radius:7px!important;
-  min-height:34px!important;
-  transition:background-color .14s ease!important;
+  min-height:32px!important;
+  color:rgba(255,255,255,.72)!important;
+  transition:background-color .14s ease,color .14s ease!important;
 }
 .MuiPopover-root .MuiFormControlLabel-root:hover{
-  background:rgba(255,255,255,.09)!important;
+  background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
 }
 .MuiPopover-root .MuiFormControlLabel-label{
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:13px!important;
   font-weight:500!important;
-  color:rgba(255,255,255,.82)!important;
+  line-height:1.25!important;
+  color:inherit!important;
 }
 .MuiPopover-root :is(.MuiCheckbox-root,.MuiRadio-root){
-  padding:5px 8px 5px 4px!important;
+  padding:4px 7px 4px 2px!important;
   color:rgba(255,255,255,.52)!important;
 }
 .MuiPopover-root :is(.MuiCheckbox-root.Mui-checked,.MuiRadio-root.Mui-checked){
   color:var(--sleekfin-accent,#dc2626)!important;
 }
+.MuiPopover-root :is(.MuiCheckbox-root,.MuiRadio-root) svg{
+  font-size:18px!important;
+}
 .MuiPopover-root .MuiButton-root{
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
-  font-size:12.5px!important;
-  font-weight:600!important;
+  font-size:13px!important;
+  font-weight:500!important;
   text-transform:none!important;
   border-radius:8px!important;
-  color:rgba(255,255,255,.82)!important;
+  color:rgba(255,255,255,.72)!important;
 }
 .MuiPopover-root .MuiButton-root:hover{
   background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
+}
+#filtersYears-content[data-fx-years-enhanced="true"] .MuiFormGroup-root{
+  display:none!important;
+}
+.fx-year-range{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:6px;
+  padding:4px 2px 2px;
+}
+.fx-year-range-sep{
+  color:rgba(255,255,255,.45);
+  font-size:12px;
+  font-weight:500;
+  user-select:none;
+}
+.fx-year-input{
+  width:100%;
+  min-width:0;
+  height:32px;
+  padding:0 6px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(12,13,16,.72);
+  color:var(--sleekfin-text,#f1f2f4);
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:12.5px;
+  font-weight:500;
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+  box-sizing:border-box;
+  transition:border-color .14s ease,background-color .14s ease;
+}
+.fx-year-input::placeholder{
+  color:rgba(255,255,255,.4);
+}
+.fx-year-input:focus{
+  outline:none;
+  border-color:var(--sleekfin-accent,#dc2626);
+  background:rgba(16,17,21,.92);
+}
+.fx-filter-footer{
+  margin-top:5px;
+  padding-top:5px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+button.fx-filter-reset-btn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:34px!important;
+  padding:6px 10px!important;
+  border-radius:8px!important;
+  border:0!important;
+  background:rgba(255,255,255,.05)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  line-height:1.25!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,color .14s ease!important;
+}
+button.fx-filter-reset-btn:hover{
+  background:rgba(255,255,255,.12)!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
+}
+button.fx-filter-reset-btn.is-active{
+  background:rgba(229,9,20,.18)!important;
   color:#fff!important;
+}
+button.fx-filter-reset-btn.is-active:hover{
+  background:rgba(229,9,20,.28)!important;
 }
 .dialog.filterDialog .formDialogContent{
   overflow-y:auto!important;
   max-height:72vh!important;
   padding:8px 12px!important;
-}
-#library-view-menu .MuiPaper-root,
-#app-user-menu .MuiPaper-root{
-  margin-top:10px!important;
 }
 .MuiPopover-root .MuiList-root,
 #library-view-menu .MuiList-root,
@@ -414,6 +594,8 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
 .MuiPopover-root .MuiMenuItem-root,
 #library-view-menu .MuiMenuItem-root,
 #app-user-menu .MuiMenuItem-root,
+.fx-feed-menu-actions > button,
+html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-dropdown-option),
 .dialog.actionSheet .listItem{
   border-radius:8px!important;
   margin:1px 0!important;
@@ -428,20 +610,38 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   background:transparent!important;
   transition:background-color .14s ease,color .14s ease!important;
 }
+.MuiPopover-root .MuiMenuItem-root .MuiTypography-root,
+#library-view-menu .MuiMenuItem-root .MuiTypography-root,
+#app-user-menu .MuiMenuItem-root .MuiTypography-root{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  line-height:1.25!important;
+  color:inherit!important;
+}
 .MuiPopover-root .MuiMenuItem-root:hover,
 #library-view-menu .MuiMenuItem-root:hover,
 #app-user-menu .MuiMenuItem-root:hover,
+.fx-feed-menu-actions > button:hover,
+html:root :is(.sleekfin-menu-item:hover,.sleekfin-select-option:hover,.sleekfin-details-dropdown-option:hover,.sleekfin-details-dropdown-option[data-active="true"]),
 .dialog.actionSheet .listItem:hover{
   background:rgba(255,255,255,.12)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected,
 #library-view-menu .MuiMenuItem-root.Mui-selected,
-#app-user-menu .MuiMenuItem-root.Mui-selected{
+#app-user-menu .MuiMenuItem-root.Mui-selected,
+html:root :is(.sleekfin-menu-item[data-selected="true"],.sleekfin-select-option[data-selected="true"],.sleekfin-details-dropdown-option[data-selected="true"]){
   background:rgba(255,255,255,.14)!important;
   border:0!important;
   color:#fff!important;
   font-weight:600!important;
+}
+.MuiPopover-root .MuiMenuItem-root.Mui-selected .MuiTypography-root,
+#library-view-menu .MuiMenuItem-root.Mui-selected .MuiTypography-root,
+#app-user-menu .MuiMenuItem-root.Mui-selected .MuiTypography-root{
+  font-weight:600!important;
+  color:#fff!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected:hover,
 #library-view-menu .MuiMenuItem-root.Mui-selected:hover{
@@ -452,9 +652,10 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
   border-color:rgba(255,255,255,.08)!important;
   margin:5px 4px!important;
 }
+.MuiPopover-root .MuiListItemIcon-root,
 #app-user-menu .MuiListItemIcon-root{
-  color:rgba(255,255,255,.72)!important;
-  min-width:30px!important;
+  color:inherit!important;
+  min-width:28px!important;
 }
 
 /* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search (Single Red Bar Only) */
@@ -720,11 +921,9 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSu
   margin:0!important;
 }
 
-@media(min-width:900px){
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
-    padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important;
-  }
+html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+  padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important;
 }
 html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage){padding-top:0!important;margin-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
@@ -756,11 +955,9 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
-@media(min-width:900px){
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
-    padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
-    margin-top:0!important;
-  }
+html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+  padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
+  margin-top:0!important;
 }
 html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #searchPage#searchPage{
   padding-top:16px!important;
@@ -992,14 +1189,65 @@ html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #sear
   flex:0 0 clamp(135px,14vw,195px)!important;
   max-width:clamp(135px,14vw,195px)!important;
 }
+#searchPage#searchPage[data-fx-search-active="true"] :is(.searchSuggestions,.searchResults,.noItemsMessage){
+  display:none!important;
+}
+.fx-search-library{
+  padding:8px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px;
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px);
+  margin:0;
+  width:100%;
+  box-sizing:border-box;
+}
+.fx-search-library[hidden]{
+  display:none!important;
+}
+.fx-search-library-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:40px;
+  margin:0 0 24px;
+}
+.fx-search-library-title{
+  margin:0;
+  font-size:28px;
+  line-height:34px;
+  font-weight:700;
+  color:#fff;
+  border-left:3px solid var(--sleekfin-accent,#e50914);
+  padding-left:10px;
+}
+.fx-search-library-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(135px,14vw,205px),1fr));
+  gap:20px 14px;
+  align-items:start;
+  width:100%;
+  box-sizing:border-box;
+}
+.fx-search-library-grid .fx-card-entry,
+.fx-search-library-grid .fx-card-entry.fx-card-portrait{
+  width:100%!important;
+  flex-basis:auto!important;
+}
+.fx-search-library-grid .fx-card-portrait .fx-card-visual img{
+  object-fit:cover;
+}
+.fx-search-library-empty{
+  margin:28px 0;
+  color:var(--sleekfin-muted,#969aa1);
+  font-size:.98rem;
+  line-height:1.5;
+}
 
-/* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button) */
+/* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button — Stationary on Scroll) */
 @keyframes fx-dropdown-enter{
   from{opacity:0;transform:translateY(-6px) scale(.96)}
   to{opacity:1;transform:translateY(0) scale(1)}
 }
 .fx-download-menu{
-  position:fixed;
+  position:absolute;
   z-index:100005;
   width:min(190px,86vw);
   padding:6px;
@@ -1372,13 +1620,8 @@ a.fx-download-option.is-selected{
   max-width:1040px!important;
   width:100%!important;
   margin:0 auto!important;
-  padding:20px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
+  padding:calc(var(--sleekfin-header-height,80px) + 20px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
   box-sizing:border-box!important;
-}
-@media(min-width:900px){
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
-    padding:calc(var(--sleekfin-header-height,80px) + 20px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px!important;
-  }
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection){
   background:#101113!important;
@@ -1838,31 +2081,14 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   #itemDetailPage :is([is="emby-scroller"],.emby-scroller,.sleekfin-details-episode-list,#castContent){
     touch-action:pan-x pan-y!important;
   }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
-    padding:calc(22px + env(safe-area-inset-top,0px)) 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
-    max-width:100%!important;
-  }
-  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection),
-  #homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced),
-  #displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
-    padding:16px!important;
-    max-width:100%!important;
-  }
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
-    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
-    margin-top:0!important;
-  }
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
-    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
-  }
   .fx-discovery{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage) .itemsContainer.vertical-wrap{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
-  #searchPage#searchPage .searchResults{
+  #searchPage#searchPage .searchResults,
+  .fx-search-library{
     padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
@@ -1905,6 +2131,26 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"]{
     display:none!important;
   }
+}
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
+    padding:calc(22px + env(safe-area-inset-top,0px)) 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
+    max-width:100%!important;
+  }
+  :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.verticalSection,.detailSection),
+  #homeScreenPreferencesPage :is(.fx-editor-section,.fx-advanced),
+  #displayPreferencesPage :is(form > .MuiStack-root > .MuiStack-root,form > .MuiBox-root > .MuiStack-root,form:not(:has(.verticalSection)):not(:has(> .MuiStack-root > .MuiStack-root)):not(:has(> .MuiBox-root > .MuiStack-root))){
+    padding:16px!important;
+    max-width:100%!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
+    margin-top:0!important;
+  }
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
+  }
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child:not(:has([data-sleekfin-header-brand])){
     height:0!important;
@@ -1925,13 +2171,22 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   }
 }
 
-@media(max-width:768px){
+@media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
   html.sleekfin-main-ui:root,
   :root{
     --sleekfin-page-gutter:14px!important;
   }
-  .fx-discovery{
+  .fx-discovery,
+  .fx-search-library{
     padding-inline:14px!important;
+  }
+  .fx-search-library-title{
+    font-size:22px!important;
+    line-height:28px!important;
+  }
+  .fx-search-library-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px 10px!important;
   }
   .fx-inline-studio{
     padding:0!important;
