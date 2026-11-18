@@ -47,12 +47,21 @@ test('movie/show scopes do not leak other types', () => {
     assert.ok(shelves.every(s=>s.items.every(i=>i.Type===(page==='movies'?'Movie':'Series'))));
   }
 });
-test('seasonal tags are not shown outside configured months', () => {
+test('seasonal tags are not shown outside configured months and Christmas runs in November and December at top of theme pool', () => {
   const list=items.map(i=>({...i,Type:'Movie',Tags:['christmas','halloween']}));
   const keys=date=>buildShelves(list,config.pages.home,config,'home',new Date(date)).map(s=>s.key);
+  assert.ok(!keys('2026-09-15T12:00:00Z').includes('rule:christmas'));
   assert.ok(keys('2026-10-15T12:00:00Z').includes('rule:halloween'));
+  assert.ok(!keys('2026-10-15T12:00:00Z').includes('rule:christmas'));
   assert.ok(!keys('2026-11-15T12:00:00Z').includes('rule:halloween'));
+  assert.ok(keys('2026-11-15T12:00:00Z').includes('rule:christmas'));
   assert.ok(keys('2026-12-15T12:00:00Z').includes('rule:christmas'));
+  const novShelves=buildShelves(list,config.pages.movies,config,'movies',new Date('2026-11-17T12:00:00Z'));
+  const novPlanner=new FeedPlanner(novShelves,config,'nov-seed');
+  const firstTheme=novPlanner.next('theme');
+  assert.equal(firstTheme.key,'rule:christmas');
+  assert.ok(firstTheme.allItems.length > firstTheme.items.length);
+  assert.deepEqual(routeInfo('#/movies?fxCat=rule%3Achristmas'),{page:'movies',view:'suggestions',cat:'rule:christmas',parentId:'',serverId:''});
 });
 test('IMDb shelf requires explicit membership, not high score', () => {
   assert.ok(!buildShelves(items,config.pages.movies,config,'movies',now).some(s=>s.key==='rule:imdb-top-250'));

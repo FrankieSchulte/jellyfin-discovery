@@ -676,3 +676,85 @@ test('patchApiClientLeavingSoon filters Leaving Soon libraries and child items f
   f.api.getItems=origGetItems;
   f.ctx.window.FazFortDiscovery.stop();
 });
+
+test('category subpages open all matching items on heading click, search matches tags & deduplicates, filters scroll, and Movies tab insertion avoids double-mount swap',async()=>{
+  const f=fixture();await f.settle();
+
+  // 1. Scrollable & styled filter popover CSS
+  const styleText=f.document.getElementById('fx-discovery-style')?.textContent||'';
+  assert.ok(styleText.includes('overflow-y:auto!important'));
+  assert.ok(styleText.includes('.MuiPopover-root .MuiAccordionSummary-root'));
+  assert.ok(styleText.includes('.MuiPopover-root .MuiAccordionDetails-root'));
+
+  // 2. Clicking a category heading opens the subpage with all uncapped matching items (>20) and back button restores feed
+  const themeShelf=[...f.document.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
+  assert.ok(themeShelf);
+  const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
+  assert.ok(heading);
+  heading.click();
+  await f.settle();
+  const subpage=f.document.querySelector('.fx-subpage');
+  assert.ok(subpage);
+  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),'true');
+  assert.ok(f.location.hash.includes('fxCat='));
+  const subpageCards=subpage.querySelectorAll('.fx-subpage-grid .fx-card');
+  assert.ok(subpageCards.length>20);
+  subpage.querySelector('.fx-subpage-back').click();
+  await f.settle();
+  assert.equal(f.document.querySelector('.fx-subpage'),null);
+  assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),null);
+
+  // 3. Late .pageTabContent[data-index="1"] insertion on #moviesPage does NOT tear down or swap mounted shelves
+  const moviesPage=f.document.getElementById('moviesPage');
+  moviesPage.replaceChildren();
+  f.document.getElementById('indexPage').classList.add('hide');
+  moviesPage.classList.remove('hide');
+  f.navigate('#/movies?tab=1');
+  await f.settle();
+  const mountedRoot=moviesPage.querySelector('.fx-discovery');
+  const initialRowKeys=[...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey);
+  assert.ok(initialRowKeys.length>=3);
+  const lateTab=f.document.createElement('div');
+  lateTab.className='pageTabContent is-active';
+  lateTab.dataset.index='1';
+  moviesPage.append(lateTab);
+  f.notify();
+  f.flushTimeouts(120);
+  await f.settle();
+  assert.equal(moviesPage.querySelector('.fx-discovery'),mountedRoot);
+  assert.deepEqual([...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey),initialRowKeys);
+  assert.equal(lateTab.getAttribute('data-fx-native-hidden'),'true');
+
+  // 4. Search SDK module 71857 deduplicates Leaving Soon / duplicate movies and appends tag matches (e.g. searching "space")
+  let sdkExports={
+    Q:()=>({
+      getItems:async params=>({
+        data:{
+          Items:[
+            {Id:'dup-leaving',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/leaving-soon/movies/media/Frankenweenie/f.mkv',ProviderIds:{Tmdb:'62214'}},
+            {Id:'dup-main-1',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/movies/Frankenweenie/f.mkv',ProviderIds:{Tmdb:'62214'}},
+            {Id:'dup-main-2',Name:'Frankenweenie',ProductionYear:2012,Type:'Movie',Path:'/media/movies/Frankenweenie/f2.mkv',ProviderIds:{Tmdb:'62214'}}
+          ],
+          TotalRecordCount:3
+        }
+      })
+    })
+  };
+  const fakeReq71857=modId=>modId===71857?sdkExports:null;
+  fakeReq71857.m={
+    71857:(module,exports)=>{Object.assign(exports,sdkExports);}
+  };
+  fakeReq71857.c={};
+  f.ctx.window.webpackChunk={push:([_id,_mods,cb])=>cb?.(fakeReq71857)};
+  f.ctx.window.FazFortDiscovery.restart();
+  await f.settle();
+  const patched71857={};
+  fakeReq71857.m[71857]({},patched71857,fakeReq71857);
+  const searchResp=await patched71857.Q({}).getItems({searchTerm:'space',includeItemTypes:['Movie']});
+  const frankenHits=searchResp.data.Items.filter(i=>i.Name==='Frankenweenie');
+  assert.equal(frankenHits.length,1);
+  assert.equal(frankenHits[0].Id,'dup-main-1');
+  assert.ok(searchResp.data.Items.some(i=>i.Name.startsWith('Movie ')));
+
+  f.ctx.window.FazFortDiscovery.stop();
+});

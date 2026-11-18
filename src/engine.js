@@ -63,7 +63,7 @@ export function filterItems(items, filters, tracking = new Map()) {
   if (filters.sort !== 'recommended') result = result.slice().sort((a, b) => {
     if (filters.sort === 'rating') return (b.CommunityRating ?? -1) - (a.CommunityRating ?? -1) || String(a.Name).localeCompare(String(b.Name));
     if (filters.sort === 'year') return (b.ProductionYear || 0) - (a.ProductionYear || 0) || String(a.Name).localeCompare(String(b.Name));
-    if (filters.sort === 'added') return (Date.parse(tracking.get(b.Id)?.AddedAt) || 0) - (Date.parse(tracking.get(a.Id)?.AddedAt) || 0) || String(a.Name).localeCompare(String(b.Name));
+    if (filters.sort === 'added') return (Date.parse(tracking.get(b.Id)?.AddedAt) || 0) - (Date.parse(tracking.get(a.Id)?.AddedAt) || 0) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name).localeCompare(String(b.Name));
     return String(a.Name || '').localeCompare(String(b.Name || ''));
   });
   return result;
@@ -145,7 +145,8 @@ export function buildShelves(items, profile, config, page, now) {
     if(!profile.families.includes('theme')&&!profile.opening?.includes(`rule:${rule.Key}`))continue;
     if (rule.Enabled === false || (rule.Months?.length && !rule.Months.includes(month))) continue;
     add(`rule:${rule.Key}`, rule.Title, 'theme', eligible.filter(i => matches(rule, i)));
-    const added=shelves.find(r=>r.key===`rule:${rule.Key}`);if(added)added.layout=rule.Layout||'auto';
+    const added=shelves.find(r=>r.key===`rule:${rule.Key}`);
+    if(added){added.layout=rule.Layout||'auto';if(rule.Months?.length)added.seasonal=true;}
   }
   const grouping = (family, values, title, filter = () => true) => {
     if (!profile.families.includes(family)) return;
@@ -188,9 +189,10 @@ export class FeedPlanner {
     if (preferred.length) pool = preferred;
     const familyDiverse = pool.filter(s => !this.lastFamilies.includes(s.family));
     if (familyDiverse.length) pool = familyDiverse;
-    pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
+    pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
     const shelf = pool[0], recentIds = new Set(this.lastItems);
-    const selected = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`)).slice(0, this.config.cardsPerShelf);
+    const orderedAll = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`));
+    const selected = orderedAll.slice(0, this.config.cardsPerShelf);
     this.counts.set(shelf.key, (this.counts.get(shelf.key) || 0) + 1);
     this.lastKeys.push(shelf.key);
     const cooldown = Math.min(12, Math.max(0, this.shelves.length - 1));
@@ -198,7 +200,7 @@ export class FeedPlanner {
     this.lastFamilies.push(shelf.family); this.lastFamilies = this.lastFamilies.slice(-2);
     this.lastItems.push(...selected.map(i => i.Id)); this.lastItems = this.lastItems.slice(-this.config.cardsPerShelf * 5);
     this.index++;
-    return { ...shelf, items: selected, ordinal: this.index };
+    return { ...shelf, allItems: orderedAll, items: selected, ordinal: this.index };
   }
 }
 export function routeInfo(hashValue) {
@@ -212,5 +214,6 @@ export function routeInfo(hashValue) {
   if(page==='home'&&tab&&tab!=='0')return null;
   let view='suggestions';
   if(page&&page!=='home'){if(tab==='0')view='library';else if(tab===(page==='movies'?'4':'3'))view='genres';else if(tab&&tab!=='1')return null;}
-  return page ? { page, ...(page!=='home'?{view}:{}), parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
+  const cat = p.get('fxCat') || '';
+  return page ? { page, ...(page!=='home'?{view}:{}), ...(cat?{cat}:{}), parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
 }

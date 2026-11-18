@@ -96,7 +96,7 @@ export class JellyfinClient {
           for (;;) {
             this.assertCurrent();
             const response = await this.items({ ParentId: folder.Id, Recursive: true, IncludeItemTypes: types,
-              Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio',
+              Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds',
               EnableUserData: true, EnableImages: true, ImageTypeLimit: 1,
               EnableImageTypes: 'Primary,Backdrop,Thumb', SortBy: 'SortName', SortOrder: 'Ascending', StartIndex: offset, Limit: 200 });
             const list = response.Items || [], target = types === 'Season' ? seasons : all;
@@ -204,16 +204,21 @@ export class JellyfinClient {
   }
   async anchor(id, route, inventory, config) {
     const typed = list => route.page === 'home' ? list : list.filter(i => route.page === 'movies' ? i.Type === 'Movie' || i.SourceType === 'movie' : ['Series', 'Episode'].includes(i.Type) || i.SourceType === 'tv');
-    const arrival = item => { const r=inventory.tracking?.get(item.Id);return Date.parse(kindDate(item,r))||0; };
     const kindDate = (item,r) => item.Type==='Series' ? r?.NewSeasonAt||r?.AddedAt : r?.AddedAt;
-    const recentItems = kind => inventory.items.filter(i => i.Type === kind).sort((a, b) => Number(!!arrival(b))-Number(!!arrival(a)) || arrival(b)-arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
+    const arrival = item => { const r = inventory.tracking?.get(item.Id); return Date.parse(kindDate(item, r)) || 0; };
+    const recentItemsAll = kind => inventory.items
+      .filter(i => i.Type === kind && !isLeavingSoonItem(i))
+      .sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name || '').localeCompare(String(b.Name || '')));
     const title = { ContinueWatchingNextUp: 'Continue Watching / Next Up', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
     const seeMoreItem = id === 'DiscoverMovies'
       ? { Id: 'fx-see-more:movies', Name: 'All Popular Movies', Type: 'SeeMore', SeeMoreKind: 'movies', SeeMoreLabel: 'See More', SeeMoreSub: 'Popular Movies' }
       : id === 'DiscoverTV'
         ? { Id: 'fx-see-more:tv', Name: 'All Popular Series', Type: 'SeeMore', SeeMoreKind: 'tv', SeeMoreLabel: 'See More', SeeMoreSub: 'Popular Series' }
         : null;
-    if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') return { key: id, title, family: 'anchor', items: recentItems(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series') };
+    if (id === 'RecentlyAddedMovies' || id === 'RecentlyAddedShows') {
+      const all = recentItemsAll(id === 'RecentlyAddedMovies' ? 'Movie' : 'Series');
+      return { key: id, title, family: 'anchor', allItems: all, items: all.slice(0, config.cardsPerShelf) };
+    }
     if (id === 'MyMedia') return { key: id, title, family: 'anchor', items: inventory.views };
     if (id === 'ContinueWatchingNextUp' && typeof this.api?.getUrl === 'function') {
       try {
@@ -285,7 +290,7 @@ export class JellyfinClient {
       const maxItems = id.startsWith('Discover') ? Math.max(config.cardsPerShelf || 20, 20) : config.cardsPerShelf;
       const sliced = list.slice(0, maxItems);
       if (seeMoreItem && sliced.length) sliced.push(seeMoreItem);
-      return { key: id, title, family: 'anchor', items: sliced, external: id.startsWith('Discover') };
+      return { key: id, title, family: 'anchor', allItems: id.startsWith('Discover') ? undefined : list, items: sliced, external: id.startsWith('Discover') };
     } catch (error) {
       this.assertCurrent();
       if (id !== 'ContinueWatchingNextUp') throw error;

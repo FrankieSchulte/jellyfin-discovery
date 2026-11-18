@@ -164,9 +164,15 @@
             "Movie"
           ],
           "TagsAny": [
-            "christmas"
+            "christmas",
+            "christmas eve",
+            "christmas party",
+            "christmas tree",
+            "santa claus",
+            "saving christmas"
           ],
           "Months": [
+            11,
             12
           ]
         },
@@ -969,9 +975,15 @@
             "Movie"
           ],
           "TagsAny": [
-            "christmas"
+            "christmas",
+            "christmas eve",
+            "christmas party",
+            "christmas tree",
+            "santa claus",
+            "saving christmas"
           ],
           "Months": [
+            11,
             12
           ]
         },

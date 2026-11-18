@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.5 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.6 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -172,9 +172,15 @@
                 "Movie"
               ],
               "TagsAny": [
-                "christmas"
+                "christmas",
+                "christmas eve",
+                "christmas party",
+                "christmas tree",
+                "santa claus",
+                "saving christmas"
               ],
               "Months": [
+                11,
                 12
               ]
             },
@@ -977,9 +983,15 @@
                 "Movie"
               ],
               "TagsAny": [
-                "christmas"
+                "christmas",
+                "christmas eve",
+                "christmas party",
+                "christmas tree",
+                "santa claus",
+                "saving christmas"
               ],
               "Months": [
+                11,
                 12
               ]
             },
@@ -1984,6 +1996,29 @@
 .fx-discovery button:hover,.fx-dialog button:hover{background:#26292e}.fx-discovery button:focus-visible,.fx-discovery a:focus-visible,.fx-dialog :focus-visible{outline:3px solid #fff;outline-offset:3px}
 .fx-discovery button:disabled{opacity:.45;cursor:default}.fx-status{color:#ccc;line-height:1.5}.fx-status:empty{display:none}
 .fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
+.fx-row-head h2.fx-clickable-heading{cursor:pointer;transition:color .14s ease,opacity .14s ease}
+.fx-row-head h2.fx-clickable-heading:hover{text-decoration:underline;text-underline-offset:4px}
+.fx-subpage{padding-top:12px}
+html[data-fx-subpage="true"] #indexPage :is(.sleekfin-hero,.hero,#slides-container),
+html[data-fx-subpage="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{display:none!important}
+html[data-fx-subpage="true"] #indexPage .fx-discovery{padding-top:calc(var(--sleekfin-header-height,72px) + 28px)!important}
+html[data-fx-subpage="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:calc(var(--sleekfin-header-height,72px) + 28px)!important}
+.fx-subpage-head{display:flex;align-items:center;margin:0 0 22px}
+.fx-subpage-back{display:inline-flex!important;align-items:center;gap:12px;background:transparent!important;border:0!important;padding:4px 10px 4px 0!important;color:#fff!important;cursor:pointer;text-align:left;min-height:40px}
+.fx-subpage-back:hover{background:transparent!important}
+.fx-subpage-back:hover .fx-subpage-title{text-decoration:underline;text-underline-offset:4px}
+.fx-subpage-arrow{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:18px;line-height:1;color:#fff;transition:background .15s ease,border-color .15s ease}
+.fx-subpage-back:hover .fx-subpage-arrow{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.55)}
+.fx-subpage-title{margin:0;font-size:28px;line-height:34px;font-weight:700;color:#fff;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px}
+.fx-subpage-count{display:inline-flex;align-items:center;justify-content:center;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:600;color:rgba(255,255,255,.76)}
+.fx-subpage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(135px,13vw,195px),1fr));gap:20px 16px;align-items:start}
+.fx-subpage-grid .fx-card-entry,.fx-subpage-grid .fx-card-entry.fx-card-portrait{width:100%!important;flex-basis:auto!important}
+.fx-subpage-grid .fx-card-portrait .fx-card-visual img{object-fit:cover}
+@media(max-width:768px){
+  html[data-fx-subpage="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:20px!important}
+  .fx-subpage-title{font-size:22px;line-height:28px}
+  .fx-subpage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}
+}
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
 .fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
@@ -2009,9 +2044,10 @@
 [data-fx-react-host="true"] > :not(.fx-discovery){display:none!important}
 .fx-discovery [hidden]{display:none!important}
 .cardScalable[data-fx-badge-host]{position:relative}
-.fx-filters{display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:rgba(22,22,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:14px;margin-bottom:18px}
-.fx-filter-field{display:flex;flex-direction:column;gap:7px;min-width:145px;font-size:14px;color:#ccc}
-.fx-filter-field input,.fx-filter-field select{font:inherit;min-height:42px;border-radius:10px;border:1px solid #26292e;background:#101113;color:#f1f2f4;padding:8px 12px;max-width:100%;box-sizing:border-box}
+.fx-filters{display:flex;flex-wrap:wrap;gap:12px;padding:14px 16px;background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.88);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.08);border-radius:12px;box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);margin-bottom:18px;max-height:min(74vh,520px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+.fx-filter-field{display:flex;flex-direction:column;gap:6px;min-width:145px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.76)}
+.fx-filter-field input,.fx-filter-field select{font:inherit;font-size:13px;min-height:38px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(16,17,19,.86);color:#f1f2f4;padding:7px 11px;max-width:100%;box-sizing:border-box;transition:border-color .14s ease,background-color .14s ease}
+.fx-filter-field input:focus,.fx-filter-field select:focus{outline:none;border-color:var(--sleekfin-accent,#dc2626);background:#141518}
 .fx-match-count{color:#ccc}.fx-match-count:empty{display:none}
 .fx-dialog-overlay{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100000;background:rgba(0,0,0,.75);padding:12px;box-sizing:border-box}
 .fx-dialog{width:90vw;max-width:850px;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
@@ -2028,7 +2064,8 @@
 [data-fx-hero-anchor="true"]{min-height:1px}
 [data-fx-hero-anchor="true"] > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
 html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery):not(.sections),
-html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > .sections > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery){display:none!important}
+html:not([data-fx-home-mode="native"]):not([data-rh-active="true"]) #indexPage .homeSectionsContainer > .sections > :not(.sleekfin-hero):not(.hero):not(#slides-container):not(.fx-discovery),
+html[data-fx-curated-tab="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(:has(.fx-discovery.fx-mode-full)) > :not(.fx-discovery){display:none!important}
 .fx-toolbar{justify-content:flex-end;margin:4px 0 12px;position:relative;z-index:5}
 .fx-feed-menu{position:relative}.fx-feed-menu>summary{cursor:pointer;list-style:none;color:#ccc;border:1px solid #26292e;border-radius:22px;padding:9px 16px;min-height:24px;font-size:14px}
 .fx-feed-menu>summary::-webkit-details-marker{display:none}.fx-feed-menu>summary:focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -2236,16 +2273,120 @@ html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContaine
 .MuiMenu-paper,
 #library-view-menu .MuiPaper-root,
 #app-user-menu .MuiPaper-root,
-.dialog.actionSheet{
-  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82)!important;
+.dialog.actionSheet,
+.dialog.filterDialog{
+  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.88)!important;
   backdrop-filter:blur(18px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
-  border:1px solid rgba(255,255,255,.07)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
   border-radius:12px!important;
   box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
   padding:6px!important;
-  overflow:hidden!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  max-height:min(calc(100dvh - 32px),78vh)!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.22) transparent;
+}
+.MuiPopover-root .MuiPaper-root:has(.MuiAccordion-root,.MuiFormGroup-root){
+  min-width:250px!important;
+  max-width:min(340px,calc(100vw - 24px))!important;
+  padding:6px!important;
+}
+.MuiPopover-root .MuiAccordion-root{
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  border-radius:8px!important;
+  margin:1px 0!important;
+  color:var(--sleekfin-text,#f1f2f4)!important;
+}
+.MuiPopover-root .MuiAccordion-root::before{
+  display:none!important;
+}
+.MuiPopover-root .MuiAccordionSummary-root{
+  min-height:38px!important;
+  padding:6px 10px!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.78)!important;
+  transition:background-color .14s ease,color .14s ease!important;
+}
+.MuiPopover-root .MuiAccordionSummary-root:hover,
+.MuiPopover-root .MuiAccordionSummary-root.Mui-expanded{
+  background:rgba(255,255,255,.10)!important;
+  color:#fff!important;
+}
+.MuiPopover-root .MuiAccordionSummary-content{
+  margin:0 6px!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  line-height:1.25!important;
+}
+.MuiPopover-root .MuiAccordionSummary-content .MuiTypography-root{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  color:inherit!important;
+}
+.MuiPopover-root .MuiAccordionSummary-expandIconWrapper{
+  color:rgba(255,255,255,.65)!important;
+}
+.MuiPopover-root .MuiAccordionDetails-root{
+  padding:4px 8px 8px 12px!important;
+  border-top:1px solid rgba(255,255,255,.06)!important;
+  max-height:240px!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.22) transparent;
+}
+.MuiPopover-root .MuiFormGroup-root{
+  gap:1px!important;
+}
+.MuiPopover-root .MuiFormControlLabel-root{
+  margin:0!important;
+  padding:4px 8px!important;
+  border-radius:7px!important;
+  min-height:34px!important;
+  transition:background-color .14s ease!important;
+}
+.MuiPopover-root .MuiFormControlLabel-root:hover{
+  background:rgba(255,255,255,.09)!important;
+}
+.MuiPopover-root .MuiFormControlLabel-label{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  color:rgba(255,255,255,.82)!important;
+}
+.MuiPopover-root :is(.MuiCheckbox-root,.MuiRadio-root){
+  padding:5px 8px 5px 4px!important;
+  color:rgba(255,255,255,.52)!important;
+}
+.MuiPopover-root :is(.MuiCheckbox-root.Mui-checked,.MuiRadio-root.Mui-checked){
+  color:var(--sleekfin-accent,#dc2626)!important;
+}
+.MuiPopover-root .MuiButton-root{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+  text-transform:none!important;
+  border-radius:8px!important;
+  color:rgba(255,255,255,.82)!important;
+}
+.MuiPopover-root .MuiButton-root:hover{
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+}
+.dialog.filterDialog .formDialogContent{
+  overflow-y:auto!important;
+  max-height:72vh!important;
+  padding:8px 12px!important;
 }
 #library-view-menu .MuiPaper-root,
 #app-user-menu .MuiPaper-root{
@@ -4006,7 +4147,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         var _a, _b, _c, _d;
         if (filters.sort === "rating") return ((_a = b.CommunityRating) != null ? _a : -1) - ((_b = a.CommunityRating) != null ? _b : -1) || String(a.Name).localeCompare(String(b.Name));
         if (filters.sort === "year") return (b.ProductionYear || 0) - (a.ProductionYear || 0) || String(a.Name).localeCompare(String(b.Name));
-        if (filters.sort === "added") return (Date.parse((_c = tracking.get(b.Id)) == null ? void 0 : _c.AddedAt) || 0) - (Date.parse((_d = tracking.get(a.Id)) == null ? void 0 : _d.AddedAt) || 0) || String(a.Name).localeCompare(String(b.Name));
+        if (filters.sort === "added") return (Date.parse((_c = tracking.get(b.Id)) == null ? void 0 : _c.AddedAt) || 0) - (Date.parse((_d = tracking.get(a.Id)) == null ? void 0 : _d.AddedAt) || 0) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name).localeCompare(String(b.Name));
         return String(a.Name || "").localeCompare(String(b.Name || ""));
       });
       return result;
@@ -4073,7 +4214,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       return config;
     }
     function buildShelves(items, profile, config, page, now) {
-      var _a, _b;
+      var _a, _b, _c;
       const eligible = items.filter((i) => {
         var _a2;
         return (page === "home" ? ["Movie", "Series"].includes(i.Type) : i.Type === (page === "movies" ? "Movie" : "Series")) && (!config.hideWatched || !((_a2 = i.UserData) == null ? void 0 : _a2.Played));
@@ -4089,7 +4230,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         if (rule.Enabled === false || ((_b = rule.Months) == null ? void 0 : _b.length) && !rule.Months.includes(month)) continue;
         add(`rule:${rule.Key}`, rule.Title, "theme", eligible.filter((i) => matches(rule, i)));
         const added = shelves.find((r) => r.key === `rule:${rule.Key}`);
-        if (added) added.layout = rule.Layout || "auto";
+        if (added) {
+          added.layout = rule.Layout || "auto";
+          if ((_c = rule.Months) == null ? void 0 : _c.length) added.seasonal = true;
+        }
       }
       const grouping = (family, values, title, filter = () => true) => {
         if (!profile.families.includes(family)) return;
@@ -4142,9 +4286,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         if (preferred.length) pool = preferred;
         const familyDiverse = pool.filter((s) => !this.lastFamilies.includes(s.family));
         if (familyDiverse.length) pool = familyDiverse;
-        pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
+        pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
         const shelf = pool[0], recentIds = new Set(this.lastItems);
-        const selected = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`)).slice(0, this.config.cardsPerShelf);
+        const orderedAll = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`));
+        const selected = orderedAll.slice(0, this.config.cardsPerShelf);
         this.counts.set(shelf.key, (this.counts.get(shelf.key) || 0) + 1);
         this.lastKeys.push(shelf.key);
         const cooldown = Math.min(12, Math.max(0, this.shelves.length - 1));
@@ -4154,7 +4299,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         this.lastItems.push(...selected.map((i) => i.Id));
         this.lastItems = this.lastItems.slice(-this.config.cardsPerShelf * 5);
         this.index++;
-        return { ...shelf, items: selected, ordinal: this.index };
+        return { ...shelf, allItems: orderedAll, items: selected, ordinal: this.index };
       }
     }
     function routeInfo(hashValue) {
@@ -4173,7 +4318,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         else if (tab === (page === "movies" ? "4" : "3")) view = "genres";
         else if (tab && tab !== "1") return null;
       }
-      return page ? { page, ...page !== "home" ? { view } : {}, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
+      const cat = p.get("fxCat") || "";
+      return page ? { page, ...page !== "home" ? { view } : {}, ...cat ? { cat } : {}, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
     }
     const normalizeGuid = (id) => String(id || "").replace(/-/g, "").toLowerCase();
     const leavingSoonState = {
@@ -4289,7 +4435,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                   ParentId: folder.Id,
                   Recursive: true,
                   IncludeItemTypes: types,
-                  Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio",
+                  Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds",
                   EnableUserData: true,
                   EnableImages: true,
                   ImageTypeLimit: 1,
@@ -4425,16 +4571,19 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       async anchor(id, route, inventory, config) {
         var _a, _b, _c;
         const typed = (list) => route.page === "home" ? list : list.filter((i) => route.page === "movies" ? i.Type === "Movie" || i.SourceType === "movie" : ["Series", "Episode"].includes(i.Type) || i.SourceType === "tv");
+        const kindDate = (item, r) => item.Type === "Series" ? (r == null ? void 0 : r.NewSeasonAt) || (r == null ? void 0 : r.AddedAt) : r == null ? void 0 : r.AddedAt;
         const arrival = (item) => {
           var _a2;
           const r = (_a2 = inventory.tracking) == null ? void 0 : _a2.get(item.Id);
           return Date.parse(kindDate(item, r)) || 0;
         };
-        const kindDate = (item, r) => item.Type === "Series" ? (r == null ? void 0 : r.NewSeasonAt) || (r == null ? void 0 : r.AddedAt) : r == null ? void 0 : r.AddedAt;
-        const recentItems = (kind) => inventory.items.filter((i) => i.Type === kind).sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0)).slice(0, config.cardsPerShelf);
+        const recentItemsAll = (kind) => inventory.items.filter((i) => i.Type === kind && !isLeavingSoonItem(i)).sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name || "").localeCompare(String(b.Name || "")));
         const title = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
         const seeMoreItem = id === "DiscoverMovies" ? { Id: "fx-see-more:movies", Name: "All Popular Movies", Type: "SeeMore", SeeMoreKind: "movies", SeeMoreLabel: "See More", SeeMoreSub: "Popular Movies" } : id === "DiscoverTV" ? { Id: "fx-see-more:tv", Name: "All Popular Series", Type: "SeeMore", SeeMoreKind: "tv", SeeMoreLabel: "See More", SeeMoreSub: "Popular Series" } : null;
-        if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") return { key: id, title, family: "anchor", items: recentItems(id === "RecentlyAddedMovies" ? "Movie" : "Series") };
+        if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") {
+          const all = recentItemsAll(id === "RecentlyAddedMovies" ? "Movie" : "Series");
+          return { key: id, title, family: "anchor", allItems: all, items: all.slice(0, config.cardsPerShelf) };
+        }
         if (id === "MyMedia") return { key: id, title, family: "anchor", items: inventory.views };
         if (id === "ContinueWatchingNextUp" && typeof ((_a = this.api) == null ? void 0 : _a.getUrl) === "function") {
           try {
@@ -4507,7 +4656,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           const maxItems = id.startsWith("Discover") ? Math.max(config.cardsPerShelf || 20, 20) : config.cardsPerShelf;
           const sliced = list.slice(0, maxItems);
           if (seeMoreItem && sliced.length) sliced.push(seeMoreItem);
-          return { key: id, title, family: "anchor", items: sliced, external: id.startsWith("Discover") };
+          return { key: id, title, family: "anchor", allItems: id.startsWith("Discover") ? void 0 : list, items: sliced, external: id.startsWith("Discover") };
         } catch (error) {
           this.assertCurrent();
           if (id !== "ContinueWatchingNextUp") throw error;
@@ -5199,7 +5348,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.5";
+      const VERSION = "0.5.6";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -5207,6 +5356,9 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       const snapshots = /* @__PURE__ */ new Map();
       const savedFeeds = /* @__PURE__ */ new Map();
       const loadedImages = /* @__PURE__ */ new Set();
+      const sessionShuffles = /* @__PURE__ */ new Map();
+      let searchInvInflight = null;
+      const searchInvListeners = /* @__PURE__ */ new Set();
       let activeDialog = null, lastScope = "", selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
       const element = (tag, cls, text) => {
         const n = document.createElement(tag);
@@ -5228,6 +5380,28 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
       const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ""}:${route.view || "home"}`;
       const trackingCacheKey = (scope) => `fazfort-discovery:tracking:v1:${scope}`;
+      function getSessionShuffle(scope, page, day, forceNew = false) {
+        var _a2, _b2, _c2, _d2;
+        const k = `${scope}:${day}:${page}`;
+        if (!forceNew && sessionShuffles.has(k)) return sessionShuffles.get(k);
+        if (!forceNew) {
+          try {
+            const saved = Number((_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, `fazfort-discovery:shuffle:${k}`));
+            if (Number.isInteger(saved) && saved > 0) {
+              sessionShuffles.set(k, saved);
+              return saved;
+            }
+          } catch {
+          }
+        }
+        const next = hash(`${Date.now()}:${Math.random()}:${k}`) || 1;
+        sessionShuffles.set(k, next);
+        try {
+          (_d2 = (_c2 = window.sessionStorage) == null ? void 0 : _c2.setItem) == null ? void 0 : _d2.call(_c2, `fazfort-discovery:shuffle:${k}`, String(next));
+        } catch {
+        }
+        return next;
+      }
       function readTrackingCache(scope) {
         if (!scope) return /* @__PURE__ */ new Map();
         try {
@@ -5248,13 +5422,16 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
       }
       function readBootRows(s, configStr) {
-        if (s.full || s.route.view === "genres") return null;
+        var _a2;
+        if (s.full || s.route.view === "genres" || s.route.cat) return null;
         try {
           const raw = localStorage.getItem(bootRowsKey(s.scope, s.route));
           if (!raw) return null;
           const parsed = JSON.parse(raw);
-          if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
-          if (Date.now() - (parsed.at || 0) > 7 * 24 * 3600 * 1e3) return null;
+          if (!parsed || parsed.version !== VERSION || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
+          const today = dayInZone(s.now, ((_a2 = s.config) == null ? void 0 : _a2.timeZone) || "America/Los_Angeles");
+          if (parsed.day !== today) return null;
+          if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1e3) return null;
           return { rows: parsed.rows, shuffle: parsed.shuffle };
         } catch {
           return null;
@@ -5263,25 +5440,155 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       function writeBootRows(s) {
         if (s.full || s.route.view === "genres" || filtersActive(s.filters) || s.filters.sort !== "recommended" || !s.slots.length || !s.config) return;
         try {
-          const rows = s.slots.filter((slot) => !slot.boot).slice(0, 4).map((slot) => slot.data);
+          const rows = s.slots.filter((slot) => !slot.boot).slice(0, 4).map((slot) => {
+            if (!slot.data) return null;
+            const { allItems, ...compact } = slot.data;
+            return compact;
+          }).filter(Boolean);
           if (!rows.length) return;
-          localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
+          const today = dayInZone(s.now, s.config.timeZone);
+          localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ version: VERSION, day: today, at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
         } catch {
         }
       }
       function clearBootRows(scope) {
+        var _a2;
         if (!scope) return;
+        sessionShuffles.clear();
         try {
           for (const page of ["home", "movies", "shows"]) {
             for (const view of ["home", "suggestions"]) {
-              localStorage.removeItem(bootRowsKey(scope, { page, parentId: "", view }));
+              (_a2 = localStorage.removeItem) == null ? void 0 : _a2.call(localStorage, bootRowsKey(scope, { page, parentId: "", view }));
             }
+          }
+          if (typeof localStorage.length === "number" && typeof localStorage.key === "function") {
+            const toDelete = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith(`fazfort-discovery:boot:v2:${scope}:`) || k.startsWith(`fazfort-discovery:boot:v3:${scope}:`))) {
+                toDelete.push(k);
+              }
+            }
+            toDelete.forEach((k) => {
+              var _a3;
+              return (_a3 = localStorage.removeItem) == null ? void 0 : _a3.call(localStorage, k);
+            });
+          }
+          if (window.sessionStorage && typeof window.sessionStorage.length === "number") {
+            const sDel = [];
+            for (let i = 0; i < window.sessionStorage.length; i++) {
+              const k = window.sessionStorage.key(i);
+              if (k && k.startsWith(`fazfort-discovery:shuffle:${scope}:`)) sDel.push(k);
+            }
+            sDel.forEach((k) => {
+              var _a3, _b2;
+              return (_b2 = (_a3 = window.sessionStorage).removeItem) == null ? void 0 : _b2.call(_a3, k);
+            });
           }
         } catch {
         }
       }
+      function ensureSearchInventory(api = window.ApiClient) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return Promise.resolve(null);
+        const sc = scopeKey(api);
+        const snapKey = `${sc}:home:`;
+        const existing = snapshots.get(snapKey);
+        if (existing && Date.now() - existing.at < 5 * 6e4) return Promise.resolve(existing.value);
+        if (searchInvInflight) return searchInvInflight;
+        const client = new JellyfinClient(api, () => !stopped);
+        searchInvInflight = client.inventory({ page: "home", parentId: "" }).then((inv) => {
+          searchInvInflight = null;
+          if (inv && Array.isArray(inv.items)) {
+            snapshots.set(snapKey, { at: Date.now(), value: inv });
+            searchInvListeners.forEach((fn) => {
+              try {
+                fn(inv);
+              } catch {
+              }
+            });
+          }
+          return inv;
+        }).catch(() => {
+          searchInvInflight = null;
+          return null;
+        });
+        return searchInvInflight;
+      }
+      function dedupeSearchList(items, canonicalIds = null) {
+        if (!Array.isArray(items) || !items.length) return [];
+        const filtered = items.filter((it) => it && !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String(it.Path || "")));
+        const chosenByKey = /* @__PURE__ */ new Map();
+        const order = [];
+        const itemKeys = (it) => {
+          var _a2, _b2;
+          const keys = [];
+          const rawId = String(it.Id || "").toLowerCase().replace(/-/g, "");
+          if (rawId) keys.push(`id:${rawId}`);
+          const tmdb = ((_a2 = it.ProviderIds) == null ? void 0 : _a2.Tmdb) || ((_b2 = it.ProviderIds) == null ? void 0 : _b2.tmdb);
+          if (tmdb && it.Type) keys.push(`${it.Type}:tmdb:${tmdb}`);
+          if (["Movie", "Series", "BoxSet"].includes(it.Type) && it.Name) {
+            keys.push(`${it.Type}:title:${normalize(it.Name)}:${it.ProductionYear || ""}`);
+          } else if (it.Type === "Person" && it.Name) {
+            keys.push(`Person:${normalize(it.Name)}`);
+          }
+          return keys;
+        };
+        const isCanonical = (it) => Boolean(canonicalIds && (it == null ? void 0 : it.Id) && canonicalIds.has(it.Id));
+        for (const it of filtered) {
+          const keys = itemKeys(it);
+          const existingKey = keys.find((k) => chosenByKey.has(k));
+          if (!existingKey) {
+            const idx = order.length;
+            order.push(it);
+            keys.forEach((k) => chosenByKey.set(k, idx));
+          } else {
+            const idx = chosenByKey.get(existingKey);
+            const prev = order[idx];
+            if (isCanonical(it) && !isCanonical(prev)) {
+              order[idx] = it;
+              keys.forEach((k) => chosenByKey.set(k, idx));
+            }
+          }
+        }
+        return order;
+      }
+      function findTagAndGenreMatches(invItems, query, { includeTypes = null, parentId = "", api = window.ApiClient } = {}) {
+        var _a2, _b2, _c2;
+        const q = normalize(query);
+        if (!q || q.length < 2 || !Array.isArray(invItems) || !invItems.length) return [];
+        const cfg = (() => {
+          try {
+            return readConfig(api) || DEFAULT_CONFIG2;
+          } catch {
+            return DEFAULT_CONFIG2;
+          }
+        })();
+        const matchingRules = (((_b2 = (_a2 = cfg == null ? void 0 : cfg.pages) == null ? void 0 : _a2.home) == null ? void 0 : _b2.rules) || []).filter((r) => r && r.Enabled !== false && (normalize(r.Key) === q || q.length >= 4 && normalize(r.Title).includes(q)));
+        const serverId = ((_c2 = api == null ? void 0 : api.serverId) == null ? void 0 : _c2.call(api)) || "";
+        const matched = [];
+        for (const item of invItems) {
+          if (!item || isLeavingSoonItem(item)) continue;
+          if (includeTypes && includeTypes.length && !includeTypes.includes(item.Type)) continue;
+          if (parentId && item.ParentId && String(item.ParentId).toLowerCase().replace(/-/g, "") !== String(parentId).toLowerCase().replace(/-/g, "")) {
+          }
+          const tagHit = (item.Tags || []).some((t) => {
+            const nt = normalize(t);
+            return nt === q || q.length >= 3 && nt.includes(q);
+          });
+          const genreHit = !tagHit && (item.Genres || []).some((g) => {
+            const ng = normalize(g);
+            return ng === q || q.length >= 3 && ng.includes(q);
+          });
+          const ruleHit = !tagHit && !genreHit && matchingRules.some((r) => matches(r, item));
+          if (tagHit || genreHit || ruleHit) {
+            matched.push(item.ServerId ? item : { ...item, ServerId: serverId });
+          }
+        }
+        return matched;
+      }
       function applyWebpackViewPatch(req) {
-        var _a2, _b2;
+        var _a2, _b2, _c2;
         if (!(req == null ? void 0 : req.m)) return;
         try {
           if (req.m[57826]) {
@@ -5435,11 +5742,24 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             const wrapped95988 = function(module, exports, wreq) {
               orig95988(module, exports, wreq);
               try {
-                const react = wreq(96540);
-                const router = wreq(96303);
-                if ((react == null ? void 0 : react.useState) && (router == null ? void 0 : router.useSearchParams)) {
+                const react = (() => {
+                  try {
+                    return wreq(63696);
+                  } catch {
+                    return wreq(96540);
+                  }
+                })();
+                const router = (() => {
+                  try {
+                    return wreq(9055);
+                  } catch {
+                    return wreq(96303);
+                  }
+                })();
+                const useSearchParamsFn = (router == null ? void 0 : router.useSearchParams) || (router == null ? void 0 : router.ok);
+                if ((react == null ? void 0 : react.useState) && typeof useSearchParamsFn === "function") {
                   const safeUseSearchParam = function(paramKey, defaultValue = "") {
-                    const [searchParams, setSearchParams] = router.useSearchParams();
+                    const [searchParams, setSearchParams] = useSearchParamsFn();
                     const urlVal = searchParams.get(paramKey) || defaultValue;
                     const [val, setVal] = react.useState(urlVal);
                     const typingRef = react.useRef(false);
@@ -5487,6 +5807,82 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
               }
             }
           }
+          if (req.m[71857] && !req.m[71857]._fxPatched) {
+            const orig71857 = req.m[71857];
+            const wrapped71857 = function(module, exports, wreq) {
+              orig71857(module, exports, wreq);
+              try {
+                const origFactory = exports.Q;
+                if (typeof origFactory === "function") {
+                  const wrappedFactory = function(sdkApi, ...rest) {
+                    const clientObj = origFactory.call(this, sdkApi, ...rest);
+                    if (clientObj && typeof clientObj.getItems === "function" && !clientObj._fxGetItemsWrapped) {
+                      const origGetItems = clientObj.getItems.bind(clientObj);
+                      clientObj.getItems = async function(params, options) {
+                        const searchTerm = typeof (params == null ? void 0 : params.searchTerm) === "string" ? params.searchTerm.trim() : "";
+                        if (!searchTerm) {
+                          const plainResp = await origGetItems(params, options);
+                          if ((plainResp == null ? void 0 : plainResp.data) && Array.isArray(plainResp.data.Items)) {
+                            const cleaned = plainResp.data.Items.filter((it) => !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String((it == null ? void 0 : it.Path) || "")));
+                            if (cleaned.length !== plainResp.data.Items.length) {
+                              return { ...plainResp, data: { ...plainResp.data, Items: cleaned } };
+                            }
+                          }
+                          return plainResp;
+                        }
+                        const [resp, inv] = await Promise.all([
+                          origGetItems(params, options),
+                          ensureSearchInventory(window.ApiClient)
+                        ]);
+                        if (!(resp == null ? void 0 : resp.data) || !Array.isArray(resp.data.Items)) return resp;
+                        const invItems = (inv == null ? void 0 : inv.items) || [];
+                        const canonicalIds = invItems.length ? new Set(invItems.map((i) => i.Id)) : null;
+                        const includeTypes = Array.isArray(params == null ? void 0 : params.includeItemTypes) ? params.includeItemTypes : null;
+                        const tagMatches = findTagAndGenreMatches(invItems, searchTerm, {
+                          includeTypes,
+                          parentId: (params == null ? void 0 : params.parentId) || "",
+                          api: window.ApiClient
+                        });
+                        const combined = dedupeSearchList([...resp.data.Items, ...tagMatches], canonicalIds);
+                        const perTypeCounts = /* @__PURE__ */ new Map();
+                        const capped = combined.filter((it) => {
+                          const t = (it == null ? void 0 : it.Type) || "Other";
+                          const c = (perTypeCounts.get(t) || 0) + 1;
+                          perTypeCounts.set(t, c);
+                          return c <= 48;
+                        });
+                        return {
+                          ...resp,
+                          data: {
+                            ...resp.data,
+                            Items: capped,
+                            TotalRecordCount: capped.length
+                          }
+                        };
+                      };
+                      clientObj._fxGetItemsWrapped = true;
+                    }
+                    return clientObj;
+                  };
+                  try {
+                    Object.defineProperty(exports, "Q", { configurable: true, enumerable: true, get: () => wrappedFactory });
+                  } catch {
+                    exports.Q = wrappedFactory;
+                  }
+                }
+              } catch {
+              }
+            };
+            wrapped71857._fxPatched = true;
+            req.m[71857] = wrapped71857;
+            if ((_b2 = req.c) == null ? void 0 : _b2[71857]) {
+              delete req.c[71857];
+              try {
+                req(71857);
+              } catch {
+              }
+            }
+          }
           if (req.m[42111] && !req.m[42111]._fxPatched) {
             const orig42111 = req.m[42111];
             const wrapped42111 = function(module, exports, wreq) {
@@ -5494,14 +5890,72 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
               try {
                 const origHook = exports.u;
                 if (typeof origHook === "function") {
+                  const react = (() => {
+                    try {
+                      return wreq(63696);
+                    } catch {
+                      try {
+                        return wreq(96540);
+                      } catch {
+                        return null;
+                      }
+                    }
+                  })();
                   const cappedHook = function(parentId, collectionType, query) {
+                    var _a3, _b3, _c3, _d2;
                     const trimmed = typeof query === "string" ? query.trim() : "";
+                    const [, bump] = typeof (react == null ? void 0 : react.useState) === "function" ? react.useState(0) : [0, null];
+                    if (typeof (react == null ? void 0 : react.useEffect) === "function" && bump) {
+                      react.useEffect(() => {
+                        if (trimmed.length < 2) return void 0;
+                        const onInv = () => bump((v) => v + 1);
+                        searchInvListeners.add(onInv);
+                        ensureSearchInventory(window.ApiClient);
+                        return () => searchInvListeners.delete(onInv);
+                      }, [trimmed]);
+                    } else if (trimmed.length >= 2) {
+                      ensureSearchInventory(window.ApiClient);
+                    }
                     const res = origHook(parentId, collectionType, trimmed);
                     if (res && Array.isArray(res.data)) {
-                      return {
-                        ...res,
-                        data: res.data.map((sec) => sec && Array.isArray(sec.items) && sec.items.length > 24 ? { ...sec, items: sec.items.slice(0, 24) } : sec)
-                      };
+                      const sc = ((_b3 = (_a3 = window.ApiClient) == null ? void 0 : _a3.getCurrentUserId) == null ? void 0 : _b3.call(_a3)) ? scopeKey(window.ApiClient) : "";
+                      const homeSnap = sc ? snapshots.get(`${sc}:home:`) : null;
+                      const invItems = ((_c3 = homeSnap == null ? void 0 : homeSnap.value) == null ? void 0 : _c3.items) || [];
+                      const canonicalIds = invItems.length ? new Set(invItems.map((i) => i.Id)) : null;
+                      const wantMovie = !collectionType || String(collectionType).toLowerCase() === "movies";
+                      const wantShow = !collectionType || String(collectionType).toLowerCase() === "tvshows";
+                      const tagMatches = trimmed.length >= 2 ? findTagAndGenreMatches(invItems, trimmed, {
+                        includeTypes: [wantMovie ? "Movie" : "", wantShow ? "Series" : ""].filter(Boolean),
+                        parentId: parentId || "",
+                        api: window.ApiClient
+                      }) : [];
+                      const movieTagItems = tagMatches.filter((i) => i.Type === "Movie");
+                      const showTagItems = tagMatches.filter((i) => i.Type === "Series");
+                      let hasMovieSec = false, hasShowSec = false;
+                      const nextSections = res.data.map((sec) => {
+                        var _a4, _b4;
+                        if (!sec || !Array.isArray(sec.items)) return sec;
+                        const isMoviesSec = sec.title === "Movies" || sec.title === "HeaderMovies" || ((_a4 = sec.items[0]) == null ? void 0 : _a4.Type) === "Movie";
+                        const isShowsSec = sec.title === "Shows" || sec.title === "HeaderSeries" || ((_b4 = sec.items[0]) == null ? void 0 : _b4.Type) === "Series";
+                        let merged = sec.items;
+                        if (isMoviesSec) {
+                          hasMovieSec = true;
+                          merged = [...sec.items, ...movieTagItems];
+                        } else if (isShowsSec) {
+                          hasShowSec = true;
+                          merged = [...sec.items, ...showTagItems];
+                        }
+                        const deduped = dedupeSearchList(merged, canonicalIds).slice(0, 48);
+                        return { ...sec, items: deduped };
+                      }).filter((sec) => !sec || !Array.isArray(sec.items) || sec.items.length > 0);
+                      if (!hasMovieSec && movieTagItems.length) {
+                        nextSections.unshift({ title: "Movies", items: dedupeSearchList(movieTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
+                      }
+                      if (!hasShowSec && showTagItems.length) {
+                        const insertAt = ((_d2 = nextSections[0]) == null ? void 0 : _d2.title) === "Movies" ? 1 : 0;
+                        nextSections.splice(insertAt, 0, { title: "Shows", items: dedupeSearchList(showTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
+                      }
+                      return { ...res, data: nextSections };
                     }
                     return res;
                   };
@@ -5516,7 +5970,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             };
             wrapped42111._fxPatched = true;
             req.m[42111] = wrapped42111;
-            if ((_b2 = req.c) == null ? void 0 : _b2[42111]) {
+            if ((_c2 = req.c) == null ? void 0 : _c2[42111]) {
               delete req.c[42111];
               try {
                 req(42111);
@@ -5922,6 +6376,17 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                 return pinned.has(tok) || Boolean(layouts && tok in layouts);
               });
             }
+            if (page === "home" || page === "movies") {
+              const xmas = prof.rules.find((r) => (r == null ? void 0 : r.Key) === "christmas");
+              if (xmas) {
+                if (Array.isArray(xmas.Months) && xmas.Months.length === 1 && xmas.Months[0] === 12) {
+                  xmas.Months = [11, 12];
+                }
+                if (Array.isArray(xmas.TagsAny) && xmas.TagsAny.length <= 1 && xmas.TagsAny[0] === "christmas") {
+                  xmas.TagsAny = ["christmas", "christmas eve", "christmas party", "christmas tree", "santa claus", "saving christmas"];
+                }
+              }
+            }
             if (prof.rules.length <= LEGACY_DEFAULT_RULE_COUNTS[page]) {
               const existingKeys = new Set(prof.rules.map((r) => r == null ? void 0 : r.Key).filter(Boolean));
               for (const rule of supplied) {
@@ -6267,10 +6732,160 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
         return best - current;
       }
+      function setCategoryHashParam(catKey) {
+        const rawHash = String(location.hash || "#/home");
+        const [pathPart, queryPart = ""] = rawHash.split("?");
+        const q = new URLSearchParams(queryPart);
+        if (catKey) q.set("fxCat", catKey);
+        else q.delete("fxCat");
+        const qs = q.toString();
+        const nextHash = qs ? `${pathPart}?${qs}` : pathPart;
+        if (location.hash !== nextHash) {
+          location.hash = nextHash;
+        }
+      }
+      function closeCategorySubpage(s = state, updateUrl = true) {
+        var _a2, _b2, _c2, _d2;
+        if (!s) return;
+        if (updateUrl && new URLSearchParams(String(location.hash || "").split("?")[1] || "").has("fxCat")) {
+          setCategoryHashParam("");
+        }
+        s.subpageActive = false;
+        s.subpageKey = "";
+        if (s.route) delete s.route.cat;
+        (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-subpage");
+        (_c2 = s.root.querySelector(".fx-subpage")) == null ? void 0 : _c2.remove();
+        if (s.toolbar) s.toolbar.hidden = ((_d2 = s.route) == null ? void 0 : _d2.page) === "home";
+        s.list.hidden = !!s.full;
+        s.footer.hidden = !!(s.full || !s.slots.length && !s.finished);
+        s.matchCount.hidden = !!s.full;
+        const savedScroll = s.savedSubpageScroll || 0;
+        s.savedSubpageScroll = 0;
+        requestAnimationFrame(() => {
+          if (state !== s || !s.root.isConnected || s.subpageActive) return;
+          const scroller = findScrollRoot(s.root);
+          if (scroller) scroller.scrollTop = savedScroll;
+          virtualize(s);
+        });
+      }
+      function renderCategorySubpageDom(s, catKey, titleText, items) {
+        let host = s.root.querySelector(".fx-subpage");
+        if (!host) {
+          host = element("section", "fx-subpage");
+          s.root.prepend(host);
+        }
+        host.dataset.subpageKey = catKey;
+        const head = element("div", "fx-subpage-head");
+        const backBtn = button("", () => closeCategorySubpage(s, true));
+        backBtn.className = "fx-subpage-back";
+        backBtn.setAttribute("aria-label", `Back from ${titleText}`);
+        const arrow = element("span", "fx-subpage-arrow", "\u2190");
+        const h1 = element("h1", "fx-subpage-title", titleText);
+        const cleanItems = (items || []).filter((i) => i && i.Type !== "SeeMore");
+        const count = element("span", "fx-subpage-count", `${cleanItems.length}`);
+        backBtn.append(arrow, h1, count);
+        head.append(backBtn);
+        const grid = element("div", "fx-subpage-grid");
+        const useLandscape = cleanItems.length > 0 && cleanItems.every((i) => {
+          var _a2;
+          return i.Type === "Episode" && !i.SeriesPrimaryImageTag && !((_a2 = i.ImageTags) == null ? void 0 : _a2.Primary);
+        });
+        const cardLayout = useLandscape ? "landscape" : "portrait";
+        cleanItems.forEach((item) => {
+          grid.append(renderCard(item, s, true, cardLayout));
+        });
+        host.replaceChildren(head, grid);
+      }
+      async function openCategorySubpage(s, catKey, fallbackRow = null, updateUrl = true) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+        if (!s || !catKey || catKey === "MyMedia") return;
+        if (catKey === "DiscoverMovies" || catKey === "DiscoverTV") {
+          scrollToTop();
+          location.hash = `#/home?requesthub=discover&rhView=${catKey === "DiscoverTV" ? "tv" : "movies"}`;
+          return;
+        }
+        if (!s.subpageActive) {
+          const scroller = findScrollRoot(s.root);
+          s.savedSubpageScroll = (scroller == null ? void 0 : scroller.scrollTop) || 0;
+          saveFeed(s);
+        }
+        if (updateUrl) setCategoryHashParam(catKey);
+        s.subpageActive = true;
+        s.subpageKey = catKey;
+        if (s.route) s.route.cat = catKey;
+        (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.setAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-subpage", "true");
+        if (s.toolbar) s.toolbar.hidden = true;
+        s.panel.hidden = true;
+        s.matchCount.hidden = true;
+        s.list.hidden = true;
+        s.footer.hidden = true;
+        scrollToTop();
+        const plannerShelf = (_d2 = (_c2 = s.planner) == null ? void 0 : _c2.shelves) == null ? void 0 : _d2.find((sh) => sh.key === catKey);
+        const slotRow = ((_e2 = s.slots.find((sl) => {
+          var _a3;
+          return ((_a3 = sl.data) == null ? void 0 : _a3.key) === catKey;
+        })) == null ? void 0 : _e2.data) || fallbackRow;
+        let titleText = (plannerShelf == null ? void 0 : plannerShelf.title) || (slotRow == null ? void 0 : slotRow.title) || catKey;
+        let items = (plannerShelf == null ? void 0 : plannerShelf.items) || (slotRow == null ? void 0 : slotRow.allItems) || (slotRow == null ? void 0 : slotRow.items) || [];
+        if ((catKey === "RecentlyAddedMovies" || catKey === "RecentlyAddedShows") && ((_g = (_f = s.inventory) == null ? void 0 : _f.items) == null ? void 0 : _g.length)) {
+          const fullAnchor = await s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 1e4 }).catch(() => null);
+          if (state !== s || s.subpageKey !== catKey) return;
+          if (fullAnchor) {
+            titleText = fullAnchor.title || titleText;
+            items = fullAnchor.allItems || fullAnchor.items || items;
+          }
+        }
+        renderCategorySubpageDom(s, catKey, titleText, items);
+        if (catKey === "ContinueWatchingNextUp" && s.inventory && typeof ((_h = s.api) == null ? void 0 : _h.getUrl) === "function") {
+          s.client.fetchContinueWatching(s.route, s.inventory, 100).then((more) => {
+            if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !Array.isArray(more) || !more.length) return;
+            if (more.length > items.length) renderCategorySubpageDom(s, catKey, titleText, more);
+          }).catch(() => {
+          });
+        } else if (!items.length && s.inventory && ((_j = (_i = s.profile) == null ? void 0 : _i.anchors) == null ? void 0 : _j.includes(catKey))) {
+          s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 200 }).then((anc) => {
+            if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !anc) return;
+            renderCategorySubpageDom(s, catKey, anc.title || titleText, anc.allItems || anc.items || []);
+          }).catch(() => {
+          });
+        }
+      }
+      function syncCategorySubpage(s, wantedCat) {
+        if (!s) return;
+        const cat = String(wantedCat || "");
+        if (!cat) {
+          if (s.subpageActive) closeCategorySubpage(s, false);
+          return;
+        }
+        if (s.subpageActive && s.subpageKey === cat && s.root.querySelector(".fx-subpage")) return;
+        if (!s.inventory && !s.slots.length) return;
+        openCategorySubpage(s, cat, null, false);
+      }
+      function bindRowHeading(titleEl, slot, s) {
+        var _a2;
+        if (!titleEl || ((_a2 = slot.data) == null ? void 0 : _a2.key) === "MyMedia") return;
+        titleEl.classList.add("fx-clickable-heading");
+        titleEl.tabIndex = 0;
+        titleEl.setAttribute("role", "button");
+        if (titleEl._fxSubpageBound) return;
+        titleEl._fxSubpageBound = true;
+        const activate = (e) => {
+          const curRow = slot.data;
+          if (!curRow || curRow.key === "MyMedia") return;
+          e.preventDefault();
+          e.stopPropagation();
+          openCategorySubpage(s, curRow.key, curRow, true);
+        };
+        titleEl.addEventListener("click", activate);
+        titleEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") activate(e);
+        });
+      }
       function fillSlot(slot, s) {
         var _a2, _b2, _c2, _d2;
         const row = slot.data;
         const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
+        bindRowHeading(title, slot, s);
         const baseCount = row.items.length;
         const hasSeeMore = row.key === "DiscoverMovies" || row.key === "DiscoverTV" || row.items.some((i) => i.Type === "SeeMore");
         const compactTouch = isCompactTouchViewport();
@@ -6417,7 +7032,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             return (((_b3 = (_a3 = el.querySelector(".fx-card")) == null ? void 0 : _a3.dataset) == null ? void 0 : _b3.itemId) || "") === expectedIds[idx];
           })) {
             const existingHeading = slot.node.querySelector(".fx-row-head h2");
-            if (existingHeading && existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+            if (existingHeading) {
+              if (existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+              bindRowHeading(existingHeading, slot, s);
+            }
             existingEntries.forEach((entry, idx) => {
               const item = row.items[idx % baseCount];
               const card = entry.querySelector(".fx-card");
@@ -6931,30 +7549,33 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         s.status.textContent = "";
         s.footer.hidden = true;
         try {
-          let localError, hasLocalConfig = false;
+          let localError;
           try {
-            hasLocalConfig = !!localStorage.getItem(configKey(s.api));
             s.config = readConfig(s.api);
           } catch (e) {
             localError = e;
           }
+          let paintedBootConfigStr = "";
           let paintedBoot = false;
           if (s.config && !s.full) {
             s.profile = s.config.pages[s.route.page];
+            const cfgStr = JSON.stringify(s.config);
             const earlySaved = savedFeeds.get(s.key);
-            if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === JSON.stringify(s.config) && ((_a2 = earlySaved.rows) == null ? void 0 : _a2.length)) {
+            if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === cfgStr && ((_a2 = earlySaved.rows) == null ? void 0 : _a2.length)) {
               if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
               earlySaved.rows.slice(0, 4).forEach((row) => appendRow(row, s, true));
               paintedBoot = true;
-            } else if (hasLocalConfig) {
-              const bootData = readBootRows(s, JSON.stringify(s.config));
+              paintedBootConfigStr = cfgStr;
+            } else {
+              const bootData = readBootRows(s, cfgStr);
               if ((_b2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _b2.length) {
                 if (bootData.shuffle) s.shuffle = bootData.shuffle;
                 bootData.rows.forEach((row) => appendRow(row, s, true));
                 paintedBoot = true;
+                paintedBootConfigStr = cfgStr;
               }
             }
-            if (!paintedBoot) renderSkeletonRows(s, 3);
+            if (!paintedBoot && !s.route.cat) renderSkeletonRows(s, 3);
             syncNative(s, true);
           }
           if (!s.full && s.route.view !== "genres") {
@@ -6983,8 +7604,14 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           }
           if (!s.config) throw localError || Error("No valid discovery configuration.");
           s.profile = s.config.pages[s.route.page];
-          if (!s.full && !paintedBoot) {
-            const bootData = readBootRows(s, JSON.stringify(s.config));
+          const finalCfgStr = JSON.stringify(s.config);
+          if (paintedBoot && paintedBootConfigStr && paintedBootConfigStr !== finalCfgStr) {
+            s.slots.filter((sl) => sl.boot).forEach((sl) => sl.node.remove());
+            s.slots = s.slots.filter((sl) => !sl.boot);
+            paintedBoot = false;
+          }
+          if (!s.full && !paintedBoot && !s.route.cat) {
+            const bootData = readBootRows(s, finalCfgStr);
             if ((_d2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _d2.length) {
               if (bootData.shuffle) s.shuffle = bootData.shuffle;
               bootData.rows.forEach((row) => appendRow(row, s, true));
@@ -6992,7 +7619,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
               syncNative(s, true);
             } else if (s.route.view !== "genres") {
               s.client.fastOpening(s.route, s.config).then((fastRows) => {
-                if (state !== s || s.full || s.failed || s.planner || s.slots.length || !(fastRows == null ? void 0 : fastRows.length)) return;
+                if (state !== s || s.full || s.failed || s.planner || s.slots.length || s.subpageActive || !(fastRows == null ? void 0 : fastRows.length)) return;
                 fastRows.forEach((row) => appendRow(row, s, true));
                 syncNative(s, true);
               }).catch(() => {
@@ -7010,7 +7637,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           s.byId = new Map(s.inventory.items.map((i) => [i.Id, i]));
           s.filterToggle.disabled = s.full;
           decorateNative(s);
-          const trackingTask = s.client.tracking(s.inventory.items).then((arrival) => {
+          const trackingTask = s.client.tracking(s.inventory.items).then(async (arrival) => {
+            var _a3;
             if (state !== s) return;
             s.tracking = arrival.records instanceof Map ? arrival.records : /* @__PURE__ */ new Map();
             s.trackingReady = arrival.ready;
@@ -7018,6 +7646,31 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             if (arrival.ready) writeTrackingCache(s.scope, s.tracking);
             decorateNative(s);
             refreshSlotBadges(s);
+            let updatedRecent = false;
+            for (const recentKey of ["RecentlyAddedMovies", "RecentlyAddedShows"]) {
+              const slot = s.slots.find((sl) => {
+                var _a4;
+                return !sl.boot && ((_a4 = sl.data) == null ? void 0 : _a4.key) === recentKey;
+              });
+              if (slot) {
+                try {
+                  const freshRow = await s.client.anchor(recentKey, s.route, s.inventory, s.config);
+                  if (state !== s || !((_a3 = freshRow == null ? void 0 : freshRow.items) == null ? void 0 : _a3.length)) continue;
+                  const prevIds = (slot.data.items || []).map((i) => i.Id).join(",");
+                  const nextIds = freshRow.items.map((i) => i.Id).join(",");
+                  slot.data = freshRow;
+                  if (prevIds !== nextIds) {
+                    if (slot.live) fillSlot(slot, s);
+                    updatedRecent = true;
+                  }
+                } catch {
+                }
+              }
+            }
+            if (updatedRecent) writeBootRows(s);
+            if (s.subpageActive && (s.subpageKey === "RecentlyAddedMovies" || s.subpageKey === "RecentlyAddedShows")) {
+              openCategorySubpage(s, s.subpageKey, null, false);
+            }
           }).catch(() => {
             if (state !== s) return;
             s.trackingReady = false;
@@ -7025,7 +7678,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             if (!s.loading) s.status.textContent = [...s.warnings].join(" ");
           });
           const saved = savedFeeds.get(s.key);
-          if (saved && Date.now() - saved.at < 30 * 6e4 && saved.config === JSON.stringify(s.config)) {
+          if (saved && Date.now() - saved.at < 30 * 6e4 && saved.config === finalCfgStr) {
             restoreFeed(s, saved);
             s.status.textContent = [...s.warnings].join(" ");
           } else {
@@ -7035,6 +7688,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             s.initialHydrateSkip = true;
             await loadMore(s);
           }
+          if (s.route.cat) syncCategorySubpage(s, s.route.cat);
           await trackingTask;
         } catch {
           if (state !== s) return;
@@ -7592,22 +8246,37 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
         return null;
       }
+      function guardMicroLogos() {
+        for (const img of document.querySelectorAll('.sleekfin-hero img[src*="/Images/Logo"], #itemDetailPage img[src*="/Images/Logo"]')) {
+          if (img._fxLogoGuarded) continue;
+          img._fxLogoGuarded = true;
+          const check = () => {
+            if (img.complete && img.naturalWidth > 0 && (img.naturalWidth < 180 || img.naturalHeight < 30)) {
+              img.style.display = "none";
+              img.dispatchEvent(new Event("error"));
+            }
+          };
+          if (img.complete) check();
+          else img.addEventListener("load", check, { once: true });
+        }
+      }
       function cleanup(preserve = true) {
-        var _a2, _b2;
+        var _a2, _b2, _c2, _d2;
         generation++;
         if (selectHold) {
           clearTimeout(selectHold.timer);
           selectHold = null;
         }
         closeDialog();
+        (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-subpage");
         if (!state) return;
         if (preserve) saveFeed(state);
         clearTimeout(state.filterTimer);
-        (_a2 = state.io) == null ? void 0 : _a2.disconnect();
+        (_c2 = state.io) == null ? void 0 : _c2.disconnect();
         syncNative(state, false);
         state.root.remove();
         state = null;
-        (_b2 = document.getElementById("fx-customize")) == null ? void 0 : _b2.remove();
+        (_d2 = document.getElementById("fx-customize")) == null ? void 0 : _d2.remove();
         document.querySelectorAll("[data-fx-native-badge]").forEach((n) => n.remove());
         document.querySelectorAll("[data-fx-badge-host]").forEach((n) => n.removeAttribute("data-fx-badge-host"));
       }
@@ -7633,6 +8302,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(api);
         syncHomeModeAttr(api);
+        guardMicroLogos();
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
           savedFeeds.clear();
@@ -7661,21 +8331,28 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           return;
         }
         const key = `${scope}:${route.page}:${route.parentId}:${route.view || "home"}`;
-        if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+        if ((state == null ? void 0 : state.key) === key && state.root.isConnected && state.page === target.page) {
+          if (state.native !== target.native) {
+            state.native = target.native;
+          }
+          state.route = route;
           const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
           const titlePicker = state.root.querySelector(".fx-title-picker");
-          if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+          if (titlePicker && !state.subpageActive) titlePicker.hidden = hasHeaderViewMenu;
           state.root.hidden = !!(state.full && state.route.page !== "home" && hasHeaderViewMenu && !state.failed);
           if (!state.full && !state.failed) syncNative(state, true);
+          syncCategorySubpage(state, route.cat || "");
           decorateNative(state);
           return;
         }
         cleanup();
         const token = generation;
+        const nowDate = /* @__PURE__ */ new Date();
+        const initialDay = dayInZone(nowDate, (DEFAULT_CONFIG2 == null ? void 0 : DEFAULT_CONFIG2.timeZone) || "America/Los_Angeles");
         const root = element("div", "fx-discovery"), toolbar = element("div", "fx-toolbar"), list = element("div"), status = element("p", "fx-status"), footer = element("div", "fx-footer"), panel = element("div", "fx-filters"), matchCount = element("p", "fx-match-count");
         panel.hidden = true;
         status.setAttribute("role", "status");
-        const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount, token, now: /* @__PURE__ */ new Date(), slots: [], badges: /* @__PURE__ */ new Map(), tracking: readTrackingCache(scope), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
+        const s = { ...target, api, scope, key, route, root, toolbar, list, status, footer, panel, matchCount, token, now: nowDate, slots: [], badges: /* @__PURE__ */ new Map(), tracking: readTrackingCache(scope), filters: cloneJson(DEFAULT_FILTERS), warnings: /* @__PURE__ */ new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, subpageActive: false, subpageKey: "", savedSubpageScroll: 0, shuffle: getSessionShuffle(scope, route.page, initialDay) };
         s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
         s.toggle = button(route.page === "home" ? "Normal home" : "Full library", () => setMode(s, !s.full));
         s.more = button("Load more", () => {
@@ -7870,13 +8547,14 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         if (/^#!?\/?(movies|tv|tvshows)(?:\.html)?(?:[?]|$)/i.test(normalized)) {
           const [path, raw = ""] = normalized.split("?"), q = new URLSearchParams(raw);
           q.set("tab", "1");
+          q.delete("fxCat");
           event.preventDefault();
           (_A = event.stopImmediatePropagation) == null ? void 0 : _A.call(event);
           event.stopPropagation();
           closeDrawers();
           scrollToTop();
           location.hash = path + "?" + q;
-          schedule();
+          reconcile();
           setTimeout(closeDrawers, 40);
           return;
         }
@@ -7887,7 +8565,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           closeDrawers();
           scrollToTop();
           location.hash = normalized;
-          schedule();
+          reconcile();
           setTimeout(closeDrawers, 40);
         }
       }
@@ -7938,6 +8616,12 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
               if (ranked.length) focusNode(ranked[0].node);
             }
           }
+          return;
+        }
+        if (s && s.subpageActive && (key === "Escape" || event.keyCode === 10009)) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeCategorySubpage(s, true);
           return;
         }
         if (!s || s.full || !controlsMode(s).tv || !s.root.isConnected || document.fullscreenElement || ((_c2 = target == null ? void 0 : target.matches) == null ? void 0 : _c2.call(target, 'input,select,textarea,[contenteditable="true"]'))) return;
@@ -8344,7 +9028,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         releaseOsdSpeedHold();
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(window.ApiClient);
-        schedule();
+        reconcile();
       }
       function start() {
         const style = element("style");
@@ -8409,7 +9093,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
           stopped = true;
           clearTimeout(timer);
           clearInterval(heartbeat);
@@ -8424,6 +9108,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-hide-count-chip");
           (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
           (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
+          (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-subpage");
           document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("dblclick", onOsdDblClick, true);
           document.removeEventListener("contextmenu", onOsdContextMenu, true);
@@ -8443,7 +9128,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
-          (_g = document.getElementById("fx-discovery-style")) == null ? void 0 : _g.remove();
+          (_i = document.getElementById("fx-discovery-style")) == null ? void 0 : _i.remove();
           delete window.FazFortDiscovery;
         }
       };

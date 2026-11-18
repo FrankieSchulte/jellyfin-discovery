@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.5';
+const VERSION = '0.5.6';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -8,6 +8,9 @@ let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
 const snapshots = new Map();
 const savedFeeds = new Map();
 const loadedImages = new Set();
+const sessionShuffles = new Map();
+let searchInvInflight = null;
+const searchInvListeners = new Set();
 let activeDialog = null, lastScope = '', selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
@@ -16,6 +19,23 @@ const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
 const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
 const trackingCacheKey = scope => `fazfort-discovery:tracking:v1:${scope}`;
+function getSessionShuffle(scope, page, day, forceNew = false) {
+  const k = `${scope}:${day}:${page}`;
+  if (!forceNew && sessionShuffles.has(k)) return sessionShuffles.get(k);
+  if (!forceNew) {
+    try {
+      const saved = Number(window.sessionStorage?.getItem?.(`fazfort-discovery:shuffle:${k}`));
+      if (Number.isInteger(saved) && saved > 0) {
+        sessionShuffles.set(k, saved);
+        return saved;
+      }
+    } catch {}
+  }
+  const next = hash(`${Date.now()}:${Math.random()}:${k}`) || 1;
+  sessionShuffles.set(k, next);
+  try { window.sessionStorage?.setItem?.(`fazfort-discovery:shuffle:${k}`, String(next)); } catch {}
+  return next;
+}
 function readTrackingCache(scope) {
   if (!scope) return new Map();
   try {
@@ -33,33 +53,147 @@ function writeTrackingCache(scope, map) {
   } catch {}
 }
 function readBootRows(s, configStr) {
-  if (s.full || s.route.view === 'genres') return null;
+  if (s.full || s.route.view === 'genres' || s.route.cat) return null;
   try {
     const raw = localStorage.getItem(bootRowsKey(s.scope, s.route));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
-    if (Date.now() - (parsed.at || 0) > 7 * 24 * 3600 * 1000) return null;
+    if (!parsed || parsed.version !== VERSION || parsed.config !== configStr || !Array.isArray(parsed.rows) || !parsed.rows.length) return null;
+    const today = dayInZone(s.now, s.config?.timeZone || 'America/Los_Angeles');
+    if (parsed.day !== today) return null;
+    if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1000) return null;
     return { rows: parsed.rows, shuffle: parsed.shuffle };
   } catch { return null; }
 }
 function writeBootRows(s) {
   if (s.full || s.route.view === 'genres' || filtersActive(s.filters) || s.filters.sort !== 'recommended' || !s.slots.length || !s.config) return;
   try {
-    const rows = s.slots.filter(slot => !slot.boot).slice(0, 4).map(slot => slot.data);
+    const rows = s.slots.filter(slot => !slot.boot).slice(0, 4).map(slot => {
+      if (!slot.data) return null;
+      const { allItems, ...compact } = slot.data;
+      return compact;
+    }).filter(Boolean);
     if (!rows.length) return;
-    localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
+    const today = dayInZone(s.now, s.config.timeZone);
+    localStorage.setItem(bootRowsKey(s.scope, s.route), JSON.stringify({ version: VERSION, day: today, at: Date.now(), shuffle: s.shuffle, config: JSON.stringify(s.config), rows }));
   } catch {}
 }
 function clearBootRows(scope) {
   if (!scope) return;
+  sessionShuffles.clear();
   try {
     for (const page of ['home', 'movies', 'shows']) {
       for (const view of ['home', 'suggestions']) {
-        localStorage.removeItem(bootRowsKey(scope, { page, parentId: '', view }));
+        localStorage.removeItem?.(bootRowsKey(scope, { page, parentId: '', view }));
       }
     }
+    if (typeof localStorage.length === 'number' && typeof localStorage.key === 'function') {
+      const toDelete = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith(`fazfort-discovery:boot:v2:${scope}:`) || k.startsWith(`fazfort-discovery:boot:v3:${scope}:`))) {
+          toDelete.push(k);
+        }
+      }
+      toDelete.forEach(k => localStorage.removeItem?.(k));
+    }
+    if (window.sessionStorage && typeof window.sessionStorage.length === 'number') {
+      const sDel = [];
+      for (let i = 0; i < window.sessionStorage.length; i++) {
+        const k = window.sessionStorage.key(i);
+        if (k && k.startsWith(`fazfort-discovery:shuffle:${scope}:`)) sDel.push(k);
+      }
+      sDel.forEach(k => window.sessionStorage.removeItem?.(k));
+    }
   } catch {}
+}
+function ensureSearchInventory(api = window.ApiClient) {
+  if (!api?.getCurrentUserId?.()) return Promise.resolve(null);
+  const sc = scopeKey(api);
+  const snapKey = `${sc}:home:`;
+  const existing = snapshots.get(snapKey);
+  if (existing && Date.now() - existing.at < 5 * 60000) return Promise.resolve(existing.value);
+  if (searchInvInflight) return searchInvInflight;
+  const client = new JellyfinClient(api, () => !stopped);
+  searchInvInflight = client.inventory({ page: 'home', parentId: '' }).then(inv => {
+    searchInvInflight = null;
+    if (inv && Array.isArray(inv.items)) {
+      snapshots.set(snapKey, { at: Date.now(), value: inv });
+      searchInvListeners.forEach(fn => { try { fn(inv); } catch {} });
+    }
+    return inv;
+  }).catch(() => {
+    searchInvInflight = null;
+    return null;
+  });
+  return searchInvInflight;
+}
+function dedupeSearchList(items, canonicalIds = null) {
+  if (!Array.isArray(items) || !items.length) return [];
+  const filtered = items.filter(it => it && !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String(it.Path || '')));
+  const chosenByKey = new Map();
+  const order = [];
+  const itemKeys = it => {
+    const keys = [];
+    const rawId = String(it.Id || '').toLowerCase().replace(/-/g, '');
+    if (rawId) keys.push(`id:${rawId}`);
+    const tmdb = it.ProviderIds?.Tmdb || it.ProviderIds?.tmdb;
+    if (tmdb && it.Type) keys.push(`${it.Type}:tmdb:${tmdb}`);
+    if (['Movie', 'Series', 'BoxSet'].includes(it.Type) && it.Name) {
+      keys.push(`${it.Type}:title:${normalize(it.Name)}:${it.ProductionYear || ''}`);
+    } else if (it.Type === 'Person' && it.Name) {
+      keys.push(`Person:${normalize(it.Name)}`);
+    }
+    return keys;
+  };
+  const isCanonical = it => Boolean(canonicalIds && it?.Id && canonicalIds.has(it.Id));
+  for (const it of filtered) {
+    const keys = itemKeys(it);
+    const existingKey = keys.find(k => chosenByKey.has(k));
+    if (!existingKey) {
+      const idx = order.length;
+      order.push(it);
+      keys.forEach(k => chosenByKey.set(k, idx));
+    } else {
+      const idx = chosenByKey.get(existingKey);
+      const prev = order[idx];
+      if (isCanonical(it) && !isCanonical(prev)) {
+        order[idx] = it;
+        keys.forEach(k => chosenByKey.set(k, idx));
+      }
+    }
+  }
+  return order;
+}
+function findTagAndGenreMatches(invItems, query, { includeTypes = null, parentId = '', api = window.ApiClient } = {}) {
+  const q = normalize(query);
+  if (!q || q.length < 2 || !Array.isArray(invItems) || !invItems.length) return [];
+  const cfg = (() => { try { return readConfig(api) || DEFAULT_CONFIG; } catch { return DEFAULT_CONFIG; } })();
+  const matchingRules = (cfg?.pages?.home?.rules || []).filter(r => r && r.Enabled !== false && (
+    normalize(r.Key) === q || (q.length >= 4 && normalize(r.Title).includes(q))
+  ));
+  const serverId = api?.serverId?.() || '';
+  const matched = [];
+  for (const item of invItems) {
+    if (!item || isLeavingSoonItem(item)) continue;
+    if (includeTypes && includeTypes.length && !includeTypes.includes(item.Type)) continue;
+    if (parentId && item.ParentId && String(item.ParentId).toLowerCase().replace(/-/g, '') !== String(parentId).toLowerCase().replace(/-/g, '')) {
+      // Allow topParentId mismatch when ParentId is a season/folder, only skip if view mismatch is known
+    }
+    const tagHit = (item.Tags || []).some(t => {
+      const nt = normalize(t);
+      return nt === q || (q.length >= 3 && nt.includes(q));
+    });
+    const genreHit = !tagHit && (item.Genres || []).some(g => {
+      const ng = normalize(g);
+      return ng === q || (q.length >= 3 && ng.includes(q));
+    });
+    const ruleHit = !tagHit && !genreHit && matchingRules.some(r => matches(r, item));
+    if (tagHit || genreHit || ruleHit) {
+      matched.push(item.ServerId ? item : { ...item, ServerId: serverId });
+    }
+  }
+  return matched;
 }
 function applyWebpackViewPatch(req) {
   if (!req?.m) return;
@@ -215,11 +349,12 @@ function applyWebpackViewPatch(req) {
       const wrapped95988 = function(module, exports, wreq) {
         orig95988(module, exports, wreq);
         try {
-          const react = wreq(96540);
-          const router = wreq(96303);
-          if (react?.useState && router?.useSearchParams) {
+          const react = (() => { try { return wreq(63696); } catch { return wreq(96540); } })();
+          const router = (() => { try { return wreq(9055); } catch { return wreq(96303); } })();
+          const useSearchParamsFn = router?.useSearchParams || router?.ok;
+          if (react?.useState && typeof useSearchParamsFn === 'function') {
             const safeUseSearchParam = function(paramKey, defaultValue = '') {
-              const [searchParams, setSearchParams] = router.useSearchParams();
+              const [searchParams, setSearchParams] = useSearchParamsFn();
               const urlVal = searchParams.get(paramKey) || defaultValue;
               const [val, setVal] = react.useState(urlVal);
               const typingRef = react.useRef(false);
@@ -263,6 +398,78 @@ function applyWebpackViewPatch(req) {
         try { req(95988); } catch {}
       }
     }
+    if (req.m[71857] && !req.m[71857]._fxPatched) {
+      const orig71857 = req.m[71857];
+      const wrapped71857 = function(module, exports, wreq) {
+        orig71857(module, exports, wreq);
+        try {
+          const origFactory = exports.Q;
+          if (typeof origFactory === 'function') {
+            const wrappedFactory = function(sdkApi, ...rest) {
+              const clientObj = origFactory.call(this, sdkApi, ...rest);
+              if (clientObj && typeof clientObj.getItems === 'function' && !clientObj._fxGetItemsWrapped) {
+                const origGetItems = clientObj.getItems.bind(clientObj);
+                clientObj.getItems = async function(params, options) {
+                  const searchTerm = typeof params?.searchTerm === 'string' ? params.searchTerm.trim() : '';
+                  if (!searchTerm) {
+                    const plainResp = await origGetItems(params, options);
+                    if (plainResp?.data && Array.isArray(plainResp.data.Items)) {
+                      const cleaned = plainResp.data.Items.filter(it => !isLeavingSoonItem(it) && !/\/leaving-soon\//i.test(String(it?.Path || '')));
+                      if (cleaned.length !== plainResp.data.Items.length) {
+                        return { ...plainResp, data: { ...plainResp.data, Items: cleaned } };
+                      }
+                    }
+                    return plainResp;
+                  }
+                  const [resp, inv] = await Promise.all([
+                    origGetItems(params, options),
+                    ensureSearchInventory(window.ApiClient)
+                  ]);
+                  if (!resp?.data || !Array.isArray(resp.data.Items)) return resp;
+                  const invItems = inv?.items || [];
+                  const canonicalIds = invItems.length ? new Set(invItems.map(i => i.Id)) : null;
+                  const includeTypes = Array.isArray(params?.includeItemTypes) ? params.includeItemTypes : null;
+                  const tagMatches = findTagAndGenreMatches(invItems, searchTerm, {
+                    includeTypes,
+                    parentId: params?.parentId || '',
+                    api: window.ApiClient
+                  });
+                  const combined = dedupeSearchList([...resp.data.Items, ...tagMatches], canonicalIds);
+                  const perTypeCounts = new Map();
+                  const capped = combined.filter(it => {
+                    const t = it?.Type || 'Other';
+                    const c = (perTypeCounts.get(t) || 0) + 1;
+                    perTypeCounts.set(t, c);
+                    return c <= 48;
+                  });
+                  return {
+                    ...resp,
+                    data: {
+                      ...resp.data,
+                      Items: capped,
+                      TotalRecordCount: capped.length
+                    }
+                  };
+                };
+                clientObj._fxGetItemsWrapped = true;
+              }
+              return clientObj;
+            };
+            try {
+              Object.defineProperty(exports, 'Q', { configurable: true, enumerable: true, get: () => wrappedFactory });
+            } catch {
+              exports.Q = wrappedFactory;
+            }
+          }
+        } catch {}
+      };
+      wrapped71857._fxPatched = true;
+      req.m[71857] = wrapped71857;
+      if (req.c?.[71857]) {
+        delete req.c[71857];
+        try { req(71857); } catch {}
+      }
+    }
     if (req.m[42111] && !req.m[42111]._fxPatched) {
       const orig42111 = req.m[42111];
       const wrapped42111 = function(module, exports, wreq) {
@@ -270,14 +477,57 @@ function applyWebpackViewPatch(req) {
         try {
           const origHook = exports.u;
           if (typeof origHook === 'function') {
+            const react = (() => { try { return wreq(63696); } catch { try { return wreq(96540); } catch { return null; } } })();
             const cappedHook = function(parentId, collectionType, query) {
               const trimmed = typeof query === 'string' ? query.trim() : '';
+              const [, bump] = typeof react?.useState === 'function' ? react.useState(0) : [0, null];
+              if (typeof react?.useEffect === 'function' && bump) {
+                react.useEffect(() => {
+                  if (trimmed.length < 2) return undefined;
+                  const onInv = () => bump(v => v + 1);
+                  searchInvListeners.add(onInv);
+                  ensureSearchInventory(window.ApiClient);
+                  return () => searchInvListeners.delete(onInv);
+                }, [trimmed]);
+              } else if (trimmed.length >= 2) {
+                ensureSearchInventory(window.ApiClient);
+              }
               const res = origHook(parentId, collectionType, trimmed);
               if (res && Array.isArray(res.data)) {
-                return {
-                  ...res,
-                  data: res.data.map(sec => sec && Array.isArray(sec.items) && sec.items.length > 24 ? { ...sec, items: sec.items.slice(0, 24) } : sec)
-                };
+                const sc = window.ApiClient?.getCurrentUserId?.() ? scopeKey(window.ApiClient) : '';
+                const homeSnap = sc ? snapshots.get(`${sc}:home:`) : null;
+                const invItems = homeSnap?.value?.items || [];
+                const canonicalIds = invItems.length ? new Set(invItems.map(i => i.Id)) : null;
+                const wantMovie = !collectionType || String(collectionType).toLowerCase() === 'movies';
+                const wantShow = !collectionType || String(collectionType).toLowerCase() === 'tvshows';
+                const tagMatches = trimmed.length >= 2
+                  ? findTagAndGenreMatches(invItems, trimmed, {
+                      includeTypes: [wantMovie ? 'Movie' : '', wantShow ? 'Series' : ''].filter(Boolean),
+                      parentId: parentId || '',
+                      api: window.ApiClient
+                    })
+                  : [];
+                const movieTagItems = tagMatches.filter(i => i.Type === 'Movie');
+                const showTagItems = tagMatches.filter(i => i.Type === 'Series');
+                let hasMovieSec = false, hasShowSec = false;
+                const nextSections = res.data.map(sec => {
+                  if (!sec || !Array.isArray(sec.items)) return sec;
+                  const isMoviesSec = sec.title === 'Movies' || sec.title === 'HeaderMovies' || sec.items[0]?.Type === 'Movie';
+                  const isShowsSec = sec.title === 'Shows' || sec.title === 'HeaderSeries' || sec.items[0]?.Type === 'Series';
+                  let merged = sec.items;
+                  if (isMoviesSec) { hasMovieSec = true; merged = [...sec.items, ...movieTagItems]; }
+                  else if (isShowsSec) { hasShowSec = true; merged = [...sec.items, ...showTagItems]; }
+                  const deduped = dedupeSearchList(merged, canonicalIds).slice(0, 48);
+                  return { ...sec, items: deduped };
+                }).filter(sec => !sec || !Array.isArray(sec.items) || sec.items.length > 0);
+                if (!hasMovieSec && movieTagItems.length) {
+                  nextSections.unshift({ title: 'Movies', items: dedupeSearchList(movieTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
+                }
+                if (!hasShowSec && showTagItems.length) {
+                  const insertAt = nextSections[0]?.title === 'Movies' ? 1 : 0;
+                  nextSections.splice(insertAt, 0, { title: 'Shows', items: dedupeSearchList(showTagItems, canonicalIds).slice(0, 48), cardOptions: { showYear: true } });
+                }
+                return { ...res, data: nextSections };
               }
               return res;
             };
@@ -665,6 +915,17 @@ function upgradeLegacyConfig(cfg) {
           return pinned.has(tok) || Boolean(layouts && tok in layouts);
         });
       }
+      if (page === 'home' || page === 'movies') {
+        const xmas = prof.rules.find(r => r?.Key === 'christmas');
+        if (xmas) {
+          if (Array.isArray(xmas.Months) && xmas.Months.length === 1 && xmas.Months[0] === 12) {
+            xmas.Months = [11, 12];
+          }
+          if (Array.isArray(xmas.TagsAny) && xmas.TagsAny.length <= 1 && xmas.TagsAny[0] === 'christmas') {
+            xmas.TagsAny = ['christmas', 'christmas eve', 'christmas party', 'christmas tree', 'santa claus', 'saving christmas'];
+          }
+        }
+      }
       if (prof.rules.length <= LEGACY_DEFAULT_RULE_COUNTS[page]) {
         const existingKeys = new Set(prof.rules.map(r => r?.Key).filter(Boolean));
         for (const rule of supplied) {
@@ -942,9 +1203,151 @@ function snapScrollDelta(track, direction, fallbackStep, clampEnd = false) {
   }
   return best - current;
 }
+function setCategoryHashParam(catKey) {
+  const rawHash = String(location.hash || '#/home');
+  const [pathPart, queryPart = ''] = rawHash.split('?');
+  const q = new URLSearchParams(queryPart);
+  if (catKey) q.set('fxCat', catKey);
+  else q.delete('fxCat');
+  const qs = q.toString();
+  const nextHash = qs ? `${pathPart}?${qs}` : pathPart;
+  if (location.hash !== nextHash) {
+    location.hash = nextHash;
+  }
+}
+function closeCategorySubpage(s = state, updateUrl = true) {
+  if (!s) return;
+  if (updateUrl && new URLSearchParams(String(location.hash || '').split('?')[1] || '').has('fxCat')) {
+    setCategoryHashParam('');
+  }
+  s.subpageActive = false;
+  s.subpageKey = '';
+  if (s.route) delete s.route.cat;
+  document.documentElement?.removeAttribute?.('data-fx-subpage');
+  s.root.querySelector('.fx-subpage')?.remove();
+  if (s.toolbar) s.toolbar.hidden = s.route?.page === 'home';
+  s.list.hidden = !!s.full;
+  s.footer.hidden = !!(s.full || (!s.slots.length && !s.finished));
+  s.matchCount.hidden = !!s.full;
+  const savedScroll = s.savedSubpageScroll || 0;
+  s.savedSubpageScroll = 0;
+  requestAnimationFrame(() => {
+    if (state !== s || !s.root.isConnected || s.subpageActive) return;
+    const scroller = findScrollRoot(s.root);
+    if (scroller) scroller.scrollTop = savedScroll;
+    virtualize(s);
+  });
+}
+function renderCategorySubpageDom(s, catKey, titleText, items) {
+  let host = s.root.querySelector('.fx-subpage');
+  if (!host) {
+    host = element('section', 'fx-subpage');
+    s.root.prepend(host);
+  }
+  host.dataset.subpageKey = catKey;
+  const head = element('div', 'fx-subpage-head');
+  const backBtn = button('', () => closeCategorySubpage(s, true));
+  backBtn.className = 'fx-subpage-back';
+  backBtn.setAttribute('aria-label', `Back from ${titleText}`);
+  const arrow = element('span', 'fx-subpage-arrow', '←');
+  const h1 = element('h1', 'fx-subpage-title', titleText);
+  const cleanItems = (items || []).filter(i => i && i.Type !== 'SeeMore');
+  const count = element('span', 'fx-subpage-count', `${cleanItems.length}`);
+  backBtn.append(arrow, h1, count);
+  head.append(backBtn);
+  const grid = element('div', 'fx-subpage-grid');
+  const useLandscape = cleanItems.length > 0 && cleanItems.every(i => i.Type === 'Episode' && !i.SeriesPrimaryImageTag && !i.ImageTags?.Primary);
+  const cardLayout = useLandscape ? 'landscape' : 'portrait';
+  cleanItems.forEach(item => {
+    grid.append(renderCard(item, s, true, cardLayout));
+  });
+  host.replaceChildren(head, grid);
+}
+async function openCategorySubpage(s, catKey, fallbackRow = null, updateUrl = true) {
+  if (!s || !catKey || catKey === 'MyMedia') return;
+  if (catKey === 'DiscoverMovies' || catKey === 'DiscoverTV') {
+    scrollToTop();
+    location.hash = `#/home?requesthub=discover&rhView=${catKey === 'DiscoverTV' ? 'tv' : 'movies'}`;
+    return;
+  }
+  if (!s.subpageActive) {
+    const scroller = findScrollRoot(s.root);
+    s.savedSubpageScroll = scroller?.scrollTop || 0;
+    saveFeed(s);
+  }
+  if (updateUrl) setCategoryHashParam(catKey);
+  s.subpageActive = true;
+  s.subpageKey = catKey;
+  if (s.route) s.route.cat = catKey;
+  document.documentElement?.setAttribute?.('data-fx-subpage', 'true');
+  if (s.toolbar) s.toolbar.hidden = true;
+  s.panel.hidden = true;
+  s.matchCount.hidden = true;
+  s.list.hidden = true;
+  s.footer.hidden = true;
+  scrollToTop();
+
+  const plannerShelf = s.planner?.shelves?.find(sh => sh.key === catKey);
+  const slotRow = s.slots.find(sl => sl.data?.key === catKey)?.data || fallbackRow;
+  let titleText = plannerShelf?.title || slotRow?.title || catKey;
+  let items = plannerShelf?.items || slotRow?.allItems || slotRow?.items || [];
+
+  if ((catKey === 'RecentlyAddedMovies' || catKey === 'RecentlyAddedShows') && s.inventory?.items?.length) {
+    const fullAnchor = await s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 10000 }).catch(() => null);
+    if (state !== s || s.subpageKey !== catKey) return;
+    if (fullAnchor) {
+      titleText = fullAnchor.title || titleText;
+      items = fullAnchor.allItems || fullAnchor.items || items;
+    }
+  }
+  renderCategorySubpageDom(s, catKey, titleText, items);
+
+  if (catKey === 'ContinueWatchingNextUp' && s.inventory && typeof s.api?.getUrl === 'function') {
+    s.client.fetchContinueWatching(s.route, s.inventory, 100).then(more => {
+      if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !Array.isArray(more) || !more.length) return;
+      if (more.length > items.length) renderCategorySubpageDom(s, catKey, titleText, more);
+    }).catch(() => {});
+  } else if (!items.length && s.inventory && s.profile?.anchors?.includes(catKey)) {
+    s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 200 }).then(anc => {
+      if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !anc) return;
+      renderCategorySubpageDom(s, catKey, anc.title || titleText, anc.allItems || anc.items || []);
+    }).catch(() => {});
+  }
+}
+function syncCategorySubpage(s, wantedCat) {
+  if (!s) return;
+  const cat = String(wantedCat || '');
+  if (!cat) {
+    if (s.subpageActive) closeCategorySubpage(s, false);
+    return;
+  }
+  if (s.subpageActive && s.subpageKey === cat && s.root.querySelector('.fx-subpage')) return;
+  if (!s.inventory && !s.slots.length) return;
+  openCategorySubpage(s, cat, null, false);
+}
+function bindRowHeading(titleEl, slot, s) {
+  if (!titleEl || slot.data?.key === 'MyMedia') return;
+  titleEl.classList.add('fx-clickable-heading');
+  titleEl.tabIndex = 0;
+  titleEl.setAttribute('role', 'button');
+  if (titleEl._fxSubpageBound) return;
+  titleEl._fxSubpageBound = true;
+  const activate = e => {
+    const curRow = slot.data;
+    if (!curRow || curRow.key === 'MyMedia') return;
+    e.preventDefault();
+    e.stopPropagation();
+    openCategorySubpage(s, curRow.key, curRow, true);
+  };
+  titleEl.addEventListener('click', activate);
+  titleEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') activate(e);
+  });
+}
 function fillSlot(slot, s) {
   const row = slot.data;
   const head = element('div', 'fx-row-head'), title = element('h2', '', row.title), track = element('div', 'fx-track');
+  bindRowHeading(title, slot, s);
   const baseCount = row.items.length;
   const hasSeeMore = row.key === 'DiscoverMovies' || row.key === 'DiscoverTV' || row.items.some(i => i.Type === 'SeeMore');
   const compactTouch = isCompactTouchViewport();
@@ -1070,7 +1473,10 @@ function fillSlot(slot, s) {
     }
     if (existingEntries.length === expectedIds.length && existingEntries.every((el, idx) => (el.querySelector('.fx-card')?.dataset?.itemId || '') === expectedIds[idx])) {
       const existingHeading = slot.node.querySelector('.fx-row-head h2');
-      if (existingHeading && existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+      if (existingHeading) {
+        if (existingHeading.textContent !== row.title) existingHeading.textContent = row.title;
+        bindRowHeading(existingHeading, slot, s);
+      }
       existingEntries.forEach((entry, idx) => {
         const item = row.items[idx % baseCount];
         const card = entry.querySelector('.fx-card');
@@ -1456,28 +1862,31 @@ async function initialize(s) {
   if (s.started) return;
   s.started = true; s.status.textContent = ''; s.footer.hidden = true;
   try {
-    let localError, hasLocalConfig = false;
+    let localError;
     try {
-      hasLocalConfig = !!localStorage.getItem(configKey(s.api));
       s.config = readConfig(s.api);
     } catch (e) { localError = e; }
+    let paintedBootConfigStr = '';
     let paintedBoot = false;
     if (s.config && !s.full) {
       s.profile = s.config.pages[s.route.page];
+      const cfgStr = JSON.stringify(s.config);
       const earlySaved = savedFeeds.get(s.key);
-      if (earlySaved && Date.now() - earlySaved.at < 30 * 60000 && earlySaved.config === JSON.stringify(s.config) && earlySaved.rows?.length) {
+      if (earlySaved && Date.now() - earlySaved.at < 30 * 60000 && earlySaved.config === cfgStr && earlySaved.rows?.length) {
         if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
         earlySaved.rows.slice(0, 4).forEach(row => appendRow(row, s, true));
         paintedBoot = true;
-      } else if (hasLocalConfig) {
-        const bootData = readBootRows(s, JSON.stringify(s.config));
+        paintedBootConfigStr = cfgStr;
+      } else {
+        const bootData = readBootRows(s, cfgStr);
         if (bootData?.rows?.length) {
           if (bootData.shuffle) s.shuffle = bootData.shuffle;
           bootData.rows.forEach(row => appendRow(row, s, true));
           paintedBoot = true;
+          paintedBootConfigStr = cfgStr;
         }
       }
-      if (!paintedBoot) renderSkeletonRows(s, 3);
+      if (!paintedBoot && !s.route.cat) renderSkeletonRows(s, 3);
       syncNative(s, true);
     }
     if (!s.full && s.route.view !== 'genres') {
@@ -1504,8 +1913,14 @@ async function initialize(s) {
     }
     if(!s.config)throw localError||Error('No valid discovery configuration.');
     s.profile=s.config.pages[s.route.page];
-    if (!s.full && !paintedBoot) {
-      const bootData = readBootRows(s, JSON.stringify(s.config));
+    const finalCfgStr = JSON.stringify(s.config);
+    if (paintedBoot && paintedBootConfigStr && paintedBootConfigStr !== finalCfgStr) {
+      s.slots.filter(sl => sl.boot).forEach(sl => sl.node.remove());
+      s.slots = s.slots.filter(sl => !sl.boot);
+      paintedBoot = false;
+    }
+    if (!s.full && !paintedBoot && !s.route.cat) {
+      const bootData = readBootRows(s, finalCfgStr);
       if (bootData?.rows?.length) {
         if (bootData.shuffle) s.shuffle = bootData.shuffle;
         bootData.rows.forEach(row => appendRow(row, s, true));
@@ -1513,7 +1928,7 @@ async function initialize(s) {
         syncNative(s, true);
       } else if (s.route.view !== 'genres') {
         s.client.fastOpening(s.route, s.config).then(fastRows => {
-          if (state !== s || s.full || s.failed || s.planner || s.slots.length || !fastRows?.length) return;
+          if (state !== s || s.full || s.failed || s.planner || s.slots.length || s.subpageActive || !fastRows?.length) return;
           fastRows.forEach(row => appendRow(row, s, true));
           syncNative(s, true);
         }).catch(() => {});
@@ -1530,7 +1945,7 @@ async function initialize(s) {
     s.byId = new Map(s.inventory.items.map(i => [i.Id, i]));
     s.filterToggle.disabled=s.full;
     decorateNative(s);
-    const trackingTask = s.client.tracking(s.inventory.items).then(arrival => {
+    const trackingTask = s.client.tracking(s.inventory.items).then(async arrival => {
       if (state !== s) return;
       s.tracking = arrival.records instanceof Map ? arrival.records : new Map();
       s.trackingReady = arrival.ready;
@@ -1538,6 +1953,27 @@ async function initialize(s) {
       if (arrival.ready) writeTrackingCache(s.scope, s.tracking);
       decorateNative(s);
       refreshSlotBadges(s);
+      let updatedRecent = false;
+      for (const recentKey of ['RecentlyAddedMovies', 'RecentlyAddedShows']) {
+        const slot = s.slots.find(sl => !sl.boot && sl.data?.key === recentKey);
+        if (slot) {
+          try {
+            const freshRow = await s.client.anchor(recentKey, s.route, s.inventory, s.config);
+            if (state !== s || !freshRow?.items?.length) continue;
+            const prevIds = (slot.data.items || []).map(i => i.Id).join(',');
+            const nextIds = freshRow.items.map(i => i.Id).join(',');
+            slot.data = freshRow;
+            if (prevIds !== nextIds) {
+              if (slot.live) fillSlot(slot, s);
+              updatedRecent = true;
+            }
+          } catch {}
+        }
+      }
+      if (updatedRecent) writeBootRows(s);
+      if (s.subpageActive && (s.subpageKey === 'RecentlyAddedMovies' || s.subpageKey === 'RecentlyAddedShows')) {
+        openCategorySubpage(s, s.subpageKey, null, false);
+      }
     }).catch(() => {
       if (state !== s) return;
       s.trackingReady = false;
@@ -1545,8 +1981,9 @@ async function initialize(s) {
       if (!s.loading) s.status.textContent = [...s.warnings].join(' ');
     });
     const saved=savedFeeds.get(s.key);
-    if(saved&&Date.now()-saved.at<30*60000&&saved.config===JSON.stringify(s.config)){restoreFeed(s,saved);s.status.textContent=[...s.warnings].join(' ');}
+    if(saved&&Date.now()-saved.at<30*60000&&saved.config===finalCfgStr){restoreFeed(s,saved);s.status.textContent=[...s.warnings].join(' ');}
     else{preparePlanner(s);filterPanel(s);s.status.textContent='';s.initialHydrateSkip=true;await loadMore(s);}
+    if (s.route.cat) syncCategorySubpage(s, s.route.cat);
     await trackingTask;
   } catch {
     if (state !== s) return;
@@ -2009,10 +2446,25 @@ function locate(route) {
   }
   return null;
 }
+function guardMicroLogos() {
+  for (const img of document.querySelectorAll('.sleekfin-hero img[src*="/Images/Logo"], #itemDetailPage img[src*="/Images/Logo"]')) {
+    if (img._fxLogoGuarded) continue;
+    img._fxLogoGuarded = true;
+    const check = () => {
+      if (img.complete && img.naturalWidth > 0 && (img.naturalWidth < 180 || img.naturalHeight < 30)) {
+        img.style.display = 'none';
+        img.dispatchEvent(new Event('error'));
+      }
+    };
+    if (img.complete) check();
+    else img.addEventListener('load', check, { once: true });
+  }
+}
 function cleanup(preserve=true) {
   generation++;
   if(selectHold){clearTimeout(selectHold.timer);selectHold=null;}
   closeDialog();
+  document.documentElement?.removeAttribute?.('data-fx-subpage');
   if (!state) return;
   if(preserve)saveFeed(state);
   clearTimeout(state.filterTimer);
@@ -2038,6 +2490,7 @@ function reconcile() {
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(api);
   syncHomeModeAttr(api);
+  guardMicroLogos();
   if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
@@ -2046,20 +2499,27 @@ function reconcile() {
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
-  if (state?.key === key && state.root.isConnected && state.page === target.page && state.native === target.native) {
+  if (state?.key === key && state.root.isConnected && state.page === target.page) {
+    if (state.native !== target.native) {
+      state.native = target.native;
+    }
+    state.route = route;
     const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
     const titlePicker = state.root.querySelector('.fx-title-picker');
-    if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+    if (titlePicker && !state.subpageActive) titlePicker.hidden = hasHeaderViewMenu;
     state.root.hidden = !!(state.full && state.route.page !== 'home' && hasHeaderViewMenu && !state.failed);
     if(!state.full && !state.failed)syncNative(state,true);
+    syncCategorySubpage(state, route.cat || '');
     decorateNative(state);
     return;
   }
   cleanup();
   const token = generation;
+  const nowDate = new Date();
+  const initialDay = dayInZone(nowDate, DEFAULT_CONFIG?.timeZone || 'America/Los_Angeles');
   const root = element('div', 'fx-discovery'), toolbar = element('div', 'fx-toolbar'), list = element('div'), status = element('p', 'fx-status'), footer = element('div', 'fx-footer'), panel=element('div','fx-filters'),matchCount=element('p','fx-match-count');panel.hidden=true;
   status.setAttribute('role', 'status');
-  const s = { ...target, api, scope, key, route, root, list, status, footer, panel, matchCount,token, now: new Date(), slots: [], badges: new Map(), tracking:readTrackingCache(scope),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, shuffle: hash(String(Date.now())) };
+  const s = { ...target, api, scope, key, route, root, toolbar, list, status, footer, panel, matchCount,token, now: nowDate, slots: [], badges: new Map(), tracking:readTrackingCache(scope),filters:cloneJson(DEFAULT_FILTERS),warnings: new Set(), anchorIndex: 0, anchorTurn: true, started: false, loading: false, full: false, failed: false, subpageActive: false, subpageKey: '', savedSubpageScroll: 0, shuffle: getSessionShuffle(scope, route.page, initialDay) };
   s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
   s.toggle = button(route.page === 'home' ? 'Normal home' : 'Full library', () => setMode(s, !s.full));
   s.more = button('Load more', () => { s.pauseAutomatic = false; loadMore(s); });
@@ -2213,11 +2673,12 @@ function navSuggestions(event){
   if(/^#!?\/?(movies|tv|tvshows)(?:\.html)?(?:[?]|$)/i.test(normalized)){
     const [path,raw='']=normalized.split('?'),q=new URLSearchParams(raw);
     q.set('tab','1');
+    q.delete('fxCat');
     event.preventDefault();event.stopImmediatePropagation?.();event.stopPropagation();
     closeDrawers();
     scrollToTop();
     location.hash=path+'?'+q;
-    schedule();
+    reconcile();
     setTimeout(closeDrawers,40);
     return;
   }
@@ -2226,7 +2687,7 @@ function navSuggestions(event){
     closeDrawers();
     scrollToTop();
     location.hash=normalized;
-    schedule();
+    reconcile();
     setTimeout(closeDrawers,40);
   }
 }
@@ -2261,6 +2722,12 @@ function remoteKey(event) {
         event.preventDefault();event.stopPropagation();if(ranked.length)focusNode(ranked[0].node);
       }
     }
+    return;
+  }
+  if (s && s.subpageActive && (key === 'Escape' || event.keyCode === 10009)) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeCategorySubpage(s, true);
     return;
   }
   if(!s||s.full||!controlsMode(s).tv||!s.root.isConnected||document.fullscreenElement||target?.matches?.('input,select,textarea,[contenteditable="true"]'))return;
@@ -2592,7 +3059,7 @@ function onRouteEvent() {
   releaseOsdSpeedHold();
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(window.ApiClient);
-  schedule();
+  reconcile();
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
@@ -2636,6 +3103,7 @@ window.FazFortDiscovery = {
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
+    document.documentElement?.removeAttribute?.('data-fx-subpage');
     document.removeEventListener('click', onOsdSuppressClick, true);
     document.removeEventListener('dblclick', onOsdDblClick, true);
     document.removeEventListener('contextmenu', onOsdContextMenu, true);

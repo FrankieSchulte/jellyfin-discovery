@@ -36,7 +36,7 @@ public static class ShelfEngine
         new() { Key="time", Title="Time Gets Weird", Types=["Movie","Series"], TagsAny=["time travel"] },
         new() { Key="comfort", Title="Comfort Watches", Types=["Movie","Series"], TagsAny=["comforting","lighthearted"] },
         new() { Key="halloween", Title="Halloween Movies", TagsAny=["halloween"], Months=[10] },
-        new() { Key="christmas", Title="Christmas Movies", TagsAny=["christmas"], Months=[12] }
+        new() { Key="christmas", Title="Christmas Movies", TagsAny=["christmas","christmas eve","christmas party","christmas tree","santa claus","saving christmas"], Months=[11, 12] }
     }, JsonOptions);
 
     public static List<ShelfRule> Parse(string json)

@@ -10,12 +10,13 @@ Candidate Make(int n,string type="Movie",string[]? genres=null,string[]? tags=nu
  new(new Guid(n,0,0,new byte[8]),type,genres??["Comedy","Action","Fantasy"],tags??["halloween","christmas","anime","time travel","based on video game","comforting"],rating,ticks,played);
 var items=Enumerable.Range(1,200).Select(n=>Make(n)).ToArray();
 Dictionary<string,Guid[]> Plan(DateOnly day,Guid? u=null)=>ShelfEngine.Plan(rules,items,u??user,day,4,12,4,false);
-var oct=Plan(new(2026,10,31));var nov=Plan(new(2026,11,1));var dec=Plan(new(2026,12,1));var jan=Plan(new(2027,1,1));
+var sep=Plan(new(2026,9,15));var oct=Plan(new(2026,10,31));var nov=Plan(new(2026,11,1));var dec=Plan(new(2026,12,1));var jan=Plan(new(2027,1,1));
+Check(!sep.ContainsKey("halloween")&&!sep.ContainsKey("christmas"),"September seasonal shelves absent");
 Check(oct.ContainsKey("halloween")&&!oct.ContainsKey("christmas"),"October Halloween only");
-Check(!nov.ContainsKey("halloween")&&!nov.ContainsKey("christmas"),"November seasonal shelves absent");
+Check(nov.ContainsKey("christmas")&&!nov.ContainsKey("halloween"),"November Christmas active");
 Check(dec.ContainsKey("christmas")&&!dec.ContainsKey("halloween"),"December Christmas only");
 Check(!jan.ContainsKey("christmas"),"January Christmas absent");
-Check(oct.Count==5&&nov.Count==4,"seasonal shelf adds to daily count");
+Check(oct.Count==5&&nov.Count==5&&sep.Count==4,"seasonal shelf adds to daily count");
 Check(oct.Values.SelectMany(x=>x).Distinct().Count()==oct.Values.Sum(x=>x.Length),"no duplicate titles across custom shelves");
 Check(JsonSerializer.Serialize(oct)==JsonSerializer.Serialize(Plan(new(2026,10,31))),"same day requests stay stable");
 Check(JsonSerializer.Serialize(oct)!=JsonSerializer.Serialize(Plan(new(2026,10,30))),"daily plan changes");
