@@ -30,8 +30,13 @@ public sealed class Registration(ILogger<Registration> logger) : IHostedService
             Plugin.Instance.Configuration.Validate();
             var assembly = AssemblyLoadContext.All.SelectMany(c => c.Assemblies)
                 .FirstOrDefault(a => a.GetName().Name == "Jellyfin.Plugin.HomeScreenSections");
-            var register = assembly?.GetType("Jellyfin.Plugin.HomeScreenSections.PluginInterface")?.GetMethod("RegisterSection");
-            if (register is null) throw new InvalidOperationException("Home Screen Sections is missing or incompatible.");
+            if (assembly is null)
+            {
+                logger.LogInformation("Home Screen Sections is not installed; Discovery will run in standalone browser mode.");
+                return Task.CompletedTask;
+            }
+            var register = assembly.GetType("Jellyfin.Plugin.HomeScreenSections.PluginInterface")?.GetMethod("RegisterSection");
+            if (register is null) throw new InvalidOperationException("Home Screen Sections is incompatible.");
             foreach (ShelfRule rule in ShelfEngine.Parse(Plugin.Instance.Configuration.RulesJson))
             {
                 register.Invoke(null, [JObject.FromObject(new

@@ -1199,9 +1199,41 @@ test('v0.5.11 fixes playback Back tap vs swipe lock, Frame-0 Settings/Subtitles 
   assert.equal(bigSwipe.defaultPrevented, true, 'vertical swipe > 14px must be blocked');
 
   osd.dispatchEvent(mkTouch('touchstart', osd, 200, 300));
+  const videoTapJitter = mkTouch('touchmove', osd, 203, 304);
+  osd.dispatchEvent(videoTapJitter);
+  assert.equal(videoTapJitter.defaultPrevented, false, 'small tap jitter on video canvas must allow single-tap OSD toggle');
   const videoSwipe = mkTouch('touchmove', osd, 200, 260);
   osd.dispatchEvent(videoSwipe);
   assert.equal(videoSwipe.defaultPrevented, true, 'vertical swipe on video canvas must be blocked');
+
+  // 5. v0.5.12 stacking order keeps .videoPlayerContainer beneath #videoOsdPage without trapping .mainAnimatedPages
+  assert.equal(styleText.includes('html[data-fx-video-osd="true"] .mainAnimatedPages'), false);
+  assert.ok(styleText.includes('html[data-fx-video-osd="true"] .videoPlayerContainer{\n  position:fixed!important;\n  inset:0!important;\n  z-index:0!important;'));
+  assert.ok(styleText.includes('#videoOsdPage:not(.hide):not(.hidePage):not([hidden]){\n  position:fixed!important;\n  inset:0!important;\n  z-index:10!important;'));
+
+  // 6. Structural webpack patch survives module ID renumbering (Jellyfin 10.12+ resilience)
+  const renumberedViews = [
+    { path: '/movies', views: [{ index: 0, label: 'Movies', view: 'movies' }] },
+    { path: '/tv', views: [{ index: 0, label: 'Shows', view: 'series' }] }
+  ];
+  const renumberedMap = {
+    movies: { 0: { collectionType: 'movies', isBtnPlayAllEnabled: true, isAlphabetPickerEnabled: true } },
+    tvshows: { 0: { collectionType: 'tvshows', isBtnPlayAllEnabled: true, isAlphabetPickerEnabled: true } }
+  };
+  const fakeReq = Object.assign(() => ({}), {
+    m: {},
+    c: {
+      99901: { exports: { viewsList: renumberedViews } },
+      99902: { exports: { configMap: renumberedMap } }
+    }
+  });
+  f.ctx.window._fxWebpackReq = fakeReq;
+  f.navigate('#/movies?tab=1');
+  await f.settle();
+  assert.equal(renumberedViews[0].views[0].label, 'Movies');
+  assert.equal(renumberedViews[0].views[1].label, 'Library');
+  assert.equal(renumberedMap.movies[0].isBtnPlayAllEnabled, false);
+  assert.equal(renumberedMap.movies[0].isAlphabetPickerEnabled, false);
 
   f.ctx.window.FazFortDiscovery.stop();
 });

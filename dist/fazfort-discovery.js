@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.11 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.12 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -4264,11 +4264,9 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Lock Video Playback (#videoOsdPage) in Place, Guarantee Easy Back Button Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
+/* Lock Video Playback (#videoOsdPage) in Place Without Trapping Stacking Context, Guarantee Easy Back/OSD Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
 html[data-fx-video-osd="true"],
-html[data-fx-video-osd="true"] body,
-html[data-fx-video-osd="true"] .skinBody,
-html[data-fx-video-osd="true"] .mainAnimatedPages{
+html[data-fx-video-osd="true"] body{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -4278,23 +4276,36 @@ html[data-fx-video-osd="true"] .mainAnimatedPages{
   overscroll-behavior:none!important;
   touch-action:none!important;
 }
-#videoOsdPage:not(.hide):not(.hidePage):not([hidden]),
 html[data-fx-video-osd="true"] .videoPlayerContainer{
   position:fixed!important;
   inset:0!important;
+  z-index:0!important;
   width:100%!important;
   height:100%!important;
   max-height:100dvh!important;
   overflow:hidden!important;
   overscroll-behavior:none!important;
   touch-action:none!important;
+  pointer-events:none!important;
+}
+#videoOsdPage:not(.hide):not(.hidePage):not([hidden]){
+  position:fixed!important;
+  inset:0!important;
+  z-index:10!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  pointer-events:auto!important;
   -webkit-user-select:none!important;
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
-/* Ensure top playback header & Back button always sit cleanly above video canvas with generous safe-area tap target */
+/* Ensure top playback header & Back button always sit cleanly above #videoOsdPage (10) and below .dialogContainer (999999) with generous safe-area tap target */
 html[data-fx-video-osd="true"] .skinHeader{
-  z-index:100010!important;
+  z-index:999!important;
   padding-top:env(safe-area-inset-top,0px)!important;
   padding-left:env(safe-area-inset-left,0px)!important;
   padding-right:env(safe-area-inset-right,0px)!important;
@@ -6573,7 +6584,7 @@ button.fx-livetv-tab.is-active{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.11";
+      const VERSION = "0.5.12";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -7633,37 +7644,71 @@ button.fx-livetv-tab.is-active{
           });
         }
       }
+      function findWebpackExports(req, fastId, matcher) {
+        var _a2, _b2;
+        if (fastId !== null && ((_a2 = req.m) == null ? void 0 : _a2[fastId])) {
+          try {
+            const mod = req(fastId);
+            const hit = matcher(mod);
+            if (hit) return hit;
+          } catch {
+          }
+        }
+        const cache = req.c;
+        if (!cache || typeof cache !== "object") return null;
+        for (const id of Object.keys(cache)) {
+          const exp = (_b2 = cache[id]) == null ? void 0 : _b2.exports;
+          if (!exp || typeof exp !== "object") continue;
+          try {
+            const hit = matcher(exp);
+            if (hit) return hit;
+          } catch {
+          }
+        }
+        return null;
+      }
       function applyWebpackViewPatch(req) {
         var _a2;
-        if (!(req == null ? void 0 : req.m)) return;
+        if (!(req == null ? void 0 : req.m) && !(req == null ? void 0 : req.c)) return;
         try {
-          if (req.m[57826]) {
-            const modViews = req(57826);
-            const list = modViews == null ? void 0 : modViews.u;
-            if (Array.isArray(list)) {
-              const moviesEntry = list.find((x) => (x == null ? void 0 : x.path) === "/movies");
-              if (moviesEntry) {
-                moviesEntry.views = [
-                  { index: 1, label: "Movies", view: "suggestions", isDefault: true },
-                  { index: 0, label: "Library", view: "movies" },
-                  { index: 2, label: "Favorites", view: "favorites" },
-                  { index: 4, label: "Genres", view: "genres" }
-                ];
-              }
-              const tvEntry = list.find((x) => (x == null ? void 0 : x.path) === "/tv");
-              if (tvEntry) {
-                tvEntry.views = [
-                  { index: 1, label: "TV Shows", view: "suggestions", isDefault: true },
-                  { index: 0, label: "Library", view: "series" },
-                  { index: 2, label: "Favorites", view: "favorites" },
-                  { index: 3, label: "Genres", view: "genres" }
-                ];
+          const list = findWebpackExports(req, 57826, (exp) => {
+            for (const v of Object.values(exp)) {
+              if (Array.isArray(v) && v.some((x) => (x == null ? void 0 : x.path) === "/movies" && Array.isArray(x == null ? void 0 : x.views)) && v.some((x) => (x == null ? void 0 : x.path) === "/tv" && Array.isArray(x == null ? void 0 : x.views))) {
+                return v;
               }
             }
+            return null;
+          });
+          if (Array.isArray(list)) {
+            const moviesEntry = list.find((x) => (x == null ? void 0 : x.path) === "/movies");
+            if (moviesEntry) {
+              moviesEntry.views = [
+                { index: 1, label: "Movies", view: "suggestions", isDefault: true },
+                { index: 0, label: "Library", view: "movies" },
+                { index: 2, label: "Favorites", view: "favorites" },
+                { index: 4, label: "Genres", view: "genres" }
+              ];
+            }
+            const tvEntry = list.find((x) => (x == null ? void 0 : x.path) === "/tv");
+            if (tvEntry) {
+              tvEntry.views = [
+                { index: 1, label: "TV Shows", view: "suggestions", isDefault: true },
+                { index: 0, label: "Library", view: "series" },
+                { index: 2, label: "Favorites", view: "favorites" },
+                { index: 3, label: "Genres", view: "genres" }
+              ];
+            }
           }
-          if (req.m[95753]) {
-            const modMap = req(95753);
-            const map = modMap == null ? void 0 : modMap.A;
+          const map = findWebpackExports(req, 95753, (exp) => {
+            var _a3, _b2, _c2, _d2, _e2, _f, _g, _h;
+            for (const v of Object.values(exp)) {
+              if (v && typeof v === "object" && (v.movies && typeof v.movies === "object" || v.tvshows && typeof v.tvshows === "object") && (((_b2 = (_a3 = v.movies) == null ? void 0 : _a3[0]) == null ? void 0 : _b2.collectionType) === "movies" || ((_d2 = (_c2 = v.movies) == null ? void 0 : _c2[1]) == null ? void 0 : _d2.viewType) === "suggestions" || ((_f = (_e2 = v.tvshows) == null ? void 0 : _e2[0]) == null ? void 0 : _f.collectionType) === "tvshows" || ((_h = (_g = v.tvshows) == null ? void 0 : _g[1]) == null ? void 0 : _h.viewType) === "suggestions" || Boolean(v.movies && v.tvshows))) {
+                return v;
+              }
+            }
+            return null;
+          });
+          if (map) {
             if (map == null ? void 0 : map.movies) {
               const emptySuggestions = { suggestionSections: [], isMovieRecommendations: false };
               map.movies[1] = {
@@ -7858,7 +7903,10 @@ button.fx-livetv-tab.is-active{
       }
       function patchLibraryViews() {
         const chunks = window.webpackChunk;
-        if (!chunks || typeof chunks.push !== "function") return;
+        if (!chunks || typeof chunks.push !== "function") {
+          if (window._fxWebpackReq) applyWebpackViewPatch(window._fxWebpackReq);
+          return;
+        }
         try {
           if (!chunks._fxHooked) {
             chunks.push([["fx-discovery-views-" + Date.now()], {}, (req) => {
@@ -11085,7 +11133,7 @@ button.fx-livetv-tab.is-active{
             if (dist > 14 && event.cancelable) {
               event.preventDefault();
             }
-          } else if (event.cancelable) {
+          } else if (dist > 10 && event.cancelable) {
             event.preventDefault();
           }
         }

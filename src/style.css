@@ -2278,11 +2278,9 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Lock Video Playback (#videoOsdPage) in Place, Guarantee Easy Back Button Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
+/* Lock Video Playback (#videoOsdPage) in Place Without Trapping Stacking Context, Guarantee Easy Back/OSD Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
 html[data-fx-video-osd="true"],
-html[data-fx-video-osd="true"] body,
-html[data-fx-video-osd="true"] .skinBody,
-html[data-fx-video-osd="true"] .mainAnimatedPages{
+html[data-fx-video-osd="true"] body{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -2292,23 +2290,36 @@ html[data-fx-video-osd="true"] .mainAnimatedPages{
   overscroll-behavior:none!important;
   touch-action:none!important;
 }
-#videoOsdPage:not(.hide):not(.hidePage):not([hidden]),
 html[data-fx-video-osd="true"] .videoPlayerContainer{
   position:fixed!important;
   inset:0!important;
+  z-index:0!important;
   width:100%!important;
   height:100%!important;
   max-height:100dvh!important;
   overflow:hidden!important;
   overscroll-behavior:none!important;
   touch-action:none!important;
+  pointer-events:none!important;
+}
+#videoOsdPage:not(.hide):not(.hidePage):not([hidden]){
+  position:fixed!important;
+  inset:0!important;
+  z-index:10!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+  pointer-events:auto!important;
   -webkit-user-select:none!important;
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
-/* Ensure top playback header & Back button always sit cleanly above video canvas with generous safe-area tap target */
+/* Ensure top playback header & Back button always sit cleanly above #videoOsdPage (10) and below .dialogContainer (999999) with generous safe-area tap target */
 html[data-fx-video-osd="true"] .skinHeader{
-  z-index:100010!important;
+  z-index:999!important;
   padding-top:env(safe-area-inset-top,0px)!important;
   padding-left:env(safe-area-inset-left,0px)!important;
   padding-right:env(safe-area-inset-right,0px)!important;

@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.11';
+const VERSION = '0.5.12';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -994,36 +994,72 @@ function syncSearchPage(api = window.ApiClient) {
     });
   }
 }
+function findWebpackExports(req, fastId, matcher) {
+  if (fastId !== null && req.m?.[fastId]) {
+    try {
+      const mod = req(fastId);
+      const hit = matcher(mod);
+      if (hit) return hit;
+    } catch {}
+  }
+  const cache = req.c;
+  if (!cache || typeof cache !== 'object') return null;
+  for (const id of Object.keys(cache)) {
+    const exp = cache[id]?.exports;
+    if (!exp || typeof exp !== 'object') continue;
+    try {
+      const hit = matcher(exp);
+      if (hit) return hit;
+    } catch {}
+  }
+  return null;
+}
 function applyWebpackViewPatch(req) {
-  if (!req?.m) return;
+  if (!req?.m && !req?.c) return;
   try {
-    if (req.m[57826]) {
-      const modViews = req(57826);
-      const list = modViews?.u;
-      if (Array.isArray(list)) {
-        const moviesEntry = list.find(x => x?.path === '/movies');
-        if (moviesEntry) {
-          moviesEntry.views = [
-            { index: 1, label: 'Movies', view: 'suggestions', isDefault: true },
-            { index: 0, label: 'Library', view: 'movies' },
-            { index: 2, label: 'Favorites', view: 'favorites' },
-            { index: 4, label: 'Genres', view: 'genres' }
-          ];
-        }
-        const tvEntry = list.find(x => x?.path === '/tv');
-        if (tvEntry) {
-          tvEntry.views = [
-            { index: 1, label: 'TV Shows', view: 'suggestions', isDefault: true },
-            { index: 0, label: 'Library', view: 'series' },
-            { index: 2, label: 'Favorites', view: 'favorites' },
-            { index: 3, label: 'Genres', view: 'genres' }
-          ];
+    const list = findWebpackExports(req, 57826, exp => {
+      for (const v of Object.values(exp)) {
+        if (Array.isArray(v) && v.some(x => x?.path === '/movies' && Array.isArray(x?.views)) && v.some(x => x?.path === '/tv' && Array.isArray(x?.views))) {
+          return v;
         }
       }
+      return null;
+    });
+    if (Array.isArray(list)) {
+      const moviesEntry = list.find(x => x?.path === '/movies');
+      if (moviesEntry) {
+        moviesEntry.views = [
+          { index: 1, label: 'Movies', view: 'suggestions', isDefault: true },
+          { index: 0, label: 'Library', view: 'movies' },
+          { index: 2, label: 'Favorites', view: 'favorites' },
+          { index: 4, label: 'Genres', view: 'genres' }
+        ];
+      }
+      const tvEntry = list.find(x => x?.path === '/tv');
+      if (tvEntry) {
+        tvEntry.views = [
+          { index: 1, label: 'TV Shows', view: 'suggestions', isDefault: true },
+          { index: 0, label: 'Library', view: 'series' },
+          { index: 2, label: 'Favorites', view: 'favorites' },
+          { index: 3, label: 'Genres', view: 'genres' }
+        ];
+      }
     }
-    if (req.m[95753]) {
-      const modMap = req(95753);
-      const map = modMap?.A;
+    const map = findWebpackExports(req, 95753, exp => {
+      for (const v of Object.values(exp)) {
+        if (v && typeof v === 'object' && ((v.movies && typeof v.movies === 'object') || (v.tvshows && typeof v.tvshows === 'object')) && (
+          v.movies?.[0]?.collectionType === 'movies' ||
+          v.movies?.[1]?.viewType === 'suggestions' ||
+          v.tvshows?.[0]?.collectionType === 'tvshows' ||
+          v.tvshows?.[1]?.viewType === 'suggestions' ||
+          Boolean(v.movies && v.tvshows)
+        )) {
+          return v;
+        }
+      }
+      return null;
+    });
+    if (map) {
       if (map?.movies) {
         const emptySuggestions = { suggestionSections: [], isMovieRecommendations: false };
         map.movies[1] = {
@@ -1201,7 +1237,10 @@ function applyWebpackViewPatch(req) {
 }
 function patchLibraryViews() {
   const chunks = window.webpackChunk;
-  if (!chunks || typeof chunks.push !== 'function') return;
+  if (!chunks || typeof chunks.push !== 'function') {
+    if (window._fxWebpackReq) applyWebpackViewPatch(window._fxWebpackReq);
+    return;
+  }
   try {
     if (!chunks._fxHooked) {
       chunks.push([['fx-discovery-views-' + Date.now()], {}, req => {
@@ -3888,7 +3927,8 @@ function onOsdTouchMove(event) {
       if (dist > 14 && event.cancelable) {
         event.preventDefault();
       }
-    } else if (event.cancelable) {
+    } else if (dist > 10 && event.cancelable) {
+      // Allow <=10px tap jitter on video canvas so single-tap opens/closes OSD cleanly, while blocking vertical swipes
       event.preventDefault();
     }
   }
