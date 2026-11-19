@@ -855,7 +855,7 @@
       }
     }
     function ensureNavigation(active) {
-      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m;
       if (permAllowed !== true) {
         removeNavigation();
         return;
@@ -898,9 +898,12 @@
           }
         }
       }
-      const isMobileHeader = Boolean((_g = (_f = window.matchMedia) == null ? void 0 : _f.call(window, "(max-width: 899px)")) == null ? void 0 : _g.matches);
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
+      const overflowToggle = (_f = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _f.call(proxy, "[data-sleekfin-header-overflow-toggle]");
+      const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
+      const isPhoneHeader = Boolean((_h = (_g = window.matchMedia) == null ? void 0 : _g.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _h.matches);
+      const isMobileHeader = Boolean(isPhoneHeader || overflowActive && ((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(max-width: 899px)")) == null ? void 0 : _j.matches));
       const ensureBeforeCollectionsOrLiveTv = (host, discoverNode, itemsSelector) => {
         if (!host || !discoverNode || discoverNode.parentElement !== host) return;
         const siblings = [...host.querySelectorAll(itemsSelector)];
@@ -980,7 +983,7 @@
             }
           }
         } else {
-          (_i = (_h = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _h.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _i.forEach((n) => n.remove());
+          (_l = (_k = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _k.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _l.forEach((n) => n.remove());
           if (nativeProxyBtn) {
             proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
             upgradeNativeDiscoverIcon(nativeProxyBtn);
@@ -993,7 +996,7 @@
             btn.dataset.rhLink = "true";
             btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
             btn.dataset.sleekfinHeaderZone = "tabs";
-            btn.dataset.sleekfinHeaderDisplay = ((_j = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _j.sleekfinHeaderDisplay) || "both";
+            btn.dataset.sleekfinHeaderDisplay = ((_m = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _m.sleekfinHeaderDisplay) || "both";
             btn.title = "Discover";
             btn.setAttribute("aria-label", "Discover");
             const vis = el("span", "");
@@ -1942,10 +1945,10 @@ a.rh-nav[aria-current=page]{
       }
       if (records.some((r) => {
         var _a2, _b2;
-        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage"));
+        return !((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu"));
       })) {
         clearTimeout(timer);
-        timer = setTimeout(reconcile, 80);
+        timer = setTimeout(reconcile, 120);
       }
     });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
@@ -1959,7 +1962,7 @@ a.rh-nav[aria-current=page]{
     (_c = document.addEventListener) == null ? void 0 : _c.call(document, "viewshow", reconcile);
     (_d = document.addEventListener) == null ? void 0 : _d.call(document, "pageshow", reconcile);
     (_e = document.addEventListener) == null ? void 0 : _e.call(document, "keydown", handleRemoteKey, true);
-    const heartbeat = setInterval(reconcile, 1500);
+    const heartbeat = setInterval(reconcile, 3e3);
     window.JellyfinRequestHub = {
       stop() {
         var _a2, _b2, _c2;

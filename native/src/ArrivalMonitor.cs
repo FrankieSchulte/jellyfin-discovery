@@ -19,7 +19,7 @@ public sealed class ArrivalMonitor(ILibraryManager library, DiscoveryStore store
         try
         {
             store.Initialize();
-            store.Apply(Scan(), DateTimeOffset.UtcNow);
+            store.Apply(Scan(), DateTimeOffset.UtcNow, fullScan: true);
             library.ItemAdded += OnAdded;
             logger.LogInformation("FazFort arrival baseline ready. Subsequent playable additions will be recorded.");
             int ticks = 0;
@@ -29,8 +29,9 @@ public sealed class ArrivalMonitor(ILibraryManager library, DiscoveryStore store
                 var batch = new List<Observation>();
                 while (queue.TryDequeue(out var item)) batch.Add(item);
                 // Reconciliation catches missed events and items whose playable metadata arrives later.
-                if (++ticks % 12 == 0) batch.AddRange(Scan());
-                if (batch.Count > 0) store.Apply(batch, DateTimeOffset.UtcNow);
+                bool isFullScan = ++ticks % 12 == 0;
+                if (isFullScan) batch.AddRange(Scan());
+                if (batch.Count > 0) store.Apply(batch, DateTimeOffset.UtcNow, fullScan: isFullScan);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
@@ -69,8 +70,11 @@ public sealed class ArrivalMonitor(ILibraryManager library, DiscoveryStore store
         DateTimeOffset? createdAt = item.DateCreated.Year > 1970
             ? new DateTimeOffset(DateTime.SpecifyKind(item.DateCreated, DateTimeKind.Utc))
             : null;
+        DateTimeOffset? premiereDate = item.PremiereDate is { Year: > 1970 } prem
+            ? new DateTimeOffset(DateTime.SpecifyKind(prem, DateTimeKind.Utc))
+            : null;
         return item is Episode episode
-            ? new(item.Id, type, playable, episode.SeriesId, episode.ParentIndexNumber ?? 0, createdAt)
-            : new(item.Id, type, playable, default, 0, createdAt);
+            ? new(item.Id, type, playable, episode.SeriesId, episode.ParentIndexNumber ?? 0, createdAt, premiereDate)
+            : new(item.Id, type, playable, default, 0, createdAt, premiereDate);
     }
 }

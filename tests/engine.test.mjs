@@ -23,14 +23,13 @@ test('seven-day recent badge boundary and monthAgo helper', () => {
   assert.ok(!recent('2026-11-05',now));
   assert.ok(!recent(undefined,now));
 });
-test('new season ignores episodes, first seasons, specials and seasons older than 7 days', () => {
-  const seasons=[{Id:'s',Type:'Season',SeriesId:'good',IndexNumber:2,DateCreated:'2026-10-30'},
-    {Type:'Episode',SeriesId:'episode',IndexNumber:2,DateCreated:'2026-10-30'},
-    {Type:'Season',SeriesId:'first',IndexNumber:1,DateCreated:'2026-10-30'},
-    {Type:'Season',SeriesId:'special',IndexNumber:0,DateCreated:'2026-10-30'},
-    {Type:'Season',SeriesId:'old',IndexNumber:2,DateCreated:'2026-10-15'}];
+test('new episodes uses 30-day premiere window and Recently Added is movies only', () => {
+  const seasons=[{Id:'s',Type:'Season',SeriesId:'good',IndexNumber:2,PremiereDate:'2026-10-20'},
+    {Type:'Episode',SeriesId:'episode',IndexNumber:2,PremiereDate:'2026-10-30'},
+    {Type:'Season',SeriesId:'old',IndexNumber:2,PremiereDate:'2026-09-15'}];
   const map=seasonBadges(seasons,now);assert.deepEqual([...map.keys()],['good']);
-  assert.equal(badgeFor({Id:'good',Type:'Series',DateCreated:'2026-11-01'},map,now),'New Season');
+  assert.equal(badgeFor({Id:'good',Type:'Series',DateCreated:'2026-11-01'},map,now),'New Episodes');
+  assert.equal(badgeFor({Id:'otherShow',Type:'Series',DateCreated:'2026-11-01'},map,now),'');
   assert.equal(badgeFor({Id:'other',Type:'Movie',DateCreated:'2026-10-30'},map,now),'Recently Added');
   assert.equal(badgeFor({Id:'older',Type:'Movie',DateCreated:'2026-10-15'},map,now),'');
 });

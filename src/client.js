@@ -56,7 +56,7 @@ export class JellyfinClient {
       const map = result.Records ?? result.records ?? {};
       for (const item of items.slice(offset, offset + 200)) {
         const r = map[item.Id] || map[item.Id.replace(/-/g, '').toLowerCase()];
-        if (r) records.set(item.Id, { AddedAt: r.AddedAt ?? r.addedAt, NewSeasonAt: r.NewSeasonAt ?? r.newSeasonAt });
+        if (r) records.set(item.Id, { AddedAt: r.AddedAt ?? r.addedAt, NewSeasonAt: r.NewSeasonAt ?? r.newSeasonAt, NewEpisodesAt: r.NewEpisodesAt ?? r.newEpisodesAt });
       }
       if (!items.length) break;
     }

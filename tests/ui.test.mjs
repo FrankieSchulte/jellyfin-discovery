@@ -8,7 +8,7 @@ const id=n=>n.toString(16).padStart(32,'0');
 const fixtureItems=Array.from({length:45},(_,n)=>({Id:id(n+1),Name:`Movie ${n}`,Type:n%3?'Movie':'Series',DateCreated:new Date().toISOString(),ProductionYear:2000+n%20,Genres:['Action','Adventure','Comedy'],Tags:['space','superhero','anime','based on video game'],CommunityRating:8,ImageTags:{Primary:'primary'},BackdropImageTags:['bg'],People:[{Name:'Director '+n%3,Type:'Director'},{Name:'Actor '+n%4,Type:'Actor'}],UserData:{}}));
 function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   const saves=[];
-  const {window,document}=parseHTML('<html><head></head><body><div id="indexPage" class="page"><div class="hero">Keep hero</div><div class="homeSectionsContainer"><div class="card" data-id="'+id(1)+'"><div class="cardScalable"></div></div></div></div><div id="moviesPage" class="page hide"><div class="pageTabContent" data-index="0"><p>Original movie list</p></div></div><div id="tvshowsPage" class="page hide"><div class="pageTabContent" data-index="0">Original shows</div></div></body></html>');
+  const {window,document}=parseHTML('<html><head></head><body><div id="indexPage" class="page"><div class="hero">Keep hero</div><div class="homeSectionsContainer"><div class="card" data-id="'+id(2)+'"><div class="cardScalable"></div></div></div></div><div id="moviesPage" class="page hide"><div class="pageTabContent" data-index="0"><p>Original movie list</p></div></div><div id="tvshowsPage" class="page hide"><div class="pageTabContent" data-index="0">Original shows</div></div></body></html>');
   let timeouts=[],nextTimerId=1,frames=[],mutation,intersect,requests=0,resolver,focused=document.body;
   const listeners=new Map();
   Object.defineProperty(document,'activeElement',{configurable:true,get:()=>focused});
@@ -447,7 +447,10 @@ test('count chip and curated-tab attributes toggle on curated routes, clear acti
   assert.ok(cssText.includes('padding-block:0!important'));
   assert.ok(cssText.includes('[data-fx-leaving-hidden="true"]'));
   assert.ok(cssText.includes('html[data-fx-hide-count-chip="true"]'));
-  assert.ok(cssText.includes('html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner)'));
+  assert.ok(cssText.includes('html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner'));
+  assert.ok(cssText.includes('html:root .sleekfin-menu-host'));
+  assert.ok(cssText.includes('#filter-popover .sleekfin-menu-popup'));
+  assert.ok(cssText.includes('.fx-subpage-back-top'));
   assert.ok(cssText.includes('html[data-fx-curated-tab="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu)'));
 
   const spinner=f.document.createElement('div');
@@ -560,6 +563,14 @@ test('Settings consolidates Customize Home inside Settings -> Home, styles Displ
   assert.ok(mobileSearchBtn.querySelector('svg'));
   mobileSearchBtn.click();
   assert.equal(f.location.hash,'#/search');
+
+  // When native SleekFin search button is visible in the top bar (e.g. half-screen desktop), never duplicate search icon
+  const nativeSearchBtn=f.document.createElement('button');
+  nativeSearchBtn.setAttribute('data-sleekfin-header-proxy-item','jellyfin:search');
+  proxy.insertBefore(nativeSearchBtn,overflowToggle);
+  f.navigate('#/home');await f.settle();
+  assert.equal(proxy.querySelector('[data-fx-mobile-search="true"]'),null);
+  nativeSearchBtn.remove();
 
   const overflowSettings=drawer.querySelector('[data-fx-overflow-settings="true"]');
   assert.ok(overflowSettings);
@@ -713,20 +724,42 @@ test('category subpages open all matching items on heading click, unified search
 
   const themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
   assert.ok(themeShelf);
+  const shelfKey=themeShelf.dataset.shelfKey;
   const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
   assert.ok(heading);
+  const expectedTitle=heading.textContent;
   heading.click();
   await f.settle();
   const subpage=mountedRoot.querySelector('.fx-subpage');
   assert.ok(subpage);
   assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),'true');
   assert.ok(f.location.hash.includes('fxCat='));
+  assert.ok(subpage.querySelector('.fx-subpage-back-top'));
+  assert.equal(subpage.querySelector('.fx-subpage-title')?.textContent,expectedTitle);
+  assert.equal(subpage.querySelector('.fx-subpage-end')?.textContent,"You've reached the bottom of the page! Congratulations!");
   const subpageCards=subpage.querySelectorAll('.fx-subpage-grid .fx-card');
   assert.equal(subpageCards.length,30);
-  subpage.querySelector('.fx-subpage-back').click();
+
+  // Navigating to a movie detail page and back to the category subpage keeps parent carousels hidden and resolves real title & items
+  const subpageHash=f.location.hash;
+  f.navigate('#/details?id=m0&serverId=s1');
   await f.settle();
-  assert.equal(mountedRoot.querySelector('.fx-subpage'),null);
+  f.navigate(subpageHash);
+  await f.settle();
+  const returnedRoot=moviesPage.querySelector('.fx-discovery');
+  const returnedSub=returnedRoot.querySelector('.fx-subpage');
+  assert.ok(returnedSub);
+  assert.equal(returnedSub.querySelector('.fx-subpage-title')?.textContent,expectedTitle);
+  assert.equal(returnedSub.querySelectorAll('.fx-subpage-grid .fx-card').length,30);
+  assert.equal(returnedRoot.querySelector('.fx-footer')?.hidden,true);
+  assert.equal(returnedRoot.querySelector('.fx-subpage-back')?.classList.contains('fx-subpage-back-top'),true);
+  assert.equal(returnedSub.dataset.subpageKey,shelfKey);
+
+  returnedSub.querySelector('.fx-subpage-back').click();
+  await f.settle();
+  assert.equal(returnedRoot.querySelector('.fx-subpage'),null);
   assert.equal(f.document.documentElement.getAttribute('data-fx-subpage'),null);
+  assert.equal(returnedRoot.querySelector('.fx-footer button')?.hidden,true);
 
   // 4. Unified #searchPage "Results for "xxx"" library grid ranks title hits first, then tag hits, and skips Episodes
   moviesPage.classList.add('hide');
@@ -748,7 +781,8 @@ test('category subpages open all matching items on heading click, unified search
 
   searchInp.value='space';
   searchInp.dispatchEvent(new f.ctx.document.defaultView.Event('input',{bubbles:true}));
-  f.flushTimeouts(160);
+  f.flushTimeouts(110);
+  f.flushTimeouts(220);
   await f.settle();
   assert.equal(searchPage.getAttribute('data-fx-search-active'),'true');
   const searchLib=searchPage.querySelector('.fx-search-library');
@@ -796,6 +830,7 @@ test('category subpages open all matching items on heading click, unified search
   };
   f.document.body.append(filterPop);
   f.notify();
+  f.frames();
   assert.equal(filterPop.dataset.fxAnchoredOpen,'true');
   assert.equal(tagsAcc.style.display,'none');
   const fromYear=filterPaper.querySelector('.fx-year-from');

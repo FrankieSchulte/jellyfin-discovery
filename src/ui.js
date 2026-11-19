@@ -1,17 +1,17 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.7';
+const VERSION = '0.5.8';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
 window.FazFortHomeFeed?.stop?.();
-let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
+let state = null, generation = 0, observer, timer, heartbeat, stopped = false, popoverFrame = 0;
 const snapshots = new Map();
 const savedFeeds = new Map();
 const loadedImages = new Set();
 const sessionShuffles = new Map();
 let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
 const searchInvListeners = new Set();
-const searchUiState = { query: '', remoteQuery: '', remoteItems: [], remoteTimer: 0, token: 0, lastSignature: '', tracking: null, trackingScope: '' };
+const searchUiState = { query: '', remoteQuery: '', remoteItems: [], remoteTimer: 0, inputTimer: 0, token: 0, lastSignature: '', tracking: null, trackingScope: '', ranked: [], renderedCount: 0, batchIo: null };
 let activeDialog = null, lastScope = '', selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
 const element = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const button = (text, action) => { const b = element('button', '', text); b.type = 'button'; b.addEventListener('click', action); return b; };
@@ -201,7 +201,7 @@ function hasActiveLibraryFilters(filtersObj) {
 }
 function enhanceFilterPopover(popover) {
   if (!popover) return;
-  const props = findFilterPopoverProps(popover);
+  const props = popover._fxFilterProps || findFilterPopoverProps(popover);
   if (props) popover._fxFilterProps = props;
   const paper = popover.querySelector('.MuiPaper-root');
   if (!paper) return;
@@ -375,15 +375,34 @@ function enhanceFilterPopover(popover) {
   }
   syncResetBtnState();
 }
+function setRootAttr(name, active) {
+  const el = document.documentElement;
+  if (!el) return;
+  if (active) {
+    if (el.getAttribute(name) !== 'true') el.setAttribute(name, 'true');
+  } else if (el.hasAttribute(name)) {
+    el.removeAttribute(name);
+  }
+}
+function syncDocumentStateAttrs() {
+  const osd = document.getElementById('videoOsdPage');
+  const osdOpen = Boolean(osd && !osd.classList.contains('hide') && !osd.classList.contains('hidePage') && !osd.hidden);
+  setRootAttr('data-fx-video-osd', osdOpen);
+  const appBar = document.querySelector('header.MuiAppBar-root');
+  const toolbars = appBar ? appBar.querySelectorAll(':scope > .MuiToolbar-root') : null;
+  setRootAttr('data-fx-has-subheader', Boolean(toolbars && toolbars.length >= 2));
+}
 function anchorOpenPopovers() {
   const scrollY = Math.round(window.scrollY ?? window.pageYOffset ?? document.documentElement?.scrollTop ?? 0);
   const scrollX = Math.round(window.scrollX ?? window.pageXOffset ?? document.documentElement?.scrollLeft ?? 0);
+  let hasOpenPopover = false;
   document.querySelectorAll('.MuiPopover-root').forEach(pop => {
     const isHidden = pop.getAttribute('aria-hidden') === 'true' || pop.classList.contains('MuiModal-hidden');
     if (isHidden) {
       delete pop.dataset.fxAnchoredOpen;
       return;
     }
+    hasOpenPopover = true;
     if (pop.dataset.fxAnchoredOpen !== 'true') {
       pop.dataset.fxAnchoredOpen = 'true';
       pop.style?.setProperty?.('--fx-popover-scroll-y', `${scrollY}px`);
@@ -393,6 +412,8 @@ function anchorOpenPopovers() {
       enhanceFilterPopover(pop);
     }
   });
+  const hasOpenDialog = Boolean(document.querySelector('.MuiDialog-root:not([aria-hidden="true"])'));
+  setRootAttr('data-fx-popover-open', hasOpenPopover && !hasOpenDialog);
   document.querySelectorAll('.sleekfin-popup-layer').forEach(layer => {
     if (layer.dataset.fxAnchored !== 'true') {
       layer.dataset.fxAnchored = 'true';
@@ -409,6 +430,17 @@ function anchorOpenPopovers() {
       if (Number.isFinite(rawLeft)) dd.style.left = `${Math.round(rawLeft + scrollX)}px`;
     }
   });
+}
+function schedulePopoverSync() {
+  if (popoverFrame || stopped) return;
+  const run = () => {
+    popoverFrame = 0;
+    if (stopped) return;
+    anchorOpenPopovers();
+    syncDocumentStateAttrs();
+  };
+  if (typeof requestAnimationFrame === 'function') popoverFrame = requestAnimationFrame(run);
+  else popoverFrame = setTimeout(run, 16);
 }
 function ensureSearchTracking(api, invItems) {
   if (!api?.getCurrentUserId?.() || !Array.isArray(invItems) || !invItems.length) return Promise.resolve(new Map());
@@ -437,6 +469,12 @@ function ensureSearchTracking(api, invItems) {
   });
   return searchTrackInflight;
 }
+function disconnectSearchBatchObserver() {
+  if (searchUiState.batchIo) {
+    try { searchUiState.batchIo.disconnect(); } catch {}
+    searchUiState.batchIo = null;
+  }
+}
 function renderSearchLibraryResults(searchPage, api, queryText, inv) {
   if (!searchPage?.isConnected) return;
   let host = searchPage.querySelector('.fx-search-library');
@@ -457,9 +495,10 @@ function renderSearchLibraryResults(searchPage, api, queryText, inv) {
     : (searchUiState.trackingScope === sc && searchUiState.tracking instanceof Map ? searchUiState.tracking : readTrackingCache(sc));
   const nowDate = new Date();
   const badgesMap = inv?.seasons ? seasonBadges(inv.seasons, nowDate) : new Map();
-  const sig = `${sc}:${queryText}:${invItems.length}:${extraItems.length}:${trackingMap.size}:${ranked.map(i => i.Id).join(',')}`;
+  const sig = `${sc}:${queryText}:${invItems.length}:${extraItems.length}:${trackingMap.size}:${ranked.length}:${ranked.slice(0, 24).map(i => i.Id).join(',')}`;
   if (searchUiState.lastSignature === sig && host.querySelector('.fx-search-library-head')) return;
   searchUiState.lastSignature = sig;
+  disconnectSearchBatchObserver();
 
   const head = element('div', 'fx-search-library-head');
   const titleH1 = element('h1', 'fx-search-library-title', `Results for "${queryText}"`);
@@ -485,29 +524,78 @@ function renderSearchLibraryResults(searchPage, api, queryText, inv) {
     slots: []
   };
   const grid = element('div', 'fx-search-library-grid');
-  for (const item of ranked) {
-    grid.append(renderCard(item, cardCtx, false, 'portrait'));
+  const BATCH_SIZE = 48;
+  searchUiState.ranked = ranked;
+  searchUiState.renderedCount = 0;
+  const appendNextBatch = () => {
+    const startIdx = searchUiState.renderedCount;
+    if (startIdx >= ranked.length) return;
+    const endIdx = Math.min(ranked.length, startIdx + BATCH_SIZE);
+    const frag = document.createDocumentFragment();
+    for (let i = startIdx; i < endIdx; i++) {
+      frag.append(renderCard(ranked[i], cardCtx, false, 'portrait'));
+    }
+    grid.append(frag);
+    searchUiState.renderedCount = endIdx;
+    if (endIdx >= ranked.length) {
+      disconnectSearchBatchObserver();
+      sentinel?.remove();
+    }
+  };
+  let sentinel = null;
+  appendNextBatch();
+  if (searchUiState.renderedCount < ranked.length) {
+    sentinel = element('div', 'fx-search-sentinel');
+    sentinel.setAttribute('aria-hidden', 'true');
+    host.replaceChildren(head, grid, sentinel);
+    if (typeof IntersectionObserver === 'function') {
+      searchUiState.batchIo = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting)) appendNextBatch();
+      }, { rootMargin: '600px 0px' });
+      searchUiState.batchIo.observe(sentinel);
+    } else {
+      appendNextBatch();
+    }
+  } else {
+    host.replaceChildren(head, grid);
   }
-  host.replaceChildren(head, grid);
 }
 function syncSearchPage(api = window.ApiClient) {
   const searchPage = document.getElementById('searchPage');
   if (!searchPage || !visible(searchPage) || !api?.getCurrentUserId?.()) {
     clearTimeout(searchUiState.remoteTimer);
+    clearTimeout(searchUiState.inputTimer);
+    disconnectSearchBatchObserver();
     return;
   }
   const inp = searchPage.querySelector('#searchTextInput, input.searchfields-txtSearch, .searchFieldsInner input, input[type="search"], input[type="text"]');
   if (inp && !inp._fxSearchBound) {
     inp._fxSearchBound = true;
-    const onInputChange = () => syncSearchPage(window.ApiClient || api);
-    inp.addEventListener('input', onInputChange);
-    inp.addEventListener('search', onInputChange);
-    inp.addEventListener('change', onInputChange);
+    const onInputDebounced = () => {
+      clearTimeout(searchUiState.inputTimer);
+      const val = String(inp.value || '').trim();
+      if (!val) {
+        syncSearchPage(window.ApiClient || api);
+        return;
+      }
+      searchUiState.inputTimer = setTimeout(() => {
+        syncSearchPage(window.ApiClient || api);
+      }, 110);
+    };
+    const onInputImmediate = () => {
+      clearTimeout(searchUiState.inputTimer);
+      syncSearchPage(window.ApiClient || api);
+    };
+    inp.addEventListener('input', onInputDebounced);
+    inp.addEventListener('search', onInputImmediate);
+    inp.addEventListener('change', onInputImmediate);
   }
   const urlQuery = new URLSearchParams(String(location.hash || '').split('?')[1] || '').get('query') || '';
   const queryText = String(inp ? inp.value : urlQuery).trim();
   if (!queryText) {
     clearTimeout(searchUiState.remoteTimer);
+    clearTimeout(searchUiState.inputTimer);
+    disconnectSearchBatchObserver();
     searchUiState.query = '';
     searchUiState.lastSignature = '';
     searchPage.removeAttribute('data-fx-search-active');
@@ -545,7 +633,7 @@ function syncSearchPage(api = window.ApiClient) {
           searchUiState.remoteItems = Array.isArray(res?.Items) ? res.Items.filter(it => ['Movie', 'Series'].includes(it?.Type) && !isLeavingSoonItem(it)) : [];
           renderSearchLibraryResults(searchPage, api, queryText, snapshots.get(`${sc}:home:`)?.value || null);
         }).catch(() => {});
-      }, 160);
+      }, 220);
     }
   }
   renderSearchLibraryResults(searchPage, api, queryText, cachedSnap);
@@ -919,8 +1007,19 @@ function syncMobileHeaderControls(api = window.ApiClient) {
       proxy.querySelectorAll('[data-fx-mobile-search]').forEach(n => n.remove());
     } else {
       const overflowToggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
+      const nativeSearch = proxy.querySelector('button[data-sleekfin-header-proxy-item="jellyfin:search"]');
+      const nativeSearchVisible = Boolean(
+        nativeSearch &&
+        nativeSearch.getAttribute('data-sleekfin-header-overflowed') !== 'true' &&
+        nativeSearch.style.display !== 'none'
+      );
+      const overflowHidden = !overflowToggle || overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden') === 'true';
+      const isPhoneHeader = Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
+      const needMobileSearch = Boolean(overflowToggle && !nativeSearchVisible && (!overflowHidden || isPhoneHeader));
       let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
-      if (overflowToggle) {
+      if (!needMobileSearch) {
+        if (mobileSearchBtn) mobileSearchBtn.remove();
+      } else {
         let createdSearch = false;
         if (!mobileSearchBtn) {
           mobileSearchBtn = element('button', 'fx-mobile-search-btn');
@@ -1452,6 +1551,7 @@ function closeCategorySubpage(s = state, updateUrl = true) {
   if (s.toolbar) s.toolbar.hidden = s.route?.page === 'home';
   s.list.hidden = !!s.full;
   s.footer.hidden = !!(s.full || (!s.slots.length && !s.finished));
+  s.more.hidden = !s.pauseAutomatic;
   s.matchCount.hidden = !!s.full;
   const savedScroll = s.savedSubpageScroll || 0;
   s.savedSubpageScroll = 0;
@@ -1462,6 +1562,38 @@ function closeCategorySubpage(s = state, updateUrl = true) {
     virtualize(s);
   });
 }
+const SUBPAGE_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>';
+function resolveCategoryShelf(s, catKey, fallbackRow = null) {
+  const plannerShelf = s.planner?.shelves?.find(sh => sh.key === catKey);
+  const slotRow = s.slots.find(sl => sl.data?.key === catKey)?.data || fallbackRow;
+  if (plannerShelf && (plannerShelf.items?.length || plannerShelf.title)) {
+    return { title: plannerShelf.title, items: plannerShelf.allItems || plannerShelf.items || [] };
+  }
+  if (slotRow && (slotRow.allItems?.length || slotRow.items?.length)) {
+    return { title: slotRow.title || catKey, items: slotRow.allItems || slotRow.items || [] };
+  }
+  const invItems = s.inventory?.items || [];
+  if (invItems.length && s.config) {
+    const pageProfile = s.profile || s.config.pages?.[s.route?.page] || s.config.pages?.home;
+    if (pageProfile) {
+      const rebuilt = buildShelves(invItems, pageProfile, s.config, s.route?.page || 'home', s.now);
+      const hit = rebuilt.find(sh => sh.key === catKey);
+      if (hit) return { title: hit.title, items: hit.items || [] };
+    }
+    if (catKey.startsWith('rule:')) {
+      const ruleKey = catKey.slice(5);
+      const pageOrder = [...new Set([s.route?.page, 'movies', 'shows', 'home'].filter(Boolean))];
+      for (const pName of pageOrder) {
+        const rule = (s.config.pages?.[pName]?.rules || []).find(r => r?.Key === ruleKey);
+        if (rule) {
+          const matched = invItems.filter(i => matches(rule, i, s.config.hideWatched));
+          return { title: rule.Title || catKey, items: matched };
+        }
+      }
+    }
+  }
+  return { title: slotRow?.title || catKey, items: slotRow?.allItems || slotRow?.items || [] };
+}
 function renderCategorySubpageDom(s, catKey, titleText, items) {
   let host = s.root.querySelector('.fx-subpage');
   if (!host) {
@@ -1469,23 +1601,33 @@ function renderCategorySubpageDom(s, catKey, titleText, items) {
     s.root.prepend(host);
   }
   host.dataset.subpageKey = catKey;
-  const head = element('div', 'fx-subpage-head');
   const backBtn = button('', () => closeCategorySubpage(s, true));
-  backBtn.className = 'fx-subpage-back';
+  backBtn.className = 'fx-subpage-back fx-subpage-back-top';
+  backBtn.title = 'Back';
   backBtn.setAttribute('aria-label', `Back from ${titleText}`);
-  const arrow = element('span', 'fx-subpage-arrow', '←');
+  const arrow = element('span', 'fx-subpage-arrow');
+  arrow.innerHTML = SUBPAGE_BACK_SVG;
+  backBtn.append(arrow);
+
+  const head = element('div', 'fx-subpage-head');
   const h1 = element('h1', 'fx-subpage-title', titleText);
   const cleanItems = (items || []).filter(i => i && i.Type !== 'SeeMore');
   const count = element('span', 'fx-subpage-count', `${cleanItems.length}`);
-  backBtn.append(arrow, h1, count);
-  head.append(backBtn);
+  head.append(h1, count);
+
   const grid = element('div', 'fx-subpage-grid');
   const useLandscape = cleanItems.length > 0 && cleanItems.every(i => i.Type === 'Episode' && !i.SeriesPrimaryImageTag && !i.ImageTags?.Primary);
   const cardLayout = useLandscape ? 'landscape' : 'portrait';
+  const frag = document.createDocumentFragment();
   cleanItems.forEach(item => {
-    grid.append(renderCard(item, s, true, cardLayout));
+    frag.append(renderCard(item, s, true, cardLayout));
   });
-  host.replaceChildren(head, grid);
+  grid.append(frag);
+  const nodes = [backBtn, head, grid];
+  if (cleanItems.length > 0) {
+    nodes.push(element('p', 'fx-subpage-end', "You've reached the bottom of the page! Congratulations!"));
+  }
+  host.replaceChildren(...nodes);
 }
 async function openCategorySubpage(s, catKey, fallbackRow = null, updateUrl = true) {
   if (!s || !catKey || catKey === 'MyMedia') return;
@@ -1511,10 +1653,9 @@ async function openCategorySubpage(s, catKey, fallbackRow = null, updateUrl = tr
   s.footer.hidden = true;
   scrollToTop();
 
-  const plannerShelf = s.planner?.shelves?.find(sh => sh.key === catKey);
-  const slotRow = s.slots.find(sl => sl.data?.key === catKey)?.data || fallbackRow;
-  let titleText = plannerShelf?.title || slotRow?.title || catKey;
-  let items = plannerShelf?.items || slotRow?.allItems || slotRow?.items || [];
+  const resolved = resolveCategoryShelf(s, catKey, fallbackRow);
+  let titleText = resolved.title;
+  let items = resolved.items;
 
   if ((catKey === 'RecentlyAddedMovies' || catKey === 'RecentlyAddedShows') && s.inventory?.items?.length) {
     const fullAnchor = await s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 10000 }).catch(() => null);
@@ -1545,8 +1686,24 @@ function syncCategorySubpage(s, wantedCat) {
     if (s.subpageActive) closeCategorySubpage(s, false);
     return;
   }
-  if (s.subpageActive && s.subpageKey === cat && s.root.querySelector('.fx-subpage')) return;
-  if (!s.inventory && !s.slots.length) return;
+  if (s.subpageActive && s.subpageKey === cat && s.root.querySelector('.fx-subpage')) {
+    s.list.hidden = true;
+    s.footer.hidden = true;
+    return;
+  }
+  const hasQuickMatch = Boolean(
+    s.planner?.shelves?.some(sh => sh.key === cat) ||
+    s.slots.some(sl => sl.data?.key === cat)
+  );
+  if (!s.inventory && !hasQuickMatch) {
+    s.subpageActive = true;
+    s.subpageKey = cat;
+    document.documentElement?.setAttribute?.('data-fx-subpage', 'true');
+    if (s.toolbar) s.toolbar.hidden = true;
+    s.list.hidden = true;
+    s.footer.hidden = true;
+    return;
+  }
   openCategorySubpage(s, cat, null, false);
 }
 function bindRowHeading(titleEl, slot, s) {
@@ -1578,7 +1735,7 @@ function fillSlot(slot, s) {
   const noLoop = hasSeeMore || row.key === 'MyMedia' || compactTouch;
   if (noLoop) track.dataset.noLoop = 'true';
   const copies = !noLoop && baseCount >= 2
-    ? (s.route.view === 'genres' ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)))
+    ? (s.route.view === 'genres' ? Math.max(2, Math.ceil(10 / baseCount)) : Math.max(3, Math.ceil(16 / baseCount)))
     : 1;
   const cycleWidth = () => {
     if (copies <= 1) return 0;
@@ -1855,13 +2012,17 @@ function restoreFeed(s, saved) {
   s.slots=[];s.list.replaceChildren();
   s.filters=cloneJson(saved.filters);s.planner=saved.planner;s.pending=saved.pending;s.filteredQueue=saved.filteredQueue?.slice()||null;s.openingIndex=saved.openingIndex||0;s.anchorIndex=saved.anchorIndex;s.anchorTurn=saved.anchorTurn;s.finished=saved.finished;s.shuffle=saved.shuffle;s.lastFocus=saved.focus;
   saved.rows.forEach(row=>appendRow(row,s));
-  s.footer.hidden=s.full; s.more.hidden=s.finished; s.more.disabled=false;
+  const inSubpage = Boolean(s.subpageActive || s.route?.cat);
+  s.list.hidden = s.full || inSubpage;
+  s.footer.hidden = s.full || inSubpage;
+  s.more.hidden = !s.pauseAutomatic;
+  s.more.disabled = false;
   const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== 'recommended';
   s.matchCount.textContent=hasActiveFilter?`${filterItems(s.inventory.items,s.filters,s.tracking).length} matching titles`:'';
-  s.note.textContent=s.finished?'You’ve reached the available matches.':'More shelves load as you scroll.';
+  s.note.textContent=s.finished?"You've reached the bottom of the page! Congratulations!":'';
   setMode(s,s.full,false);filterPanel(s);
   requestAnimationFrame(()=>{
-    if(state!==s||!s.root.isConnected)return;
+    if(state!==s||!s.root.isConnected||s.subpageActive||s.route?.cat)return;
     const root=findScrollRoot(s.root); root.scrollTop=saved.scrollTop;
     s.slots.forEach((slot,n)=>{const track=slot.node.querySelector('.fx-track');if(track)track.scrollLeft=saved.tracks[n]||0;});
     const slot=s.slots[saved.focus?.row];
@@ -1916,19 +2077,24 @@ function syncNative(s, hide) {
   walk(s.native);
 }
 function setMode(s, full, remember = true) {
-  s.full = full; s.root.classList.toggle('fx-mode-full', !!full); s.list.hidden = full; s.footer.hidden = full || (!s.slots.length && !s.finished);
+  const inSubpage = Boolean(s.subpageActive || s.route?.cat);
+  s.full = full; s.root.classList.toggle('fx-mode-full', !!full);
+  s.list.hidden = full || inSubpage;
+  s.footer.hidden = full || inSubpage || (!s.slots.length && !s.finished);
+  s.more.hidden = !s.pauseAutomatic;
+  if (inSubpage && s.toolbar) s.toolbar.hidden = true;
   const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
   const titlePicker = s.root.querySelector('.fx-title-picker');
-  if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+  if (titlePicker && !inSubpage) titlePicker.hidden = hasHeaderViewMenu;
   s.root.hidden = !!(full && s.route.page !== 'home' && hasHeaderViewMenu && !s.failed);
-  s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full;if(full)s.panel.hidden=true;
+  s.filterToggle.disabled=full||!s.inventory;s.matchCount.hidden=full||inSubpage;if(full||inSubpage)s.panel.hidden=true;
   s.toggle.textContent = full ? 'Discover shelves' : s.route.page === 'home' ? 'Normal home' : 'Full library';
   syncNative(s, !(full || s.failed));
   if (remember) { try { localStorage.setItem(prefKey(s.api, s.route.page), full ? 'native' : 'discover'); } catch { s.status.textContent = 'View preference could not be saved in this browser.'; } }
   syncHomeModeAttr(s.api);
   if (!s.started) initialize(s);
-  else if (!full && s.planner && !s.slots.filter(slot => !slot.boot).length) loadMore(s);
-  if (!full) scheduleScroll();
+  else if (!full && !inSubpage && s.planner && !s.slots.filter(slot => !slot.boot).length) loadMore(s);
+  if (!full && !inSubpage) scheduleScroll();
 }
 async function nextRow(s) {
   if(s.filteredQueue)return s.filteredQueue.shift()||null;
@@ -1963,7 +2129,7 @@ async function nextRow(s) {
   return null;
 }
 async function loadMore(s, automatic = false) {
-  if (state !== s || s.loading || s.full || s.finished || !s.planner || (automatic && s.pauseAutomatic)) return;
+  if (state !== s || s.loading || s.full || s.finished || !s.planner || (automatic && (s.pauseAutomatic || s.subpageActive || s.route?.cat))) return;
   s.loading = true; s.more.disabled = true; s.more.textContent = 'Loading…';
   try {
     let placedIndex = s.slots.filter(slot => !slot.boot).length;
@@ -2010,7 +2176,7 @@ async function loadMore(s, automatic = false) {
           appendRow(hydratedRow, s, false, placedIndex++);
         }
         s.failed = false;
-        s.footer.hidden = s.full;
+        s.footer.hidden = s.full || s.subpageActive || Boolean(s.route?.cat);
         syncNative(s, true);
       }
       s.pending = null;
@@ -2022,10 +2188,12 @@ async function loadMore(s, automatic = false) {
     s.list.querySelectorAll('[data-skeleton="true"]').forEach(n => n.remove());
     s.status.textContent = [...s.warnings].join(' ');
     s.pauseAutomatic = false;
+    const inSubpage = Boolean(s.subpageActive || s.route?.cat);
     if ((s.slots.length || s.filteredQueue) && !s.full) {
       s.failed = false;
       s.filterToggle.disabled = !s.inventory;
-      s.footer.hidden = s.full;
+      s.list.hidden = inSubpage;
+      s.footer.hidden = inSubpage;
       syncNative(s, true);
       writeBootRows(s);
     }
@@ -2033,15 +2201,20 @@ async function loadMore(s, automatic = false) {
       if (!s.filteredQueue) { s.failed = true; syncNative(s, false); }
       s.status.textContent = s.filteredQueue ? 'No matching titles. Clear a filter to broaden your search.' : 'No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.';
     }
-    s.more.hidden = s.finished;
-    s.note.textContent = s.finished ? 'You’ve reached the available matches. Clear filters or use Restart feed to explore again.' : s.filteredQueue ? 'Filtered results load as you scroll.' : 'Keeps browsing your library; titles can return in different shelves further down.';
-    virtualize(s);
+    s.more.hidden = true;
+    s.note.textContent = s.finished ? "You've reached the bottom of the page! Congratulations!" : '';
+    if (!inSubpage) virtualize(s);
   } catch {
-    if (state === s) { s.pauseAutomatic = true; s.footer.hidden = s.full; s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.'; }
+    if (state === s) {
+      s.pauseAutomatic = true;
+      s.footer.hidden = s.full || s.subpageActive || Boolean(s.route?.cat);
+      s.more.hidden = false;
+      s.status.textContent = 'Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.';
+    }
   } finally {
     s.loading = false;
     s.initialHydrateSkip = false;
-    if (state === s) { s.more.disabled = false; s.more.textContent = s.pauseAutomatic ? 'Try again' : 'Load more'; }
+    if (state === s) { s.more.disabled = false; s.more.textContent = s.pauseAutomatic ? 'Try again' : 'Load more'; s.more.hidden = !s.pauseAutomatic; }
     if(state===s&&s.filterPending)applyFilters(s);
   }
 }
@@ -2085,6 +2258,14 @@ function refreshSlotBadges(s) {
 async function initialize(s) {
   if (s.started) return;
   s.started = true; s.status.textContent = ''; s.footer.hidden = true;
+  if (s.route.cat) {
+    s.subpageActive = true;
+    s.subpageKey = s.route.cat;
+    document.documentElement?.setAttribute?.('data-fx-subpage', 'true');
+    if (s.toolbar) s.toolbar.hidden = true;
+    s.list.hidden = true;
+    s.footer.hidden = true;
+  }
   try {
     let localError;
     try {
@@ -2092,7 +2273,7 @@ async function initialize(s) {
     } catch (e) { localError = e; }
     let paintedBootConfigStr = '';
     let paintedBoot = false;
-    if (s.config && !s.full) {
+    if (s.config && !s.full && !s.route.cat) {
       s.profile = s.config.pages[s.route.page];
       const cfgStr = JSON.stringify(s.config);
       const earlySaved = savedFeeds.get(s.key);
@@ -2110,7 +2291,10 @@ async function initialize(s) {
           paintedBootConfigStr = cfgStr;
         }
       }
-      if (!paintedBoot && !s.route.cat) renderSkeletonRows(s, 3);
+      if (!paintedBoot) renderSkeletonRows(s, 3);
+      syncNative(s, true);
+    } else if (s.config && !s.full) {
+      s.profile = s.config.pages[s.route.page];
       syncNative(s, true);
     }
     if (!s.full && s.route.view !== 'genres') {
@@ -2207,7 +2391,7 @@ async function initialize(s) {
     const saved=savedFeeds.get(s.key);
     if(saved&&Date.now()-saved.at<30*60000&&saved.config===finalCfgStr){restoreFeed(s,saved);s.status.textContent=[...s.warnings].join(' ');}
     else{preparePlanner(s);filterPanel(s);s.status.textContent='';s.initialHydrateSkip=true;await loadMore(s);}
-    if (s.route.cat) syncCategorySubpage(s, s.route.cat);
+    if (s.route.cat) openCategorySubpage(s, s.route.cat, null, false);
     await trackingTask;
   } catch {
     if (state !== s) return;
@@ -2721,6 +2905,7 @@ function reconcile() {
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(api);
   syncHomeModeAttr(api);
+  syncDocumentStateAttrs();
   anchorOpenPopovers();
   syncSearchPage(api);
   guardMicroLogos();
@@ -2756,7 +2941,8 @@ function reconcile() {
   s.client = new JellyfinClient(api, () => state === s && generation === token && root.isConnected);
   s.toggle = button(route.page === 'home' ? 'Normal home' : 'Full library', () => setMode(s, !s.full));
   s.more = button('Load more', () => { s.pauseAutomatic = false; loadMore(s); });
-  s.note = element('p', '', 'Loading shelves on demand.');
+  s.more.hidden = true;
+  s.note = element('p', '', '');
   s.filterToggle=button('Filters',()=>{s.root.querySelector('.fx-feed-menu')?.removeAttribute('open');panel.hidden=!panel.hidden;if(!panel.hidden)focusNode(panel.querySelector('input,select'));});s.filterToggle.disabled=true;
   const controlButton=button(`Controls: ${controlsMode(s).mode}`,()=>controlToggle(s,controlButton));root.classList.toggle('fx-tv',controlsMode(s).tv);
   const menu=element('details','fx-feed-menu'), summary=element('summary','','Browse options'), actions=element('div','fx-feed-menu-actions');
@@ -3303,21 +3489,53 @@ function start() {
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(window.ApiClient);
   syncHomeModeAttr(window.ApiClient);
+  syncDocumentStateAttrs();
   anchorOpenPopovers();
   syncSearchPage(window.ApiClient);
   if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector('script[data-requesthub-asset]')) {
     const rh = element('script'); rh.defer = true; rh.src = '../RequestHub/Assets/web.js'; rh.dataset.requesthubAsset = 'browser'; document.head.append(rh);
   }
   observer = new MutationObserver(records => {
-    anchorOpenPopovers();
-    if (records.some(r => r.type === 'childList' && r.target?.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage'))) {
+    let needsPopover = false;
+    let needsHeader = false;
+    let needsSearch = false;
+    let needsReconcile = false;
+    for (let i = 0; i < records.length; i++) {
+      const r = records[i];
+      const t = r.target;
+      if (!t || t.nodeType !== 1) continue;
+      if (!needsPopover) {
+        if (t === document.body || t.id === 'videoOsdPage' || t.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,header.MuiAppBar-root') || t.closest?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu')) {
+          needsPopover = true;
+        } else if (r.type === 'childList' && r.addedNodes.length) {
+          for (let j = 0; j < r.addedNodes.length; j++) {
+            const n = r.addedNodes[j];
+            if (n.nodeType === 1 && n.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu')) {
+              needsPopover = true;
+              break;
+            }
+          }
+        }
+      }
+      if (!needsHeader && r.type === 'childList' && t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage')) {
+        needsHeader = true;
+      }
+      if (!needsSearch && t.id === 'searchPage') {
+        needsSearch = true;
+      } else if (!needsSearch && t.closest?.('#searchPage') && !t.closest?.('.fx-search-library,.searchResults,.searchSuggestions')) {
+        needsSearch = true;
+      }
+      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
+        needsReconcile = true;
+      }
+    }
+    if (needsPopover) schedulePopoverSync();
+    if (needsHeader) {
       hideLeavingSoonNav();
       syncMobileOverflowDrawer(window.ApiClient);
     }
-    if (records.some(r => r.target?.closest?.('#searchPage') && !r.target?.closest?.('.fx-search-library'))) {
-      syncSearchPage(window.ApiClient);
-    }
-    if (records.some(r => !r.target.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader') && (r.type === 'childList' || r.attributeName === 'class'))) schedule();
+    if (needsSearch) syncSearchPage(window.ApiClient);
+    if (needsReconcile) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden'] });
   document.addEventListener('click', onOsdSuppressClick, true);
@@ -3333,17 +3551,20 @@ function start() {
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
   document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', scheduleScroll);
   // Sign-out / server switch can occur without a hash change.
-  heartbeat = setInterval(schedule, 2000); reconcile();
+  heartbeat = setInterval(schedule, 3000); reconcile();
 }
 window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(searchUiState.remoteTimer); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
     document.documentElement?.removeAttribute?.('data-fx-subpage');
+    document.documentElement?.removeAttribute?.('data-fx-popover-open');
+    document.documentElement?.removeAttribute?.('data-fx-video-osd');
+    document.documentElement?.removeAttribute?.('data-fx-has-subheader');
     document.getElementById('searchPage')?.removeAttribute?.('data-fx-search-active');
     document.querySelectorAll('.fx-search-library').forEach(n => n.remove());
     document.removeEventListener('click', onOsdSuppressClick, true);

@@ -2,11 +2,12 @@ using System.Text.Json;
 
 namespace FazFort.Discovery;
 
-public sealed record Observation(Guid Id, string Type, bool Playable, Guid SeriesId = default, int SeasonNumber = 0, DateTimeOffset? CreatedAt = null);
+public sealed record Observation(Guid Id, string Type, bool Playable, Guid SeriesId = default, int SeasonNumber = 0, DateTimeOffset? CreatedAt = null, DateTimeOffset? PremiereDate = null);
 public sealed class Arrival
 {
     public DateTimeOffset? AddedAt { get; set; }
     public DateTimeOffset? NewSeasonAt { get; set; }
+    public DateTimeOffset? NewEpisodesAt { get; set; }
 }
 public sealed class UserProfile
 {
@@ -37,11 +38,50 @@ public sealed class Ledger
         }
         BaselineComplete = true;
         StartedAt = now;
+        SyncEpisodePremieres(snapshot, now);
+    }
+    public bool SyncEpisodePremieres(IEnumerable<Observation> items, DateTimeOffset now)
+    {
+        var cutoff = now.AddDays(-30);
+        var maxFuture = now.AddDays(1);
+        var latestBySeries = new Dictionary<Guid, DateTimeOffset>();
+        foreach (var item in items)
+        {
+            if (item.Type != "Episode" || !item.Playable || item.SeriesId == Guid.Empty) continue;
+            if (item.PremiereDate is not { } prem || prem < cutoff || prem > maxFuture) continue;
+            if (!latestBySeries.TryGetValue(item.SeriesId, out var prev) || prem > prev)
+                latestBySeries[item.SeriesId] = prem;
+        }
+        bool changed = false;
+        foreach (var (seriesId, latest) in latestBySeries)
+        {
+            var record = Get(seriesId);
+            if (record.NewEpisodesAt != latest) { record.NewEpisodesAt = latest; changed = true; }
+            if (record.NewSeasonAt is not null) { record.NewSeasonAt = null; changed = true; }
+        }
+        foreach (var (id, record) in Arrivals)
+        {
+            if (latestBySeries.ContainsKey(id)) continue;
+            if (record.NewEpisodesAt is not null) { record.NewEpisodesAt = null; changed = true; }
+            if (record.NewSeasonAt is not null) { record.NewSeasonAt = null; changed = true; }
+        }
+        return changed;
     }
     public bool Observe(Observation item, DateTimeOffset now)
     {
         if (!BaselineComplete || item.Id == Guid.Empty || (item.Type != "Series" && !item.Playable)) return false;
-        if (!KnownItems.Add(item.Id)) return false;
+        bool isNew = KnownItems.Add(item.Id);
+        bool updated = false;
+        if (item.Type == "Episode" && item.SeriesId != Guid.Empty && item.PremiereDate is { } prem && prem >= now.AddDays(-30) && prem <= now.AddDays(1))
+        {
+            var rec = Get(item.SeriesId);
+            if (rec.NewEpisodesAt is null || prem > rec.NewEpisodesAt)
+            {
+                rec.NewEpisodesAt = prem;
+                updated = true;
+            }
+        }
+        if (!isNew) return updated;
         var effective = item.CreatedAt is { } created && created < now.AddHours(-2) ? created : now;
         if (item.Type == "Movie") Get(item.Id).AddedAt = effective;
         else if (item.Type == "Series") PendingSeries.Add(item.Id);
@@ -49,7 +89,7 @@ public sealed class Ledger
         {
             bool seriesNew = KnownItems.Add(item.SeriesId);
             if (PendingSeries.Remove(item.SeriesId) || seriesNew) Get(item.SeriesId).AddedAt = effective;
-            if (KnownSeasons.Add(SeasonKey(item)) && item.SeasonNumber >= 2) Get(item.SeriesId).NewSeasonAt = effective;
+            KnownSeasons.Add(SeasonKey(item));
         }
         return true;
     }

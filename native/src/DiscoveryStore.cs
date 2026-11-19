@@ -27,13 +27,17 @@ public sealed class DiscoveryStore
             if (ledger.Schema != 1) throw new IOException("Unsupported discovery ledger schema.");
         }
     }
-    public void Apply(IReadOnlyList<Observation> items, DateTimeOffset now)
+    public void Apply(IReadOnlyList<Observation> items, DateTimeOffset now, bool fullScan = false)
     {
         lock (gate)
         {
             bool changed = false;
             if (!ledger.BaselineComplete) { ledger.Baseline(items, now); changed = true; }
-            else foreach (var item in items) changed |= ledger.Observe(item, now);
+            else
+            {
+                foreach (var item in items) changed |= ledger.Observe(item, now);
+                if (fullScan) changed |= ledger.SyncEpisodePremieres(items, now);
+            }
             if (changed) Save();
             Ready = true;
         }

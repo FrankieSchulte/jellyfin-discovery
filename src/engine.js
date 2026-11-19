@@ -1,5 +1,5 @@
 // Pure planning functions are shared by the browser bundle and Node tests.
-export const normalize = value => String(value ?? '').trim().toLocaleLowerCase('en-US');
+export const normalize = value => String(value ?? '').trim().toLowerCase();
 export const intersects = (wanted, actual) => !wanted?.length || wanted.some(x => (actual || []).some(y => normalize(x) === normalize(y)));
 export function hash(value) {
   let result = 2166136261;
@@ -28,21 +28,28 @@ export function recent(date, now, days = 7) {
 export function seasonBadges(seasons, now) {
   const map = new Map();
   for (const season of seasons) {
-    // Episode additions and specials cannot mark an existing season as new.
-    if (season.Type !== 'Season' || !(season.IndexNumber >= 2) || !recent(season.DateCreated, now)) continue;
+    // Fallback when companion tracking is unavailable: only recently premiered seasons.
+    if (season.Type !== 'Season' || !recent(season.PremiereDate, now, 30)) continue;
     const series = season.SeriesId || season.ParentId;
-    if (series) map.set(series, 'New Season');
+    if (series) map.set(series, 'New Episodes');
   }
   return map;
 }
 export function badgeFor(item, seasons, now, tracking = null) {
+  if (item.Type === 'Series') {
+    if (tracking) {
+      const record = tracking.get(item.Id);
+      const newEpDate = record?.NewEpisodesAt ?? null;
+      return recent(newEpDate, now, 30) ? 'New Episodes' : '';
+    }
+    return seasons.has(item.Id) ? 'New Episodes' : '';
+  }
+  if (item.Type !== 'Movie') return '';
   if (tracking) {
     const record = tracking.get(item.Id);
-    if (item.Type === 'Series' && recent(record?.NewSeasonAt, now)) return 'New Season';
-    return recent(record?.AddedAt, now) ? 'Recently Added' : '';
+    return recent(record?.AddedAt, now, 7) ? 'Recently Added' : '';
   }
-  if (item.Type === 'Series' && seasons.has(item.Id)) return 'New Season';
-  return ['Movie', 'Series'].includes(item.Type) && recent(item.DateCreated, now) ? 'Recently Added' : '';
+  return recent(item.DateCreated, now, 7) ? 'Recently Added' : '';
 }
 export const DEFAULT_FILTERS = { query: '', genre: '', tag: '', watched: 'all', maxMinutes: '', minRating: '', decade: '', type: '', sort: 'recommended' };
 export function filtersActive(filters) {
@@ -218,6 +225,22 @@ export function routeInfo(hashValue) {
   const cat = p.get('fxCat') || '';
   return page ? { page, ...(page!=='home'?{view}:{}), ...(cat?{cat}:{}), parentId: p.get('topParentId') || p.get('parentId') || '', serverId: p.get('serverId') || '' } : null;
 }
+const searchNormCache = new WeakMap();
+function getSearchMeta(item) {
+  let meta = searchNormCache.get(item);
+  if (meta) return meta;
+  meta = {
+    name: normalize(item.Name),
+    origTitle: normalize(item.OriginalTitle),
+    tags: (item.Tags || []).map(normalize).filter(Boolean),
+    genres: (item.Genres || []).map(normalize).filter(Boolean),
+    people: (item.People || []).map(p => normalize(p?.Name)).filter(Boolean),
+    studios: (item.Studios || []).map(s => normalize(s?.Name)).filter(Boolean),
+    normId: String(item.Id || '').toLowerCase().replace(/-/g, '')
+  };
+  searchNormCache.set(item, meta);
+  return meta;
+}
 export function searchAndRankInventory(items, query, config = null, extraItems = []) {
   const q = normalize(query);
   if (!q) return [];
@@ -287,8 +310,8 @@ export function searchAndRankInventory(items, query, config = null, extraItems =
 
   const scored = [];
   for (const item of unique) {
-    const name = normalize(item.Name);
-    const origTitle = normalize(item.OriginalTitle);
+    const meta = getSearchMeta(item);
+    const { name, origTitle, tags, genres, people, studios, normId } = meta;
     let titleTier = 0;
     if (name === q || (origTitle && origTitle === q)) titleTier = 10000;
     else if (name.startsWith(q) || (origTitle && origTitle.startsWith(q))) titleTier = 9200;
@@ -299,9 +322,7 @@ export function searchAndRankInventory(items, query, config = null, extraItems =
     let alignScore = 0;
     if (q.length >= 2) {
       let exactTags = 0, wordTags = 0, subTags = 0;
-      for (const rawTag of (item.Tags || [])) {
-        const nt = normalize(rawTag);
-        if (!nt) continue;
+      for (const nt of tags) {
         if (nt === q) exactTags++;
         else if (wordRx.test(nt)) wordTags++;
         else if (q.length >= 3 && (nt.includes(q) || (nt.length >= 4 && q.includes(nt)))) subTags++;
@@ -314,29 +335,24 @@ export function searchAndRankInventory(items, query, config = null, extraItems =
         alignScore += 350;
       }
 
-      for (const rawGenre of (item.Genres || [])) {
-        const ng = normalize(rawGenre);
+      for (const ng of genres) {
         if (ng === q) { alignScore += 250; break; }
         if (q.length >= 3 && ng.includes(q)) { alignScore += 170; break; }
       }
 
       if (q.length >= 3) {
         let creditBoost = 0;
-        for (const p of (item.People || [])) {
-          const np = normalize(p?.Name);
-          if (!np) continue;
+        for (const np of people) {
           if (np === q) { creditBoost = Math.max(creditBoost, 240); break; }
           if (wordRx.test(np) || np.includes(q)) creditBoost = Math.max(creditBoost, 150);
         }
         alignScore += creditBoost;
-        for (const st of (item.Studios || [])) {
-          const ns = normalize(st?.Name);
-          if (ns === q || (ns && (wordRx.test(ns) || ns.includes(q)))) { alignScore += 140; break; }
+        for (const ns of studios) {
+          if (ns === q || wordRx.test(ns) || ns.includes(q)) { alignScore += 140; break; }
         }
       }
     }
 
-    const normId = String(item.Id || '').toLowerCase().replace(/-/g, '');
     if (titleTier === 0 && alignScore === 0 && normId && extraIds.has(normId)) {
       alignScore = 90;
     }

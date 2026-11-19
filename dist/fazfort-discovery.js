@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.7 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.8 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -1998,24 +1998,27 @@
 .fx-shelf{margin:0 0 24px;min-width:0}.fx-row-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.fx-row-head h2{font-size:24px;line-height:32px;font-weight:600;margin:0 auto 0 0;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px;color:#fff}
 .fx-row-head h2.fx-clickable-heading{cursor:pointer;transition:color .14s ease,opacity .14s ease}
 .fx-row-head h2.fx-clickable-heading:hover{text-decoration:underline;text-underline-offset:4px}
-.fx-subpage{padding-top:12px}
+.fx-subpage{padding-top:0}
 html[data-fx-subpage="true"] #indexPage :is(.sleekfin-hero,.hero,#slides-container),
 html[data-fx-subpage="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root{display:none!important}
-html[data-fx-subpage="true"] #indexPage .fx-discovery{padding-top:calc(var(--sleekfin-header-height,72px) + 28px)!important}
-html[data-fx-subpage="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:calc(var(--sleekfin-header-height,72px) + 28px)!important}
-.fx-subpage-head{display:flex;align-items:center;margin:0 0 22px}
-.fx-subpage-back{display:inline-flex!important;align-items:center;gap:12px;background:transparent!important;border:0!important;padding:4px 10px 4px 0!important;color:#fff!important;cursor:pointer;text-align:left;min-height:40px}
-.fx-subpage-back:hover{background:transparent!important}
-.fx-subpage-back:hover .fx-subpage-title{text-decoration:underline;text-underline-offset:4px}
-.fx-subpage-arrow{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:18px;line-height:1;color:#fff;transition:background .15s ease,border-color .15s ease}
-.fx-subpage-back:hover .fx-subpage-arrow{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.55)}
+html[data-fx-subpage="true"] #indexPage .fx-discovery,
+html[data-fx-subpage="true"]:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important}
+html[data-fx-subpage="true"][data-fx-has-subheader="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:12px!important}
+.fx-subpage-back-top{position:fixed!important;top:var(--sleekfin-header-bar-top,20px)!important;left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;z-index:1105!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;margin:0!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 100%),rgba(22,22,24,.86)!important;backdrop-filter:blur(18px) saturate(140%)!important;-webkit-backdrop-filter:blur(18px) saturate(140%)!important;border:1px solid rgba(255,255,255,.09)!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 14px -6px rgba(0,0,0,.55)!important;color:rgba(255,255,255,.86)!important;cursor:pointer!important;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease!important}
+.fx-subpage-back-top:hover{background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.92)!important;border-color:rgba(255,255,255,.18)!important;color:#fff!important}
+.fx-subpage-back-top:active{transform:scale(.96)!important}
+.fx-subpage-arrow{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;line-height:1;color:inherit}
+.fx-subpage-arrow svg{display:block;width:18px;height:18px}
+.fx-subpage-head{display:flex;align-items:center;gap:12px;margin:0 0 22px}
 .fx-subpage-title{margin:0;font-size:28px;line-height:34px;font-weight:700;color:#fff;border-left:3px solid var(--sleekfin-accent,#e50914);padding-left:10px}
 .fx-subpage-count{display:inline-flex;align-items:center;justify-content:center;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:600;color:rgba(255,255,255,.76)}
 .fx-subpage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(135px,13vw,195px),1fr));gap:20px 16px;align-items:start}
 .fx-subpage-grid .fx-card-entry,.fx-subpage-grid .fx-card-entry.fx-card-portrait{width:100%!important;flex-basis:auto!important}
 .fx-subpage-grid .fx-card-portrait .fx-card-visual img{object-fit:cover}
+.fx-subpage-end{margin:36px 0 8px;text-align:center;color:rgba(255,255,255,.55);font-size:13.5px;line-height:1.5}
 @media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
-  html[data-fx-subpage="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:20px!important}
+  html[data-fx-subpage="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{padding-top:calc(62px + env(safe-area-inset-top,0px))!important}
+  .fx-subpage-back-top{top:calc(12px + env(safe-area-inset-top,0px))!important;left:14px!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}
   .fx-subpage-title{font-size:22px;line-height:28px}
   .fx-subpage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}
 }
@@ -2233,27 +2236,22 @@ header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root :is(button[title="Pl
 }
 
 /* Hide Total Library Item Count Chip on Curated Suggestions, Genres, Live TV, Home & Search (Keep Only on Library/Favorites/Collections Grids) */
-html[data-fx-hide-count-chip="true"] header.MuiAppBar-root .MuiChip-root,
-html:has(.fx-discovery:not(.fx-mode-full):not([hidden])) header.MuiAppBar-root .MuiChip-root,
-html:has(#boxsetsPage:not(.hide) .emby-scroller) header.MuiAppBar-root .MuiChip-root,
-html:has(#liveTvSuggestedPage:not(.hide),#liveTvPage:not(.hide)) header.MuiAppBar-root .MuiChip-root{
+html[data-fx-hide-count-chip="true"] header.MuiAppBar-root .MuiChip-root{
   display:none!important;
 }
 
 /* Suppress Centered Loading Spinner & Top-Right Library Pagination Arrows on Curated Movies/Shows & Genres Tabs */
-html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner),
-html:has(:is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(.hide) .fx-discovery:not(.fx-mode-full):not([hidden])) :is(.docspinner,.mdl-spinner.docspinner,#moviesPage .MuiCircularProgress-root,#tvshowsPage .MuiCircularProgress-root,#tvRecommendedPage .MuiCircularProgress-root){
+html[data-fx-curated-tab="true"] :is(.docspinner,.mdl-spinner.docspinner,#moviesPage .MuiCircularProgress-root,#tvshowsPage .MuiCircularProgress-root,#tvRecommendedPage .MuiCircularProgress-root){
   display:none!important;
   opacity:0!important;
   pointer-events:none!important;
 }
-html[data-fx-curated-tab="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu),
-html:has(:is(#moviesPage,#tvshowsPage,#tvRecommendedPage):not(.hide) .fx-discovery:not(.fx-mode-full):not([hidden])) header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu){
+html[data-fx-curated-tab="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > :not(button[aria-controls="library-view-menu"]):not(#library-view-menu){
   display:none!important;
 }
 
-/* Unified Downloads-Style Dropdown Menus Across All Switchers (Profile, Movies, Shows, Collections, Filters, Sort, View, Season X & Downloads) \u2014 Stationary on Scroll & No Dimmed Backdrop */
-html:has(.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)):not(:has(.MuiDialog-root:not([aria-hidden="true"]))) body{
+/* Unified Single-Rectangle Downloads-Style Dropdown Menus Across All Switchers (Profile, Movies, Shows, Collections, Filters, Sort, View, Three-Dots, Season X & Downloads) */
+html[data-fx-popover-open="true"] body{
   overflow-y:auto!important;
   padding-right:0!important;
 }
@@ -2296,44 +2294,68 @@ html.sleekfin-main-ui .MuiBackdrop-root.MuiBackdrop-invisible,
 .MuiPopover-root > .MuiBackdrop-root,
 .MuiMenu-root > .MuiBackdrop-root,
 .MuiBackdrop-root.MuiBackdrop-invisible,
-html.sleekfin-main-ui .dialogBackdrop:has(+ .dialogContainer .sleekfin-more-menu),
-html.sleekfin-main-ui .dialogBackdrop:has(+ .sleekfin-more-menu),
-html.sleekfin-main-ui .dialogBackdrop.dialogBackdropOpened:has(+ .dialogContainer .actionSheet){
+html.sleekfin-main-ui .dialogBackdrop.sleekfin-menu-backdrop{
   background:transparent!important;
   background-color:transparent!important;
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
   opacity:0!important;
 }
-.MuiPopover-root .MuiPaper-root,
-.MuiMenu-paper,
-#library-view-menu .MuiPaper-root,
-#app-user-menu .MuiPaper-root,
-#filter-popover .MuiPaper-root,
+/* SleekFin wraps MUI/ActionSheet menus in .sleekfin-menu-host > .sleekfin-menu-popup; keep the host 100% invisible so there is NEVER a box-within-a-box */
+html:root .sleekfin-menu-host,
+html:root .MuiPopover-root > .MuiPaper-root.sleekfin-menu-host,
+html:root #app-user-menu .MuiPaper-root.sleekfin-menu-host,
+html:root #library-view-menu .MuiPaper-root.sleekfin-menu-host,
+html:root #filter-popover .MuiPaper-root.sleekfin-menu-host,
+html:root .dialog.actionSheet.sleekfin-menu-host,
+html:root .dialog.filterDialog.sleekfin-menu-host{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  margin:0!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  overflow:visible!important;
+  animation:none!important;
+}
+/* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
+.MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
+.MuiMenu-paper:not(.sleekfin-menu-host),
 .fx-dropdown-menu,
 .fx-feed-menu-actions,
 html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropdown-menu),
-.dialog.actionSheet,
-.dialog.filterDialog{
+.dialog.actionSheet:not(.sleekfin-menu-host),
+.dialog.filterDialog:not(.sleekfin-menu-host){
   --Paper-overlay:none!important;
-  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82)!important;
-  background-color:rgba(22,22,24,.82)!important;
-  background-image:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01))!important;
-  backdrop-filter:blur(18px) saturate(140%)!important;
-  -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
-  border:1px solid rgba(255,255,255,.07)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),rgba(20,21,24,.92)!important;
+  background-color:rgba(20,21,24,.92)!important;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012))!important;
+  backdrop-filter:blur(20px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
   border-radius:12px!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 18px 42px -8px rgba(0,0,0,.72)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   padding:6px!important;
+  gap:2px!important;
   box-sizing:border-box!important;
 }
 .MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
-.MuiPopover-root.MuiModal-hidden .MuiPaper-root{
+.MuiPopover-root.MuiModal-hidden .MuiPaper-root,
+.MuiPopover-root[aria-hidden="true"] .sleekfin-menu-popup,
+.MuiPopover-root.MuiModal-hidden .sleekfin-menu-popup{
   animation:none!important;
 }
-.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root,
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
 .fx-dropdown-menu:not([hidden]),
 .fx-feed-menu[open] > .fx-feed-menu-actions,
 html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropdown-menu){
@@ -2341,11 +2363,13 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   transition:none!important;
   animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
 }
-#app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root,
-#filter-popover:not([aria-hidden="true"]):not(.MuiModal-hidden) .MuiPaper-root{
+#app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
+#app-user-menu .sleekfin-menu-popup,
+#filter-popover:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
+#filter-popover .sleekfin-menu-popup{
   transform-origin:top right!important;
 }
-.MuiPopover-root .MuiPaper-root:not(#app-user-menu .MuiPaper-root):not(#library-view-menu .MuiPaper-root){
+.MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host):not(#app-user-menu > .MuiPopover-paper):not(#library-view-menu > .MuiPopover-paper){
   overflow-x:hidden!important;
   overflow-y:auto!important;
   max-height:min(calc(100dvh - 32px),74vh)!important;
@@ -2354,21 +2378,75 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   scrollbar-width:thin;
   scrollbar-color:rgba(255,255,255,.22) transparent;
 }
-#app-user-menu .MuiPaper-root,
-#library-view-menu .MuiPaper-root{
+#app-user-menu > .MuiPopover-paper:not(.sleekfin-menu-host),
+#library-view-menu > .MuiPopover-paper:not(.sleekfin-menu-host){
   overflow:hidden!important;
   margin-top:8px!important;
 }
-#library-view-menu .MuiPaper-root{
-  min-width:176px!important;
+#app-user-menu .sleekfin-menu-popup,
+#app-user-menu > .MuiPopover-paper:not(.sleekfin-menu-host){
+  min-width:216px!important;
+  margin-top:6px!important;
 }
-#filter-popover .MuiPaper-root,
-.MuiPopover-root .MuiPaper-root:has(.MuiAccordion-root,.MuiFormGroup-root){
-  width:216px!important;
-  min-width:204px!important;
-  max-width:224px!important;
+#library-view-menu .sleekfin-menu-popup,
+#library-view-menu > .MuiPopover-paper:not(.sleekfin-menu-host){
+  min-width:176px!important;
+  margin-top:6px!important;
+}
+/* Filters Dropdown: unified width & animation matching Profile dropdown, zero clipping, right-side chevrons */
+#filter-popover .sleekfin-menu-popup,
+#filter-popover > .MuiPopover-paper:not(.sleekfin-menu-host){
+  width:224px!important;
+  min-width:216px!important;
+  max-width:min(232px,calc(100vw - 24px))!important;
   padding:6px!important;
-  margin-top:8px!important;
+  margin-top:6px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  max-height:min(calc(100dvh - 32px),74vh)!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-item[aria-expanded]{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  width:100%!important;
+  padding:8px 10px!important;
+  min-height:38px!important;
+  border-radius:8px!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-item[aria-expanded] .sleekfin-menu-icon{
+  display:none!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-item[aria-expanded]::after{
+  content:""!important;
+  display:inline-block!important;
+  flex:0 0 16px!important;
+  width:16px!important;
+  height:16px!important;
+  margin-left:auto!important;
+  background-color:rgba(255,255,255,.72)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  transition:transform .16s cubic-bezier(.22,1,.36,1),background-color .14s ease!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-item[aria-expanded="true"]::after{
+  transform:rotate(90deg)!important;
+  background-color:#fff!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-item[aria-expanded]:hover::after{
+  background-color:#fff!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-control{
+  border-radius:8px!important;
+  padding:6px 10px!important;
+  min-height:34px!important;
+  transition:background-color .14s ease,color .14s ease!important;
+}
+#filter-popover .sleekfin-menu-popup .sleekfin-menu-control:hover{
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
 }
 #filter-popover .MuiAccordion-root:has(#filtersTags-header),
 .MuiPopover-root .MuiAccordion-root:has(#filtersTags-header){
@@ -2386,11 +2464,15 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   display:none!important;
 }
 .MuiPopover-root .MuiAccordionSummary-root{
-  min-height:36px!important;
-  padding:5px 8px!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  min-height:38px!important;
+  padding:8px 10px!important;
   border-radius:8px!important;
   background:transparent!important;
-  color:rgba(255,255,255,.72)!important;
+  color:rgba(255,255,255,.76)!important;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   transition:background-color .14s ease,color .14s ease!important;
 }
@@ -2400,7 +2482,7 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   color:var(--sleekfin-text,#f1f2f4)!important;
 }
 .MuiPopover-root .MuiAccordionSummary-content{
-  margin:0 6px!important;
+  margin:0!important;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:13px!important;
   font-weight:500!important;
@@ -2420,8 +2502,12 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   justify-content:center!important;
   width:16px!important;
   height:16px!important;
+  margin-left:auto!important;
   color:rgba(255,255,255,.72)!important;
   transition:transform .16s cubic-bezier(.22,1,.36,1),color .14s ease!important;
+}
+.MuiPopover-root .MuiAccordionSummary-expandIconWrapper.Mui-expanded{
+  transform:rotate(90deg)!important;
 }
 .MuiPopover-root .MuiAccordionSummary-expandIconWrapper svg{
   display:none!important;
@@ -2907,11 +2993,11 @@ html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSu
   margin:0!important;
 }
 
-html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
-html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+html:not([data-fx-has-subheader="true"]) :is(#liveTvSuggestedPage,#liveTvPage){
   padding-top:calc(var(--sleekfin-header-height,80px) + 12px)!important;
 }
-html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage){padding-top:0!important;margin-top:0!important}
+html[data-fx-has-subheader="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage){padding-top:0!important;margin-top:0!important}
 #moviesPage:has(.fx-discovery) .content-primary,#tvshowsPage:has(.fx-discovery) .content-primary,#tvRecommendedPage:has(.fx-discovery) .content-primary{padding-top:0!important;margin-top:0!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage) .cardText-first{padding:6px 2px 0!important;font-weight:700!important}
 html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) .cardText-secondary,html body :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage) [data-sleekfin-media-meta]{display:none!important}
@@ -2941,11 +3027,11 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
-html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
   padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
   margin-top:0!important;
 }
-html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #searchPage#searchPage{
+html[data-fx-has-subheader="true"] #searchPage#searchPage{
   padding-top:16px!important;
   margin-top:0!important;
 }
@@ -3220,6 +3306,11 @@ html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #sear
 .fx-search-library-grid .fx-card-portrait .fx-card-visual img{
   object-fit:cover;
 }
+.fx-search-sentinel{
+  height:1px;
+  width:100%;
+  pointer-events:none;
+}
 .fx-search-library-empty{
   margin:28px 0;
   color:var(--sleekfin-muted,#969aa1);
@@ -3230,25 +3321,25 @@ html:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root)) #sear
 /* Download Quality & Season Selector Dropdown Menu (Unified with SleekFin More Menu & Download Button \u2014 Stationary on Scroll) */
 @keyframes fx-dropdown-enter{
   from{opacity:0;transform:translateY(-6px) scale(.96)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+  to{opacity:1;transform:none}
 }
 .fx-download-menu{
   position:absolute;
   z-index:100005;
   width:min(190px,86vw);
   padding:6px;
-  background:linear-gradient(rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(22,22,24,.82);
-  backdrop-filter:blur(18px) saturate(140%);
-  -webkit-backdrop-filter:blur(18px) saturate(140%);
-  border:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),rgba(20,21,24,.92);
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  border:1px solid rgba(255,255,255,.09);
   border-radius:12px;
-  box-shadow:inset 0 1px rgba(255,255,255,.08),0 16px 40px -6px rgba(0,0,0,.65);
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 18px 42px -8px rgba(0,0,0,.72);
   display:flex;
   flex-direction:column;
   gap:2px;
   box-sizing:border-box;
   transform-origin:top left;
-  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1);
+  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both;
 }
 .fx-download-menu.fx-season-menu{
   width:min(210px,86vw);
@@ -3934,8 +4025,8 @@ button.fx-settings-menu-row .listItemBodyText{
 }
 
 /* Lock Video Playback (#videoOsdPage) in Place & Block Native iOS Fullscreen Entry */
-html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])),
-html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) body{
+html[data-fx-video-osd="true"],
+html[data-fx-video-osd="true"] body{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -3946,7 +4037,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) body{
   touch-action:none!important;
 }
 #videoOsdPage:not(.hide):not(.hidePage):not([hidden]),
-html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) .videoPlayerContainer{
+html[data-fx-video-osd="true"] .videoPlayerContainer{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -3962,7 +4053,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) .videoPlayerCont
 #videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
   touch-action:pan-x!important;
 }
-html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
+html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
   touch-action:pan-y!important;
   overscroll-behavior:contain!important;
 }
@@ -3973,10 +4064,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
 }
 
 /* Mobile Search Button on Bottom Bar & Overflow Menu Icon Parity */
-@media(min-width:900px){
-  .fx-mobile-search-btn{
-    display:none!important;
-  }
+.fx-mobile-search-btn{
+  display:none!important;
 }
 [data-sleekfin-header-overflow-drawer] button[data-sleekfin-header-overflow-item],
 [data-sleekfin-header-overflow-drawer] a[data-sleekfin-header-overflow-item]{
@@ -4080,6 +4169,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer{
     padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important;
   }
+}
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
   /* Prioritize Home, Movies, Shows + Search + ^ on Mobile Bottom Bar; Overflow Discover, Collections, Live TV & Settings into ^ Menu */
   html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy]{
     max-width:min(calc(100vw - 16px),376px)!important;
@@ -4117,8 +4208,6 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   [data-sleekfin-header-overflow-drawer] [data-sleekfin-header-overflow-item="jellyfin:search"]{
     display:none!important;
   }
-}
-@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
   :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.readOnlyContent,.content-primary,.settingsContainer){
     padding:calc(22px + env(safe-area-inset-top,0px)) 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
     max-width:100%!important;
@@ -4129,12 +4218,12 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
     padding:16px!important;
     max-width:100%!important;
   }
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) #searchPage#searchPage{
+  html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
     padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
     margin-top:0!important;
   }
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
-  html:not(:has(header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root))) :is(#liveTvSuggestedPage,#liveTvPage){
+  html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
+  html:not([data-fx-has-subheader="true"]) :is(#liveTvSuggestedPage,#liveTvPage){
     padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
   }
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
@@ -4341,7 +4430,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
   }
 }
 `;
-    const normalize = (value) => String(value != null ? value : "").trim().toLocaleLowerCase("en-US");
+    const normalize = (value) => String(value != null ? value : "").trim().toLowerCase();
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
     function hash(value) {
       let result = 2166136261;
@@ -4370,20 +4459,28 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
     function seasonBadges(seasons, now) {
       const map = /* @__PURE__ */ new Map();
       for (const season of seasons) {
-        if (season.Type !== "Season" || !(season.IndexNumber >= 2) || !recent(season.DateCreated, now)) continue;
+        if (season.Type !== "Season" || !recent(season.PremiereDate, now, 30)) continue;
         const series = season.SeriesId || season.ParentId;
-        if (series) map.set(series, "New Season");
+        if (series) map.set(series, "New Episodes");
       }
       return map;
     }
     function badgeFor(item, seasons, now, tracking = null) {
+      var _a;
+      if (item.Type === "Series") {
+        if (tracking) {
+          const record = tracking.get(item.Id);
+          const newEpDate = (_a = record == null ? void 0 : record.NewEpisodesAt) != null ? _a : null;
+          return recent(newEpDate, now, 30) ? "New Episodes" : "";
+        }
+        return seasons.has(item.Id) ? "New Episodes" : "";
+      }
+      if (item.Type !== "Movie") return "";
       if (tracking) {
         const record = tracking.get(item.Id);
-        if (item.Type === "Series" && recent(record == null ? void 0 : record.NewSeasonAt, now)) return "New Season";
-        return recent(record == null ? void 0 : record.AddedAt, now) ? "Recently Added" : "";
+        return recent(record == null ? void 0 : record.AddedAt, now, 7) ? "Recently Added" : "";
       }
-      if (item.Type === "Series" && seasons.has(item.Id)) return "New Season";
-      return ["Movie", "Series"].includes(item.Type) && recent(item.DateCreated, now) ? "Recently Added" : "";
+      return recent(item.DateCreated, now, 7) ? "Recently Added" : "";
     }
     const DEFAULT_FILTERS = { query: "", genre: "", tag: "", watched: "all", maxMinutes: "", minRating: "", decade: "", type: "", sort: "recommended" };
     function filtersActive(filters) {
@@ -4577,6 +4674,22 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       const cat = p.get("fxCat") || "";
       return page ? { page, ...page !== "home" ? { view } : {}, ...cat ? { cat } : {}, parentId: p.get("topParentId") || p.get("parentId") || "", serverId: p.get("serverId") || "" } : null;
     }
+    const searchNormCache = /* @__PURE__ */ new WeakMap();
+    function getSearchMeta(item) {
+      let meta = searchNormCache.get(item);
+      if (meta) return meta;
+      meta = {
+        name: normalize(item.Name),
+        origTitle: normalize(item.OriginalTitle),
+        tags: (item.Tags || []).map(normalize).filter(Boolean),
+        genres: (item.Genres || []).map(normalize).filter(Boolean),
+        people: (item.People || []).map((p) => normalize(p == null ? void 0 : p.Name)).filter(Boolean),
+        studios: (item.Studios || []).map((s) => normalize(s == null ? void 0 : s.Name)).filter(Boolean),
+        normId: String(item.Id || "").toLowerCase().replace(/-/g, "")
+      };
+      searchNormCache.set(item, meta);
+      return meta;
+    }
     function searchAndRankInventory(items, query, config = null, extraItems = []) {
       var _a;
       const q = normalize(query);
@@ -4643,8 +4756,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       }
       const scored = [];
       for (const item of unique) {
-        const name = normalize(item.Name);
-        const origTitle = normalize(item.OriginalTitle);
+        const meta = getSearchMeta(item);
+        const { name, origTitle, tags, genres, people, studios, normId } = meta;
         let titleTier = 0;
         if (name === q || origTitle && origTitle === q) titleTier = 1e4;
         else if (name.startsWith(q) || origTitle && origTitle.startsWith(q)) titleTier = 9200;
@@ -4654,9 +4767,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         let alignScore = 0;
         if (q.length >= 2) {
           let exactTags = 0, wordTags = 0, subTags = 0;
-          for (const rawTag of item.Tags || []) {
-            const nt = normalize(rawTag);
-            if (!nt) continue;
+          for (const nt of tags) {
             if (nt === q) exactTags++;
             else if (wordRx.test(nt)) wordTags++;
             else if (q.length >= 3 && (nt.includes(q) || nt.length >= 4 && q.includes(nt))) subTags++;
@@ -4667,8 +4778,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           if (matchingRules.length && matchingRules.some((r) => matches(r, item, false))) {
             alignScore += 350;
           }
-          for (const rawGenre of item.Genres || []) {
-            const ng = normalize(rawGenre);
+          for (const ng of genres) {
             if (ng === q) {
               alignScore += 250;
               break;
@@ -4680,9 +4790,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           }
           if (q.length >= 3) {
             let creditBoost = 0;
-            for (const p of item.People || []) {
-              const np = normalize(p == null ? void 0 : p.Name);
-              if (!np) continue;
+            for (const np of people) {
               if (np === q) {
                 creditBoost = Math.max(creditBoost, 240);
                 break;
@@ -4690,16 +4798,14 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
               if (wordRx.test(np) || np.includes(q)) creditBoost = Math.max(creditBoost, 150);
             }
             alignScore += creditBoost;
-            for (const st of item.Studios || []) {
-              const ns = normalize(st == null ? void 0 : st.Name);
-              if (ns === q || ns && (wordRx.test(ns) || ns.includes(q))) {
+            for (const ns of studios) {
+              if (ns === q || wordRx.test(ns) || ns.includes(q)) {
                 alignScore += 140;
                 break;
               }
             }
           }
         }
-        const normId = String(item.Id || "").toLowerCase().replace(/-/g, "");
         if (titleTier === 0 && alignScore === 0 && normId && extraIds.has(normId)) {
           alignScore = 90;
         }
@@ -4776,7 +4882,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         return this.request(this.api.ajax({ url: this.api.getUrl("FazFortDiscovery/Preferences"), type: "POST", contentType: "application/json", dataType: "json", data: JSON.stringify({ ExpectedVersion: version, Config: config }) }));
       }
       async tracking(items) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         const records = /* @__PURE__ */ new Map();
         let ready = false;
         for (let offset = 0; offset < items.length || offset === 0; offset += 200) {
@@ -4787,7 +4893,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           const map = (_c = (_b = result.Records) != null ? _b : result.records) != null ? _c : {};
           for (const item of items.slice(offset, offset + 200)) {
             const r = map[item.Id] || map[item.Id.replace(/-/g, "").toLowerCase()];
-            if (r) records.set(item.Id, { AddedAt: (_d = r.AddedAt) != null ? _d : r.addedAt, NewSeasonAt: (_e = r.NewSeasonAt) != null ? _e : r.newSeasonAt });
+            if (r) records.set(item.Id, { AddedAt: (_d = r.AddedAt) != null ? _d : r.addedAt, NewSeasonAt: (_e = r.NewSeasonAt) != null ? _e : r.newSeasonAt, NewEpisodesAt: (_f = r.NewEpisodesAt) != null ? _f : r.newEpisodesAt });
           }
           if (!items.length) break;
         }
@@ -5774,18 +5880,18 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.7";
+      const VERSION = "0.5.8";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
-      let state = null, generation = 0, observer, timer, heartbeat, stopped = false;
+      let state = null, generation = 0, observer, timer, heartbeat, stopped = false, popoverFrame = 0;
       const snapshots = /* @__PURE__ */ new Map();
       const savedFeeds = /* @__PURE__ */ new Map();
       const loadedImages = /* @__PURE__ */ new Set();
       const sessionShuffles = /* @__PURE__ */ new Map();
       let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
       const searchInvListeners = /* @__PURE__ */ new Set();
-      const searchUiState = { query: "", remoteQuery: "", remoteItems: [], remoteTimer: 0, token: 0, lastSignature: "", tracking: null, trackingScope: "" };
+      const searchUiState = { query: "", remoteQuery: "", remoteItems: [], remoteTimer: 0, inputTimer: 0, token: 0, lastSignature: "", tracking: null, trackingScope: "", ranked: [], renderedCount: 0, batchIo: null };
       let activeDialog = null, lastScope = "", selectHold = null, downloadMenu = null, downloadMenuTrigger = null;
       const element = (tag, cls, text) => {
         const n = document.createElement(tag);
@@ -6025,7 +6131,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       function enhanceFilterPopover(popover) {
         var _a2, _b2, _c2, _d2;
         if (!popover) return;
-        const props = findFilterPopoverProps(popover);
+        const props = popover._fxFilterProps || findFilterPopoverProps(popover);
         if (props) popover._fxFilterProps = props;
         const paper = popover.querySelector(".MuiPaper-root");
         if (!paper) return;
@@ -6196,10 +6302,28 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
         syncResetBtnState();
       }
+      function setRootAttr(name, active) {
+        const el = document.documentElement;
+        if (!el) return;
+        if (active) {
+          if (el.getAttribute(name) !== "true") el.setAttribute(name, "true");
+        } else if (el.hasAttribute(name)) {
+          el.removeAttribute(name);
+        }
+      }
+      function syncDocumentStateAttrs() {
+        const osd = document.getElementById("videoOsdPage");
+        const osdOpen = Boolean(osd && !osd.classList.contains("hide") && !osd.classList.contains("hidePage") && !osd.hidden);
+        setRootAttr("data-fx-video-osd", osdOpen);
+        const appBar = document.querySelector("header.MuiAppBar-root");
+        const toolbars = appBar ? appBar.querySelectorAll(":scope > .MuiToolbar-root") : null;
+        setRootAttr("data-fx-has-subheader", Boolean(toolbars && toolbars.length >= 2));
+      }
       function anchorOpenPopovers() {
         var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
         const scrollY = Math.round((_d2 = (_c2 = (_a2 = window.scrollY) != null ? _a2 : window.pageYOffset) != null ? _c2 : (_b2 = document.documentElement) == null ? void 0 : _b2.scrollTop) != null ? _d2 : 0);
         const scrollX = Math.round((_h = (_g = (_e2 = window.scrollX) != null ? _e2 : window.pageXOffset) != null ? _g : (_f = document.documentElement) == null ? void 0 : _f.scrollLeft) != null ? _h : 0);
+        let hasOpenPopover = false;
         document.querySelectorAll(".MuiPopover-root").forEach((pop) => {
           var _a3, _b3, _c3, _d3;
           const isHidden = pop.getAttribute("aria-hidden") === "true" || pop.classList.contains("MuiModal-hidden");
@@ -6207,6 +6331,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             delete pop.dataset.fxAnchoredOpen;
             return;
           }
+          hasOpenPopover = true;
           if (pop.dataset.fxAnchoredOpen !== "true") {
             pop.dataset.fxAnchoredOpen = "true";
             (_b3 = (_a3 = pop.style) == null ? void 0 : _a3.setProperty) == null ? void 0 : _b3.call(_a3, "--fx-popover-scroll-y", `${scrollY}px`);
@@ -6216,6 +6341,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             enhanceFilterPopover(pop);
           }
         });
+        const hasOpenDialog = Boolean(document.querySelector('.MuiDialog-root:not([aria-hidden="true"])'));
+        setRootAttr("data-fx-popover-open", hasOpenPopover && !hasOpenDialog);
         document.querySelectorAll(".sleekfin-popup-layer").forEach((layer) => {
           var _a3, _b3, _c3, _d3;
           if (layer.dataset.fxAnchored !== "true") {
@@ -6234,6 +6361,17 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             if (Number.isFinite(rawLeft)) dd.style.left = `${Math.round(rawLeft + scrollX)}px`;
           }
         });
+      }
+      function schedulePopoverSync() {
+        if (popoverFrame || stopped) return;
+        const run = () => {
+          popoverFrame = 0;
+          if (stopped) return;
+          anchorOpenPopovers();
+          syncDocumentStateAttrs();
+        };
+        if (typeof requestAnimationFrame === "function") popoverFrame = requestAnimationFrame(run);
+        else popoverFrame = setTimeout(run, 16);
       }
       function ensureSearchTracking(api, invItems) {
         var _a2;
@@ -6263,6 +6401,15 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         });
         return searchTrackInflight;
       }
+      function disconnectSearchBatchObserver() {
+        if (searchUiState.batchIo) {
+          try {
+            searchUiState.batchIo.disconnect();
+          } catch {
+          }
+          searchUiState.batchIo = null;
+        }
+      }
       function renderSearchLibraryResults(searchPage, api, queryText, inv) {
         if (!(searchPage == null ? void 0 : searchPage.isConnected)) return;
         let host = searchPage.querySelector(".fx-search-library");
@@ -6287,9 +6434,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         const trackingMap = (state == null ? void 0 : state.tracking) instanceof Map && state.tracking.size ? state.tracking : searchUiState.trackingScope === sc && searchUiState.tracking instanceof Map ? searchUiState.tracking : readTrackingCache(sc);
         const nowDate = /* @__PURE__ */ new Date();
         const badgesMap = (inv == null ? void 0 : inv.seasons) ? seasonBadges(inv.seasons, nowDate) : /* @__PURE__ */ new Map();
-        const sig = `${sc}:${queryText}:${invItems.length}:${extraItems.length}:${trackingMap.size}:${ranked.map((i) => i.Id).join(",")}`;
+        const sig = `${sc}:${queryText}:${invItems.length}:${extraItems.length}:${trackingMap.size}:${ranked.length}:${ranked.slice(0, 24).map((i) => i.Id).join(",")}`;
         if (searchUiState.lastSignature === sig && host.querySelector(".fx-search-library-head")) return;
         searchUiState.lastSignature = sig;
+        disconnectSearchBatchObserver();
         const head = element("div", "fx-search-library-head");
         const titleH1 = element("h1", "fx-search-library-title", `Results for "${queryText}"`);
         head.append(titleH1);
@@ -6314,30 +6462,79 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           slots: []
         };
         const grid = element("div", "fx-search-library-grid");
-        for (const item of ranked) {
-          grid.append(renderCard(item, cardCtx, false, "portrait"));
+        const BATCH_SIZE = 48;
+        searchUiState.ranked = ranked;
+        searchUiState.renderedCount = 0;
+        const appendNextBatch = () => {
+          const startIdx = searchUiState.renderedCount;
+          if (startIdx >= ranked.length) return;
+          const endIdx = Math.min(ranked.length, startIdx + BATCH_SIZE);
+          const frag = document.createDocumentFragment();
+          for (let i = startIdx; i < endIdx; i++) {
+            frag.append(renderCard(ranked[i], cardCtx, false, "portrait"));
+          }
+          grid.append(frag);
+          searchUiState.renderedCount = endIdx;
+          if (endIdx >= ranked.length) {
+            disconnectSearchBatchObserver();
+            sentinel == null ? void 0 : sentinel.remove();
+          }
+        };
+        let sentinel = null;
+        appendNextBatch();
+        if (searchUiState.renderedCount < ranked.length) {
+          sentinel = element("div", "fx-search-sentinel");
+          sentinel.setAttribute("aria-hidden", "true");
+          host.replaceChildren(head, grid, sentinel);
+          if (typeof IntersectionObserver === "function") {
+            searchUiState.batchIo = new IntersectionObserver((entries) => {
+              if (entries.some((e) => e.isIntersecting)) appendNextBatch();
+            }, { rootMargin: "600px 0px" });
+            searchUiState.batchIo.observe(sentinel);
+          } else {
+            appendNextBatch();
+          }
+        } else {
+          host.replaceChildren(head, grid);
         }
-        host.replaceChildren(head, grid);
       }
       function syncSearchPage(api = window.ApiClient) {
         var _a2, _b2;
         const searchPage = document.getElementById("searchPage");
         if (!searchPage || !visible(searchPage) || !((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           clearTimeout(searchUiState.remoteTimer);
+          clearTimeout(searchUiState.inputTimer);
+          disconnectSearchBatchObserver();
           return;
         }
         const inp = searchPage.querySelector('#searchTextInput, input.searchfields-txtSearch, .searchFieldsInner input, input[type="search"], input[type="text"]');
         if (inp && !inp._fxSearchBound) {
           inp._fxSearchBound = true;
-          const onInputChange = () => syncSearchPage(window.ApiClient || api);
-          inp.addEventListener("input", onInputChange);
-          inp.addEventListener("search", onInputChange);
-          inp.addEventListener("change", onInputChange);
+          const onInputDebounced = () => {
+            clearTimeout(searchUiState.inputTimer);
+            const val = String(inp.value || "").trim();
+            if (!val) {
+              syncSearchPage(window.ApiClient || api);
+              return;
+            }
+            searchUiState.inputTimer = setTimeout(() => {
+              syncSearchPage(window.ApiClient || api);
+            }, 110);
+          };
+          const onInputImmediate = () => {
+            clearTimeout(searchUiState.inputTimer);
+            syncSearchPage(window.ApiClient || api);
+          };
+          inp.addEventListener("input", onInputDebounced);
+          inp.addEventListener("search", onInputImmediate);
+          inp.addEventListener("change", onInputImmediate);
         }
         const urlQuery = new URLSearchParams(String(location.hash || "").split("?")[1] || "").get("query") || "";
         const queryText = String(inp ? inp.value : urlQuery).trim();
         if (!queryText) {
           clearTimeout(searchUiState.remoteTimer);
+          clearTimeout(searchUiState.inputTimer);
+          disconnectSearchBatchObserver();
           searchUiState.query = "";
           searchUiState.lastSignature = "";
           searchPage.removeAttribute("data-fx-search-active");
@@ -6378,7 +6575,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                 renderSearchLibraryResults(searchPage, api, queryText, ((_a4 = snapshots.get(`${sc}:home:`)) == null ? void 0 : _a4.value) || null);
               }).catch(() => {
               });
-            }, 160);
+            }, 220);
           }
         }
         renderSearchLibraryResults(searchPage, api, queryText, cachedSnap);
@@ -6780,15 +6977,24 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
       const SETTINGS_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
       const MOBILE_SEARCH_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7.5"></circle><line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line></svg>';
       function syncMobileHeaderControls(api = window.ApiClient) {
-        var _a2, _b2;
+        var _a2, _b2, _c2, _d2;
         const proxy = document.querySelector("[data-sleekfin-header-proxy]");
         if (proxy) {
           if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
             proxy.querySelectorAll("[data-fx-mobile-search]").forEach((n) => n.remove());
           } else {
             const overflowToggle = proxy.querySelector("[data-sleekfin-header-overflow-toggle]");
+            const nativeSearch = proxy.querySelector('button[data-sleekfin-header-proxy-item="jellyfin:search"]');
+            const nativeSearchVisible = Boolean(
+              nativeSearch && nativeSearch.getAttribute("data-sleekfin-header-overflowed") !== "true" && nativeSearch.style.display !== "none"
+            );
+            const overflowHidden = !overflowToggle || overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") === "true";
+            const isPhoneHeader = Boolean((_c2 = (_b2 = window.matchMedia) == null ? void 0 : _b2.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _c2.matches);
+            const needMobileSearch = Boolean(overflowToggle && !nativeSearchVisible && (!overflowHidden || isPhoneHeader));
             let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
-            if (overflowToggle) {
+            if (!needMobileSearch) {
+              if (mobileSearchBtn) mobileSearchBtn.remove();
+            } else {
               let createdSearch = false;
               if (!mobileSearchBtn) {
                 mobileSearchBtn = element("button", "fx-mobile-search-btn");
@@ -6832,7 +7038,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
         const drawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
         if (!drawer) return;
-        if (!((_b2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _b2.call(api))) {
+        if (!((_d2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _d2.call(api))) {
           drawer.querySelectorAll("[data-fx-overflow-settings]").forEach((n) => n.remove());
           return;
         }
@@ -7400,6 +7606,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         if (s.toolbar) s.toolbar.hidden = ((_d2 = s.route) == null ? void 0 : _d2.page) === "home";
         s.list.hidden = !!s.full;
         s.footer.hidden = !!(s.full || !s.slots.length && !s.finished);
+        s.more.hidden = !s.pauseAutomatic;
         s.matchCount.hidden = !!s.full;
         const savedScroll = s.savedSubpageScroll || 0;
         s.savedSubpageScroll = 0;
@@ -7410,6 +7617,42 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           virtualize(s);
         });
       }
+      const SUBPAGE_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>';
+      function resolveCategoryShelf(s, catKey, fallbackRow = null) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+        const plannerShelf = (_b2 = (_a2 = s.planner) == null ? void 0 : _a2.shelves) == null ? void 0 : _b2.find((sh) => sh.key === catKey);
+        const slotRow = ((_c2 = s.slots.find((sl) => {
+          var _a3;
+          return ((_a3 = sl.data) == null ? void 0 : _a3.key) === catKey;
+        })) == null ? void 0 : _c2.data) || fallbackRow;
+        if (plannerShelf && (((_d2 = plannerShelf.items) == null ? void 0 : _d2.length) || plannerShelf.title)) {
+          return { title: plannerShelf.title, items: plannerShelf.allItems || plannerShelf.items || [] };
+        }
+        if (slotRow && (((_e2 = slotRow.allItems) == null ? void 0 : _e2.length) || ((_f = slotRow.items) == null ? void 0 : _f.length))) {
+          return { title: slotRow.title || catKey, items: slotRow.allItems || slotRow.items || [] };
+        }
+        const invItems = ((_g = s.inventory) == null ? void 0 : _g.items) || [];
+        if (invItems.length && s.config) {
+          const pageProfile = s.profile || ((_i = s.config.pages) == null ? void 0 : _i[(_h = s.route) == null ? void 0 : _h.page]) || ((_j = s.config.pages) == null ? void 0 : _j.home);
+          if (pageProfile) {
+            const rebuilt = buildShelves(invItems, pageProfile, s.config, ((_k = s.route) == null ? void 0 : _k.page) || "home", s.now);
+            const hit = rebuilt.find((sh) => sh.key === catKey);
+            if (hit) return { title: hit.title, items: hit.items || [] };
+          }
+          if (catKey.startsWith("rule:")) {
+            const ruleKey = catKey.slice(5);
+            const pageOrder = [...new Set([(_l = s.route) == null ? void 0 : _l.page, "movies", "shows", "home"].filter(Boolean))];
+            for (const pName of pageOrder) {
+              const rule = (((_n = (_m = s.config.pages) == null ? void 0 : _m[pName]) == null ? void 0 : _n.rules) || []).find((r) => (r == null ? void 0 : r.Key) === ruleKey);
+              if (rule) {
+                const matched = invItems.filter((i) => matches(rule, i, s.config.hideWatched));
+                return { title: rule.Title || catKey, items: matched };
+              }
+            }
+          }
+        }
+        return { title: (slotRow == null ? void 0 : slotRow.title) || catKey, items: (slotRow == null ? void 0 : slotRow.allItems) || (slotRow == null ? void 0 : slotRow.items) || [] };
+      }
       function renderCategorySubpageDom(s, catKey, titleText, items) {
         let host = s.root.querySelector(".fx-subpage");
         if (!host) {
@@ -7417,29 +7660,37 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           s.root.prepend(host);
         }
         host.dataset.subpageKey = catKey;
-        const head = element("div", "fx-subpage-head");
         const backBtn = button("", () => closeCategorySubpage(s, true));
-        backBtn.className = "fx-subpage-back";
+        backBtn.className = "fx-subpage-back fx-subpage-back-top";
+        backBtn.title = "Back";
         backBtn.setAttribute("aria-label", `Back from ${titleText}`);
-        const arrow = element("span", "fx-subpage-arrow", "\u2190");
+        const arrow = element("span", "fx-subpage-arrow");
+        arrow.innerHTML = SUBPAGE_BACK_SVG;
+        backBtn.append(arrow);
+        const head = element("div", "fx-subpage-head");
         const h1 = element("h1", "fx-subpage-title", titleText);
         const cleanItems = (items || []).filter((i) => i && i.Type !== "SeeMore");
         const count = element("span", "fx-subpage-count", `${cleanItems.length}`);
-        backBtn.append(arrow, h1, count);
-        head.append(backBtn);
+        head.append(h1, count);
         const grid = element("div", "fx-subpage-grid");
         const useLandscape = cleanItems.length > 0 && cleanItems.every((i) => {
           var _a2;
           return i.Type === "Episode" && !i.SeriesPrimaryImageTag && !((_a2 = i.ImageTags) == null ? void 0 : _a2.Primary);
         });
         const cardLayout = useLandscape ? "landscape" : "portrait";
+        const frag = document.createDocumentFragment();
         cleanItems.forEach((item) => {
-          grid.append(renderCard(item, s, true, cardLayout));
+          frag.append(renderCard(item, s, true, cardLayout));
         });
-        host.replaceChildren(head, grid);
+        grid.append(frag);
+        const nodes = [backBtn, head, grid];
+        if (cleanItems.length > 0) {
+          nodes.push(element("p", "fx-subpage-end", "You've reached the bottom of the page! Congratulations!"));
+        }
+        host.replaceChildren(...nodes);
       }
       async function openCategorySubpage(s, catKey, fallbackRow = null, updateUrl = true) {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
         if (!s || !catKey || catKey === "MyMedia") return;
         if (catKey === "DiscoverMovies" || catKey === "DiscoverTV") {
           scrollToTop();
@@ -7462,14 +7713,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         s.list.hidden = true;
         s.footer.hidden = true;
         scrollToTop();
-        const plannerShelf = (_d2 = (_c2 = s.planner) == null ? void 0 : _c2.shelves) == null ? void 0 : _d2.find((sh) => sh.key === catKey);
-        const slotRow = ((_e2 = s.slots.find((sl) => {
-          var _a3;
-          return ((_a3 = sl.data) == null ? void 0 : _a3.key) === catKey;
-        })) == null ? void 0 : _e2.data) || fallbackRow;
-        let titleText = (plannerShelf == null ? void 0 : plannerShelf.title) || (slotRow == null ? void 0 : slotRow.title) || catKey;
-        let items = (plannerShelf == null ? void 0 : plannerShelf.items) || (slotRow == null ? void 0 : slotRow.allItems) || (slotRow == null ? void 0 : slotRow.items) || [];
-        if ((catKey === "RecentlyAddedMovies" || catKey === "RecentlyAddedShows") && ((_g = (_f = s.inventory) == null ? void 0 : _f.items) == null ? void 0 : _g.length)) {
+        const resolved = resolveCategoryShelf(s, catKey, fallbackRow);
+        let titleText = resolved.title;
+        let items = resolved.items;
+        if ((catKey === "RecentlyAddedMovies" || catKey === "RecentlyAddedShows") && ((_d2 = (_c2 = s.inventory) == null ? void 0 : _c2.items) == null ? void 0 : _d2.length)) {
           const fullAnchor = await s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 1e4 }).catch(() => null);
           if (state !== s || s.subpageKey !== catKey) return;
           if (fullAnchor) {
@@ -7478,13 +7725,13 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           }
         }
         renderCategorySubpageDom(s, catKey, titleText, items);
-        if (catKey === "ContinueWatchingNextUp" && s.inventory && typeof ((_h = s.api) == null ? void 0 : _h.getUrl) === "function") {
+        if (catKey === "ContinueWatchingNextUp" && s.inventory && typeof ((_e2 = s.api) == null ? void 0 : _e2.getUrl) === "function") {
           s.client.fetchContinueWatching(s.route, s.inventory, 100).then((more) => {
             if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !Array.isArray(more) || !more.length) return;
             if (more.length > items.length) renderCategorySubpageDom(s, catKey, titleText, more);
           }).catch(() => {
           });
-        } else if (!items.length && s.inventory && ((_j = (_i = s.profile) == null ? void 0 : _i.anchors) == null ? void 0 : _j.includes(catKey))) {
+        } else if (!items.length && s.inventory && ((_g = (_f = s.profile) == null ? void 0 : _f.anchors) == null ? void 0 : _g.includes(catKey))) {
           s.client.anchor(catKey, s.route, s.inventory, { ...s.config, cardsPerShelf: 200 }).then((anc) => {
             if (state !== s || !s.subpageActive || s.subpageKey !== catKey || !anc) return;
             renderCategorySubpageDom(s, catKey, anc.title || titleText, anc.allItems || anc.items || []);
@@ -7493,14 +7740,33 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
       }
       function syncCategorySubpage(s, wantedCat) {
+        var _a2, _b2, _c2, _d2;
         if (!s) return;
         const cat = String(wantedCat || "");
         if (!cat) {
           if (s.subpageActive) closeCategorySubpage(s, false);
           return;
         }
-        if (s.subpageActive && s.subpageKey === cat && s.root.querySelector(".fx-subpage")) return;
-        if (!s.inventory && !s.slots.length) return;
+        if (s.subpageActive && s.subpageKey === cat && s.root.querySelector(".fx-subpage")) {
+          s.list.hidden = true;
+          s.footer.hidden = true;
+          return;
+        }
+        const hasQuickMatch = Boolean(
+          ((_b2 = (_a2 = s.planner) == null ? void 0 : _a2.shelves) == null ? void 0 : _b2.some((sh) => sh.key === cat)) || s.slots.some((sl) => {
+            var _a3;
+            return ((_a3 = sl.data) == null ? void 0 : _a3.key) === cat;
+          })
+        );
+        if (!s.inventory && !hasQuickMatch) {
+          s.subpageActive = true;
+          s.subpageKey = cat;
+          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.setAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-subpage", "true");
+          if (s.toolbar) s.toolbar.hidden = true;
+          s.list.hidden = true;
+          s.footer.hidden = true;
+          return;
+        }
         openCategorySubpage(s, cat, null, false);
       }
       function bindRowHeading(titleEl, slot, s) {
@@ -7533,7 +7799,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         const compactTouch = isCompactTouchViewport();
         const noLoop = hasSeeMore || row.key === "MyMedia" || compactTouch;
         if (noLoop) track.dataset.noLoop = "true";
-        const copies = !noLoop && baseCount >= 2 ? s.route.view === "genres" ? Math.max(2, Math.ceil(12 / baseCount)) : Math.max(6, Math.ceil(32 / baseCount)) : 1;
+        const copies = !noLoop && baseCount >= 2 ? s.route.view === "genres" ? Math.max(2, Math.ceil(10 / baseCount)) : Math.max(3, Math.ceil(16 / baseCount)) : 1;
         const cycleWidth = () => {
           if (copies <= 1) return 0;
           const first = track.children[0], secondCycle = track.children[baseCount];
@@ -7882,7 +8148,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         if (savedFeeds.size > 6) savedFeeds.delete(savedFeeds.keys().next().value);
       }
       function restoreFeed(s, saved) {
-        var _a2;
+        var _a2, _b2;
         s.slots = [];
         s.list.replaceChildren();
         s.filters = cloneJson(saved.filters);
@@ -7896,27 +8162,29 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         s.shuffle = saved.shuffle;
         s.lastFocus = saved.focus;
         saved.rows.forEach((row) => appendRow(row, s));
-        s.footer.hidden = s.full;
-        s.more.hidden = s.finished;
+        const inSubpage = Boolean(s.subpageActive || ((_b2 = s.route) == null ? void 0 : _b2.cat));
+        s.list.hidden = s.full || inSubpage;
+        s.footer.hidden = s.full || inSubpage;
+        s.more.hidden = !s.pauseAutomatic;
         s.more.disabled = false;
         const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== "recommended";
         s.matchCount.textContent = hasActiveFilter ? `${filterItems(s.inventory.items, s.filters, s.tracking).length} matching titles` : "";
-        s.note.textContent = s.finished ? "You\u2019ve reached the available matches." : "More shelves load as you scroll.";
+        s.note.textContent = s.finished ? "You've reached the bottom of the page! Congratulations!" : "";
         setMode(s, s.full, false);
         filterPanel(s);
         requestAnimationFrame(() => {
-          var _a3, _b2;
-          if (state !== s || !s.root.isConnected) return;
+          var _a3, _b3, _c2;
+          if (state !== s || !s.root.isConnected || s.subpageActive || ((_a3 = s.route) == null ? void 0 : _a3.cat)) return;
           const root = findScrollRoot(s.root);
           root.scrollTop = saved.scrollTop;
           s.slots.forEach((slot2, n) => {
             const track = slot2.node.querySelector(".fx-track");
             if (track) track.scrollLeft = saved.tracks[n] || 0;
           });
-          const slot = s.slots[(_a3 = saved.focus) == null ? void 0 : _a3.row];
+          const slot = s.slots[(_b3 = saved.focus) == null ? void 0 : _b3.row];
           if (slot) {
             const card = [...slot.node.querySelectorAll(".fx-card")].find((c) => c.dataset.itemId === saved.focus.id);
-            (_b2 = card == null ? void 0 : card.focus) == null ? void 0 : _b2.call(card, { preventScroll: true });
+            (_c2 = card == null ? void 0 : card.focus) == null ? void 0 : _c2.call(card, { preventScroll: true });
           }
           virtualize(s);
         });
@@ -7969,17 +8237,21 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         walk(s.native);
       }
       function setMode(s, full, remember = true) {
+        var _a2;
+        const inSubpage = Boolean(s.subpageActive || ((_a2 = s.route) == null ? void 0 : _a2.cat));
         s.full = full;
         s.root.classList.toggle("fx-mode-full", !!full);
-        s.list.hidden = full;
-        s.footer.hidden = full || !s.slots.length && !s.finished;
+        s.list.hidden = full || inSubpage;
+        s.footer.hidden = full || inSubpage || !s.slots.length && !s.finished;
+        s.more.hidden = !s.pauseAutomatic;
+        if (inSubpage && s.toolbar) s.toolbar.hidden = true;
         const hasHeaderViewMenu = !!document.querySelector('button[aria-controls="library-view-menu"]');
         const titlePicker = s.root.querySelector(".fx-title-picker");
-        if (titlePicker) titlePicker.hidden = hasHeaderViewMenu;
+        if (titlePicker && !inSubpage) titlePicker.hidden = hasHeaderViewMenu;
         s.root.hidden = !!(full && s.route.page !== "home" && hasHeaderViewMenu && !s.failed);
         s.filterToggle.disabled = full || !s.inventory;
-        s.matchCount.hidden = full;
-        if (full) s.panel.hidden = true;
+        s.matchCount.hidden = full || inSubpage;
+        if (full || inSubpage) s.panel.hidden = true;
         s.toggle.textContent = full ? "Discover shelves" : s.route.page === "home" ? "Normal home" : "Full library";
         syncNative(s, !(full || s.failed));
         if (remember) {
@@ -7991,8 +8263,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
         syncHomeModeAttr(s.api);
         if (!s.started) initialize(s);
-        else if (!full && s.planner && !s.slots.filter((slot) => !slot.boot).length) loadMore(s);
-        if (!full) scheduleScroll();
+        else if (!full && !inSubpage && s.planner && !s.slots.filter((slot) => !slot.boot).length) loadMore(s);
+        if (!full && !inSubpage) scheduleScroll();
       }
       async function nextRow(s) {
         if (s.filteredQueue) return s.filteredQueue.shift() || null;
@@ -8040,8 +8312,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         return null;
       }
       async function loadMore(s, automatic = false) {
-        var _a2, _b2;
-        if (state !== s || s.loading || s.full || s.finished || !s.planner || automatic && s.pauseAutomatic) return;
+        var _a2, _b2, _c2, _d2, _e2, _f;
+        if (state !== s || s.loading || s.full || s.finished || !s.planner || automatic && (s.pauseAutomatic || s.subpageActive || ((_a2 = s.route) == null ? void 0 : _a2.cat))) return;
         s.loading = true;
         s.more.disabled = true;
         s.more.textContent = "Loading\u2026";
@@ -8064,7 +8336,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                 return slot.boot && ((_a3 = slot.data) == null ? void 0 : _a3.key) === hydratedRow.key;
               });
               if (existingBoot) {
-                if (hydratedRow.family !== "anchor" && Array.isArray((_a2 = existingBoot.data) == null ? void 0 : _a2.items) && existingBoot.data.items.length) {
+                if (hydratedRow.family !== "anchor" && Array.isArray((_b2 = existingBoot.data) == null ? void 0 : _b2.items) && existingBoot.data.items.length) {
                   const byIdMap = new Map(items.map((i) => [i.Id, i]));
                   const ordered = existingBoot.data.items.map((oldItem) => byIdMap.get(oldItem.Id) || oldItem).filter(Boolean);
                   const seen = new Set(ordered.map((i) => i.Id));
@@ -8086,7 +8358,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                   s.slots.splice(curIdx, 1);
                   const clamped = Math.min(placedIndex, s.slots.length);
                   const refSlot = s.slots[clamped];
-                  if (((_b2 = refSlot == null ? void 0 : refSlot.node) == null ? void 0 : _b2.parentElement) === s.list) s.list.insertBefore(existingBoot.node, refSlot.node);
+                  if (((_c2 = refSlot == null ? void 0 : refSlot.node) == null ? void 0 : _c2.parentElement) === s.list) s.list.insertBefore(existingBoot.node, refSlot.node);
                   else s.list.append(existingBoot.node);
                   s.slots.splice(clamped, 0, existingBoot);
                 }
@@ -8096,7 +8368,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
                 appendRow(hydratedRow, s, false, placedIndex++);
               }
               s.failed = false;
-              s.footer.hidden = s.full;
+              s.footer.hidden = s.full || s.subpageActive || Boolean((_d2 = s.route) == null ? void 0 : _d2.cat);
               syncNative(s, true);
             }
             s.pending = null;
@@ -8108,10 +8380,12 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           s.list.querySelectorAll('[data-skeleton="true"]').forEach((n) => n.remove());
           s.status.textContent = [...s.warnings].join(" ");
           s.pauseAutomatic = false;
+          const inSubpage = Boolean(s.subpageActive || ((_e2 = s.route) == null ? void 0 : _e2.cat));
           if ((s.slots.length || s.filteredQueue) && !s.full) {
             s.failed = false;
             s.filterToggle.disabled = !s.inventory;
-            s.footer.hidden = s.full;
+            s.list.hidden = inSubpage;
+            s.footer.hidden = inSubpage;
             syncNative(s, true);
             writeBootRows(s);
           }
@@ -8122,13 +8396,14 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             }
             s.status.textContent = s.filteredQueue ? "No matching titles. Clear a filter to broaden your search." : "No matching shelves. The normal Jellyfin view is still available. Try fewer filters in Customize.";
           }
-          s.more.hidden = s.finished;
-          s.note.textContent = s.finished ? "You\u2019ve reached the available matches. Clear filters or use Restart feed to explore again." : s.filteredQueue ? "Filtered results load as you scroll." : "Keeps browsing your library; titles can return in different shelves further down.";
-          virtualize(s);
+          s.more.hidden = true;
+          s.note.textContent = s.finished ? "You've reached the bottom of the page! Congratulations!" : "";
+          if (!inSubpage) virtualize(s);
         } catch {
           if (state === s) {
             s.pauseAutomatic = true;
-            s.footer.hidden = s.full;
+            s.footer.hidden = s.full || s.subpageActive || Boolean((_f = s.route) == null ? void 0 : _f.cat);
+            s.more.hidden = false;
             s.status.textContent = "Could not load the next shelves. Your existing rows are intact. Use Try again or the normal view.";
           }
         } finally {
@@ -8137,6 +8412,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           if (state === s) {
             s.more.disabled = false;
             s.more.textContent = s.pauseAutomatic ? "Try again" : "Load more";
+            s.more.hidden = !s.pauseAutomatic;
           }
           if (state === s && s.filterPending) applyFilters(s);
         }
@@ -8185,11 +8461,19 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         }
       }
       async function initialize(s) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f;
         if (s.started) return;
         s.started = true;
         s.status.textContent = "";
         s.footer.hidden = true;
+        if (s.route.cat) {
+          s.subpageActive = true;
+          s.subpageKey = s.route.cat;
+          (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.setAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-subpage", "true");
+          if (s.toolbar) s.toolbar.hidden = true;
+          s.list.hidden = true;
+          s.footer.hidden = true;
+        }
         try {
           let localError;
           try {
@@ -8199,29 +8483,32 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           }
           let paintedBootConfigStr = "";
           let paintedBoot = false;
-          if (s.config && !s.full) {
+          if (s.config && !s.full && !s.route.cat) {
             s.profile = s.config.pages[s.route.page];
             const cfgStr = JSON.stringify(s.config);
             const earlySaved = savedFeeds.get(s.key);
-            if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === cfgStr && ((_a2 = earlySaved.rows) == null ? void 0 : _a2.length)) {
+            if (earlySaved && Date.now() - earlySaved.at < 30 * 6e4 && earlySaved.config === cfgStr && ((_c2 = earlySaved.rows) == null ? void 0 : _c2.length)) {
               if (earlySaved.shuffle) s.shuffle = earlySaved.shuffle;
               earlySaved.rows.slice(0, 4).forEach((row) => appendRow(row, s, true));
               paintedBoot = true;
               paintedBootConfigStr = cfgStr;
             } else {
               const bootData = readBootRows(s, cfgStr);
-              if ((_b2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _b2.length) {
+              if ((_d2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _d2.length) {
                 if (bootData.shuffle) s.shuffle = bootData.shuffle;
                 bootData.rows.forEach((row) => appendRow(row, s, true));
                 paintedBoot = true;
                 paintedBootConfigStr = cfgStr;
               }
             }
-            if (!paintedBoot && !s.route.cat) renderSkeletonRows(s, 3);
+            if (!paintedBoot) renderSkeletonRows(s, 3);
+            syncNative(s, true);
+          } else if (s.config && !s.full) {
+            s.profile = s.config.pages[s.route.page];
             syncNative(s, true);
           }
           if (!s.full && s.route.view !== "genres") {
-            s.client.prefetchContinueWatching(s.route, Math.min(((_c2 = s.config) == null ? void 0 : _c2.cardsPerShelf) || 20, 20));
+            s.client.prefetchContinueWatching(s.route, Math.min(((_e2 = s.config) == null ? void 0 : _e2.cardsPerShelf) || 20, 20));
           }
           const cacheKey = `${s.scope}:${s.route.page}:${s.route.parentId}`;
           const cachedInv = findCachedInventory(s.scope, s.route);
@@ -8254,7 +8541,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           }
           if (!s.full && !paintedBoot && !s.route.cat) {
             const bootData = readBootRows(s, finalCfgStr);
-            if ((_d2 = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _d2.length) {
+            if ((_f = bootData == null ? void 0 : bootData.rows) == null ? void 0 : _f.length) {
               if (bootData.shuffle) s.shuffle = bootData.shuffle;
               bootData.rows.forEach((row) => appendRow(row, s, true));
               paintedBoot = true;
@@ -8330,7 +8617,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
             s.initialHydrateSkip = true;
             await loadMore(s);
           }
-          if (s.route.cat) syncCategorySubpage(s, s.route.cat);
+          if (s.route.cat) openCategorySubpage(s, s.route.cat, null, false);
           await trackingTask;
         } catch {
           if (state !== s) return;
@@ -8952,6 +9239,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(api);
         syncHomeModeAttr(api);
+        syncDocumentStateAttrs();
         anchorOpenPopovers();
         syncSearchPage(api);
         guardMicroLogos();
@@ -9013,7 +9301,8 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           s.pauseAutomatic = false;
           loadMore(s);
         });
-        s.note = element("p", "", "Loading shelves on demand.");
+        s.more.hidden = true;
+        s.note = element("p", "", "");
         s.filterToggle = button("Filters", () => {
           var _a3;
           (_a3 = s.root.querySelector(".fx-feed-menu")) == null ? void 0 : _a3.removeAttribute("open");
@@ -9696,6 +9985,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(window.ApiClient);
         syncHomeModeAttr(window.ApiClient);
+        syncDocumentStateAttrs();
         anchorOpenPopovers();
         syncSearchPage(window.ApiClient);
         if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
@@ -9706,24 +9996,47 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           document.head.append(rh);
         }
         observer = new MutationObserver((records) => {
-          anchorOpenPopovers();
-          if (records.some((r) => {
-            var _a2, _b2;
-            return r.type === "childList" && ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage"));
-          })) {
+          var _a2, _b2, _c2, _d2, _e2, _f, _g;
+          let needsPopover = false;
+          let needsHeader = false;
+          let needsSearch = false;
+          let needsReconcile = false;
+          for (let i = 0; i < records.length; i++) {
+            const r = records[i];
+            const t = r.target;
+            if (!t || t.nodeType !== 1) continue;
+            if (!needsPopover) {
+              if (t === document.body || t.id === "videoOsdPage" || ((_a2 = t.matches) == null ? void 0 : _a2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,header.MuiAppBar-root")) || ((_b2 = t.closest) == null ? void 0 : _b2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu"))) {
+                needsPopover = true;
+              } else if (r.type === "childList" && r.addedNodes.length) {
+                for (let j = 0; j < r.addedNodes.length; j++) {
+                  const n = r.addedNodes[j];
+                  if (n.nodeType === 1 && ((_c2 = n.matches) == null ? void 0 : _c2.call(n, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu"))) {
+                    needsPopover = true;
+                    break;
+                  }
+                }
+              }
+            }
+            if (!needsHeader && r.type === "childList" && ((_d2 = t.closest) == null ? void 0 : _d2.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage"))) {
+              needsHeader = true;
+            }
+            if (!needsSearch && t.id === "searchPage") {
+              needsSearch = true;
+            } else if (!needsSearch && ((_e2 = t.closest) == null ? void 0 : _e2.call(t, "#searchPage")) && !((_f = t.closest) == null ? void 0 : _f.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
+              needsSearch = true;
+            }
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_g = t.closest) == null ? void 0 : _g.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+              needsReconcile = true;
+            }
+          }
+          if (needsPopover) schedulePopoverSync();
+          if (needsHeader) {
             hideLeavingSoonNav();
             syncMobileOverflowDrawer(window.ApiClient);
           }
-          if (records.some((r) => {
-            var _a2, _b2, _c2, _d2;
-            return ((_b2 = (_a2 = r.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#searchPage")) && !((_d2 = (_c2 = r.target) == null ? void 0 : _c2.closest) == null ? void 0 : _d2.call(_c2, ".fx-search-library"));
-          })) {
-            syncSearchPage(window.ApiClient);
-          }
-          if (records.some((r) => {
-            var _a2, _b2;
-            return !((_b2 = (_a2 = r.target).closest) == null ? void 0 : _b2.call(_a2, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader")) && (r.type === "childList" || r.attributeName === "class");
-          })) schedule();
+          if (needsSearch) syncSearchPage(window.ApiClient);
+          if (needsReconcile) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "aria-hidden"] });
         document.addEventListener("click", onOsdSuppressClick, true);
@@ -9744,7 +10057,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
         document.addEventListener("focusin", rememberFocus);
         document.addEventListener("scroll", scheduleScroll, { passive: true, capture: true });
         window.addEventListener("resize", scheduleScroll);
-        heartbeat = setInterval(schedule, 2e3);
+        heartbeat = setInterval(schedule, 3e3);
         reconcile();
       }
       window.FazFortDiscovery = {
@@ -9757,10 +10070,23 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
           stopped = true;
           clearTimeout(timer);
           clearTimeout(searchUiState.remoteTimer);
+          clearTimeout(searchUiState.inputTimer);
+          if (popoverFrame) {
+            try {
+              cancelAnimationFrame(popoverFrame);
+            } catch {
+            }
+            try {
+              clearTimeout(popoverFrame);
+            } catch {
+            }
+            popoverFrame = 0;
+          }
+          disconnectSearchBatchObserver();
           clearInterval(heartbeat);
           observer == null ? void 0 : observer.disconnect();
           releaseOsdSpeedHold();
@@ -9775,7 +10101,10 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
           (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
           (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-subpage");
-          (_j = (_i = document.getElementById("searchPage")) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-search-active");
+          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-popover-open");
+          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-video-osd");
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-has-subheader");
+          (_p = (_o = document.getElementById("searchPage")) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-search-active");
           document.querySelectorAll(".fx-search-library").forEach((n) => n.remove());
           document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("dblclick", onOsdDblClick, true);
@@ -9796,7 +10125,7 @@ html:has(#videoOsdPage:not(.hide):not(.hidePage):not([hidden])) :is(.dialog,.act
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
-          (_k = document.getElementById("fx-discovery-style")) == null ? void 0 : _k.remove();
+          (_q = document.getElementById("fx-discovery-style")) == null ? void 0 : _q.remove();
           delete window.FazFortDiscovery;
         }
       };

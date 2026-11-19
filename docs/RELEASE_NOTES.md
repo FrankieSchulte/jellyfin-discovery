@@ -1,12 +1,11 @@
-Jellyfin Discovery 0.5.7 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.8 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.7):
-- Restore full desktop top spacing in half-width window mode across Library, Movies, Shows, Collections, Favorites, Search, and Settings by scoping compact phone top-padding and toolbar-collapse rules strictly to touch/phone viewports.
-- Fix `Recently Added` badges across Movies & Shows by preserving historical `DateCreated` timestamps in `ArrivalMonitor` / `Ledger.Observe` across remuxes and rescans and tightening the client `recent()` window to 7 days.
-- Exclude already-downloaded and available Movies and TV Shows from `Discover Movies` and `Discover TV Shows` shelves across Home, Movies, and Shows.
-- Replace `#searchPage` horizontal carousels with a unified, uncapped Library-style poster grid titled `Results for "xxx"` (Movies and Shows only, no individual Episode clutter), sorted with title matches first followed by closest tag, curated-category, genre, and cast/director alignment.
-- Restore the clean `v0.5.5` Profile dropdown (`#app-user-menu`), unify all dropdowns (`#library-view-menu`, `#filter-popover`, Sort, View, Season X, SleekFin popups, and Downloads) with identical frosted-glass opacity, `blur(18px)`, typography, and `fx-dropdown-enter` entrance animation, and anchor all open dropdowns in place so they stay stationary when scrolling down.
-- Overhaul the Library Filters popover (`#filter-popover`): thinner `216px` width, thin category-scroll chevron arrows (`›`), zero-lag removal of the 2,500-item `Tags` checkbox list, an auto-mirroring `Year` / `Year Range` input (`From` – `To`), and a bottom `Reset filters` button.
+Discovery (0.5.8):
+- Eliminate search page and page-to-page navigation freezes: debounce search input, cache normalized item search metadata, progressively batch large result grids, coalesce popover MutationObserver work, halve loop carousel clones, and replace global html:has() selectors with lightweight root attributes.
+- Fix duplicate search button at half-screen desktop widths by only injecting the mobile search shortcut when SleekFin's native search button is actually overflowed.
+- Unify every dropdown (Profile, Movies/Shows/Collections, Filters, Sort, Three-Dots, Downloads) to a single crisp glassy dark rectangle by stripping outer .sleekfin-menu-host box borders, eliminating right-edge clipping on Filters, and placing rotating right-side chevrons on expandable filter rows.
+- Align category subpage top spacing with other pages, move the back arrow to the fixed top-left header position matching detail pages, fix back-navigation from a movie/show so parent carousels never leak underneath and category titles/items always resolve, and hide the Load more button in favor of a bottom-of-page message.
+- Overhaul TV badges: rename New Season to New Episodes, show New Episodes strictly when a downloaded playable episode premiered within the past 30 days, and reserve Recently Added strictly for Movies.
 
-Request Hub (0.5.7):
-- Exclude already-downloaded and available Movies and TV Shows (`mediaInfo.status == 5` or playable in the Jellyfin library) across all Discover rails, subviews, genres, studios, networks, and search results, and preserve desktop half-width top spacing.
+Request Hub (0.5.8):
+- Keep the Discover tab visible in the top header bar at half-screen desktop widths (only collapsing into the overflow drawer on narrow/touch viewports or when overflow is active) and skip popover mutations in the observer.

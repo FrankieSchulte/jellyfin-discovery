@@ -728,9 +728,12 @@ function ensureNavigation(active){
    try{window.dispatchEvent?.(new Event('resize'));}catch{}
   }
  }
- const isMobileHeader=Boolean(window.matchMedia?.('(max-width: 899px)')?.matches);
  const proxy=document.querySelector('[data-sleekfin-header-proxy]');
  const overflowDrawer=document.querySelector('[data-sleekfin-header-overflow-drawer]');
+ const overflowToggle=proxy?.querySelector?.('[data-sleekfin-header-overflow-toggle]');
+ const overflowActive=Boolean(overflowToggle&&overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden')!=='true');
+ const isPhoneHeader=Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
+ const isMobileHeader=Boolean(isPhoneHeader||(overflowActive&&window.matchMedia?.('(max-width: 899px)')?.matches));
  const ensureBeforeCollectionsOrLiveTv=(host,discoverNode,itemsSelector)=>{
   if(!host||!discoverNode||discoverNode.parentElement!==host)return;
   const siblings=[...host.querySelectorAll(itemsSelector)];
@@ -1745,9 +1748,9 @@ observer=new MutationObserver(records=>{
    ensureNavigation(isDiscoverHash());
   }
  }
- if(records.some(r=>!r.target?.closest?.('.rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage'))){
+ if(records.some(r=>!r.target?.closest?.('.rh-root,[data-rh-link],[data-rh-source],[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,header.MuiAppBar-root,.fx-discovery,.fx-dialog,.fx-inline-studio,#searchPage,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu'))){
   clearTimeout(timer);
-  timer=setTimeout(reconcile,80);
+  timer=setTimeout(reconcile,120);
  }
 });
 observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
@@ -1759,7 +1762,7 @@ window.addEventListener('sleekfin:header-catalog-changed',hideLeavingSoonNav);
 document.addEventListener?.('viewshow',reconcile);
 document.addEventListener?.('pageshow',reconcile);
 document.addEventListener?.('keydown',handleRemoteKey,true);
-const heartbeat=setInterval(reconcile,1500);
+const heartbeat=setInterval(reconcile,3000);
 window.JellyfinRequestHub={
  stop(){
   cleanup();
