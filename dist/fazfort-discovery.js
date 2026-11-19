@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.10 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.11 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2352,20 +2352,24 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   gap:2px!important;
   box-sizing:border-box!important;
 }
-/* Playback OSD Settings & Track Popups: higher opacity so bright video frames never bleed through, animating upward above gear */
+/* Playback OSD Settings, Subtitles & Track Popups: anchored at Frame 0 cleanly above bottom-right controls (zero shift!) with higher opacity */
 @keyframes fx-dropdown-enter-up{
   from{opacity:0;transform:translateY(6px) scale(.96)}
   to{opacity:1;transform:none}
 }
 html[data-fx-video-osd="true"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
-html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-popup[data-fx-osd-popup="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-osd-popup="true"]:not(.sleekfin-menu-host)){
+  position:fixed!important;
+  top:auto!important;
+  left:auto!important;
+  bottom:var(--fx-osd-popup-bottom,74px)!important;
+  right:var(--fx-osd-popup-right,20px)!important;
+  max-height:min(68dvh,calc(100dvh - var(--fx-osd-popup-bottom,74px) - 20px))!important;
   background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
   background-color:rgba(15,16,20,.97)!important;
   backdrop-filter:blur(22px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
   border:1px solid rgba(255,255,255,.11)!important;
-}
-html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
   transform-origin:bottom right!important;
   animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
@@ -3149,8 +3153,14 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
+/* Remove MUI's redundant AppBar spacer div on #searchPage so header height isn't double-counted */
+html[data-fx-search-page="true"] header.MuiAppBar-root + div[aria-hidden="true"]{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+}
 html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,72px) + 2px)!important;
+  padding-top:calc(var(--sleekfin-header-height,68px) + 6px)!important;
   margin-top:0!important;
 }
 html[data-fx-has-subheader="true"] #searchPage#searchPage{
@@ -3162,7 +3172,7 @@ html[data-fx-has-subheader="true"] #searchPage#searchPage{
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
-#searchPage#searchPage :is(.padded-top-page,.content-primary){
+#searchPage#searchPage :is(.padded-top,.padded-top-page,.content-primary){
   padding-top:0!important;
   margin-top:0!important;
 }
@@ -4254,9 +4264,11 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Lock Video Playback (#videoOsdPage) in Place & Block Native iOS Fullscreen Entry */
+/* Lock Video Playback (#videoOsdPage) in Place, Guarantee Easy Back Button Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
 html[data-fx-video-osd="true"],
-html[data-fx-video-osd="true"] body{
+html[data-fx-video-osd="true"] body,
+html[data-fx-video-osd="true"] .skinBody,
+html[data-fx-video-osd="true"] .mainAnimatedPages{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -4280,10 +4292,72 @@ html[data-fx-video-osd="true"] .videoPlayerContainer{
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
+/* Ensure top playback header & Back button always sit cleanly above video canvas with generous safe-area tap target */
+html[data-fx-video-osd="true"] .skinHeader{
+  z-index:100010!important;
+  padding-top:env(safe-area-inset-top,0px)!important;
+  padding-left:env(safe-area-inset-left,0px)!important;
+  padding-right:env(safe-area-inset-right,0px)!important;
+  pointer-events:none!important;
+}
+html[data-fx-video-osd="true"] .skinHeader :is(button,a,.headerBackButton,.paper-icon-button-light){
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton{
+  min-width:48px!important;
+  min-height:48px!important;
+  width:48px!important;
+  height:48px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-left:4px!important;
+  border-radius:999px!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton:hover{
+  background:rgba(255,255,255,.14)!important;
+}
+/* Lift & style Playback Info (.playerStats) overlay above the fixed video player so selecting Playback info always displays cleanly */
+.playerStats:not(.hide){
+  display:block!important;
+  position:fixed!important;
+  z-index:100025!important;
+  top:calc(64px + env(safe-area-inset-top,0px))!important;
+  left:calc(16px + env(safe-area-inset-left,0px))!important;
+  right:auto!important;
+  bottom:auto!important;
+  max-width:min(440px,calc(100vw - 32px))!important;
+  max-height:calc(100dvh - 144px)!important;
+  overflow-y:auto!important;
+  pointer-events:auto!important;
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.94)!important;
+  backdrop-filter:blur(20px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:12px!important;
+  box-shadow:0 18px 42px -8px rgba(0,0,0,.75)!important;
+  color:#f1f2f4!important;
+  padding:14px 16px!important;
+  box-sizing:border-box!important;
+}
+.playerStats .playerStats-closeButton{
+  color:rgba(255,255,255,.8)!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.playerStats .playerStats-closeButton:hover{
+  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+}
 #videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
   touch-action:pan-x!important;
 }
-html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.smoothScrollY,.sleekfin-details-track-dialog){
+html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.playerStats,.smoothScrollY,.sleekfin-details-track-dialog){
   touch-action:pan-y!important;
   overscroll-behavior:contain!important;
   pointer-events:auto!important;
@@ -4809,7 +4883,7 @@ button.fx-livetv-tab.is-active{
     max-width:100%!important;
   }
   html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-    padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(8px + env(safe-area-inset-top,0px))!important;
     margin-top:0!important;
   }
   html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
@@ -5036,6 +5110,14 @@ button.fx-livetv-tab.is-active{
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)) :is(.sleekfin-button-label,.sleekfin-details-action-label,.detailButton-text,.button-text){
     display:none!important;
+  }
+}
+/* Mobile & Touch Devices (Portrait + Landscape): Hide Play/Resume Overlay Button on Portrait-Oriented Cards */
+@media(max-width:899px),(hover:none) and (pointer:coarse){
+  :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"],.fx-card-portrait,.card[data-type="Movie"]:not(.backdropCard):not(.overflowBackdropCard),.card[data-type="Series"]:not(.backdropCard):not(.overflowBackdropCard),.card[data-type="BoxSet"]:not(.backdropCard):not(.overflowBackdropCard)) :is(button.cardOverlayFab-primary,button.cardOverlayButton[data-action="play"],button.cardOverlayButton[data-action="resume"],button.cardOverlayButton-centered,.cardOverlayContainer > button.cardOverlayButton,.cardOverlayButton-br){
+    display:none!important;
+    opacity:0!important;
+    pointer-events:none!important;
   }
 }
 `;
@@ -5623,8 +5705,9 @@ button.fx-livetv-tab.is-active{
         const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
         const fields = "DateCreated,PrimaryImageAspectRatio,ParentId";
         const mediaTypes = route.page === "movies" ? "Movie" : route.page === "shows" ? "Episode" : "Movie,Episode";
+        const resumePath = `Users/${encodeURIComponent(this.userId)}/Items/Resume`;
         const tasks = [
-          this.json("Items/Resume", { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+          this.json(resumePath, { Limit: limit, Recursive: true, MediaTypes: "Video", IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
         ];
         if (route.page !== "movies") {
           tasks.push(
@@ -5648,8 +5731,9 @@ button.fx-livetv-tab.is-active{
         const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
         const fields = "DateCreated,PrimaryImageAspectRatio,ParentId";
         const mediaTypes = route.page === "movies" ? "Movie" : route.page === "shows" ? "Episode" : "Movie,Episode";
+        const resumePath = `Users/${encodeURIComponent(this.userId)}/Items/Resume`;
         const tasks = [
-          this.json("Items/Resume", { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
+          this.json(resumePath, { Limit: limit, Recursive: true, MediaTypes: "Video", IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" }).catch(() => ({ Items: [] }))
         ];
         if (route.page !== "movies") {
           tasks.push(
@@ -6489,7 +6573,7 @@ button.fx-livetv-tab.is-active{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.10";
+      const VERSION = "0.5.11";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -7064,13 +7148,27 @@ button.fx-livetv-tab.is-active{
           el.removeAttribute(name);
         }
       }
-      function syncDocumentStateAttrs() {
+      function isVideoOsdOpen() {
         const osd = document.getElementById("videoOsdPage");
-        const osdOpen = Boolean(osd && !osd.classList.contains("hide") && !osd.classList.contains("hidePage") && !osd.hidden);
+        return Boolean(osd && !osd.classList.contains("hide") && !osd.classList.contains("hidePage") && !osd.hidden);
+      }
+      function syncDocumentStateAttrs() {
+        var _a2, _b2, _c2, _d2;
+        const osdOpen = isVideoOsdOpen();
         setRootAttr("data-fx-video-osd", osdOpen);
+        if (osdOpen) {
+          const osd = document.getElementById("videoOsdPage");
+          const gearBtn = (_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".btnVideoOsdSettings");
+          if (gearBtn && !((_d2 = (_c2 = (_b2 = document.documentElement) == null ? void 0 : _b2.style) == null ? void 0 : _c2.getPropertyValue) == null ? void 0 : _d2.call(_c2, "--fx-osd-popup-bottom"))) {
+            updateOsdPopupAnchor(gearBtn);
+          }
+        }
         const liveTvPage = document.getElementById("liveTvSuggestedPage");
         const liveTvOpen = Boolean(liveTvPage && !liveTvPage.classList.contains("hide") && !liveTvPage.classList.contains("hidePage") && !liveTvPage.hidden);
         setRootAttr("data-fx-livetv", liveTvOpen);
+        const searchPage = document.getElementById("searchPage");
+        const searchOpen = Boolean(searchPage && !searchPage.classList.contains("hide") && !searchPage.classList.contains("hidePage") && !searchPage.hidden);
+        setRootAttr("data-fx-search-page", searchOpen);
         const appBar = document.querySelector("header.MuiAppBar-root");
         const toolbars = appBar ? appBar.querySelectorAll(":scope > .MuiToolbar-root") : null;
         setRootAttr("data-fx-has-subheader", Boolean(toolbars && toolbars.length >= 2));
@@ -7100,35 +7198,39 @@ button.fx-livetv-tab.is-active{
           }, 280);
         });
       }
-      function positionOsdPopupAboveGear(osd, sheet, sleekPopup) {
-        var _a2, _b2, _c2, _d2, _e2;
-        const gearBtn = (_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".btnVideoOsdSettings");
-        if (!gearBtn || !(sheet == null ? void 0 : sheet.isConnected) || sheet.classList.contains("sleekfin-menu-closing")) return;
-        const gr = (_b2 = gearBtn.getBoundingClientRect) == null ? void 0 : _b2.call(gearBtn);
-        if (!gr || gr.width <= 0 || gr.height <= 0) return;
-        const vw = window.innerWidth || ((_c2 = document.documentElement) == null ? void 0 : _c2.clientWidth) || 1280;
-        const vh = window.innerHeight || ((_d2 = document.documentElement) == null ? void 0 : _d2.clientHeight) || 720;
-        const target = sleekPopup && sleekPopup.isConnected ? sleekPopup : sheet;
-        const rect = ((_e2 = target.getBoundingClientRect) == null ? void 0 : _e2.call(target)) || { width: 0, height: 0 };
-        const pw = Math.max(180, Math.round(rect.width || target.offsetWidth || 220));
-        const ph = Math.max(80, Math.round(rect.height || target.offsetHeight || 220));
-        const top = Math.max(12, Math.min(vh - ph - 12, Math.round(gr.top - ph - 12)));
-        const left = Math.max(12, Math.min(vw - pw - 12, Math.round(gr.right - pw)));
-        sheet.style.setProperty("top", `${top}px`, "important");
-        sheet.style.setProperty("left", `${left}px`, "important");
-        sheet.style.setProperty("bottom", "auto", "important");
-        sheet.style.setProperty("right", "auto", "important");
-        if (target !== sheet) {
-          target.style.setProperty("position", "fixed", "important");
-          target.style.setProperty("top", `${top}px`, "important");
-          target.style.setProperty("left", `${left}px`, "important");
-          target.style.setProperty("bottom", "auto", "important");
-          target.style.setProperty("right", "auto", "important");
+      function updateOsdPopupAnchor(anchorEl) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
+        const osd = document.getElementById("videoOsdPage");
+        const el = anchorEl || ((_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".btnVideoOsdSettings")) || ((_b2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _b2.call(osd, ".btnSubtitles"));
+        if (!el || !document.documentElement) return;
+        const r = (_c2 = el.getBoundingClientRect) == null ? void 0 : _c2.call(el);
+        if (!r || r.width <= 0 || r.height <= 0) return;
+        const vw = window.innerWidth || document.documentElement.clientWidth || 1280;
+        const vh = window.innerHeight || document.documentElement.clientHeight || 720;
+        const bottomPx = Math.max(56, Math.min(vh - 120, Math.round(vh - r.top + 10)));
+        const rightPx = Math.max(12, Math.min(vw - 200, Math.round(vw - r.right)));
+        (_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.setProperty) == null ? void 0 : _e2.call(_d2, "--fx-osd-popup-bottom", `${bottomPx}px`);
+        (_g = (_f = document.documentElement.style) == null ? void 0 : _f.setProperty) == null ? void 0 : _g.call(_f, "--fx-osd-popup-right", `${rightPx}px`);
+      }
+      function onOsdAnchorPointer(event) {
+        var _a2, _b2, _c2;
+        if (stopped || !isVideoOsdOpen()) return;
+        const trigger = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio");
+        if (trigger) {
+          const osd = document.getElementById("videoOsdPage");
+          const gearBtn = (_c2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _c2.call(osd, ".btnVideoOsdSettings");
+          const anchor = trigger.classList.contains("btnAudio") && gearBtn ? gearBtn : trigger;
+          updateOsdPopupAnchor(anchor);
         }
       }
       function enhanceOsdSettingsMenu() {
+        var _a2, _b2, _c2;
         const osd = document.getElementById("videoOsdPage");
-        if (!osd || osd.classList.contains("hide") || osd.classList.contains("hidePage") || osd.hidden) return;
+        if (!isVideoOsdOpen() || !osd) return;
+        const gearBtn = osd.querySelector(".btnVideoOsdSettings");
+        if (gearBtn && !((_c2 = (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.style) == null ? void 0 : _b2.getPropertyValue) == null ? void 0 : _c2.call(_b2, "--fx-osd-popup-bottom"))) {
+          updateOsdPopupAnchor(gearBtn);
+        }
         const audioBtn = osd.querySelector(".btnAudio");
         const favBtn = osd.querySelector(".btnUserRating");
         const canAudio = Boolean(audioBtn && !audioBtn.classList.contains("hide") && !audioBtn.hidden && !audioBtn.disabled);
@@ -7148,21 +7250,23 @@ button.fx-livetv-tab.is-active{
           const labels = inspectItems.map((i) => (i.textContent || "").trim().toLowerCase());
           const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
           const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
+          sheet.dataset.fxOsdPopup = "true";
+          if (sleekPopup) sleekPopup.dataset.fxOsdPopup = "true";
           if (!looksLikeSettings) return;
           sheet.dataset.fxOsdSettings = "true";
           if (sleekPopup) sleekPopup.dataset.fxOsdSettings = "true";
           const isFav = Boolean(favBtn && (favBtn.getAttribute("data-isfavorite") === "true" || favBtn.classList.contains("ratingbutton-withrating")));
           const closeSheet = () => {
-            var _a2, _b2, _c2;
-            const bd = (_a2 = sheet.closest(".dialogContainer")) == null ? void 0 : _a2.previousElementSibling;
-            if ((_b2 = bd == null ? void 0 : bd.classList) == null ? void 0 : _b2.contains("dialogBackdrop")) {
+            var _a3, _b3, _c3;
+            const bd = (_a3 = sheet.closest(".dialogContainer")) == null ? void 0 : _a3.previousElementSibling;
+            if ((_b3 = bd == null ? void 0 : bd.classList) == null ? void 0 : _b3.contains("dialogBackdrop")) {
               try {
                 bd.click();
               } catch {
               }
             } else {
               try {
-                const Ev = typeof KeyboardEvent === "function" ? KeyboardEvent : (_c2 = document.defaultView) == null ? void 0 : _c2.KeyboardEvent;
+                const Ev = typeof KeyboardEvent === "function" ? KeyboardEvent : (_c3 = document.defaultView) == null ? void 0 : _c3.KeyboardEvent;
                 if (Ev) document.dispatchEvent(new Ev("keydown", { key: "Escape", keyCode: 27, bubbles: true }));
               } catch {
               }
@@ -7200,9 +7304,9 @@ button.fx-livetv-tab.is-active{
               body.append(element("div", "listItemBodyText actionSheetItemText", labelText));
               btn.append(ic, body);
               btn.addEventListener("click", (ev) => {
-                var _a2;
+                var _a3;
                 ev.preventDefault();
-                (_a2 = ev.stopImmediatePropagation) == null ? void 0 : _a2.call(ev);
+                (_a3 = ev.stopImmediatePropagation) == null ? void 0 : _a3.call(ev);
                 ev.stopPropagation();
                 onClick();
               });
@@ -7230,9 +7334,9 @@ button.fx-livetv-tab.is-active{
               copy.append(element("div", "sleekfin-menu-primary", labelText));
               btn.append(icWrap, copy);
               btn.addEventListener("click", (ev) => {
-                var _a2;
+                var _a3;
                 ev.preventDefault();
-                (_a2 = ev.stopImmediatePropagation) == null ? void 0 : _a2.call(ev);
+                (_a3 = ev.stopImmediatePropagation) == null ? void 0 : _a3.call(ev);
                 ev.stopPropagation();
                 onClick();
               });
@@ -7245,13 +7349,6 @@ button.fx-livetv-tab.is-active{
             if (canFav && !popupLabels.has("add to favorites") && !popupLabels.has("remove from favorites") && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
               sleekPopup.append(makeSleekItem("fx-osd-favorite", isFav ? "favorite" : "favorite_border", favLabel, triggerFav));
             }
-          }
-          positionOsdPopupAboveGear(osd, sheet, sleekPopup);
-          if (sheet.dataset.fxOsdPositioned !== "true") {
-            sheet.dataset.fxOsdPositioned = "true";
-            const reposition = () => positionOsdPopupAboveGear(osd, sheet, sheet.querySelector(".sleekfin-menu-popup") || sleekPopup);
-            if (typeof requestAnimationFrame === "function") requestAnimationFrame(reposition);
-            setTimeout(reposition, 32);
           }
         });
       }
@@ -10882,22 +10979,58 @@ button.fx-livetv-tab.is-active{
       }
       function isOsdInteractiveTarget(target) {
         var _a2;
-        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .skinHeader, .headerBackButton, .headerLeft, .headerRight, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .playerStats, .playerStats-closeButton, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
       }
-      function isOsdScrollableOrSliderTarget(target) {
+      function isOsdScrollableMenuTarget(target) {
         var _a2;
-        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, '[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .smoothScrollY, .fx-download-menu'));
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, ".dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .playerStats, .smoothScrollY, .fx-download-menu"));
+      }
+      function isOsdSliderTarget(target) {
+        var _a2;
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, '[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"]'));
+      }
+      const osdTouchLock = {
+        active: false,
+        startX: 0,
+        startY: 0,
+        onInteractive: false,
+        onScrollable: false,
+        onSlider: false
+      };
+      function onOsdScrollGuard() {
+        var _a2, _b2;
+        if (stopped || !isVideoOsdOpen()) return;
+        if ((window.scrollY || 0) !== 0 || (((_a2 = document.documentElement) == null ? void 0 : _a2.scrollTop) || 0) !== 0 || (((_b2 = document.body) == null ? void 0 : _b2.scrollTop) || 0) !== 0) {
+          try {
+            window.scrollTo(0, 0);
+          } catch {
+          }
+          if (document.documentElement) document.documentElement.scrollTop = 0;
+          if (document.body) document.body.scrollTop = 0;
+        }
       }
       function onOsdTouchStart(event) {
         var _a2;
         if (!event.touches || event.touches.length !== 1) {
           releaseOsdSpeedHold();
           osdGesture.touching = false;
+          osdTouchLock.active = false;
           return;
         }
-        const video = findActiveOsdVideo();
-        if (!video || isOsdInteractiveTarget(event.target)) return;
+        const osdOpen = isVideoOsdOpen();
         const t = event.touches[0];
+        if (osdOpen) {
+          osdTouchLock.active = true;
+          osdTouchLock.startX = t.clientX;
+          osdTouchLock.startY = t.clientY;
+          osdTouchLock.onInteractive = isOsdInteractiveTarget(event.target);
+          osdTouchLock.onScrollable = isOsdScrollableMenuTarget(event.target);
+          osdTouchLock.onSlider = isOsdSliderTarget(event.target);
+        } else {
+          osdTouchLock.active = false;
+        }
+        const video = findActiveOsdVideo();
+        if (!video || osdTouchLock.onInteractive) return;
         const vw = window.innerWidth || ((_a2 = document.documentElement) == null ? void 0 : _a2.clientWidth) || 0;
         if (!vw) return;
         osdGesture.touching = true;
@@ -10933,12 +11066,30 @@ button.fx-livetv-tab.is-active{
         }
       }
       function onOsdTouchMove(event) {
-        var _a2;
-        const activeVideo = findActiveOsdVideo();
-        if (activeVideo && (osdGesture.holdActive || !isOsdScrollableOrSliderTarget(event.target))) {
-          if (event.cancelable) event.preventDefault();
+        var _a2, _b2;
+        if (event._fxOsdMoveHandled) return;
+        event._fxOsdMoveHandled = true;
+        if (isVideoOsdOpen()) {
+          const t2 = (_a2 = event.touches) == null ? void 0 : _a2[0];
+          const dx = t2 ? t2.clientX - osdTouchLock.startX : 0;
+          const dy = t2 ? t2.clientY - osdTouchLock.startY : 0;
+          const dist = Math.hypot(dx, dy);
+          if (osdGesture.holdActive) {
+            if (event.cancelable) event.preventDefault();
+          } else if (osdTouchLock.onScrollable || isOsdScrollableMenuTarget(event.target)) {
+          } else if (osdTouchLock.onSlider || isOsdSliderTarget(event.target)) {
+            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8 && event.cancelable) {
+              event.preventDefault();
+            }
+          } else if (osdTouchLock.onInteractive || isOsdInteractiveTarget(event.target)) {
+            if (dist > 14 && event.cancelable) {
+              event.preventDefault();
+            }
+          } else if (event.cancelable) {
+            event.preventDefault();
+          }
         }
-        if (!osdGesture.touching || !((_a2 = event.touches) == null ? void 0 : _a2.length)) return;
+        if (!osdGesture.touching || !((_b2 = event.touches) == null ? void 0 : _b2.length)) return;
         const t = event.touches[0];
         if (Math.hypot(t.clientX - osdGesture.startX, t.clientY - osdGesture.startY) > 16) {
           osdGesture.moved = true;
@@ -10950,6 +11101,7 @@ button.fx-livetv-tab.is-active{
       }
       function onOsdTouchEnd(event) {
         var _a2, _b2, _c2, _d2, _e2;
+        osdTouchLock.active = false;
         clearTimeout(osdGesture.holdTimer);
         osdGesture.holdTimer = 0;
         if (!osdGesture.touching) return;
@@ -11113,6 +11265,9 @@ button.fx-livetv-tab.is-active{
               enhanceFilterPopover(fp);
             }
           }
+          if (needsPopover && isVideoOsdOpen()) {
+            enhanceOsdSettingsMenu();
+          }
           if (needsPopover) schedulePopoverSync();
           if (needsHeader) {
             hideLeavingSoonNav();
@@ -11123,6 +11278,8 @@ button.fx-livetv-tab.is-active{
           if (needsReconcile) schedule();
         });
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "aria-hidden", "aria-expanded"] });
+        document.addEventListener("pointerdown", onOsdAnchorPointer, true);
+        document.addEventListener("click", onOsdAnchorPointer, true);
         document.addEventListener("click", onOsdSuppressClick, true);
         document.addEventListener("dblclick", onOsdDblClick, true);
         document.addEventListener("contextmenu", onOsdContextMenu, true);
@@ -11133,8 +11290,10 @@ button.fx-livetv-tab.is-active{
         document.addEventListener("viewshow", onRouteEvent);
         document.addEventListener("touchstart", onOsdTouchStart, { passive: true, capture: true });
         document.addEventListener("touchmove", onOsdTouchMove, { passive: false, capture: true });
+        window.addEventListener("touchmove", onOsdTouchMove, { passive: false, capture: true });
         document.addEventListener("touchend", onOsdTouchEnd, { passive: false, capture: true });
         document.addEventListener("touchcancel", onOsdTouchEnd, { passive: true, capture: true });
+        window.addEventListener("scroll", onOsdScrollGuard, { passive: true });
         window.addEventListener("blur", releaseOsdSpeedHold);
         window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
         document.addEventListener("keydown", remoteKey, true);
@@ -11155,7 +11314,7 @@ button.fx-livetv-tab.is-active{
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
           stopped = true;
           clearTimeout(timer);
           clearTimeout(searchUiState.remoteTimer);
@@ -11191,9 +11350,14 @@ button.fx-livetv-tab.is-active{
           (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-popover-open");
           (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-video-osd");
           (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-livetv");
-          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-has-subheader");
-          (_r = (_q = document.getElementById("searchPage")) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-search-active");
+          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-search-page");
+          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-has-subheader");
+          (_u = (_t = (_s = document.documentElement) == null ? void 0 : _s.style) == null ? void 0 : _t.removeProperty) == null ? void 0 : _u.call(_t, "--fx-osd-popup-bottom");
+          (_x = (_w = (_v = document.documentElement) == null ? void 0 : _v.style) == null ? void 0 : _w.removeProperty) == null ? void 0 : _x.call(_w, "--fx-osd-popup-right");
+          (_z = (_y = document.getElementById("searchPage")) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-search-active");
           document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay").forEach((n) => n.remove());
+          document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
+          document.removeEventListener("click", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("dblclick", onOsdDblClick, true);
           document.removeEventListener("contextmenu", onOsdContextMenu, true);
@@ -11206,15 +11370,17 @@ button.fx-livetv-tab.is-active{
           window.removeEventListener("resize", scheduleScroll);
           document.removeEventListener("touchstart", onOsdTouchStart, true);
           document.removeEventListener("touchmove", onOsdTouchMove, true);
+          window.removeEventListener("touchmove", onOsdTouchMove, true);
           document.removeEventListener("touchend", onOsdTouchEnd, true);
           document.removeEventListener("touchcancel", onOsdTouchEnd, true);
+          window.removeEventListener("scroll", onOsdScrollGuard);
           window.removeEventListener("blur", releaseOsdSpeedHold);
           window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
-          (_s = document.getElementById("fx-discovery-style")) == null ? void 0 : _s.remove();
+          (_A = document.getElementById("fx-discovery-style")) == null ? void 0 : _A.remove();
           delete window.FazFortDiscovery;
         }
       };

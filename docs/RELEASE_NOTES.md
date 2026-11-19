@@ -1,10 +1,12 @@
-Jellyfin Discovery 0.5.10 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.11 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.10):
-- Eliminate Filters dropdown flicker and duplicate Reset filters button flash by deferring footer mounting until SleekFin creates .sleekfin-menu-popup and disabling MUI Grow double-fade on .sleekfin-menu-host.
-- Fix dropdown icon brightness flash on open/close: keep all dropdown icons uniform at rest and brighten only on :hover, :focus-visible, or active selection (suppressing auto-focus brightening of the top item).
-- Position the video playback Settings popup cleanly above the gear icon (.btnVideoOsdSettings) with upward entrance animation and higher opacity (rgba(15, 16, 20, .97)) so bright frames do not wash it out, and match injected Audio/Favorites icon wrapping with SleekFin's native markup.
-- Fix Settings menu (.listItem-border) inner hover box artifact and unify all Settings menu & preferences buttons with Jellyfin Discovery's sleek single-layer dark-glass button style.
+Discovery (0.5.11):
+- Fix Continue Watching / Next Up missing resumable movies by querying Jellyfin's official Users/{userId}/Items/Resume endpoint (previously calling non-existent Items/Resume which returned 404).
+- Fix playback Back button (.headerBackButton) tap reliability on mobile: lift .skinHeader with safe-area padding and a 48x48px hit target, and stop cancelling taps with <=14px touch jitter on interactive buttons.
+- Eliminate playback Settings & Subtitles popup position shift by anchoring all OSD menus from Frame 0 via --fx-osd-popup-bottom / --fx-osd-popup-right CSS variables captured on pointerdown/click, and lift & style Playback info (.playerStats) cleanly above the fixed video player.
+- Strengthen mobile vertical swipe lock during playback via window-level capture touchmove blocking, .skinBody/.mainAnimatedPages fixed containment, and scroll-guard reset.
+- Fix Search page top spacing on both desktop and mobile by removing MUI's redundant AppBar spacer div when #searchPage is active.
+- Hide the top-right/overlay play button on portrait-oriented cards across mobile and touch devices.
 
-Request Hub (0.5.10):
-- Version parity release alongside Jellyfin Discovery 0.5.10.
+Request Hub (0.5.11):
+- Version parity release alongside Jellyfin Discovery 0.5.11.

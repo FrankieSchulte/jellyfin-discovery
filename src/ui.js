@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.10';
+const VERSION = '0.5.11';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -542,13 +542,26 @@ function setRootAttr(name, active) {
     el.removeAttribute(name);
   }
 }
-function syncDocumentStateAttrs() {
+function isVideoOsdOpen() {
   const osd = document.getElementById('videoOsdPage');
-  const osdOpen = Boolean(osd && !osd.classList.contains('hide') && !osd.classList.contains('hidePage') && !osd.hidden);
+  return Boolean(osd && !osd.classList.contains('hide') && !osd.classList.contains('hidePage') && !osd.hidden);
+}
+function syncDocumentStateAttrs() {
+  const osdOpen = isVideoOsdOpen();
   setRootAttr('data-fx-video-osd', osdOpen);
+  if (osdOpen) {
+    const osd = document.getElementById('videoOsdPage');
+    const gearBtn = osd?.querySelector?.('.btnVideoOsdSettings');
+    if (gearBtn && !document.documentElement?.style?.getPropertyValue?.('--fx-osd-popup-bottom')) {
+      updateOsdPopupAnchor(gearBtn);
+    }
+  }
   const liveTvPage = document.getElementById('liveTvSuggestedPage');
   const liveTvOpen = Boolean(liveTvPage && !liveTvPage.classList.contains('hide') && !liveTvPage.classList.contains('hidePage') && !liveTvPage.hidden);
   setRootAttr('data-fx-livetv', liveTvOpen);
+  const searchPage = document.getElementById('searchPage');
+  const searchOpen = Boolean(searchPage && !searchPage.classList.contains('hide') && !searchPage.classList.contains('hidePage') && !searchPage.hidden);
+  setRootAttr('data-fx-search-page', searchOpen);
   const appBar = document.querySelector('header.MuiAppBar-root');
   const toolbars = appBar ? appBar.querySelectorAll(':scope > .MuiToolbar-root') : null;
   setRootAttr('data-fx-has-subheader', Boolean(toolbars && toolbars.length >= 2));
@@ -576,34 +589,37 @@ function guardStuckClosingMenus() {
     }, 280);
   });
 }
-function positionOsdPopupAboveGear(osd, sheet, sleekPopup) {
-  const gearBtn = osd?.querySelector?.('.btnVideoOsdSettings');
-  if (!gearBtn || !sheet?.isConnected || sheet.classList.contains('sleekfin-menu-closing')) return;
-  const gr = gearBtn.getBoundingClientRect?.();
-  if (!gr || gr.width <= 0 || gr.height <= 0) return;
-  const vw = window.innerWidth || document.documentElement?.clientWidth || 1280;
-  const vh = window.innerHeight || document.documentElement?.clientHeight || 720;
-  const target = (sleekPopup && sleekPopup.isConnected) ? sleekPopup : sheet;
-  const rect = target.getBoundingClientRect?.() || { width: 0, height: 0 };
-  const pw = Math.max(180, Math.round(rect.width || target.offsetWidth || 220));
-  const ph = Math.max(80, Math.round(rect.height || target.offsetHeight || 220));
-  const top = Math.max(12, Math.min(vh - ph - 12, Math.round(gr.top - ph - 12)));
-  const left = Math.max(12, Math.min(vw - pw - 12, Math.round(gr.right - pw)));
-  sheet.style.setProperty('top', `${top}px`, 'important');
-  sheet.style.setProperty('left', `${left}px`, 'important');
-  sheet.style.setProperty('bottom', 'auto', 'important');
-  sheet.style.setProperty('right', 'auto', 'important');
-  if (target !== sheet) {
-    target.style.setProperty('position', 'fixed', 'important');
-    target.style.setProperty('top', `${top}px`, 'important');
-    target.style.setProperty('left', `${left}px`, 'important');
-    target.style.setProperty('bottom', 'auto', 'important');
-    target.style.setProperty('right', 'auto', 'important');
+function updateOsdPopupAnchor(anchorEl) {
+  const osd = document.getElementById('videoOsdPage');
+  const el = anchorEl || osd?.querySelector?.('.btnVideoOsdSettings') || osd?.querySelector?.('.btnSubtitles');
+  if (!el || !document.documentElement) return;
+  const r = el.getBoundingClientRect?.();
+  if (!r || r.width <= 0 || r.height <= 0) return;
+  const vw = window.innerWidth || document.documentElement.clientWidth || 1280;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 720;
+  const bottomPx = Math.max(56, Math.min(vh - 120, Math.round(vh - r.top + 10)));
+  const rightPx = Math.max(12, Math.min(vw - 200, Math.round(vw - r.right)));
+  document.documentElement.style?.setProperty?.('--fx-osd-popup-bottom', `${bottomPx}px`);
+  document.documentElement.style?.setProperty?.('--fx-osd-popup-right', `${rightPx}px`);
+}
+function onOsdAnchorPointer(event) {
+  if (stopped || !isVideoOsdOpen()) return;
+  const trigger = event.target?.closest?.('#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio');
+  if (trigger) {
+    // Anchor Subtitles & Settings popups cleanly above the bottom-right control row before frame 0 paints
+    const osd = document.getElementById('videoOsdPage');
+    const gearBtn = osd?.querySelector?.('.btnVideoOsdSettings');
+    const anchor = trigger.classList.contains('btnAudio') && gearBtn ? gearBtn : trigger;
+    updateOsdPopupAnchor(anchor);
   }
 }
 function enhanceOsdSettingsMenu() {
   const osd = document.getElementById('videoOsdPage');
-  if (!osd || osd.classList.contains('hide') || osd.classList.contains('hidePage') || osd.hidden) return;
+  if (!isVideoOsdOpen() || !osd) return;
+  const gearBtn = osd.querySelector('.btnVideoOsdSettings');
+  if (gearBtn && !document.documentElement?.style?.getPropertyValue?.('--fx-osd-popup-bottom')) {
+    updateOsdPopupAnchor(gearBtn);
+  }
   const audioBtn = osd.querySelector('.btnAudio');
   const favBtn = osd.querySelector('.btnUserRating');
   const canAudio = Boolean(audioBtn && !audioBtn.classList.contains('hide') && !audioBtn.hidden && !audioBtn.disabled);
@@ -625,6 +641,8 @@ function enhanceOsdSettingsMenu() {
     const looksLikeSettings =
       ids.some(id => ['quality', 'playbackrate', 'aspectratio', 'stats', 'subtitleoffset', 'repeatmode', 'videostretch'].includes(id)) ||
       labels.some(l => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
+    sheet.dataset.fxOsdPopup = 'true';
+    if (sleekPopup) sleekPopup.dataset.fxOsdPopup = 'true';
     if (!looksLikeSettings) return;
     sheet.dataset.fxOsdSettings = 'true';
     if (sleekPopup) sleekPopup.dataset.fxOsdSettings = 'true';
@@ -707,13 +725,6 @@ function enhanceOsdSettingsMenu() {
       if (canFav && !popupLabels.has('add to favorites') && !popupLabels.has('remove from favorites') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
         sleekPopup.append(makeSleekItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', favLabel, triggerFav));
       }
-    }
-    positionOsdPopupAboveGear(osd, sheet, sleekPopup);
-    if (sheet.dataset.fxOsdPositioned !== 'true') {
-      sheet.dataset.fxOsdPositioned = 'true';
-      const reposition = () => positionOsdPopupAboveGear(osd, sheet, sheet.querySelector('.sleekfin-menu-popup') || sleekPopup);
-      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(reposition);
-      setTimeout(reposition, 32);
     }
   });
 }
@@ -3782,20 +3793,51 @@ function onOsdKeyDown(event) {
   event.stopPropagation();
 }
 function isOsdInteractiveTarget(target) {
-  return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
+  return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .skinHeader, .headerBackButton, .headerLeft, .headerRight, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .playerStats, .playerStats-closeButton, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
 }
-function isOsdScrollableOrSliderTarget(target) {
-  return Boolean(target?.closest?.('[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .smoothScrollY, .fx-download-menu'));
+function isOsdScrollableMenuTarget(target) {
+  return Boolean(target?.closest?.('.dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .playerStats, .smoothScrollY, .fx-download-menu'));
+}
+function isOsdSliderTarget(target) {
+  return Boolean(target?.closest?.('[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"]'));
+}
+const osdTouchLock = {
+  active: false,
+  startX: 0,
+  startY: 0,
+  onInteractive: false,
+  onScrollable: false,
+  onSlider: false
+};
+function onOsdScrollGuard() {
+  if (stopped || !isVideoOsdOpen()) return;
+  if ((window.scrollY || 0) !== 0 || (document.documentElement?.scrollTop || 0) !== 0 || (document.body?.scrollTop || 0) !== 0) {
+    try { window.scrollTo(0, 0); } catch {}
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }
 }
 function onOsdTouchStart(event) {
   if (!event.touches || event.touches.length !== 1) {
     releaseOsdSpeedHold();
     osdGesture.touching = false;
+    osdTouchLock.active = false;
     return;
   }
-  const video = findActiveOsdVideo();
-  if (!video || isOsdInteractiveTarget(event.target)) return;
+  const osdOpen = isVideoOsdOpen();
   const t = event.touches[0];
+  if (osdOpen) {
+    osdTouchLock.active = true;
+    osdTouchLock.startX = t.clientX;
+    osdTouchLock.startY = t.clientY;
+    osdTouchLock.onInteractive = isOsdInteractiveTarget(event.target);
+    osdTouchLock.onScrollable = isOsdScrollableMenuTarget(event.target);
+    osdTouchLock.onSlider = isOsdSliderTarget(event.target);
+  } else {
+    osdTouchLock.active = false;
+  }
+  const video = findActiveOsdVideo();
+  if (!video || osdTouchLock.onInteractive) return;
   const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
   if (!vw) return;
   osdGesture.touching = true;
@@ -3825,9 +3867,30 @@ function onOsdTouchStart(event) {
   }
 }
 function onOsdTouchMove(event) {
-  const activeVideo = findActiveOsdVideo();
-  if (activeVideo && (osdGesture.holdActive || !isOsdScrollableOrSliderTarget(event.target))) {
-    if (event.cancelable) event.preventDefault();
+  if (event._fxOsdMoveHandled) return;
+  event._fxOsdMoveHandled = true;
+  if (isVideoOsdOpen()) {
+    const t = event.touches?.[0];
+    const dx = t ? t.clientX - osdTouchLock.startX : 0;
+    const dy = t ? t.clientY - osdTouchLock.startY : 0;
+    const dist = Math.hypot(dx, dy);
+    if (osdGesture.holdActive) {
+      if (event.cancelable) event.preventDefault();
+    } else if (osdTouchLock.onScrollable || isOsdScrollableMenuTarget(event.target)) {
+      // Allow vertical scrolling inside open OSD popups & playback info overlay
+    } else if (osdTouchLock.onSlider || isOsdSliderTarget(event.target)) {
+      // Allow horizontal scrubbing while still blocking vertical viewport swipes
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8 && event.cancelable) {
+        event.preventDefault();
+      }
+    } else if (osdTouchLock.onInteractive || isOsdInteractiveTarget(event.target)) {
+      // Allow <=14px tap jitter so Back & OSD buttons click reliably on iOS/mobile, but block swipes
+      if (dist > 14 && event.cancelable) {
+        event.preventDefault();
+      }
+    } else if (event.cancelable) {
+      event.preventDefault();
+    }
   }
   if (!osdGesture.touching || !event.touches?.length) return;
   const t = event.touches[0];
@@ -3840,6 +3903,7 @@ function onOsdTouchMove(event) {
   }
 }
 function onOsdTouchEnd(event) {
+  osdTouchLock.active = false;
   clearTimeout(osdGesture.holdTimer);
   osdGesture.holdTimer = 0;
   if (!osdGesture.touching) return;
@@ -3994,6 +4058,9 @@ function start() {
         enhanceFilterPopover(fp);
       }
     }
+    if (needsPopover && isVideoOsdOpen()) {
+      enhanceOsdSettingsMenu();
+    }
     if (needsPopover) schedulePopoverSync();
     if (needsHeader) {
       hideLeavingSoonNav();
@@ -4004,6 +4071,8 @@ function start() {
     if (needsReconcile) schedule();
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden', 'aria-expanded'] });
+  document.addEventListener('pointerdown', onOsdAnchorPointer, true);
+  document.addEventListener('click', onOsdAnchorPointer, true);
   document.addEventListener('click', onOsdSuppressClick, true);
   document.addEventListener('dblclick', onOsdDblClick, true);
   document.addEventListener('contextmenu', onOsdContextMenu, true);
@@ -4011,8 +4080,10 @@ function start() {
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', onRouteEvent); window.addEventListener('popstate', onRouteEvent); document.addEventListener('viewshow', onRouteEvent);
   document.addEventListener('touchstart', onOsdTouchStart, { passive: true, capture: true });
   document.addEventListener('touchmove', onOsdTouchMove, { passive: false, capture: true });
+  window.addEventListener('touchmove', onOsdTouchMove, { passive: false, capture: true });
   document.addEventListener('touchend', onOsdTouchEnd, { passive: false, capture: true });
   document.addEventListener('touchcancel', onOsdTouchEnd, { passive: true, capture: true });
+  window.addEventListener('scroll', onOsdScrollGuard, { passive: true });
   window.addEventListener('blur', releaseOsdSpeedHold);
   window.addEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
@@ -4032,9 +4103,14 @@ window.FazFortDiscovery = {
     document.documentElement?.removeAttribute?.('data-fx-popover-open');
     document.documentElement?.removeAttribute?.('data-fx-video-osd');
     document.documentElement?.removeAttribute?.('data-fx-livetv');
+    document.documentElement?.removeAttribute?.('data-fx-search-page');
     document.documentElement?.removeAttribute?.('data-fx-has-subheader');
+    document.documentElement?.style?.removeProperty?.('--fx-osd-popup-bottom');
+    document.documentElement?.style?.removeProperty?.('--fx-osd-popup-right');
     document.getElementById('searchPage')?.removeAttribute?.('data-fx-search-active');
     document.querySelectorAll('.fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay').forEach(n => n.remove());
+    document.removeEventListener('pointerdown', onOsdAnchorPointer, true);
+    document.removeEventListener('click', onOsdAnchorPointer, true);
     document.removeEventListener('click', onOsdSuppressClick, true);
     document.removeEventListener('dblclick', onOsdDblClick, true);
     document.removeEventListener('contextmenu', onOsdContextMenu, true);
@@ -4042,8 +4118,10 @@ window.FazFortDiscovery = {
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('touchstart', onOsdTouchStart, true);
     document.removeEventListener('touchmove', onOsdTouchMove, true);
+    window.removeEventListener('touchmove', onOsdTouchMove, true);
     document.removeEventListener('touchend', onOsdTouchEnd, true);
     document.removeEventListener('touchcancel', onOsdTouchEnd, true);
+    window.removeEventListener('scroll', onOsdScrollGuard);
     window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);

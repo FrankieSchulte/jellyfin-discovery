@@ -152,8 +152,9 @@ export class JellyfinClient {
     const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
     const fields = 'DateCreated,PrimaryImageAspectRatio,ParentId';
     const mediaTypes = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Episode' : 'Movie,Episode';
+    const resumePath = `Users/${encodeURIComponent(this.userId)}/Items/Resume`;
     const tasks = [
-      this.json('Items/Resume', { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+      this.json(resumePath, { Limit: limit, Recursive: true, MediaTypes: 'Video', IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
     ];
     if (route.page !== 'movies') {
       tasks.push(
@@ -176,8 +177,9 @@ export class JellyfinClient {
     const parentFilter = route.parentId ? { ParentId: route.parentId } : {};
     const fields = 'DateCreated,PrimaryImageAspectRatio,ParentId';
     const mediaTypes = route.page === 'movies' ? 'Movie' : route.page === 'shows' ? 'Episode' : 'Movie,Episode';
+    const resumePath = `Users/${encodeURIComponent(this.userId)}/Items/Resume`;
     const tasks = [
-      this.json('Items/Resume', { UserId: this.userId, Limit: limit, IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
+      this.json(resumePath, { Limit: limit, Recursive: true, MediaTypes: 'Video', IncludeItemTypes: mediaTypes, ...parentFilter, Fields: fields, EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' }).catch(() => ({ Items: [] }))
     ];
     if (route.page !== 'movies') {
       tasks.push(

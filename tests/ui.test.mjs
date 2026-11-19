@@ -1128,8 +1128,80 @@ test('v0.5.10 eliminates Filters duplicate reset flicker, auto-focus icon bright
 
   assert.equal(sheet.dataset.fxOsdSettings, 'true');
   assert.equal(popup.dataset.fxOsdSettings, 'true');
-  const placedTop = parseInt(popup.style.top, 10);
-  assert.ok(Number.isFinite(placedTop) && placedTop < 660 - 200, `expected popup above gear (top=${placedTop})`);
+  const bottomVar = f.document.documentElement.style.getPropertyValue('--fx-osd-popup-bottom');
+  assert.ok(bottomVar && parseInt(bottomVar, 10) >= 56, `expected --fx-osd-popup-bottom set above gear (${bottomVar})`);
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.5.11 fixes playback Back tap vs swipe lock, Frame-0 Settings/Subtitles anchor, Playback info overlay, Search spacer & mobile portrait play button', async () => {
+  const f = fixture();
+  await f.settle();
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. CSS checks: Frame-0 bottom-anchored OSD popups, Playback info (.playerStats), Back button 48px target, Search AppBar spacer removal, mobile portrait play button hide
+  assert.ok(styleText.includes('bottom:var(--fx-osd-popup-bottom,74px)!important'));
+  assert.ok(styleText.includes('.playerStats:not(.hide)'));
+  assert.ok(styleText.includes('z-index:100025!important'));
+  assert.ok(styleText.includes('html[data-fx-video-osd="true"] .skinHeader .headerBackButton'));
+  assert.ok(styleText.includes('html[data-fx-search-page="true"] header.MuiAppBar-root + div[aria-hidden="true"]'));
+  assert.ok(styleText.includes('button.cardOverlayFab-primary'));
+
+  // 2. #searchPage toggles data-fx-search-page attribute on documentElement
+  const sp = f.document.createElement('div');
+  sp.id = 'searchPage';
+  sp.className = 'page';
+  f.document.body.append(sp);
+  f.notify();
+  f.frames();
+  assert.equal(f.document.documentElement.getAttribute('data-fx-search-page'), 'true');
+  sp.classList.add('hide');
+  f.notify();
+  f.frames();
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-search-page'), false);
+  sp.remove();
+
+  // 3. Subtitles & Settings button pointerdown updates Frame-0 anchor CSS variables before popup opens
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  const subBtn = f.document.createElement('button');
+  subBtn.className = 'btnSubtitles';
+  subBtn.getBoundingClientRect = () => ({ left: 1060, right: 1100, top: 650, bottom: 690, width: 40, height: 40 });
+  const skinHdr = f.document.createElement('div');
+  skinHdr.className = 'skinHeader';
+  const backBtn = f.document.createElement('button');
+  backBtn.className = 'headerBackButton';
+  skinHdr.append(backBtn);
+  osd.append(subBtn);
+  f.document.body.append(skinHdr, osd);
+  f.notify();
+  f.frames();
+
+  const Ev = f.ctx.document.defaultView.Event;
+  subBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true, cancelable: true }));
+  assert.ok(parseInt(f.document.documentElement.style.getPropertyValue('--fx-osd-popup-bottom'), 10) >= 60);
+  assert.ok(parseInt(f.document.documentElement.style.getPropertyValue('--fx-osd-popup-right'), 10) >= 12);
+
+  // 4. Touch jitter (<=14px) on .headerBackButton is NOT prevented so Back taps register, while vertical swipe on video IS prevented
+  const mkTouch = (type, target, x, y) => {
+    const ev = new Ev(type, { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'touches', { value: [{ clientX: x, clientY: y }] });
+    Object.defineProperty(ev, 'target', { value: target });
+    return ev;
+  };
+  backBtn.dispatchEvent(mkTouch('touchstart', backBtn, 24, 24));
+  const jitterMove = mkTouch('touchmove', backBtn, 27, 29);
+  backBtn.dispatchEvent(jitterMove);
+  assert.equal(jitterMove.defaultPrevented, false, 'small tap jitter on Back button must not cancel click');
+  const bigSwipe = mkTouch('touchmove', backBtn, 24, 60);
+  backBtn.dispatchEvent(bigSwipe);
+  assert.equal(bigSwipe.defaultPrevented, true, 'vertical swipe > 14px must be blocked');
+
+  osd.dispatchEvent(mkTouch('touchstart', osd, 200, 300));
+  const videoSwipe = mkTouch('touchmove', osd, 200, 260);
+  osd.dispatchEvent(videoSwipe);
+  assert.equal(videoSwipe.defaultPrevented, true, 'vertical swipe on video canvas must be blocked');
 
   f.ctx.window.FazFortDiscovery.stop();
 });

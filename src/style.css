@@ -366,20 +366,24 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   gap:2px!important;
   box-sizing:border-box!important;
 }
-/* Playback OSD Settings & Track Popups: higher opacity so bright video frames never bleed through, animating upward above gear */
+/* Playback OSD Settings, Subtitles & Track Popups: anchored at Frame 0 cleanly above bottom-right controls (zero shift!) with higher opacity */
 @keyframes fx-dropdown-enter-up{
   from{opacity:0;transform:translateY(6px) scale(.96)}
   to{opacity:1;transform:none}
 }
 html[data-fx-video-osd="true"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
-html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-popup[data-fx-osd-popup="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-osd-popup="true"]:not(.sleekfin-menu-host)){
+  position:fixed!important;
+  top:auto!important;
+  left:auto!important;
+  bottom:var(--fx-osd-popup-bottom,74px)!important;
+  right:var(--fx-osd-popup-right,20px)!important;
+  max-height:min(68dvh,calc(100dvh - var(--fx-osd-popup-bottom,74px) - 20px))!important;
   background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
   background-color:rgba(15,16,20,.97)!important;
   backdrop-filter:blur(22px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
   border:1px solid rgba(255,255,255,.11)!important;
-}
-html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
   transform-origin:bottom right!important;
   animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
@@ -1163,8 +1167,14 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
 #searchPage:is(.hide,.hidePage,[hidden]){
   display:none!important;
 }
+/* Remove MUI's redundant AppBar spacer div on #searchPage so header height isn't double-counted */
+html[data-fx-search-page="true"] header.MuiAppBar-root + div[aria-hidden="true"]{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+}
 html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,72px) + 2px)!important;
+  padding-top:calc(var(--sleekfin-header-height,68px) + 6px)!important;
   margin-top:0!important;
 }
 html[data-fx-has-subheader="true"] #searchPage#searchPage{
@@ -1176,7 +1186,7 @@ html[data-fx-has-subheader="true"] #searchPage#searchPage{
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
-#searchPage#searchPage :is(.padded-top-page,.content-primary){
+#searchPage#searchPage :is(.padded-top,.padded-top-page,.content-primary){
   padding-top:0!important;
   margin-top:0!important;
 }
@@ -2268,9 +2278,11 @@ button.fx-settings-menu-row .listItemBodyText{
   overscroll-behavior-x:contain;
 }
 
-/* Lock Video Playback (#videoOsdPage) in Place & Block Native iOS Fullscreen Entry */
+/* Lock Video Playback (#videoOsdPage) in Place, Guarantee Easy Back Button Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
 html[data-fx-video-osd="true"],
-html[data-fx-video-osd="true"] body{
+html[data-fx-video-osd="true"] body,
+html[data-fx-video-osd="true"] .skinBody,
+html[data-fx-video-osd="true"] .mainAnimatedPages{
   position:fixed!important;
   inset:0!important;
   width:100%!important;
@@ -2294,10 +2306,72 @@ html[data-fx-video-osd="true"] .videoPlayerContainer{
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
+/* Ensure top playback header & Back button always sit cleanly above video canvas with generous safe-area tap target */
+html[data-fx-video-osd="true"] .skinHeader{
+  z-index:100010!important;
+  padding-top:env(safe-area-inset-top,0px)!important;
+  padding-left:env(safe-area-inset-left,0px)!important;
+  padding-right:env(safe-area-inset-right,0px)!important;
+  pointer-events:none!important;
+}
+html[data-fx-video-osd="true"] .skinHeader :is(button,a,.headerBackButton,.paper-icon-button-light){
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton{
+  min-width:48px!important;
+  min-height:48px!important;
+  width:48px!important;
+  height:48px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-left:4px!important;
+  border-radius:999px!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton:hover{
+  background:rgba(255,255,255,.14)!important;
+}
+/* Lift & style Playback Info (.playerStats) overlay above the fixed video player so selecting Playback info always displays cleanly */
+.playerStats:not(.hide){
+  display:block!important;
+  position:fixed!important;
+  z-index:100025!important;
+  top:calc(64px + env(safe-area-inset-top,0px))!important;
+  left:calc(16px + env(safe-area-inset-left,0px))!important;
+  right:auto!important;
+  bottom:auto!important;
+  max-width:min(440px,calc(100vw - 32px))!important;
+  max-height:calc(100dvh - 144px)!important;
+  overflow-y:auto!important;
+  pointer-events:auto!important;
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.94)!important;
+  backdrop-filter:blur(20px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:12px!important;
+  box-shadow:0 18px 42px -8px rgba(0,0,0,.75)!important;
+  color:#f1f2f4!important;
+  padding:14px 16px!important;
+  box-sizing:border-box!important;
+}
+.playerStats .playerStats-closeButton{
+  color:rgba(255,255,255,.8)!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.playerStats .playerStats-closeButton:hover{
+  color:#fff!important;
+  background:rgba(255,255,255,.12)!important;
+}
 #videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
   touch-action:pan-x!important;
 }
-html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.smoothScrollY,.sleekfin-details-track-dialog){
+html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.playerStats,.smoothScrollY,.sleekfin-details-track-dialog){
   touch-action:pan-y!important;
   overscroll-behavior:contain!important;
   pointer-events:auto!important;
@@ -2823,7 +2897,7 @@ button.fx-livetv-tab.is-active{
     max-width:100%!important;
   }
   html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-    padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(8px + env(safe-area-inset-top,0px))!important;
     margin-top:0!important;
   }
   html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
@@ -3050,5 +3124,13 @@ button.fx-livetv-tab.is-active{
   }
   #itemDetailPage .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) > .sleekfin-details-action-control:not(:is([data-sleekfin-action-id="play"],[data-sleekfin-action-id="resume"],[data-sleekfin-action-id="replay"],[data-sleekfin-action-id="download"],.btnPlay,.btnResume,.btnReplay,.btnDownload)) :is(.sleekfin-button-label,.sleekfin-details-action-label,.detailButton-text,.button-text){
     display:none!important;
+  }
+}
+/* Mobile & Touch Devices (Portrait + Landscape): Hide Play/Resume Overlay Button on Portrait-Oriented Cards */
+@media(max-width:899px),(hover:none) and (pointer:coarse){
+  :is(.portraitCard,.overflowPortraitCard,.card[data-aspect="2/3"],.fx-card-portrait,.card[data-type="Movie"]:not(.backdropCard):not(.overflowBackdropCard),.card[data-type="Series"]:not(.backdropCard):not(.overflowBackdropCard),.card[data-type="BoxSet"]:not(.backdropCard):not(.overflowBackdropCard)) :is(button.cardOverlayFab-primary,button.cardOverlayButton[data-action="play"],button.cardOverlayButton[data-action="resume"],button.cardOverlayButton-centered,.cardOverlayContainer > button.cardOverlayButton,.cardOverlayButton-br){
+    display:none!important;
+    opacity:0!important;
+    pointer-events:none!important;
   }
 }
