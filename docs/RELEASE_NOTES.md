@@ -1,11 +1,10 @@
-Jellyfin Discovery 0.5.9 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.10 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.9):
-- Fix page & video player interaction freeze after dismissing three-dots actionSheet menus or playback Settings dropdowns by preserving SleekFin's 1ms settle animationend lifecycle and adding a defensive closing guard.
-- Overhaul Filters dropdown: eliminate individual year checkbox flash at frame 0, replace year picker with labeled From/To inputs and quick decade era preset chips that never clear while typing, and remove Tags and Studios filter sections completely.
-- Reduce excess top spacing on the Search page, hide the SleekFin user settings option in the profile dropdown and Settings menu, and ensure pointer cursor on all navigation header buttons.
-- Prevent Live TV header clicks from opening the side drawer and unify all Live TV subpages (On Now, Guide EPG, Channels, Recordings, Schedule, Series) with a non-sticky dark-glass tab bar and modern dark EPG styling.
-- Streamline video playback OSD across desktop and mobile: move Audio and Favorites into the playback Settings dropdown, hide chapter markers and chapter/track/±skip buttons, and add YouTube-style ArrowLeft/ArrowRight ±30s keyboard seeking with animated overlay on desktop/laptop.
+Discovery (0.5.10):
+- Eliminate Filters dropdown flicker and duplicate Reset filters button flash by deferring footer mounting until SleekFin creates .sleekfin-menu-popup and disabling MUI Grow double-fade on .sleekfin-menu-host.
+- Fix dropdown icon brightness flash on open/close: keep all dropdown icons uniform at rest and brighten only on :hover, :focus-visible, or active selection (suppressing auto-focus brightening of the top item).
+- Position the video playback Settings popup cleanly above the gear icon (.btnVideoOsdSettings) with upward entrance animation and higher opacity (rgba(15, 16, 20, .97)) so bright frames do not wash it out, and match injected Audio/Favorites icon wrapping with SleekFin's native markup.
+- Fix Settings menu (.listItem-border) inner hover box artifact and unify all Settings menu & preferences buttons with Jellyfin Discovery's sleek single-layer dark-glass button style.
 
-Request Hub (0.5.9):
-- Add smooth fade-in and scale entrance animations to the Discover request modal overlay and dialog (with prefers-reduced-motion support).
+Request Hub (0.5.10):
+- Version parity release alongside Jellyfin Discovery 0.5.10.

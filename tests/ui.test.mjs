@@ -1062,3 +1062,74 @@ test('v0.5.9 fixes actionSheet freeze, filter Studios/Years draft, SleekFin user
 
   f.ctx.window.FazFortDiscovery.stop();
 });
+
+test('v0.5.10 eliminates Filters duplicate reset flicker, auto-focus icon brightening, OSD settings placement/opacity, and Settings menu hover box', async () => {
+  const f = fixture();
+  await f.settle();
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. CSS checks: .sleekfin-menu-host opacity/transition guard, auto-focus icon suppression, higher OSD opacity, single-layer Settings buttons
+  assert.ok(styleText.includes('opacity:1!important;\n  transform:none!important;\n  transition:none!important;'));
+  assert.ok(styleText.includes('rgba(15,16,20,.97)'));
+  assert.ok(styleText.includes('@keyframes fx-dropdown-enter-up'));
+  assert.ok(styleText.includes('.sleekfin-menu-item:focus:not(:hover):not(:focus-visible):not([data-selected="true"]) .sleekfin-menu-icon'));
+  assert.ok(styleText.includes(':is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem:hover'));
+
+  // 2. When sleekfin-main-ui is active, Reset filters waits for .sleekfin-menu-popup (never double-clones into .MuiPaper-root)
+  f.document.documentElement.classList.add('sleekfin-main-ui');
+  const filterPop = f.document.createElement('div');
+  filterPop.id = 'filter-popover';
+  filterPop.className = 'MuiPopover-root';
+  const filterPaper = f.document.createElement('div');
+  filterPaper.className = 'MuiPaper-root';
+  filterPop.append(filterPaper);
+  f.document.body.append(filterPop);
+  f.notify();
+  f.frames();
+  assert.equal(filterPaper.querySelector('.fx-filter-footer'), null, 'must not mount footer before .sleekfin-menu-popup exists');
+
+  const sleekPopup = f.document.createElement('div');
+  sleekPopup.className = 'sleekfin-menu-popup';
+  const strayReset = f.document.createElement('button');
+  strayReset.className = 'sleekfin-menu-item';
+  strayReset.textContent = 'Reset filters';
+  sleekPopup.append(strayReset);
+  filterPaper.append(sleekPopup);
+  f.notify();
+  f.frames();
+  assert.equal(strayReset.style.display, 'none');
+  assert.equal(sleekPopup.querySelectorAll('.fx-filter-footer').length, 1);
+  filterPop.remove();
+  f.document.documentElement.classList.remove('sleekfin-main-ui');
+
+  // 3. Playback Settings popup positions above .btnVideoOsdSettings gear icon
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  const gearBtn = f.document.createElement('button');
+  gearBtn.className = 'btnVideoOsdSettings';
+  gearBtn.getBoundingClientRect = () => ({ left: 1120, right: 1160, top: 660, bottom: 700, width: 40, height: 40 });
+  osd.append(gearBtn);
+  f.document.body.append(osd);
+
+  const sheet = f.document.createElement('div');
+  sheet.className = 'dialog actionSheet sleekfin-menu-host';
+  const popup = f.document.createElement('div');
+  popup.className = 'sleekfin-menu-popup';
+  popup.getBoundingClientRect = () => ({ left: 0, right: 220, top: 0, bottom: 200, width: 220, height: 200 });
+  const qItem = f.document.createElement('button');
+  qItem.className = 'sleekfin-menu-item';
+  qItem.textContent = 'Quality';
+  popup.append(qItem);
+  sheet.append(popup);
+  f.document.body.append(sheet);
+  f.notify();
+  f.frames();
+
+  assert.equal(sheet.dataset.fxOsdSettings, 'true');
+  assert.equal(popup.dataset.fxOsdSettings, 'true');
+  const placedTop = parseInt(popup.style.top, 10);
+  assert.ok(Number.isFinite(placedTop) && placedTop < 660 - 200, `expected popup above gear (top=${placedTop})`);
+
+  f.ctx.window.FazFortDiscovery.stop();
+});

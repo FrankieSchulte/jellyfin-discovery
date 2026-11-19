@@ -339,6 +339,9 @@ html:root .dialog.filterDialog.sleekfin-menu-host{
   max-width:none!important;
   max-height:none!important;
   overflow:visible!important;
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
 }
 /* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
 .MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
@@ -362,6 +365,23 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   padding:6px!important;
   gap:2px!important;
   box-sizing:border-box!important;
+}
+/* Playback OSD Settings & Track Popups: higher opacity so bright video frames never bleed through, animating upward above gear */
+@keyframes fx-dropdown-enter-up{
+  from{opacity:0;transform:translateY(6px) scale(.96)}
+  to{opacity:1;transform:none}
+}
+html[data-fx-video-osd="true"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
+  background-color:rgba(15,16,20,.97)!important;
+  backdrop-filter:blur(22px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+}
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+  transform-origin:bottom right!important;
+  animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
 .MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
 .MuiPopover-root.MuiModal-hidden .MuiPaper-root,
@@ -777,6 +797,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   line-height:1.25!important;
   color:inherit!important;
 }
+.MuiPopover-root .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+#library-view-menu .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+#app-user-menu .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-dropdown-option):focus:not(:hover):not(:focus-visible):not([data-selected="true"]),
+.dialog.actionSheet .listItem:focus:not(:hover):not(:focus-visible){
+  background:transparent!important;
+  color:rgba(255,255,255,.72)!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
 .MuiPopover-root .MuiMenuItem-root:hover,
 #library-view-menu .MuiMenuItem-root:hover,
 #app-user-menu .MuiMenuItem-root:hover,
@@ -785,6 +815,8 @@ html:root :is(.sleekfin-menu-item:hover,.sleekfin-select-option:hover,.sleekfin-
 .dialog.actionSheet .listItem:hover{
   background:rgba(255,255,255,.12)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
+  outline:none!important;
+  box-shadow:none!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected,
 #library-view-menu .MuiMenuItem-root.Mui-selected,
@@ -810,10 +842,28 @@ html:root :is(.sleekfin-menu-item[data-selected="true"],.sleekfin-select-option[
   border-color:rgba(255,255,255,.08)!important;
   margin:5px 4px!important;
 }
+/* Keep every dropdown icon uniform at rest — never brighten the auto-focused first item until hovered */
+html:root .sleekfin-menu-item .sleekfin-menu-icon,
+.MuiPopover-root .MuiListItemIcon-root,
+#app-user-menu .MuiListItemIcon-root,
+.dialog.actionSheet .actionsheetMenuItemIcon{
+  color:rgba(255,255,255,.64)!important;
+  transition:color .14s ease!important;
+}
 .MuiPopover-root .MuiListItemIcon-root,
 #app-user-menu .MuiListItemIcon-root{
-  color:inherit!important;
   min-width:28px!important;
+}
+html:root .sleekfin-menu-item:focus:not(:hover):not(:focus-visible):not([data-selected="true"]) .sleekfin-menu-icon,
+.MuiPopover-root .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected) .MuiListItemIcon-root,
+.dialog.actionSheet .listItem:focus:not(:hover):not(:focus-visible) .actionsheetMenuItemIcon{
+  color:rgba(255,255,255,.64)!important;
+}
+html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .sleekfin-menu-icon,
+.MuiPopover-root .MuiMenuItem-root:is(:hover,:focus-visible,.Mui-selected) .MuiListItemIcon-root,
+#app-user-menu .MuiMenuItem-root:is(:hover,:focus-visible,.Mui-selected) .MuiListItemIcon-root,
+.dialog.actionSheet .listItem:is(:hover,:focus-visible) .actionsheetMenuItemIcon{
+  color:#fff!important;
 }
 
 /* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search (Single Red Bar Only) */
@@ -1808,17 +1858,119 @@ a.fx-download-option.is-selected{
   padding-left:10px!important;
   margin:0 0 16px!important;
 }
+/* Unified Single-Layer Dark-Glass Buttons on Settings Menu & Preferences Subpages (Zero Inner Hover Box) */
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border{
-  background:#1a1c20!important;
-  border:1px solid #26292e!important;
-  border-radius:12px!important;
-  margin:0 0 10px!important;
-  padding:10px 14px!important;
-  transition:background .15s ease,border-color .15s ease!important;
+  display:block!important;
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  margin:0 0 8px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  color:rgba(255,255,255,.86)!important;
+  text-decoration:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
 }
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover{
-  background:#26292e!important;
+  background:rgba(255,255,255,.11)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#fff!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:focus:not(:hover):not(:focus-visible){
+  background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.08)!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:focus-visible{
+  outline:2px solid rgba(255,255,255,.8)!important;
+  outline-offset:2px!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem,
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem:hover,
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem:focus{
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  min-height:48px!important;
+  padding:11px 16px!important;
+  margin:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+  color:inherit!important;
+  box-sizing:border-box!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem::after{
+  content:""!important;
+  display:inline-block!important;
+  flex:0 0 16px!important;
+  width:16px!important;
+  height:16px!important;
+  margin-left:auto!important;
+  background-color:rgba(255,255,255,.38)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  transition:background-color .14s ease,transform .14s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover > .listItem::after{
+  background-color:rgba(255,255,255,.85)!important;
+  transform:translateX(2px)!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemIcon{
+  color:rgba(255,255,255,.64)!important;
+  font-size:20px!important;
+  width:20px!important;
+  height:20px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transition:color .14s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover .listItemIcon{
+  color:#fff!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemBody{
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemBodyText{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:14.5px!important;
+  font-weight:500!important;
+  line-height:1.3!important;
+  color:inherit!important;
+  margin:0!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(button.raised,a.raised,button.emby-button:not(.paper-icon-button-light):not(.listItem-border):not(.button-submit):not(.btnSave)){
+  background:rgba(255,255,255,.06)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-radius:10px!important;
+  color:rgba(255,255,255,.88)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13.5px!important;
+  font-weight:600!important;
+  min-height:40px!important;
+  padding:8px 16px!important;
+  box-shadow:none!important;
+  outline:none!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(button.raised,a.raised,button.emby-button:not(.paper-icon-button-light):not(.listItem-border):not(.button-submit):not(.btnSave)):hover{
+  background:rgba(255,255,255,.13)!important;
   border-color:rgba(255,255,255,.2)!important;
+  color:#fff!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input,select.emby-select,.inputContainer input,.selectContainer select){
   background:#0b0b0c!important;
@@ -1842,6 +1994,8 @@ a.fx-download-option.is-selected{
   border-radius:10px!important;
   min-height:42px!important;
   padding:10px 20px!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
   background:#f6121d!important;

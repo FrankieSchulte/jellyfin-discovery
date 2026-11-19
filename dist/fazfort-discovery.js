@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.9 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.10 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2325,6 +2325,9 @@ html:root .dialog.filterDialog.sleekfin-menu-host{
   max-width:none!important;
   max-height:none!important;
   overflow:visible!important;
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
 }
 /* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
 .MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
@@ -2348,6 +2351,23 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   padding:6px!important;
   gap:2px!important;
   box-sizing:border-box!important;
+}
+/* Playback OSD Settings & Track Popups: higher opacity so bright video frames never bleed through, animating upward above gear */
+@keyframes fx-dropdown-enter-up{
+  from{opacity:0;transform:translateY(6px) scale(.96)}
+  to{opacity:1;transform:none}
+}
+html[data-fx-video-osd="true"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
+  background-color:rgba(15,16,20,.97)!important;
+  backdrop-filter:blur(22px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+}
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host)){
+  transform-origin:bottom right!important;
+  animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
 .MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
 .MuiPopover-root.MuiModal-hidden .MuiPaper-root,
@@ -2763,6 +2783,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   line-height:1.25!important;
   color:inherit!important;
 }
+.MuiPopover-root .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+#library-view-menu .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+#app-user-menu .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected),
+html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-dropdown-option):focus:not(:hover):not(:focus-visible):not([data-selected="true"]),
+.dialog.actionSheet .listItem:focus:not(:hover):not(:focus-visible){
+  background:transparent!important;
+  color:rgba(255,255,255,.72)!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
 .MuiPopover-root .MuiMenuItem-root:hover,
 #library-view-menu .MuiMenuItem-root:hover,
 #app-user-menu .MuiMenuItem-root:hover,
@@ -2771,6 +2801,8 @@ html:root :is(.sleekfin-menu-item:hover,.sleekfin-select-option:hover,.sleekfin-
 .dialog.actionSheet .listItem:hover{
   background:rgba(255,255,255,.12)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
+  outline:none!important;
+  box-shadow:none!important;
 }
 .MuiPopover-root .MuiMenuItem-root.Mui-selected,
 #library-view-menu .MuiMenuItem-root.Mui-selected,
@@ -2796,10 +2828,28 @@ html:root :is(.sleekfin-menu-item[data-selected="true"],.sleekfin-select-option[
   border-color:rgba(255,255,255,.08)!important;
   margin:5px 4px!important;
 }
+/* Keep every dropdown icon uniform at rest \u2014 never brighten the auto-focused first item until hovered */
+html:root .sleekfin-menu-item .sleekfin-menu-icon,
+.MuiPopover-root .MuiListItemIcon-root,
+#app-user-menu .MuiListItemIcon-root,
+.dialog.actionSheet .actionsheetMenuItemIcon{
+  color:rgba(255,255,255,.64)!important;
+  transition:color .14s ease!important;
+}
 .MuiPopover-root .MuiListItemIcon-root,
 #app-user-menu .MuiListItemIcon-root{
-  color:inherit!important;
   min-width:28px!important;
+}
+html:root .sleekfin-menu-item:focus:not(:hover):not(:focus-visible):not([data-selected="true"]) .sleekfin-menu-icon,
+.MuiPopover-root .MuiMenuItem-root:focus:not(:hover):not(:focus-visible):not(.Mui-selected) .MuiListItemIcon-root,
+.dialog.actionSheet .listItem:focus:not(:hover):not(:focus-visible) .actionsheetMenuItemIcon{
+  color:rgba(255,255,255,.64)!important;
+}
+html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .sleekfin-menu-icon,
+.MuiPopover-root .MuiMenuItem-root:is(:hover,:focus-visible,.Mui-selected) .MuiListItemIcon-root,
+#app-user-menu .MuiMenuItem-root:is(:hover,:focus-visible,.Mui-selected) .MuiListItemIcon-root,
+.dialog.actionSheet .listItem:is(:hover,:focus-visible) .actionsheetMenuItemIcon{
+  color:#fff!important;
 }
 
 /* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search (Single Red Bar Only) */
@@ -3794,17 +3844,119 @@ a.fx-download-option.is-selected{
   padding-left:10px!important;
   margin:0 0 16px!important;
 }
+/* Unified Single-Layer Dark-Glass Buttons on Settings Menu & Preferences Subpages (Zero Inner Hover Box) */
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border{
-  background:#1a1c20!important;
-  border:1px solid #26292e!important;
-  border-radius:12px!important;
-  margin:0 0 10px!important;
-  padding:10px 14px!important;
-  transition:background .15s ease,border-color .15s ease!important;
+  display:block!important;
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  margin:0 0 8px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  color:rgba(255,255,255,.86)!important;
+  text-decoration:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
 }
 :is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover{
-  background:#26292e!important;
+  background:rgba(255,255,255,.11)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:#fff!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:focus:not(:hover):not(:focus-visible){
+  background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.08)!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:focus-visible{
+  outline:2px solid rgba(255,255,255,.8)!important;
+  outline-offset:2px!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem,
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem:hover,
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem:focus{
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  min-height:48px!important;
+  padding:11px 16px!important;
+  margin:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+  color:inherit!important;
+  box-sizing:border-box!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border > .listItem::after{
+  content:""!important;
+  display:inline-block!important;
+  flex:0 0 16px!important;
+  width:16px!important;
+  height:16px!important;
+  margin-left:auto!important;
+  background-color:rgba(255,255,255,.38)!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") center/16px 16px no-repeat!important;
+  transition:background-color .14s ease,transform .14s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover > .listItem::after{
+  background-color:rgba(255,255,255,.85)!important;
+  transform:translateX(2px)!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemIcon{
+  color:rgba(255,255,255,.64)!important;
+  font-size:20px!important;
+  width:20px!important;
+  height:20px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transition:color .14s ease!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border:hover .listItemIcon{
+  color:#fff!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemBody{
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+}
+:is(#myPreferencesMenuPage,.userPreferencesPage) .listItem-border .listItemBodyText{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:14.5px!important;
+  font-weight:500!important;
+  line-height:1.3!important;
+  color:inherit!important;
+  margin:0!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(button.raised,a.raised,button.emby-button:not(.paper-icon-button-light):not(.listItem-border):not(.button-submit):not(.btnSave)){
+  background:rgba(255,255,255,.06)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-radius:10px!important;
+  color:rgba(255,255,255,.88)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13.5px!important;
+  font-weight:600!important;
+  min-height:40px!important;
+  padding:8px 16px!important;
+  box-shadow:none!important;
+  outline:none!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+:is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(button.raised,a.raised,button.emby-button:not(.paper-icon-button-light):not(.listItem-border):not(.button-submit):not(.btnSave)):hover{
+  background:rgba(255,255,255,.13)!important;
   border-color:rgba(255,255,255,.2)!important;
+  color:#fff!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(input.emby-input,select.emby-select,.inputContainer input,.selectContainer select){
   background:#0b0b0c!important;
@@ -3828,6 +3980,8 @@ a.fx-download-option.is-selected{
   border-radius:10px!important;
   min-height:42px!important;
   padding:10px 20px!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
 }
 :is(#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage) :is(.button-submit:hover,.btnSave:hover){
   background:#f6121d!important;
@@ -6335,7 +6489,7 @@ button.fx-livetv-tab.is-active{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.9";
+      const VERSION = "0.5.10";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -6592,7 +6746,7 @@ button.fx-livetv-tab.is-active{
         { label: "Classic", from: 1888, to: 1979 }
       ];
       function enhanceFilterPopover(popover) {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k;
         if (!popover) return;
         const props = popover._fxFilterProps || findFilterPopoverProps(popover);
         if (props) popover._fxFilterProps = props;
@@ -6610,9 +6764,9 @@ button.fx-livetv-tab.is-active{
         if (sleekPopup) {
           sleekPopup.querySelectorAll("button.sleekfin-menu-item").forEach((btn) => {
             const lbl = (btn.textContent || "").trim().toLowerCase();
-            if (lbl === "tags" || lbl === "studios") {
+            if (lbl === "tags" || lbl === "studios" || lbl === "reset filters") {
               const grp = btn.closest(".sleekfin-menu-group");
-              if (grp) grp.style.display = "none";
+              if (grp && lbl !== "reset filters") grp.style.display = "none";
               btn.style.display = "none";
             }
           });
@@ -6850,48 +7004,53 @@ button.fx-livetv-tab.is-active{
             (_i = rangeBox._syncPresetChips) == null ? void 0 : _i.call(rangeBox);
           }
         }
-        const footerHost = sleekPopup || paper;
-        let footer = popover._fxFilterFooterEl || footerHost.querySelector(".fx-filter-footer");
-        if (!footer) {
-          footer = element("div", "fx-filter-footer");
-          const resetBtn = element("button", "fx-filter-reset-btn", "Reset filters");
-          resetBtn.type = "button";
-          resetBtn.addEventListener("click", (ev) => {
-            var _a3;
-            ev.preventDefault();
-            ev.stopPropagation();
-            popover._fxYearDraft = { from: "", to: "", active: false };
-            const rangeBox = popover._fxYearPickerEl || popover.querySelector(".fx-year-picker");
-            if (rangeBox) {
-              const fi = rangeBox.querySelector(".fx-year-from");
-              const ti = rangeBox.querySelector(".fx-year-to");
-              if (fi) fi.value = "";
-              if (ti) ti.value = "";
-              rangeBox._toEdited = false;
-              (_a3 = rangeBox._syncPresetChips) == null ? void 0 : _a3.call(rangeBox);
-            }
-            const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
-            if (curProps && typeof curProps.setLibraryViewSettings === "function") {
-              curProps.setLibraryViewSettings((prev) => ({
-                ...prev,
-                StartIndex: 0,
-                Filters: {}
-              }));
-            }
-            resetBtn.classList.remove("is-active");
-          });
-          footer.append(resetBtn);
-          popover._fxFilterFooterEl = footer;
-        }
-        if (footer.parentElement !== footerHost) {
-          footerHost.append(footer);
+        const sleekActive = Boolean(
+          sleekPopup || paper.classList.contains("sleekfin-menu-host") || ((_k = (_j = document.documentElement) == null ? void 0 : _j.classList) == null ? void 0 : _k.contains("sleekfin-main-ui"))
+        );
+        const footerHost = sleekPopup || (sleekActive ? null : paper);
+        if (footerHost) {
+          let footer = popover._fxFilterFooterEl || footerHost.querySelector(".fx-filter-footer");
+          if (!footer) {
+            footer = element("div", "fx-filter-footer");
+            const resetBtn = element("button", "fx-filter-reset-btn", "Reset filters");
+            resetBtn.type = "button";
+            resetBtn.addEventListener("click", (ev) => {
+              var _a3;
+              ev.preventDefault();
+              ev.stopPropagation();
+              popover._fxYearDraft = { from: "", to: "", active: false };
+              const rangeBox = popover._fxYearPickerEl || popover.querySelector(".fx-year-picker");
+              if (rangeBox) {
+                const fi = rangeBox.querySelector(".fx-year-from");
+                const ti = rangeBox.querySelector(".fx-year-to");
+                if (fi) fi.value = "";
+                if (ti) ti.value = "";
+                rangeBox._toEdited = false;
+                (_a3 = rangeBox._syncPresetChips) == null ? void 0 : _a3.call(rangeBox);
+              }
+              const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
+              if (curProps && typeof curProps.setLibraryViewSettings === "function") {
+                curProps.setLibraryViewSettings((prev) => ({
+                  ...prev,
+                  StartIndex: 0,
+                  Filters: {}
+                }));
+              }
+              resetBtn.classList.remove("is-active");
+            });
+            footer.append(resetBtn);
+            popover._fxFilterFooterEl = footer;
+          }
+          if (footer.parentElement !== footerHost) {
+            footerHost.append(footer);
+          }
         }
         function syncResetBtnState(forceActive = null) {
-          var _a3, _b3;
-          const btn = (_a3 = footer == null ? void 0 : footer.querySelector) == null ? void 0 : _a3.call(footer, ".fx-filter-reset-btn");
+          var _a3, _b3, _c3;
+          const btn = (_b3 = (_a3 = popover._fxFilterFooterEl) == null ? void 0 : _a3.querySelector) == null ? void 0 : _b3.call(_a3, ".fx-filter-reset-btn");
           if (!btn) return;
           const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
-          const active = forceActive !== null ? forceActive : hasActiveLibraryFilters((_b3 = curProps == null ? void 0 : curProps.libraryViewSettings) == null ? void 0 : _b3.Filters);
+          const active = forceActive !== null ? forceActive : hasActiveLibraryFilters((_c3 = curProps == null ? void 0 : curProps.libraryViewSettings) == null ? void 0 : _c3.Filters);
           btn.classList.toggle("is-active", Boolean(active));
         }
         syncResetBtnState();
@@ -6941,6 +7100,32 @@ button.fx-livetv-tab.is-active{
           }, 280);
         });
       }
+      function positionOsdPopupAboveGear(osd, sheet, sleekPopup) {
+        var _a2, _b2, _c2, _d2, _e2;
+        const gearBtn = (_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".btnVideoOsdSettings");
+        if (!gearBtn || !(sheet == null ? void 0 : sheet.isConnected) || sheet.classList.contains("sleekfin-menu-closing")) return;
+        const gr = (_b2 = gearBtn.getBoundingClientRect) == null ? void 0 : _b2.call(gearBtn);
+        if (!gr || gr.width <= 0 || gr.height <= 0) return;
+        const vw = window.innerWidth || ((_c2 = document.documentElement) == null ? void 0 : _c2.clientWidth) || 1280;
+        const vh = window.innerHeight || ((_d2 = document.documentElement) == null ? void 0 : _d2.clientHeight) || 720;
+        const target = sleekPopup && sleekPopup.isConnected ? sleekPopup : sheet;
+        const rect = ((_e2 = target.getBoundingClientRect) == null ? void 0 : _e2.call(target)) || { width: 0, height: 0 };
+        const pw = Math.max(180, Math.round(rect.width || target.offsetWidth || 220));
+        const ph = Math.max(80, Math.round(rect.height || target.offsetHeight || 220));
+        const top = Math.max(12, Math.min(vh - ph - 12, Math.round(gr.top - ph - 12)));
+        const left = Math.max(12, Math.min(vw - pw - 12, Math.round(gr.right - pw)));
+        sheet.style.setProperty("top", `${top}px`, "important");
+        sheet.style.setProperty("left", `${left}px`, "important");
+        sheet.style.setProperty("bottom", "auto", "important");
+        sheet.style.setProperty("right", "auto", "important");
+        if (target !== sheet) {
+          target.style.setProperty("position", "fixed", "important");
+          target.style.setProperty("top", `${top}px`, "important");
+          target.style.setProperty("left", `${left}px`, "important");
+          target.style.setProperty("bottom", "auto", "important");
+          target.style.setProperty("right", "auto", "important");
+        }
+      }
       function enhanceOsdSettingsMenu() {
         const osd = document.getElementById("videoOsdPage");
         if (!osd || osd.classList.contains("hide") || osd.classList.contains("hidePage") || osd.hidden) return;
@@ -6948,11 +7133,14 @@ button.fx-livetv-tab.is-active{
         const favBtn = osd.querySelector(".btnUserRating");
         const canAudio = Boolean(audioBtn && !audioBtn.classList.contains("hide") && !audioBtn.hidden && !audioBtn.disabled);
         const canFav = Boolean(favBtn && !favBtn.classList.contains("hide") && !favBtn.hidden && !favBtn.disabled);
-        if (!canAudio && !canFav) return;
+        const portalPopups = [...document.querySelectorAll(".sleekfin-popup-layer .sleekfin-menu-popup")];
         document.querySelectorAll(".dialog.actionSheet").forEach((sheet) => {
           if (sheet.classList.contains("sleekfin-menu-closing")) return;
           const scroller = sheet.querySelector(".actionSheetScroller");
-          const sleekPopup = sheet.querySelector(".sleekfin-menu-popup");
+          const sleekPopup = sheet.querySelector(".sleekfin-menu-popup") || portalPopups.find((p) => {
+            const txt = (p.textContent || "").toLowerCase();
+            return /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/.test(txt);
+          }) || null;
           const rawItems = scroller ? [...scroller.querySelectorAll(".actionSheetMenuItem, button[data-id]")] : [];
           const popupItems = sleekPopup ? [...sleekPopup.querySelectorAll(".sleekfin-menu-item")] : [];
           const inspectItems = rawItems.length ? rawItems : popupItems;
@@ -6961,6 +7149,8 @@ button.fx-livetv-tab.is-active{
           const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
           const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
           if (!looksLikeSettings) return;
+          sheet.dataset.fxOsdSettings = "true";
+          if (sleekPopup) sleekPopup.dataset.fxOsdSettings = "true";
           const isFav = Boolean(favBtn && (favBtn.getAttribute("data-isfavorite") === "true" || favBtn.classList.contains("ratingbutton-withrating")));
           const closeSheet = () => {
             var _a2, _b2, _c2;
@@ -7032,11 +7222,13 @@ button.fx-livetv-tab.is-active{
               btn.type = "button";
               btn.setAttribute("role", "menuitem");
               btn.dataset.fxOsdMenuItem = id;
-              const ic = element("span", `sleekfin-menu-icon material-icons ${iconName}`);
-              ic.setAttribute("aria-hidden", "true");
+              const icWrap = element("span", "sleekfin-menu-icon");
+              icWrap.setAttribute("aria-hidden", "true");
+              const ic = element("span", `material-icons ${iconName}`);
+              icWrap.append(ic);
               const copy = element("div", "sleekfin-menu-copy");
               copy.append(element("div", "sleekfin-menu-primary", labelText));
-              btn.append(ic, copy);
+              btn.append(icWrap, copy);
               btn.addEventListener("click", (ev) => {
                 var _a2;
                 ev.preventDefault();
@@ -7053,6 +7245,13 @@ button.fx-livetv-tab.is-active{
             if (canFav && !popupLabels.has("add to favorites") && !popupLabels.has("remove from favorites") && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
               sleekPopup.append(makeSleekItem("fx-osd-favorite", isFav ? "favorite" : "favorite_border", favLabel, triggerFav));
             }
+          }
+          positionOsdPopupAboveGear(osd, sheet, sleekPopup);
+          if (sheet.dataset.fxOsdPositioned !== "true") {
+            sheet.dataset.fxOsdPositioned = "true";
+            const reposition = () => positionOsdPopupAboveGear(osd, sheet, sheet.querySelector(".sleekfin-menu-popup") || sleekPopup);
+            if (typeof requestAnimationFrame === "function") requestAnimationFrame(reposition);
+            setTimeout(reposition, 32);
           }
         });
       }

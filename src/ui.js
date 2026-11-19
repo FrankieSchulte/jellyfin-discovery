@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.9';
+const VERSION = '0.5.10';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -227,9 +227,9 @@ function enhanceFilterPopover(popover) {
   if (sleekPopup) {
     sleekPopup.querySelectorAll('button.sleekfin-menu-item').forEach(btn => {
       const lbl = (btn.textContent || '').trim().toLowerCase();
-      if (lbl === 'tags' || lbl === 'studios') {
+      if (lbl === 'tags' || lbl === 'studios' || lbl === 'reset filters') {
         const grp = btn.closest('.sleekfin-menu-group');
-        if (grp) grp.style.display = 'none';
+        if (grp && lbl !== 'reset filters') grp.style.display = 'none';
         btn.style.display = 'none';
       }
     });
@@ -479,44 +479,53 @@ function enhanceFilterPopover(popover) {
     }
   }
 
-  // 3. Add Reset filters button at the bottom of the visible Filter dropdown
-  const footerHost = sleekPopup || paper;
-  let footer = popover._fxFilterFooterEl || footerHost.querySelector('.fx-filter-footer');
-  if (!footer) {
-    footer = element('div', 'fx-filter-footer');
-    const resetBtn = element('button', 'fx-filter-reset-btn', 'Reset filters');
-    resetBtn.type = 'button';
-    resetBtn.addEventListener('click', ev => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      popover._fxYearDraft = { from: '', to: '', active: false };
-      const rangeBox = popover._fxYearPickerEl || popover.querySelector('.fx-year-picker');
-      if (rangeBox) {
-        const fi = rangeBox.querySelector('.fx-year-from');
-        const ti = rangeBox.querySelector('.fx-year-to');
-        if (fi) fi.value = '';
-        if (ti) ti.value = '';
-        rangeBox._toEdited = false;
-        rangeBox._syncPresetChips?.();
-      }
-      const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
-      if (curProps && typeof curProps.setLibraryViewSettings === 'function') {
-        curProps.setLibraryViewSettings(prev => ({
-          ...prev,
-          StartIndex: 0,
-          Filters: {}
-        }));
-      }
-      resetBtn.classList.remove('is-active');
-    });
-    footer.append(resetBtn);
-    popover._fxFilterFooterEl = footer;
-  }
-  if (footer.parentElement !== footerHost) {
-    footerHost.append(footer);
+  // 3. Add Reset filters button at the bottom of the visible Filter dropdown.
+  // When SleekFin is active, wait for .sleekfin-menu-popup before mounting so SleekFin never clones
+  // a duplicate Reset filters row out of .MuiPaper-root on frame 0 (zero flicker).
+  const sleekActive = Boolean(
+    sleekPopup ||
+    paper.classList.contains('sleekfin-menu-host') ||
+    document.documentElement?.classList?.contains('sleekfin-main-ui')
+  );
+  const footerHost = sleekPopup || (sleekActive ? null : paper);
+  if (footerHost) {
+    let footer = popover._fxFilterFooterEl || footerHost.querySelector('.fx-filter-footer');
+    if (!footer) {
+      footer = element('div', 'fx-filter-footer');
+      const resetBtn = element('button', 'fx-filter-reset-btn', 'Reset filters');
+      resetBtn.type = 'button';
+      resetBtn.addEventListener('click', ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        popover._fxYearDraft = { from: '', to: '', active: false };
+        const rangeBox = popover._fxYearPickerEl || popover.querySelector('.fx-year-picker');
+        if (rangeBox) {
+          const fi = rangeBox.querySelector('.fx-year-from');
+          const ti = rangeBox.querySelector('.fx-year-to');
+          if (fi) fi.value = '';
+          if (ti) ti.value = '';
+          rangeBox._toEdited = false;
+          rangeBox._syncPresetChips?.();
+        }
+        const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
+        if (curProps && typeof curProps.setLibraryViewSettings === 'function') {
+          curProps.setLibraryViewSettings(prev => ({
+            ...prev,
+            StartIndex: 0,
+            Filters: {}
+          }));
+        }
+        resetBtn.classList.remove('is-active');
+      });
+      footer.append(resetBtn);
+      popover._fxFilterFooterEl = footer;
+    }
+    if (footer.parentElement !== footerHost) {
+      footerHost.append(footer);
+    }
   }
   function syncResetBtnState(forceActive = null) {
-    const btn = footer?.querySelector?.('.fx-filter-reset-btn');
+    const btn = popover._fxFilterFooterEl?.querySelector?.('.fx-filter-reset-btn');
     if (!btn) return;
     const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
     const active = forceActive !== null ? forceActive : hasActiveLibraryFilters(curProps?.libraryViewSettings?.Filters);
@@ -567,6 +576,31 @@ function guardStuckClosingMenus() {
     }, 280);
   });
 }
+function positionOsdPopupAboveGear(osd, sheet, sleekPopup) {
+  const gearBtn = osd?.querySelector?.('.btnVideoOsdSettings');
+  if (!gearBtn || !sheet?.isConnected || sheet.classList.contains('sleekfin-menu-closing')) return;
+  const gr = gearBtn.getBoundingClientRect?.();
+  if (!gr || gr.width <= 0 || gr.height <= 0) return;
+  const vw = window.innerWidth || document.documentElement?.clientWidth || 1280;
+  const vh = window.innerHeight || document.documentElement?.clientHeight || 720;
+  const target = (sleekPopup && sleekPopup.isConnected) ? sleekPopup : sheet;
+  const rect = target.getBoundingClientRect?.() || { width: 0, height: 0 };
+  const pw = Math.max(180, Math.round(rect.width || target.offsetWidth || 220));
+  const ph = Math.max(80, Math.round(rect.height || target.offsetHeight || 220));
+  const top = Math.max(12, Math.min(vh - ph - 12, Math.round(gr.top - ph - 12)));
+  const left = Math.max(12, Math.min(vw - pw - 12, Math.round(gr.right - pw)));
+  sheet.style.setProperty('top', `${top}px`, 'important');
+  sheet.style.setProperty('left', `${left}px`, 'important');
+  sheet.style.setProperty('bottom', 'auto', 'important');
+  sheet.style.setProperty('right', 'auto', 'important');
+  if (target !== sheet) {
+    target.style.setProperty('position', 'fixed', 'important');
+    target.style.setProperty('top', `${top}px`, 'important');
+    target.style.setProperty('left', `${left}px`, 'important');
+    target.style.setProperty('bottom', 'auto', 'important');
+    target.style.setProperty('right', 'auto', 'important');
+  }
+}
 function enhanceOsdSettingsMenu() {
   const osd = document.getElementById('videoOsdPage');
   if (!osd || osd.classList.contains('hide') || osd.classList.contains('hidePage') || osd.hidden) return;
@@ -574,11 +608,14 @@ function enhanceOsdSettingsMenu() {
   const favBtn = osd.querySelector('.btnUserRating');
   const canAudio = Boolean(audioBtn && !audioBtn.classList.contains('hide') && !audioBtn.hidden && !audioBtn.disabled);
   const canFav = Boolean(favBtn && !favBtn.classList.contains('hide') && !favBtn.hidden && !favBtn.disabled);
-  if (!canAudio && !canFav) return;
+  const portalPopups = [...document.querySelectorAll('.sleekfin-popup-layer .sleekfin-menu-popup')];
   document.querySelectorAll('.dialog.actionSheet').forEach(sheet => {
     if (sheet.classList.contains('sleekfin-menu-closing')) return;
     const scroller = sheet.querySelector('.actionSheetScroller');
-    const sleekPopup = sheet.querySelector('.sleekfin-menu-popup');
+    const sleekPopup = sheet.querySelector('.sleekfin-menu-popup') || portalPopups.find(p => {
+      const txt = (p.textContent || '').toLowerCase();
+      return /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/.test(txt);
+    }) || null;
     const rawItems = scroller ? [...scroller.querySelectorAll('.actionSheetMenuItem, button[data-id]')] : [];
     const popupItems = sleekPopup ? [...sleekPopup.querySelectorAll('.sleekfin-menu-item')] : [];
     const inspectItems = rawItems.length ? rawItems : popupItems;
@@ -589,6 +626,8 @@ function enhanceOsdSettingsMenu() {
       ids.some(id => ['quality', 'playbackrate', 'aspectratio', 'stats', 'subtitleoffset', 'repeatmode', 'videostretch'].includes(id)) ||
       labels.some(l => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
     if (!looksLikeSettings) return;
+    sheet.dataset.fxOsdSettings = 'true';
+    if (sleekPopup) sleekPopup.dataset.fxOsdSettings = 'true';
     const isFav = Boolean(favBtn && (favBtn.getAttribute('data-isfavorite') === 'true' || favBtn.classList.contains('ratingbutton-withrating')));
     const closeSheet = () => {
       const bd = sheet.closest('.dialogContainer')?.previousElementSibling;
@@ -646,11 +685,13 @@ function enhanceOsdSettingsMenu() {
         btn.type = 'button';
         btn.setAttribute('role', 'menuitem');
         btn.dataset.fxOsdMenuItem = id;
-        const ic = element('span', `sleekfin-menu-icon material-icons ${iconName}`);
-        ic.setAttribute('aria-hidden', 'true');
+        const icWrap = element('span', 'sleekfin-menu-icon');
+        icWrap.setAttribute('aria-hidden', 'true');
+        const ic = element('span', `material-icons ${iconName}`);
+        icWrap.append(ic);
         const copy = element('div', 'sleekfin-menu-copy');
         copy.append(element('div', 'sleekfin-menu-primary', labelText));
-        btn.append(ic, copy);
+        btn.append(icWrap, copy);
         btn.addEventListener('click', ev => {
           ev.preventDefault();
           ev.stopImmediatePropagation?.();
@@ -666,6 +707,13 @@ function enhanceOsdSettingsMenu() {
       if (canFav && !popupLabels.has('add to favorites') && !popupLabels.has('remove from favorites') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
         sleekPopup.append(makeSleekItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', favLabel, triggerFav));
       }
+    }
+    positionOsdPopupAboveGear(osd, sheet, sleekPopup);
+    if (sheet.dataset.fxOsdPositioned !== 'true') {
+      sheet.dataset.fxOsdPositioned = 'true';
+      const reposition = () => positionOsdPopupAboveGear(osd, sheet, sheet.querySelector('.sleekfin-menu-popup') || sleekPopup);
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(reposition);
+      setTimeout(reposition, 32);
     }
   });
 }
