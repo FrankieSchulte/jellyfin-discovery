@@ -1780,15 +1780,25 @@ a.rh-nav[aria-current=page]{
  border-color:#e50914;
  color:#fff;
 }
+@keyframes rh-overlay-in{
+ from{opacity:0}
+ to{opacity:1}
+}
+@keyframes rh-dialog-in{
+ from{opacity:0;transform:translateY(14px) scale(0.965)}
+ to{opacity:1;transform:none}
+}
 .rh-overlay{
  position:fixed;
  inset:0;
  background:rgba(8,8,10,0.82);
- backdrop-filter:blur(10px);
+ backdrop-filter:blur(12px);
+ -webkit-backdrop-filter:blur(12px);
  z-index:100002;
  display:grid;
  place-items:center;
  padding:20px;
+ animation:rh-overlay-in 190ms cubic-bezier(0.22,1,0.36,1) both;
 }
 .rh-dialog{
  background:#16181b;
@@ -1802,6 +1812,10 @@ a.rh-nav[aria-current=page]{
  border:1px solid rgba(255,255,255,0.12);
  box-shadow:0 28px 72px rgba(0,0,0,0.68);
  box-sizing:border-box;
+ animation:rh-dialog-in 240ms cubic-bezier(0.22,1,0.36,1) both;
+}
+@media(prefers-reduced-motion:reduce){
+ .rh-overlay,.rh-dialog{animation:none}
 }
 .rh-dialog-top{
  display:flex;

@@ -1,11 +1,11 @@
-Jellyfin Discovery 0.5.8 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.5.9 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.5.8):
-- Eliminate search page and page-to-page navigation freezes: debounce search input, cache normalized item search metadata, progressively batch large result grids, coalesce popover MutationObserver work, halve loop carousel clones, and replace global html:has() selectors with lightweight root attributes.
-- Fix duplicate search button at half-screen desktop widths by only injecting the mobile search shortcut when SleekFin's native search button is actually overflowed.
-- Unify every dropdown (Profile, Movies/Shows/Collections, Filters, Sort, Three-Dots, Downloads) to a single crisp glassy dark rectangle by stripping outer .sleekfin-menu-host box borders, eliminating right-edge clipping on Filters, and placing rotating right-side chevrons on expandable filter rows.
-- Align category subpage top spacing with other pages, move the back arrow to the fixed top-left header position matching detail pages, fix back-navigation from a movie/show so parent carousels never leak underneath and category titles/items always resolve, and hide the Load more button in favor of a bottom-of-page message.
-- Overhaul TV badges: rename New Season to New Episodes, show New Episodes strictly when a downloaded playable episode premiered within the past 30 days, and reserve Recently Added strictly for Movies.
+Discovery (0.5.9):
+- Fix page & video player interaction freeze after dismissing three-dots actionSheet menus or playback Settings dropdowns by preserving SleekFin's 1ms settle animationend lifecycle and adding a defensive closing guard.
+- Overhaul Filters dropdown: eliminate individual year checkbox flash at frame 0, replace year picker with labeled From/To inputs and quick decade era preset chips that never clear while typing, and remove Tags and Studios filter sections completely.
+- Reduce excess top spacing on the Search page, hide the SleekFin user settings option in the profile dropdown and Settings menu, and ensure pointer cursor on all navigation header buttons.
+- Prevent Live TV header clicks from opening the side drawer and unify all Live TV subpages (On Now, Guide EPG, Channels, Recordings, Schedule, Series) with a non-sticky dark-glass tab bar and modern dark EPG styling.
+- Streamline video playback OSD across desktop and mobile: move Audio and Favorites into the playback Settings dropdown, hide chapter markers and chapter/track/±skip buttons, and add YouTube-style ArrowLeft/ArrowRight ±30s keyboard seeking with animated overlay on desktop/laptop.
 
-Request Hub (0.5.8):
-- Keep the Discover tab visible in the top header bar at half-screen desktop widths (only collapsing into the overflow drawer on narrow/touch viewports or when overflow is active) and skip popover mutations in the observer.
+Request Hub (0.5.9):
+- Add smooth fade-in and scale entrance animations to the Discover request modal overlay and dialog (with prefers-reduced-motion support).

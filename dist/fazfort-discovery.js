@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.8 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.5.9 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2301,7 +2301,8 @@ html.sleekfin-main-ui .dialogBackdrop.sleekfin-menu-backdrop{
   -webkit-backdrop-filter:none!important;
   opacity:0!important;
 }
-/* SleekFin wraps MUI/ActionSheet menus in .sleekfin-menu-host > .sleekfin-menu-popup; keep the host 100% invisible so there is NEVER a box-within-a-box */
+/* SleekFin wraps MUI/ActionSheet menus in .sleekfin-menu-host > .sleekfin-menu-popup; keep the host 100% invisible so there is NEVER a box-within-a-box.
+   IMPORTANT: Never set animation:none here \u2014 Jellyfin's legacy dialogHelper relies on SleekFin's 1ms settle animationend to close actionSheet dialogs without hanging! */
 html:root .sleekfin-menu-host,
 html:root .MuiPopover-root > .MuiPaper-root.sleekfin-menu-host,
 html:root #app-user-menu .MuiPaper-root.sleekfin-menu-host,
@@ -2324,7 +2325,6 @@ html:root .dialog.filterDialog.sleekfin-menu-host{
   max-width:none!important;
   max-height:none!important;
   overflow:visible!important;
-  animation:none!important;
 }
 /* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
 .MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
@@ -2449,7 +2449,10 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   color:#fff!important;
 }
 #filter-popover .MuiAccordion-root:has(#filtersTags-header),
-.MuiPopover-root .MuiAccordion-root:has(#filtersTags-header){
+.MuiPopover-root .MuiAccordion-root:has(#filtersTags-header),
+#filter-popover .MuiAccordion-root:has(#filtersStudios-header),
+.MuiPopover-root .MuiAccordion-root:has(#filtersStudios-header),
+.dialog.filterDialog :is(.filterTagsSection,.filterStudiosSection){
   display:none!important;
 }
 .MuiPopover-root .MuiAccordion-root{
@@ -2578,46 +2581,115 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   background:rgba(255,255,255,.12)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
 }
-#filtersYears-content[data-fx-years-enhanced="true"] .MuiFormGroup-root{
+/* Unconditionally hide native Years checkboxes at Frame 0 so they NEVER flash before or during expansion */
+#filtersYears-content .MuiFormGroup-root,
+#filtersYears-content .MuiFormControlLabel-root,
+#filtersYears-content input[type="checkbox"],
+#filter-popover #filtersYears-content .MuiFormGroup-root{
+  display:none!important;
+}
+.fx-year-picker{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 6px 6px;
+  margin:2px 0 4px;
+  border-radius:9px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.07);
+  box-sizing:border-box;
+}
+.fx-year-picker[hidden]{
   display:none!important;
 }
 .fx-year-range{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-  align-items:center;
+  align-items:end;
   gap:6px;
-  padding:4px 2px 2px;
+}
+.fx-year-field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+.fx-year-label{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.52);
+  padding-left:2px;
+  user-select:none;
 }
 .fx-year-range-sep{
-  color:rgba(255,255,255,.45);
-  font-size:12px;
-  font-weight:500;
+  color:rgba(255,255,255,.4);
+  font-size:13px;
+  font-weight:600;
+  line-height:32px;
   user-select:none;
 }
 .fx-year-input{
   width:100%;
   min-width:0;
   height:32px;
-  padding:0 6px;
+  padding:0 8px;
   border-radius:7px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(12,13,16,.72);
-  color:var(--sleekfin-text,#f1f2f4);
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(10,11,14,.86);
+  color:#fff;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
-  font-size:12.5px;
-  font-weight:500;
+  font-size:13px;
+  font-weight:600;
   text-align:center;
   font-variant-numeric:tabular-nums;
   box-sizing:border-box;
-  transition:border-color .14s ease,background-color .14s ease;
+  transition:border-color .14s ease,background-color .14s ease,box-shadow .14s ease;
 }
 .fx-year-input::placeholder{
-  color:rgba(255,255,255,.4);
+  color:rgba(255,255,255,.32);
+  font-weight:500;
 }
 .fx-year-input:focus{
   outline:none;
   border-color:var(--sleekfin-accent,#dc2626);
-  background:rgba(16,17,21,.92);
+  background:rgba(14,15,19,.98);
+  box-shadow:0 0 0 2px rgba(229,9,20,.22);
+}
+.fx-year-presets{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px;
+}
+button.fx-year-chip{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 4px!important;
+  border-radius:6px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  background:rgba(255,255,255,.045)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:11.5px!important;
+  font-weight:600!important;
+  font-variant-numeric:tabular-nums!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+button.fx-year-chip:hover{
+  background:rgba(255,255,255,.12)!important;
+  border-color:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+}
+button.fx-year-chip.is-active{
+  background:rgba(229,9,20,.24)!important;
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  color:#fff!important;
 }
 .fx-filter-footer{
   margin-top:5px;
@@ -3028,11 +3100,11 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
   display:none!important;
 }
 html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
+  padding-top:calc(var(--sleekfin-header-height,72px) + 2px)!important;
   margin-top:0!important;
 }
 html[data-fx-has-subheader="true"] #searchPage#searchPage{
-  padding-top:16px!important;
+  padding-top:4px!important;
   margin-top:0!important;
 }
 #searchPage#searchPage{
@@ -3040,11 +3112,15 @@ html[data-fx-has-subheader="true"] #searchPage#searchPage{
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
+#searchPage#searchPage :is(.padded-top-page,.content-primary){
+  padding-top:0!important;
+  margin-top:0!important;
+}
 #searchPage#searchPage .alphaPicker:empty{
   display:none!important;
 }
 #searchPage#searchPage .searchFields{
-  padding:6px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 24px!important;
+  padding:2px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 18px!important;
   padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   margin:0!important;
   box-sizing:border-box!important;
@@ -4053,9 +4129,369 @@ html[data-fx-video-osd="true"] .videoPlayerContainer{
 #videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
   touch-action:pan-x!important;
 }
-html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
+html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.smoothScrollY,.sleekfin-details-track-dialog){
   touch-action:pan-y!important;
   overscroll-behavior:contain!important;
+  pointer-events:auto!important;
+}
+/* Clean Video Playback OSD: hide standalone Audio/Favorites (moved into Settings dropdown), chapter markers/skip buttons & \xB1skip buttons across all viewports */
+#videoOsdPage :is(.btnAudio,.btnUserRating,.btnRewind,.btnFastForward,.btnPreviousChapter,.btnNextChapter,.btnPreviousTrack,.btnNextTrack,.sliderMarkerContainer,.sliderMarker,.chapterMarker){
+  display:none!important;
+}
+/* YouTube-Style Keyboard Skip Overlay (\xB130s on Desktop/Laptop ArrowLeft / ArrowRight) */
+@keyframes fx-skip-chevron{
+  0%{opacity:.22;transform:scale(.9)}
+  45%{opacity:1;transform:scale(1.04)}
+  100%{opacity:.22;transform:scale(.9)}
+}
+@keyframes fx-skip-pop{
+  0%{opacity:0;transform:translateY(-50%) scale(.88)}
+  100%{opacity:1;transform:translateY(-50%) scale(1)}
+}
+.fx-osd-skip-overlay{
+  position:fixed;
+  top:50%;
+  z-index:100016;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:108px;
+  height:108px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(20,21,25,.82) 0%,rgba(12,13,16,.62) 100%);
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 16px 40px rgba(0,0,0,.55);
+  color:#fff;
+  opacity:0;
+  transform:translateY(-50%) scale(.9);
+  transition:opacity .18s cubic-bezier(.22,1,.36,1),transform .18s cubic-bezier(.22,1,.36,1);
+}
+.fx-osd-skip-overlay[data-dir="right"]{
+  right:14%;
+  left:auto;
+}
+.fx-osd-skip-overlay[data-dir="left"]{
+  left:14%;
+  right:auto;
+}
+.fx-osd-skip-overlay.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+.fx-osd-skip-overlay.is-pulse{
+  animation:fx-skip-pop .16s cubic-bezier(.22,1,.36,1) both;
+}
+.fx-osd-skip-chevrons{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  height:22px;
+}
+.fx-skip-ch{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:20px;
+  color:#fff;
+}
+.fx-skip-ch svg{
+  width:20px;
+  height:20px;
+  display:block;
+}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-1{animation:fx-skip-chevron .62s ease-in-out 0ms infinite}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-2{animation:fx-skip-chevron .62s ease-in-out 110ms infinite}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-3{animation:fx-skip-chevron .62s ease-in-out 220ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-3{animation:fx-skip-chevron .62s ease-in-out 0ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-2{animation:fx-skip-chevron .62s ease-in-out 110ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-1{animation:fx-skip-chevron .62s ease-in-out 220ms infinite}
+.fx-osd-skip-label{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:14.5px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+  color:#fff;
+  line-height:1.2;
+}
+@media(prefers-reduced-motion:reduce){
+  .fx-osd-skip-overlay,.fx-skip-ch{animation:none!important}
+}
+
+/* Hide SleekFin User Settings Option in Profile Dropdown & Settings Menu + Pointer Cursor on Navigation Header Buttons */
+[data-sleekfin-user-settings-link="true"],
+#app-user-menu [data-sleekfin-user-settings-link="true"],
+#myPreferencesMenuPage [data-sleekfin-user-settings-link="true"]{
+  display:none!important;
+}
+[data-sleekfin-header-proxy] :is(button,a,[role="button"]),
+[data-sleekfin-header-proxy] :is(button,a,[role="button"]) *,
+[data-sleekfin-header-overflow-drawer] :is(button,a,[role="button"]),
+[data-sleekfin-header-overflow-drawer] :is(button,a,[role="button"]) *,
+header.MuiAppBar-root :is(button,a,[role="button"]),
+.skinHeader :is(button,a,[role="button"]){
+  cursor:pointer!important;
+}
+
+/* Unified Dark-Glass Live TV Overhaul (On Now, Guide EPG, Channels, Recordings, Schedule, Series & Programs) */
+html[data-fx-livetv="true"] :is(.headerTabs,.emby-tabs-slider),
+html body #liveTvSuggestedPage:has(.fx-livetv-bar) :is(.headerTabs,.emby-tabs-slider){
+  display:none!important;
+}
+.fx-livetv-bar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px 20px;
+  padding:10px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 20px;
+  margin:0;
+  box-sizing:border-box;
+  width:100%;
+}
+.fx-livetv-title{
+  margin:0;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:28px;
+  line-height:34px;
+  font-weight:700;
+  color:#fff;
+  border-left:3px solid var(--sleekfin-accent,#e50914);
+  padding-left:10px;
+}
+.fx-livetv-tabs{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px;
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012)),rgba(20,21,24,.88);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 10px 26px -10px rgba(0,0,0,.6);
+  max-width:100%;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.fx-livetv-tabs::-webkit-scrollbar{display:none}
+button.fx-livetv-tab{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0 14px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13.5px!important;
+  font-weight:500!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  transition:background-color .15s ease,color .15s ease!important;
+}
+button.fx-livetv-tab:hover{
+  background:rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+button.fx-livetv-tab.is-active{
+  background:rgba(255,255,255,.15)!important;
+  color:#fff!important;
+  font-weight:600!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.12)!important;
+}
+#liveTvSuggestedPage,
+#liveTvPage{
+  background:var(--sleekfin-bg,#070809)!important;
+  min-height:100vh!important;
+  box-sizing:border-box!important;
+}
+#liveTvSuggestedPage .verticalSection:not(:has(.card)):not(:has(.listItem)),
+#liveTvPage .verticalSection:not(:has(.card)):not(:has(.listItem)){
+  display:none!important;
+}
+#liveTvSuggestedPage .verticalSection,
+#liveTvPage .verticalSection{
+  margin:0 0 28px!important;
+}
+#liveTvSuggestedPage .sectionTitleContainer,
+#liveTvSuggestedPage .sectionTitleContainer-cards,
+#liveTvPage .sectionTitleContainer,
+#liveTvPage .sectionTitleContainer-cards{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+}
+#liveTvSuggestedPage .verticalSection > :is(h2.sectionTitle,.sectionTitle.padded-left,.sectionTitle-cards.padded-left){
+  margin-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-bottom:14px!important;
+}
+/* On Now & Program Cards */
+#liveTvSuggestedPage .cardBox,
+#liveTvPage .cardBox{
+  background:transparent!important;
+  border-radius:10px!important;
+}
+#liveTvSuggestedPage .cardScalable,
+#liveTvPage .cardScalable{
+  background:#121418!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:10px!important;
+  transition:border-color .16s ease,transform .16s ease!important;
+}
+#liveTvSuggestedPage .card:hover .cardScalable,
+#liveTvPage .card:hover .cardScalable{
+  border-color:rgba(255,255,255,.22)!important;
+}
+#liveTvSuggestedPage .itemProgressBar,
+#liveTvPage .itemProgressBar{
+  height:3px!important;
+  background:rgba(255,255,255,.22)!important;
+}
+#liveTvSuggestedPage .itemProgressBarForeground,
+#liveTvPage .itemProgressBarForeground{
+  background:var(--sleekfin-accent,#e50914)!important;
+}
+#liveTvSuggestedPage .cardText-first,
+#liveTvPage .cardText-first{
+  color:#f1f2f4!important;
+  font-weight:600!important;
+  padding:6px 2px 0!important;
+}
+#liveTvSuggestedPage .cardText-secondary,
+#liveTvPage .cardText-secondary{
+  display:block!important;
+  color:rgba(255,255,255,.62)!important;
+  font-size:12.5px!important;
+  padding:2px 2px 0!important;
+}
+/* Channels Tab: Sleek Dark-Glass Channel Tiles */
+#liveTvSuggestedPage #channelsTab .itemsContainer.vertical-wrap{
+  grid-template-columns:repeat(auto-fill,minmax(clamp(165px,16vw,220px),1fr))!important;
+  gap:16px!important;
+  padding-top:6px!important;
+}
+#liveTvSuggestedPage #channelsTab .cardScalable{
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),rgba(18,19,24,.94)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+}
+#liveTvSuggestedPage #channelsTab .card:hover .cardScalable{
+  border-color:var(--sleekfin-accent,#e50914)!important;
+}
+/* Guide Tab (EPG): Modern Dark-Glass Grid (YouTube TV / Plex Inspired) */
+#liveTvSuggestedPage #guideTab{
+  padding:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 48px!important;
+  box-sizing:border-box!important;
+}
+#liveTvSuggestedPage #guideTab .epg{
+  background:rgba(15,16,20,.94)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:16px!important;
+  overflow:hidden!important;
+  box-shadow:0 18px 44px -12px rgba(0,0,0,.65)!important;
+}
+#liveTvSuggestedPage #guideTab .guideHeader{
+  background:rgba(20,21,26,.96)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  padding:10px 14px!important;
+}
+#liveTvSuggestedPage #guideTab .guideDateTabs,
+#liveTvSuggestedPage #guideTab .btnGuideDate,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings{
+  color:#f1f2f4!important;
+  border-radius:8px!important;
+}
+#liveTvSuggestedPage #guideTab .btnGuideDate,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings{
+  background:rgba(255,255,255,.06)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  padding:6px 12px!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  cursor:pointer!important;
+}
+#liveTvSuggestedPage #guideTab .btnGuideDate:hover,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings:hover{
+  background:rgba(255,255,255,.13)!important;
+  color:#fff!important;
+}
+#liveTvSuggestedPage #guideTab .timeslotHeaders{
+  background:rgba(18,19,24,.96)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-variant-numeric:tabular-nums!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+}
+#liveTvSuggestedPage #guideTab .channelCell{
+  background:rgba(19,20,25,.98)!important;
+  border-color:rgba(255,255,255,.07)!important;
+  color:#f1f2f4!important;
+  transition:background-color .14s ease!important;
+}
+#liveTvSuggestedPage #guideTab .channelCell:hover{
+  background:rgba(30,32,40,.98)!important;
+}
+#liveTvSuggestedPage #guideTab .programCell{
+  background:rgba(24,26,32,.84)!important;
+  border-color:rgba(255,255,255,.06)!important;
+  color:#f1f2f4!important;
+  transition:background-color .14s ease,border-color .14s ease!important;
+}
+#liveTvSuggestedPage #guideTab .programCell:hover,
+#liveTvSuggestedPage #guideTab .programCell:focus-visible{
+  background:rgba(229,9,20,.18)!important;
+  border-color:rgba(229,9,20,.45)!important;
+}
+#liveTvSuggestedPage #guideTab .programCellInner{
+  padding:8px 12px!important;
+}
+#liveTvSuggestedPage #guideTab .guideProgramName{
+  color:#fff!important;
+  font-weight:600!important;
+  font-size:13.5px!important;
+}
+#liveTvSuggestedPage #guideTab .guideProgramSecondaryInfo{
+  color:rgba(255,255,255,.62)!important;
+  font-size:12px!important;
+}
+/* Recordings, Schedule & Series Tabs */
+#liveTvSuggestedPage :is(#recordingsTab,#scheduleTab,#seriesTab) .listItem,
+#liveTvPage .listItem{
+  background:rgba(18,19,24,.9)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:12px!important;
+  margin:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 10px!important;
+  padding:10px 14px!important;
+  transition:background-color .14s ease,border-color .14s ease!important;
+}
+#liveTvSuggestedPage :is(#recordingsTab,#scheduleTab,#seriesTab) .listItem:hover,
+#liveTvPage .listItem:hover{
+  background:rgba(28,30,36,.96)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+#liveTvSuggestedPage .noItemsMessage,
+#liveTvPage .noItemsMessage{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:72px 24px!important;
+  margin:12px auto!important;
+  max-width:480px!important;
+  text-align:center!important;
+  color:rgba(255,255,255,.68)!important;
 }
 @media(max-width:899px),(hover:none) and (pointer:coarse),(max-height:520px) and (pointer:coarse){
   #videoOsdPage .btnFullscreen{
@@ -4219,12 +4655,31 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
     max-width:100%!important;
   }
   html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
     margin-top:0!important;
   }
   html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
   html:not([data-fx-has-subheader="true"]) :is(#liveTvSuggestedPage,#liveTvPage){
-    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(14px + env(safe-area-inset-top,0px))!important;
+  }
+  .fx-livetv-bar{
+    padding:4px 14px 14px!important;
+    gap:10px!important;
+  }
+  .fx-livetv-title{
+    font-size:22px!important;
+    line-height:28px!important;
+  }
+  .fx-livetv-tabs{
+    width:100%!important;
+  }
+  button.fx-livetv-tab{
+    flex:1 0 auto!important;
+    padding:0 11px!important;
+    font-size:12.5px!important;
+  }
+  #liveTvSuggestedPage #guideTab{
+    padding:0 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child:not(:has([data-sleekfin-header-brand])){
@@ -5880,7 +6335,7 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.8";
+      const VERSION = "0.5.9";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -6128,55 +6583,138 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
         }
         return false;
       }
+      const YEAR_ERA_PRESETS = [
+        { label: "2020s", from: 2020, to: 2029 },
+        { label: "2010s", from: 2010, to: 2019 },
+        { label: "2000s", from: 2e3, to: 2009 },
+        { label: "1990s", from: 1990, to: 1999 },
+        { label: "1980s", from: 1980, to: 1989 },
+        { label: "Classic", from: 1888, to: 1979 }
+      ];
       function enhanceFilterPopover(popover) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
         if (!popover) return;
         const props = popover._fxFilterProps || findFilterPopoverProps(popover);
         if (props) popover._fxFilterProps = props;
         const paper = popover.querySelector(".MuiPaper-root");
         if (!paper) return;
-        const tagsHeader = paper.querySelector("#filtersTags-header");
-        const tagsAcc = (_a2 = tagsHeader == null ? void 0 : tagsHeader.closest) == null ? void 0 : _a2.call(tagsHeader, ".MuiAccordion-root");
-        if (tagsAcc) tagsAcc.style.display = "none";
+        const sleekPopup = popover.querySelector(".sleekfin-menu-popup");
+        for (const hdrSel of ["#filtersTags-header", "#filtersStudios-header"]) {
+          const hdr = paper.querySelector(hdrSel);
+          const acc = (_a2 = hdr == null ? void 0 : hdr.closest) == null ? void 0 : _a2.call(hdr, ".MuiAccordion-root");
+          if (acc) {
+            acc.style.display = "none";
+            acc.hidden = true;
+          }
+        }
+        if (sleekPopup) {
+          sleekPopup.querySelectorAll("button.sleekfin-menu-item").forEach((btn) => {
+            const lbl = (btn.textContent || "").trim().toLowerCase();
+            if (lbl === "tags" || lbl === "studios") {
+              const grp = btn.closest(".sleekfin-menu-group");
+              if (grp) grp.style.display = "none";
+              btn.style.display = "none";
+            }
+          });
+        }
         const yearsContent = paper.querySelector("#filtersYears-content");
+        const yearsHeader = paper.querySelector("#filtersYears-header");
         if (yearsContent) {
           yearsContent.dataset.fxYearsEnhanced = "true";
-          const host = yearsContent.querySelector(".MuiAccordionDetails-root") || yearsContent;
-          let rangeBox = host.querySelector(".fx-year-range");
+          const nativeGroup = yearsContent.querySelector(".MuiFormGroup-root");
+          if (nativeGroup) {
+            nativeGroup.style.display = "none";
+            nativeGroup.hidden = true;
+          }
           const activeYears = Array.isArray((_d2 = (_c2 = (_b2 = popover._fxFilterProps) == null ? void 0 : _b2.libraryViewSettings) == null ? void 0 : _c2.Filters) == null ? void 0 : _d2.Years) ? popover._fxFilterProps.libraryViewSettings.Filters.Years.map(Number).filter(Number.isFinite) : [];
+          let rangeBox = popover._fxYearPickerEl || null;
           if (!rangeBox) {
-            rangeBox = element("div", "fx-year-range");
+            rangeBox = element("div", "fx-year-picker");
+            const fieldsRow = element("div", "fx-year-range");
+            const fromWrap = element("div", "fx-year-field");
+            const fromLbl = element("span", "fx-year-label", "From");
             const fromInput2 = element("input", "fx-year-input fx-year-from");
             fromInput2.type = "text";
             fromInput2.inputMode = "numeric";
             fromInput2.maxLength = 4;
-            fromInput2.placeholder = "Year";
+            fromInput2.placeholder = "1990";
             fromInput2.setAttribute("aria-label", "Start year");
+            fromWrap.append(fromLbl, fromInput2);
             const sep = element("span", "fx-year-range-sep", "\u2013");
             sep.setAttribute("aria-hidden", "true");
+            const toWrap = element("div", "fx-year-field");
+            const toLbl = element("span", "fx-year-label", "To");
             const toInput2 = element("input", "fx-year-input fx-year-to");
             toInput2.type = "text";
             toInput2.inputMode = "numeric";
             toInput2.maxLength = 4;
-            toInput2.placeholder = "To";
+            toInput2.placeholder = String((/* @__PURE__ */ new Date()).getFullYear());
             toInput2.setAttribute("aria-label", "End year");
-            rangeBox.append(fromInput2, sep, toInput2);
-            host.prepend(rangeBox);
+            toWrap.append(toLbl, toInput2);
+            fieldsRow.append(fromWrap, sep, toWrap);
+            const presetsRow = element("div", "fx-year-presets");
+            presetsRow.setAttribute("role", "group");
+            presetsRow.setAttribute("aria-label", "Quick era presets");
+            for (const preset of YEAR_ERA_PRESETS) {
+              const chip = element("button", "fx-year-chip", preset.label);
+              chip.type = "button";
+              chip.dataset.from = String(preset.from);
+              chip.dataset.to = String(preset.to);
+              chip.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const alreadyActive = chip.classList.contains("is-active");
+                if (alreadyActive) {
+                  popover._fxYearDraft = { from: "", to: "", active: false };
+                  fromInput2.value = "";
+                  toInput2.value = "";
+                  rangeBox._toEdited = false;
+                  applyYearValues("", "");
+                } else {
+                  const curMax = Math.min(preset.to, (/* @__PURE__ */ new Date()).getFullYear());
+                  const fStr = String(preset.from);
+                  const tStr = String(curMax);
+                  popover._fxYearDraft = { from: fStr, to: tStr, active: true };
+                  fromInput2.value = fStr;
+                  toInput2.value = tStr;
+                  rangeBox._toEdited = true;
+                  applyYearValues(fStr, tStr);
+                }
+                syncPresetChips();
+              });
+              presetsRow.append(chip);
+            }
+            rangeBox.append(fieldsRow, presetsRow);
+            popover._fxYearPickerEl = rangeBox;
             rangeBox._toEdited = activeYears.length > 1 && Math.min(...activeYears) !== Math.max(...activeYears);
             let yearTimer = 0;
-            const applyYearFilter = () => {
+            const syncPresetChips = () => {
+              const rf = fromInput2.value.trim();
+              const rt = toInput2.value.trim();
+              const fNum = rf.length === 4 ? Number(rf) : NaN;
+              const tNum = rt.length === 4 ? Number(rt) : NaN;
+              const curYr = (/* @__PURE__ */ new Date()).getFullYear();
+              rangeBox.querySelectorAll(".fx-year-chip").forEach((ch) => {
+                const pf = Number(ch.dataset.from);
+                const pt = Math.min(Number(ch.dataset.to), curYr);
+                const hit = Number.isFinite(fNum) && Number.isFinite(tNum) && fNum === pf && (tNum === pt || tNum === Number(ch.dataset.to));
+                ch.classList.toggle("is-active", hit);
+                ch.setAttribute("aria-pressed", hit ? "true" : "false");
+              });
+            };
+            const applyYearValues = (rawFrom, rawTo) => {
               clearTimeout(yearTimer);
               const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
               if (!curProps || typeof curProps.setLibraryViewSettings !== "function") return;
-              const rawFrom = fromInput2.value.trim();
-              const rawTo = toInput2.value.trim();
               if (!rawFrom && !rawTo) {
                 rangeBox._toEdited = false;
+                popover._fxYearDraft = { from: "", to: "", active: false };
                 curProps.setLibraryViewSettings((prev) => ({
                   ...prev,
                   StartIndex: 0,
                   Filters: { ...(prev == null ? void 0 : prev.Filters) || {}, Years: void 0 }
                 }));
+                syncPresetChips();
                 syncResetBtnState();
                 return;
               }
@@ -6196,23 +6734,29 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
               } else {
                 for (let y = lo; y <= hi; y++) nextYears.push(y);
               }
+              popover._fxYearDraft = { from: rawFrom, to: rawTo || rawFrom, active: true };
               curProps.setLibraryViewSettings((prev) => ({
                 ...prev,
                 StartIndex: 0,
                 Filters: { ...(prev == null ? void 0 : prev.Filters) || {}, Years: nextYears }
               }));
+              syncPresetChips();
               syncResetBtnState(true);
             };
+            const applyYearFilter = () => applyYearValues(fromInput2.value.trim(), toInput2.value.trim());
             const scheduleYearApply = () => {
               clearTimeout(yearTimer);
               yearTimer = setTimeout(applyYearFilter, 150);
             };
-            fromInput2.addEventListener("input", () => {
+            fromInput2.addEventListener("input", (ev) => {
+              ev.stopPropagation();
               const clean = fromInput2.value.replace(/\D+/g, "").slice(0, 4);
               if (fromInput2.value !== clean) fromInput2.value = clean;
               if (!rangeBox._toEdited) {
                 toInput2.value = clean;
               }
+              popover._fxYearDraft = { from: clean, to: toInput2.value, active: Boolean(clean || toInput2.value) };
+              syncPresetChips();
               if (!clean && !toInput2.value) {
                 applyYearFilter();
               } else {
@@ -6226,58 +6770,105 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
               } catch {
               }
             });
-            toInput2.addEventListener("input", () => {
+            toInput2.addEventListener("input", (ev) => {
+              ev.stopPropagation();
               const clean = toInput2.value.replace(/\D+/g, "").slice(0, 4);
               if (toInput2.value !== clean) toInput2.value = clean;
               if (!clean && !fromInput2.value) {
                 rangeBox._toEdited = false;
+                popover._fxYearDraft = { from: "", to: "", active: false };
+                syncPresetChips();
                 applyYearFilter();
                 return;
               }
               rangeBox._toEdited = clean !== "" && clean !== fromInput2.value;
+              popover._fxYearDraft = { from: fromInput2.value, to: clean, active: true };
+              syncPresetChips();
               scheduleYearApply();
             });
             for (const inp of [fromInput2, toInput2]) {
+              inp.addEventListener("click", (ev) => ev.stopPropagation());
               inp.addEventListener("keydown", (ev) => {
+                ev.stopPropagation();
                 if (ev.key === "Enter") {
                   ev.preventDefault();
                   applyYearFilter();
                 }
               });
             }
+            rangeBox._syncPresetChips = syncPresetChips;
+          }
+          if (sleekPopup) {
+            yearsContent.style.display = "none";
+            const yearsBtn = [...sleekPopup.querySelectorAll("button.sleekfin-menu-item[aria-expanded]")].find(
+              (b) => (b.textContent || "").trim().toLowerCase() === "years"
+            );
+            const isExpanded = yearsBtn ? yearsBtn.getAttribute("aria-expanded") === "true" : ((_e2 = yearsHeader == null ? void 0 : yearsHeader.getAttribute) == null ? void 0 : _e2.call(yearsHeader, "aria-expanded")) === "true";
+            if (yearsBtn && isExpanded) {
+              if (rangeBox.previousElementSibling !== yearsBtn) {
+                const prevFocus = document.activeElement;
+                const keepFocus = rangeBox.contains(prevFocus) ? prevFocus : null;
+                const selStart = keepFocus && typeof keepFocus.selectionStart === "number" ? keepFocus.selectionStart : null;
+                const selEnd = keepFocus && typeof keepFocus.selectionEnd === "number" ? keepFocus.selectionEnd : null;
+                yearsBtn.after(rangeBox);
+                if (keepFocus) {
+                  try {
+                    keepFocus.focus({ preventScroll: true });
+                    if (selStart !== null && selEnd !== null) (_f = keepFocus.setSelectionRange) == null ? void 0 : _f.call(keepFocus, selStart, selEnd);
+                  } catch {
+                  }
+                }
+              }
+              rangeBox.hidden = false;
+            } else {
+              rangeBox.hidden = true;
+            }
+          } else {
+            yearsContent.style.display = "";
+            const host = yearsContent.querySelector(".MuiAccordionDetails-root") || yearsContent;
+            if (!host.contains(rangeBox)) host.prepend(rangeBox);
+            rangeBox.hidden = false;
           }
           const fromInput = rangeBox.querySelector(".fx-year-from");
           const toInput = rangeBox.querySelector(".fx-year-to");
-          const isTypingYear = document.activeElement === fromInput || document.activeElement === toInput;
-          if (!isTypingYear && fromInput && toInput) {
+          const activeEl = document.activeElement;
+          const isTypingYear = activeEl === fromInput || activeEl === toInput || Boolean(((_g = activeEl == null ? void 0 : activeEl.closest) == null ? void 0 : _g.call(activeEl, "#filter-popover")) && (activeEl == null ? void 0 : activeEl.tagName) === "INPUT");
+          const hasDraft = Boolean((_h = popover._fxYearDraft) == null ? void 0 : _h.active);
+          if (!isTypingYear && !hasDraft && fromInput && toInput) {
             if (activeYears.length > 0) {
               const minY = Math.min(...activeYears);
               const maxY = Math.max(...activeYears);
               fromInput.value = String(minY);
               toInput.value = String(maxY);
               rangeBox._toEdited = minY !== maxY;
+              popover._fxYearDraft = { from: String(minY), to: String(maxY), active: true };
             } else {
               fromInput.value = "";
               toInput.value = "";
               rangeBox._toEdited = false;
             }
+            (_i = rangeBox._syncPresetChips) == null ? void 0 : _i.call(rangeBox);
           }
         }
-        let footer = paper.querySelector(".fx-filter-footer");
+        const footerHost = sleekPopup || paper;
+        let footer = popover._fxFilterFooterEl || footerHost.querySelector(".fx-filter-footer");
         if (!footer) {
           footer = element("div", "fx-filter-footer");
           const resetBtn = element("button", "fx-filter-reset-btn", "Reset filters");
           resetBtn.type = "button";
           resetBtn.addEventListener("click", (ev) => {
+            var _a3;
             ev.preventDefault();
             ev.stopPropagation();
-            const rangeBox = paper.querySelector(".fx-year-range");
+            popover._fxYearDraft = { from: "", to: "", active: false };
+            const rangeBox = popover._fxYearPickerEl || popover.querySelector(".fx-year-picker");
             if (rangeBox) {
               const fi = rangeBox.querySelector(".fx-year-from");
               const ti = rangeBox.querySelector(".fx-year-to");
               if (fi) fi.value = "";
               if (ti) ti.value = "";
               rangeBox._toEdited = false;
+              (_a3 = rangeBox._syncPresetChips) == null ? void 0 : _a3.call(rangeBox);
             }
             const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
             if (curProps && typeof curProps.setLibraryViewSettings === "function") {
@@ -6290,14 +6881,17 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
             resetBtn.classList.remove("is-active");
           });
           footer.append(resetBtn);
-          paper.append(footer);
+          popover._fxFilterFooterEl = footer;
+        }
+        if (footer.parentElement !== footerHost) {
+          footerHost.append(footer);
         }
         function syncResetBtnState(forceActive = null) {
-          var _a3;
-          const btn = paper.querySelector(".fx-filter-reset-btn");
+          var _a3, _b3;
+          const btn = (_a3 = footer == null ? void 0 : footer.querySelector) == null ? void 0 : _a3.call(footer, ".fx-filter-reset-btn");
           if (!btn) return;
           const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
-          const active = forceActive !== null ? forceActive : hasActiveLibraryFilters((_a3 = curProps == null ? void 0 : curProps.libraryViewSettings) == null ? void 0 : _a3.Filters);
+          const active = forceActive !== null ? forceActive : hasActiveLibraryFilters((_b3 = curProps == null ? void 0 : curProps.libraryViewSettings) == null ? void 0 : _b3.Filters);
           btn.classList.toggle("is-active", Boolean(active));
         }
         syncResetBtnState();
@@ -6315,12 +6909,158 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
         const osd = document.getElementById("videoOsdPage");
         const osdOpen = Boolean(osd && !osd.classList.contains("hide") && !osd.classList.contains("hidePage") && !osd.hidden);
         setRootAttr("data-fx-video-osd", osdOpen);
+        const liveTvPage = document.getElementById("liveTvSuggestedPage");
+        const liveTvOpen = Boolean(liveTvPage && !liveTvPage.classList.contains("hide") && !liveTvPage.classList.contains("hidePage") && !liveTvPage.hidden);
+        setRootAttr("data-fx-livetv", liveTvOpen);
         const appBar = document.querySelector("header.MuiAppBar-root");
         const toolbars = appBar ? appBar.querySelectorAll(":scope > .MuiToolbar-root") : null;
         setRootAttr("data-fx-has-subheader", Boolean(toolbars && toolbars.length >= 2));
       }
+      function hideSleekFinUserSettingsMenu() {
+        document.querySelectorAll('[data-sleekfin-user-settings-link="true"]').forEach((el) => {
+          el.style.display = "none";
+        });
+        document.querySelectorAll("#app-user-menu .sleekfin-menu-popup .sleekfin-menu-item, #myPreferencesMenuPage a, #myPreferencesMenuPage button").forEach((btn) => {
+          const txt = (btn.textContent || "").trim().toLowerCase();
+          if (txt === "sleekfin") btn.style.display = "none";
+        });
+      }
+      function guardStuckClosingMenus() {
+        document.querySelectorAll(".sleekfin-menu-host.sleekfin-menu-closing").forEach((host) => {
+          if (host.dataset.fxCloseGuard === "true") return;
+          host.dataset.fxCloseGuard = "true";
+          setTimeout(() => {
+            var _a2;
+            if (!host.isConnected || !host.classList.contains("sleekfin-menu-closing")) return;
+            try {
+              const Ev = typeof AnimationEvent === "function" ? AnimationEvent : (_a2 = document.defaultView) == null ? void 0 : _a2.AnimationEvent;
+              if (Ev) host.dispatchEvent(new Ev("animationend", { animationName: "sleekfin-menu-settle-close", bubbles: true }));
+              else host.dispatchEvent(new Event("animationend", { bubbles: true }));
+            } catch {
+            }
+          }, 280);
+        });
+      }
+      function enhanceOsdSettingsMenu() {
+        const osd = document.getElementById("videoOsdPage");
+        if (!osd || osd.classList.contains("hide") || osd.classList.contains("hidePage") || osd.hidden) return;
+        const audioBtn = osd.querySelector(".btnAudio");
+        const favBtn = osd.querySelector(".btnUserRating");
+        const canAudio = Boolean(audioBtn && !audioBtn.classList.contains("hide") && !audioBtn.hidden && !audioBtn.disabled);
+        const canFav = Boolean(favBtn && !favBtn.classList.contains("hide") && !favBtn.hidden && !favBtn.disabled);
+        if (!canAudio && !canFav) return;
+        document.querySelectorAll(".dialog.actionSheet").forEach((sheet) => {
+          if (sheet.classList.contains("sleekfin-menu-closing")) return;
+          const scroller = sheet.querySelector(".actionSheetScroller");
+          const sleekPopup = sheet.querySelector(".sleekfin-menu-popup");
+          const rawItems = scroller ? [...scroller.querySelectorAll(".actionSheetMenuItem, button[data-id]")] : [];
+          const popupItems = sleekPopup ? [...sleekPopup.querySelectorAll(".sleekfin-menu-item")] : [];
+          const inspectItems = rawItems.length ? rawItems : popupItems;
+          if (!inspectItems.length) return;
+          const labels = inspectItems.map((i) => (i.textContent || "").trim().toLowerCase());
+          const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
+          const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
+          if (!looksLikeSettings) return;
+          const isFav = Boolean(favBtn && (favBtn.getAttribute("data-isfavorite") === "true" || favBtn.classList.contains("ratingbutton-withrating")));
+          const closeSheet = () => {
+            var _a2, _b2, _c2;
+            const bd = (_a2 = sheet.closest(".dialogContainer")) == null ? void 0 : _a2.previousElementSibling;
+            if ((_b2 = bd == null ? void 0 : bd.classList) == null ? void 0 : _b2.contains("dialogBackdrop")) {
+              try {
+                bd.click();
+              } catch {
+              }
+            } else {
+              try {
+                const Ev = typeof KeyboardEvent === "function" ? KeyboardEvent : (_c2 = document.defaultView) == null ? void 0 : _c2.KeyboardEvent;
+                if (Ev) document.dispatchEvent(new Ev("keydown", { key: "Escape", keyCode: 27, bubbles: true }));
+              } catch {
+              }
+            }
+          };
+          const triggerAudio = () => {
+            closeSheet();
+            setTimeout(() => {
+              try {
+                audioBtn == null ? void 0 : audioBtn.click();
+              } catch {
+              }
+            }, 45);
+          };
+          const triggerFav = () => {
+            closeSheet();
+            setTimeout(() => {
+              try {
+                favBtn == null ? void 0 : favBtn.click();
+              } catch {
+              }
+              showToast(isFav ? "Removed from Favorites" : "Added to Favorites");
+            }, 30);
+          };
+          if (scroller && sheet.dataset.fxOsdEnhanced !== "true") {
+            sheet.dataset.fxOsdEnhanced = "true";
+            const makeActionItem = (id, iconName, labelText, onClick) => {
+              const btn = element("button", "listItem listItem-button actionSheetMenuItem emby-button");
+              btn.type = "button";
+              btn.setAttribute("data-id", id);
+              btn.dataset.fxOsdMenuItem = id;
+              const ic = element("span", `actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons ${iconName}`);
+              ic.setAttribute("aria-hidden", "true");
+              const body = element("div", "listItemBody actionsheetListItemBody");
+              body.append(element("div", "listItemBodyText actionSheetItemText", labelText));
+              btn.append(ic, body);
+              btn.addEventListener("click", (ev) => {
+                var _a2;
+                ev.preventDefault();
+                (_a2 = ev.stopImmediatePropagation) == null ? void 0 : _a2.call(ev);
+                ev.stopPropagation();
+                onClick();
+              });
+              return btn;
+            };
+            if (canAudio && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
+              scroller.append(makeActionItem("fx-osd-audio", "audiotrack", "Audio", triggerAudio));
+            }
+            if (canFav && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
+              scroller.append(makeActionItem("fx-osd-favorite", isFav ? "favorite" : "favorite_border", isFav ? "Remove from Favorites" : "Add to Favorites", triggerFav));
+            }
+          }
+          if (sleekPopup) {
+            const popupLabels = new Set([...sleekPopup.querySelectorAll(".sleekfin-menu-item")].map((el) => (el.textContent || "").trim().toLowerCase()));
+            const makeSleekItem = (id, iconName, labelText, onClick) => {
+              const btn = element("button", "sleekfin-menu-item");
+              btn.type = "button";
+              btn.setAttribute("role", "menuitem");
+              btn.dataset.fxOsdMenuItem = id;
+              const ic = element("span", `sleekfin-menu-icon material-icons ${iconName}`);
+              ic.setAttribute("aria-hidden", "true");
+              const copy = element("div", "sleekfin-menu-copy");
+              copy.append(element("div", "sleekfin-menu-primary", labelText));
+              btn.append(ic, copy);
+              btn.addEventListener("click", (ev) => {
+                var _a2;
+                ev.preventDefault();
+                (_a2 = ev.stopImmediatePropagation) == null ? void 0 : _a2.call(ev);
+                ev.stopPropagation();
+                onClick();
+              });
+              return btn;
+            };
+            if (canAudio && !popupLabels.has("audio") && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
+              sleekPopup.append(makeSleekItem("fx-osd-audio", "audiotrack", "Audio", triggerAudio));
+            }
+            const favLabel = isFav ? "Remove from Favorites" : "Add to Favorites";
+            if (canFav && !popupLabels.has("add to favorites") && !popupLabels.has("remove from favorites") && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
+              sleekPopup.append(makeSleekItem("fx-osd-favorite", isFav ? "favorite" : "favorite_border", favLabel, triggerFav));
+            }
+          }
+        });
+      }
       function anchorOpenPopovers() {
         var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
+        hideSleekFinUserSettingsMenu();
+        guardStuckClosingMenus();
+        enhanceOsdSettingsMenu();
         const scrollY = Math.round((_d2 = (_c2 = (_a2 = window.scrollY) != null ? _a2 : window.pageYOffset) != null ? _c2 : (_b2 = document.documentElement) == null ? void 0 : _b2.scrollTop) != null ? _d2 : 0);
         const scrollX = Math.round((_h = (_g = (_e2 = window.scrollX) != null ? _e2 : window.pageXOffset) != null ? _g : (_f = document.documentElement) == null ? void 0 : _f.scrollLeft) != null ? _h : 0);
         let hasOpenPopover = false;
@@ -9229,6 +9969,59 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
         if (key) savedFeeds.delete(key);
         reconcile();
       }
+      const LIVETV_TABS = [
+        { idx: "0", label: "On Now" },
+        { idx: "1", label: "Guide" },
+        { idx: "2", label: "Channels" },
+        { idx: "3", label: "Recordings" },
+        { idx: "4", label: "Schedule" }
+      ];
+      function syncLiveTvUi() {
+        const page = document.getElementById("liveTvSuggestedPage");
+        if (!page || !visible(page)) return;
+        const host = page.querySelector(".liveTvContainer") || page;
+        let bar = host.querySelector(".fx-livetv-bar");
+        const q = new URLSearchParams(String(location.hash || "").split("?")[1] || "");
+        const activeTab = q.get("tab") || "0";
+        if (!bar) {
+          bar = element("div", "fx-livetv-bar");
+          const title = element("h1", "fx-livetv-title", "Live TV");
+          const pills = element("div", "fx-livetv-tabs");
+          pills.setAttribute("role", "tablist");
+          pills.setAttribute("aria-label", "Live TV sections");
+          for (const t of LIVETV_TABS) {
+            const btn = element("button", "fx-livetv-tab", t.label);
+            btn.type = "button";
+            btn.setAttribute("role", "tab");
+            btn.dataset.livetvTab = t.idx;
+            btn.addEventListener("click", (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              const curQ = new URLSearchParams(String(location.hash || "").split("?")[1] || "");
+              curQ.set("tab", t.idx);
+              const basePath = String(location.hash || "#/livetv").split("?")[0] || "#/livetv";
+              scrollToTop();
+              location.hash = `${basePath}?${curQ}`;
+              const nativeTabBtn = document.querySelector(`.emby-tabs-slider .emby-tab-button[data-index="${t.idx}"]`);
+              if (nativeTabBtn) {
+                try {
+                  nativeTabBtn.click();
+                } catch {
+                }
+              }
+              syncLiveTvUi();
+            });
+            pills.append(btn);
+          }
+          bar.append(title, pills);
+          host.prepend(bar);
+        }
+        bar.querySelectorAll(".fx-livetv-tab").forEach((btn) => {
+          const isSel = btn.dataset.livetvTab === activeTab;
+          btn.classList.toggle("is-active", isSel);
+          btn.setAttribute("aria-selected", isSel ? "true" : "false");
+        });
+      }
       function reconcile() {
         var _a2, _b2;
         clearTimeout(timer);
@@ -9237,6 +10030,7 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
         const api = window.ApiClient, route = routeInfo(location.hash);
         syncSettings(api);
         syncLibraryViewMenu();
+        syncLiveTvUi();
         syncMobileOverflowDrawer(api);
         syncHomeModeAttr(api);
         syncDocumentStateAttrs();
@@ -9466,10 +10260,12 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
         if (!target) return;
         const proxy = target.getAttribute("data-sleekfin-header-proxy-item") || target.getAttribute("data-sleekfin-header-overflow-item") || "";
         if (proxy === "fx:settings") return;
+        const targetLabel = (target.getAttribute("aria-label") || target.getAttribute("title") || target.textContent || "").trim().toLowerCase();
         let route = null;
         if (proxy === "jellyfin:movies") route = "#/movies";
         else if (proxy === "jellyfin:shows") route = "#/tv";
         else if (proxy === "jellyfin:home") route = "#/home";
+        else if (proxy === "source:v1:164f41b42f7a4221084a13ce51114045" || targetLabel === "live tv") route = "#/livetv";
         else if (proxy.startsWith("jellyfin:view:")) {
           const viewId = proxy.slice("jellyfin:view:".length);
           const sourceLink = document.querySelector(`a[data-itemid="${viewId}"],a[data-id="${viewId}"],a[href*="topParentId=${viewId}"],a[href*="parentId=${viewId}"]`);
@@ -9480,6 +10276,7 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
             if (label === "movies") route = `#/movies.html?topParentId=${encodeURIComponent(viewId)}`;
             else if (label === "shows" || label === "tv shows") route = `#/tv.html?topParentId=${encodeURIComponent(viewId)}`;
             else if (label === "collections") route = `#/list.html?topParentId=${encodeURIComponent(viewId)}&collectionType=boxsets`;
+            else if (label === "live tv") route = "#/livetv";
           }
         } else {
           route = target.getAttribute("href");
@@ -9501,7 +10298,7 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           setTimeout(closeDrawers, 40);
           return;
         }
-        if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home") {
+        if (proxy.startsWith("jellyfin:view:") || proxy === "jellyfin:home" || /^#!?\/?livetv(?:\.html)?(?:[?]|$)/i.test(normalized)) {
           event.preventDefault();
           (_B = event.stopImmediatePropagation) == null ? void 0 : _B.call(event);
           event.stopPropagation();
@@ -9810,13 +10607,87 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           hideOsdGesturePill();
         }
       }
+      const osdKeySkip = {
+        timer: 0,
+        streakTimer: 0,
+        streakDir: "",
+        streakSec: 0
+      };
+      const SKIP_CHEVRON_RIGHT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>';
+      const SKIP_CHEVRON_LEFT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>';
+      function showOsdSkipOverlay(direction, totalSec) {
+        let overlay = document.querySelector(".fx-osd-skip-overlay");
+        if (!overlay) {
+          overlay = element("div", "fx-osd-skip-overlay");
+          overlay.setAttribute("aria-live", "polite");
+          const chevrons2 = element("div", "fx-osd-skip-chevrons");
+          const label2 = element("span", "fx-osd-skip-label");
+          overlay.append(chevrons2, label2);
+          document.body.append(overlay);
+        }
+        const chevrons = overlay.querySelector(".fx-osd-skip-chevrons");
+        const label = overlay.querySelector(".fx-osd-skip-label");
+        const svg = direction === "right" ? SKIP_CHEVRON_RIGHT_SVG : SKIP_CHEVRON_LEFT_SVG;
+        if (chevrons && overlay.dataset.dir !== direction) {
+          chevrons.innerHTML = `<span class="fx-skip-ch fx-skip-ch-1">${svg}</span><span class="fx-skip-ch fx-skip-ch-2">${svg}</span><span class="fx-skip-ch fx-skip-ch-3">${svg}</span>`;
+        }
+        overlay.dataset.dir = direction;
+        if (label) {
+          const absSec = Math.abs(totalSec);
+          label.textContent = direction === "right" ? `+${absSec}s` : `-${absSec}s`;
+        }
+        clearTimeout(osdKeySkip.timer);
+        overlay.classList.remove("is-pulse");
+        void overlay.offsetWidth;
+        overlay.classList.add("is-visible", "is-pulse");
+        osdKeySkip.timer = setTimeout(() => {
+          overlay.classList.remove("is-visible", "is-pulse");
+        }, 760);
+      }
+      function onOsdKeyDown(event) {
+        var _a2, _b2, _c2, _d2, _e2, _f;
+        if (stopped) return;
+        const key = event.key;
+        if (key !== "ArrowRight" && key !== "ArrowLeft") return;
+        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        if (((_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.contains("layout-tv")) || ((_d2 = (_c2 = document.body) == null ? void 0 : _c2.classList) == null ? void 0 : _d2.contains("layout-tv"))) return;
+        const video = findActiveOsdVideo();
+        if (!video) return;
+        const target = event.target;
+        if ((_e2 = target == null ? void 0 : target.closest) == null ? void 0 : _e2.call(target, 'input, select, textarea, [contenteditable="true"], [role="slider"], .mdl-slider, .dialog, .actionSheet, .sleekfin-menu-popup, .MuiPopover-root')) return;
+        if (document.querySelector('.dialog:not(.hide):not(.sleekfin-menu-closing), .actionSheet:not(.hide):not(.sleekfin-menu-closing), .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)')) return;
+        const direction = key === "ArrowRight" ? "right" : "left";
+        const delta = direction === "right" ? 30 : -30;
+        const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Infinity;
+        const cur = Number(video.currentTime) || 0;
+        const nextTime = Math.max(0, Math.min(dur, cur + delta));
+        try {
+          video.currentTime = nextTime;
+        } catch {
+        }
+        if (osdKeySkip.streakDir === direction) {
+          osdKeySkip.streakSec += delta;
+        } else {
+          osdKeySkip.streakDir = direction;
+          osdKeySkip.streakSec = delta;
+        }
+        clearTimeout(osdKeySkip.streakTimer);
+        osdKeySkip.streakTimer = setTimeout(() => {
+          osdKeySkip.streakDir = "";
+          osdKeySkip.streakSec = 0;
+        }, 900);
+        showOsdSkipOverlay(direction, osdKeySkip.streakSec);
+        event.preventDefault();
+        (_f = event.stopImmediatePropagation) == null ? void 0 : _f.call(event);
+        event.stopPropagation();
+      }
       function isOsdInteractiveTarget(target) {
         var _a2;
-        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, 'button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
       }
       function isOsdScrollableOrSliderTarget(target) {
         var _a2;
-        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, '[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .actionSheet, .actionSheetScroller, .smoothScrollY, .fx-download-menu'));
+        return Boolean((_a2 = target == null ? void 0 : target.closest) == null ? void 0 : _a2.call(target, '[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .smoothScrollY, .fx-download-menu'));
       }
       function onOsdTouchStart(event) {
         var _a2;
@@ -9996,8 +10867,9 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           document.head.append(rh);
         }
         observer = new MutationObserver((records) => {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
           let needsPopover = false;
+          let needsFilterImmediate = false;
           let needsHeader = false;
           let needsSearch = false;
           let needsReconcile = false;
@@ -10005,43 +10877,57 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
             const r = records[i];
             const t = r.target;
             if (!t || t.nodeType !== 1) continue;
+            if (!needsFilterImmediate && (t.id === "filter-popover" || ((_a2 = t.closest) == null ? void 0 : _a2.call(t, "#filter-popover")))) {
+              needsFilterImmediate = true;
+            }
             if (!needsPopover) {
-              if (t === document.body || t.id === "videoOsdPage" || ((_a2 = t.matches) == null ? void 0 : _a2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,header.MuiAppBar-root")) || ((_b2 = t.closest) == null ? void 0 : _b2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu"))) {
+              if (t === document.body || t.id === "videoOsdPage" || t.id === "app-user-menu" || ((_b2 = t.matches) == null ? void 0 : _b2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root")) || ((_c2 = t.closest) == null ? void 0 : _c2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.actionSheet,.sleekfin-menu-host"))) {
                 needsPopover = true;
               } else if (r.type === "childList" && r.addedNodes.length) {
                 for (let j = 0; j < r.addedNodes.length; j++) {
                   const n = r.addedNodes[j];
-                  if (n.nodeType === 1 && ((_c2 = n.matches) == null ? void 0 : _c2.call(n, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu"))) {
-                    needsPopover = true;
-                    break;
+                  if (n.nodeType === 1) {
+                    if (n.id === "filter-popover" || ((_d2 = n.querySelector) == null ? void 0 : _d2.call(n, "#filter-popover"))) needsFilterImmediate = true;
+                    if ((_e2 = n.matches) == null ? void 0 : _e2.call(n, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link]")) {
+                      needsPopover = true;
+                      break;
+                    }
                   }
                 }
               }
             }
-            if (!needsHeader && r.type === "childList" && ((_d2 = t.closest) == null ? void 0 : _d2.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage"))) {
+            if (!needsHeader && r.type === "childList" && ((_f = t.closest) == null ? void 0 : _f.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
               needsHeader = true;
             }
             if (!needsSearch && t.id === "searchPage") {
               needsSearch = true;
-            } else if (!needsSearch && ((_e2 = t.closest) == null ? void 0 : _e2.call(t, "#searchPage")) && !((_f = t.closest) == null ? void 0 : _f.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
+            } else if (!needsSearch && ((_g = t.closest) == null ? void 0 : _g.call(t, "#searchPage")) && !((_h = t.closest) == null ? void 0 : _h.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_g = t.closest) == null ? void 0 : _g.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_i = t.closest) == null ? void 0 : _i.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
+            }
+          }
+          if (needsFilterImmediate) {
+            const fp = document.getElementById("filter-popover");
+            if (fp && fp.getAttribute("aria-hidden") !== "true" && !fp.classList.contains("MuiModal-hidden")) {
+              enhanceFilterPopover(fp);
             }
           }
           if (needsPopover) schedulePopoverSync();
           if (needsHeader) {
             hideLeavingSoonNav();
+            hideSleekFinUserSettingsMenu();
             syncMobileOverflowDrawer(window.ApiClient);
           }
           if (needsSearch) syncSearchPage(window.ApiClient);
           if (needsReconcile) schedule();
         });
-        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "aria-hidden"] });
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "aria-hidden", "aria-expanded"] });
         document.addEventListener("click", onOsdSuppressClick, true);
         document.addEventListener("dblclick", onOsdDblClick, true);
         document.addEventListener("contextmenu", onOsdContextMenu, true);
+        document.addEventListener("keydown", onOsdKeyDown, true);
         document.addEventListener("click", navSuggestions, true);
         window.addEventListener("hashchange", onRouteEvent);
         window.addEventListener("popstate", onRouteEvent);
@@ -10070,11 +10956,13 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
           stopped = true;
           clearTimeout(timer);
           clearTimeout(searchUiState.remoteTimer);
           clearTimeout(searchUiState.inputTimer);
+          clearTimeout(osdKeySkip.timer);
+          clearTimeout(osdKeySkip.streakTimer);
           if (popoverFrame) {
             try {
               cancelAnimationFrame(popoverFrame);
@@ -10103,12 +10991,14 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-subpage");
           (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-popover-open");
           (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-video-osd");
-          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-has-subheader");
-          (_p = (_o = document.getElementById("searchPage")) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-search-active");
-          document.querySelectorAll(".fx-search-library").forEach((n) => n.remove());
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-livetv");
+          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-has-subheader");
+          (_r = (_q = document.getElementById("searchPage")) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-search-active");
+          document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay").forEach((n) => n.remove());
           document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("dblclick", onOsdDblClick, true);
           document.removeEventListener("contextmenu", onOsdContextMenu, true);
+          document.removeEventListener("keydown", onOsdKeyDown, true);
           document.removeEventListener("click", navSuggestions, true);
           window.removeEventListener("hashchange", onRouteEvent);
           window.removeEventListener("popstate", onRouteEvent);
@@ -10124,8 +11014,8 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
-          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast").forEach((n) => n.remove());
-          (_q = document.getElementById("fx-discovery-style")) == null ? void 0 : _q.remove();
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
+          (_s = document.getElementById("fx-discovery-style")) == null ? void 0 : _s.remove();
           delete window.FazFortDiscovery;
         }
       };

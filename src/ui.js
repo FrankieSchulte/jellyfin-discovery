@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.5.8';
+const VERSION = '0.5.9';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -199,61 +199,150 @@ function hasActiveLibraryFilters(filtersObj) {
   }
   return false;
 }
+const YEAR_ERA_PRESETS = [
+  { label: '2020s', from: 2020, to: 2029 },
+  { label: '2010s', from: 2010, to: 2019 },
+  { label: '2000s', from: 2000, to: 2009 },
+  { label: '1990s', from: 1990, to: 1999 },
+  { label: '1980s', from: 1980, to: 1989 },
+  { label: 'Classic', from: 1888, to: 1979 }
+];
 function enhanceFilterPopover(popover) {
   if (!popover) return;
   const props = popover._fxFilterProps || findFilterPopoverProps(popover);
   if (props) popover._fxFilterProps = props;
   const paper = popover.querySelector('.MuiPaper-root');
   if (!paper) return;
+  const sleekPopup = popover.querySelector('.sleekfin-menu-popup');
 
-  // 1. Remove Tags section completely so it never clutters or lags the popover
-  const tagsHeader = paper.querySelector('#filtersTags-header');
-  const tagsAcc = tagsHeader?.closest?.('.MuiAccordion-root');
-  if (tagsAcc) tagsAcc.style.display = 'none';
+  // 1. Remove Tags & Studios sections completely from both MUI and SleekFin's cloned popup
+  for (const hdrSel of ['#filtersTags-header', '#filtersStudios-header']) {
+    const hdr = paper.querySelector(hdrSel);
+    const acc = hdr?.closest?.('.MuiAccordion-root');
+    if (acc) {
+      acc.style.display = 'none';
+      acc.hidden = true;
+    }
+  }
+  if (sleekPopup) {
+    sleekPopup.querySelectorAll('button.sleekfin-menu-item').forEach(btn => {
+      const lbl = (btn.textContent || '').trim().toLowerCase();
+      if (lbl === 'tags' || lbl === 'studios') {
+        const grp = btn.closest('.sleekfin-menu-group');
+        if (grp) grp.style.display = 'none';
+        btn.style.display = 'none';
+      }
+    });
+  }
 
-  // 2. Replace the long Years checkbox list with auto-mirroring Year / Year Range inputs
+  // 2. Replace the individual Years checkbox list with a labeled From/To Year Range + Quick Era Chips
+  // Never remove React-owned nodes (avoids React removeChild crashes); CSS hides checkboxes at Frame 0.
   const yearsContent = paper.querySelector('#filtersYears-content');
+  const yearsHeader = paper.querySelector('#filtersYears-header');
   if (yearsContent) {
     yearsContent.dataset.fxYearsEnhanced = 'true';
-    const host = yearsContent.querySelector('.MuiAccordionDetails-root') || yearsContent;
-    let rangeBox = host.querySelector('.fx-year-range');
+    const nativeGroup = yearsContent.querySelector('.MuiFormGroup-root');
+    if (nativeGroup) {
+      nativeGroup.style.display = 'none';
+      nativeGroup.hidden = true;
+    }
     const activeYears = Array.isArray(popover._fxFilterProps?.libraryViewSettings?.Filters?.Years)
       ? popover._fxFilterProps.libraryViewSettings.Filters.Years.map(Number).filter(Number.isFinite)
       : [];
+    let rangeBox = popover._fxYearPickerEl || null;
     if (!rangeBox) {
-      rangeBox = element('div', 'fx-year-range');
+      rangeBox = element('div', 'fx-year-picker');
+      const fieldsRow = element('div', 'fx-year-range');
+      const fromWrap = element('div', 'fx-year-field');
+      const fromLbl = element('span', 'fx-year-label', 'From');
       const fromInput = element('input', 'fx-year-input fx-year-from');
       fromInput.type = 'text';
       fromInput.inputMode = 'numeric';
       fromInput.maxLength = 4;
-      fromInput.placeholder = 'Year';
+      fromInput.placeholder = '1990';
       fromInput.setAttribute('aria-label', 'Start year');
+      fromWrap.append(fromLbl, fromInput);
+
       const sep = element('span', 'fx-year-range-sep', '–');
       sep.setAttribute('aria-hidden', 'true');
+
+      const toWrap = element('div', 'fx-year-field');
+      const toLbl = element('span', 'fx-year-label', 'To');
       const toInput = element('input', 'fx-year-input fx-year-to');
       toInput.type = 'text';
       toInput.inputMode = 'numeric';
       toInput.maxLength = 4;
-      toInput.placeholder = 'To';
+      toInput.placeholder = String(new Date().getFullYear());
       toInput.setAttribute('aria-label', 'End year');
-      rangeBox.append(fromInput, sep, toInput);
-      host.prepend(rangeBox);
+      toWrap.append(toLbl, toInput);
+
+      fieldsRow.append(fromWrap, sep, toWrap);
+
+      const presetsRow = element('div', 'fx-year-presets');
+      presetsRow.setAttribute('role', 'group');
+      presetsRow.setAttribute('aria-label', 'Quick era presets');
+      for (const preset of YEAR_ERA_PRESETS) {
+        const chip = element('button', 'fx-year-chip', preset.label);
+        chip.type = 'button';
+        chip.dataset.from = String(preset.from);
+        chip.dataset.to = String(preset.to);
+        chip.addEventListener('click', ev => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const alreadyActive = chip.classList.contains('is-active');
+          if (alreadyActive) {
+            popover._fxYearDraft = { from: '', to: '', active: false };
+            fromInput.value = '';
+            toInput.value = '';
+            rangeBox._toEdited = false;
+            applyYearValues('', '');
+          } else {
+            const curMax = Math.min(preset.to, new Date().getFullYear());
+            const fStr = String(preset.from);
+            const tStr = String(curMax);
+            popover._fxYearDraft = { from: fStr, to: tStr, active: true };
+            fromInput.value = fStr;
+            toInput.value = tStr;
+            rangeBox._toEdited = true;
+            applyYearValues(fStr, tStr);
+          }
+          syncPresetChips();
+        });
+        presetsRow.append(chip);
+      }
+
+      rangeBox.append(fieldsRow, presetsRow);
+      popover._fxYearPickerEl = rangeBox;
 
       rangeBox._toEdited = activeYears.length > 1 && Math.min(...activeYears) !== Math.max(...activeYears);
       let yearTimer = 0;
-      const applyYearFilter = () => {
+      const syncPresetChips = () => {
+        const rf = fromInput.value.trim();
+        const rt = toInput.value.trim();
+        const fNum = rf.length === 4 ? Number(rf) : NaN;
+        const tNum = rt.length === 4 ? Number(rt) : NaN;
+        const curYr = new Date().getFullYear();
+        rangeBox.querySelectorAll('.fx-year-chip').forEach(ch => {
+          const pf = Number(ch.dataset.from);
+          const pt = Math.min(Number(ch.dataset.to), curYr);
+          const hit = Number.isFinite(fNum) && Number.isFinite(tNum) && fNum === pf && (tNum === pt || tNum === Number(ch.dataset.to));
+          ch.classList.toggle('is-active', hit);
+          ch.setAttribute('aria-pressed', hit ? 'true' : 'false');
+        });
+      };
+      const applyYearValues = (rawFrom, rawTo) => {
         clearTimeout(yearTimer);
         const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
         if (!curProps || typeof curProps.setLibraryViewSettings !== 'function') return;
-        const rawFrom = fromInput.value.trim();
-        const rawTo = toInput.value.trim();
         if (!rawFrom && !rawTo) {
           rangeBox._toEdited = false;
+          popover._fxYearDraft = { from: '', to: '', active: false };
           curProps.setLibraryViewSettings(prev => ({
             ...prev,
             StartIndex: 0,
             Filters: { ...(prev?.Filters || {}), Years: undefined }
           }));
+          syncPresetChips();
           syncResetBtnState();
           return;
         }
@@ -272,23 +361,29 @@ function enhanceFilterPopover(popover) {
         } else {
           for (let y = lo; y <= hi; y++) nextYears.push(y);
         }
+        popover._fxYearDraft = { from: rawFrom, to: rawTo || rawFrom, active: true };
         curProps.setLibraryViewSettings(prev => ({
           ...prev,
           StartIndex: 0,
           Filters: { ...(prev?.Filters || {}), Years: nextYears }
         }));
+        syncPresetChips();
         syncResetBtnState(true);
       };
+      const applyYearFilter = () => applyYearValues(fromInput.value.trim(), toInput.value.trim());
       const scheduleYearApply = () => {
         clearTimeout(yearTimer);
         yearTimer = setTimeout(applyYearFilter, 150);
       };
-      fromInput.addEventListener('input', () => {
+      fromInput.addEventListener('input', ev => {
+        ev.stopPropagation();
         const clean = fromInput.value.replace(/\D+/g, '').slice(0, 4);
         if (fromInput.value !== clean) fromInput.value = clean;
         if (!rangeBox._toEdited) {
           toInput.value = clean;
         }
+        popover._fxYearDraft = { from: clean, to: toInput.value, active: Boolean(clean || toInput.value) };
+        syncPresetChips();
         if (!clean && !toInput.value) {
           applyYearFilter();
         } else {
@@ -298,46 +393,95 @@ function enhanceFilterPopover(popover) {
       toInput.addEventListener('focus', () => {
         try { toInput.select?.(); } catch {}
       });
-      toInput.addEventListener('input', () => {
+      toInput.addEventListener('input', ev => {
+        ev.stopPropagation();
         const clean = toInput.value.replace(/\D+/g, '').slice(0, 4);
         if (toInput.value !== clean) toInput.value = clean;
         if (!clean && !fromInput.value) {
           rangeBox._toEdited = false;
+          popover._fxYearDraft = { from: '', to: '', active: false };
+          syncPresetChips();
           applyYearFilter();
           return;
         }
         rangeBox._toEdited = clean !== '' && clean !== fromInput.value;
+        popover._fxYearDraft = { from: fromInput.value, to: clean, active: true };
+        syncPresetChips();
         scheduleYearApply();
       });
       for (const inp of [fromInput, toInput]) {
+        inp.addEventListener('click', ev => ev.stopPropagation());
         inp.addEventListener('keydown', ev => {
+          ev.stopPropagation();
           if (ev.key === 'Enter') {
             ev.preventDefault();
             applyYearFilter();
           }
         });
       }
+      rangeBox._syncPresetChips = syncPresetChips;
     }
+
+    // Mount into SleekFin's live popup when active (so SleekFin never strips classes or clones inputs),
+    // otherwise mount directly into MUI's #filtersYears-content.
+    if (sleekPopup) {
+      yearsContent.style.display = 'none';
+      const yearsBtn = [...sleekPopup.querySelectorAll('button.sleekfin-menu-item[aria-expanded]')].find(
+        b => (b.textContent || '').trim().toLowerCase() === 'years'
+      );
+      const isExpanded = yearsBtn
+        ? yearsBtn.getAttribute('aria-expanded') === 'true'
+        : yearsHeader?.getAttribute?.('aria-expanded') === 'true';
+      if (yearsBtn && isExpanded) {
+        if (rangeBox.previousElementSibling !== yearsBtn) {
+          const prevFocus = document.activeElement;
+          const keepFocus = rangeBox.contains(prevFocus) ? prevFocus : null;
+          const selStart = keepFocus && typeof keepFocus.selectionStart === 'number' ? keepFocus.selectionStart : null;
+          const selEnd = keepFocus && typeof keepFocus.selectionEnd === 'number' ? keepFocus.selectionEnd : null;
+          yearsBtn.after(rangeBox);
+          if (keepFocus) {
+            try {
+              keepFocus.focus({ preventScroll: true });
+              if (selStart !== null && selEnd !== null) keepFocus.setSelectionRange?.(selStart, selEnd);
+            } catch {}
+          }
+        }
+        rangeBox.hidden = false;
+      } else {
+        rangeBox.hidden = true;
+      }
+    } else {
+      yearsContent.style.display = '';
+      const host = yearsContent.querySelector('.MuiAccordionDetails-root') || yearsContent;
+      if (!host.contains(rangeBox)) host.prepend(rangeBox);
+      rangeBox.hidden = false;
+    }
+
     const fromInput = rangeBox.querySelector('.fx-year-from');
     const toInput = rangeBox.querySelector('.fx-year-to');
-    const isTypingYear = document.activeElement === fromInput || document.activeElement === toInput;
-    if (!isTypingYear && fromInput && toInput) {
+    const activeEl = document.activeElement;
+    const isTypingYear = activeEl === fromInput || activeEl === toInput || Boolean(activeEl?.closest?.('#filter-popover') && activeEl?.tagName === 'INPUT');
+    const hasDraft = Boolean(popover._fxYearDraft?.active);
+    if (!isTypingYear && !hasDraft && fromInput && toInput) {
       if (activeYears.length > 0) {
         const minY = Math.min(...activeYears);
         const maxY = Math.max(...activeYears);
         fromInput.value = String(minY);
         toInput.value = String(maxY);
         rangeBox._toEdited = minY !== maxY;
+        popover._fxYearDraft = { from: String(minY), to: String(maxY), active: true };
       } else {
         fromInput.value = '';
         toInput.value = '';
         rangeBox._toEdited = false;
       }
+      rangeBox._syncPresetChips?.();
     }
   }
 
-  // 3. Add Reset filters button at the bottom of the Filter dropdown
-  let footer = paper.querySelector('.fx-filter-footer');
+  // 3. Add Reset filters button at the bottom of the visible Filter dropdown
+  const footerHost = sleekPopup || paper;
+  let footer = popover._fxFilterFooterEl || footerHost.querySelector('.fx-filter-footer');
   if (!footer) {
     footer = element('div', 'fx-filter-footer');
     const resetBtn = element('button', 'fx-filter-reset-btn', 'Reset filters');
@@ -345,13 +489,15 @@ function enhanceFilterPopover(popover) {
     resetBtn.addEventListener('click', ev => {
       ev.preventDefault();
       ev.stopPropagation();
-      const rangeBox = paper.querySelector('.fx-year-range');
+      popover._fxYearDraft = { from: '', to: '', active: false };
+      const rangeBox = popover._fxYearPickerEl || popover.querySelector('.fx-year-picker');
       if (rangeBox) {
         const fi = rangeBox.querySelector('.fx-year-from');
         const ti = rangeBox.querySelector('.fx-year-to');
         if (fi) fi.value = '';
         if (ti) ti.value = '';
         rangeBox._toEdited = false;
+        rangeBox._syncPresetChips?.();
       }
       const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
       if (curProps && typeof curProps.setLibraryViewSettings === 'function') {
@@ -364,10 +510,13 @@ function enhanceFilterPopover(popover) {
       resetBtn.classList.remove('is-active');
     });
     footer.append(resetBtn);
-    paper.append(footer);
+    popover._fxFilterFooterEl = footer;
+  }
+  if (footer.parentElement !== footerHost) {
+    footerHost.append(footer);
   }
   function syncResetBtnState(forceActive = null) {
-    const btn = paper.querySelector('.fx-filter-reset-btn');
+    const btn = footer?.querySelector?.('.fx-filter-reset-btn');
     if (!btn) return;
     const curProps = findFilterPopoverProps(popover) || popover._fxFilterProps;
     const active = forceActive !== null ? forceActive : hasActiveLibraryFilters(curProps?.libraryViewSettings?.Filters);
@@ -388,11 +537,142 @@ function syncDocumentStateAttrs() {
   const osd = document.getElementById('videoOsdPage');
   const osdOpen = Boolean(osd && !osd.classList.contains('hide') && !osd.classList.contains('hidePage') && !osd.hidden);
   setRootAttr('data-fx-video-osd', osdOpen);
+  const liveTvPage = document.getElementById('liveTvSuggestedPage');
+  const liveTvOpen = Boolean(liveTvPage && !liveTvPage.classList.contains('hide') && !liveTvPage.classList.contains('hidePage') && !liveTvPage.hidden);
+  setRootAttr('data-fx-livetv', liveTvOpen);
   const appBar = document.querySelector('header.MuiAppBar-root');
   const toolbars = appBar ? appBar.querySelectorAll(':scope > .MuiToolbar-root') : null;
   setRootAttr('data-fx-has-subheader', Boolean(toolbars && toolbars.length >= 2));
 }
+function hideSleekFinUserSettingsMenu() {
+  document.querySelectorAll('[data-sleekfin-user-settings-link="true"]').forEach(el => {
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('#app-user-menu .sleekfin-menu-popup .sleekfin-menu-item, #myPreferencesMenuPage a, #myPreferencesMenuPage button').forEach(btn => {
+    const txt = (btn.textContent || '').trim().toLowerCase();
+    if (txt === 'sleekfin') btn.style.display = 'none';
+  });
+}
+function guardStuckClosingMenus() {
+  document.querySelectorAll('.sleekfin-menu-host.sleekfin-menu-closing').forEach(host => {
+    if (host.dataset.fxCloseGuard === 'true') return;
+    host.dataset.fxCloseGuard = 'true';
+    setTimeout(() => {
+      if (!host.isConnected || !host.classList.contains('sleekfin-menu-closing')) return;
+      try {
+        const Ev = typeof AnimationEvent === 'function' ? AnimationEvent : document.defaultView?.AnimationEvent;
+        if (Ev) host.dispatchEvent(new Ev('animationend', { animationName: 'sleekfin-menu-settle-close', bubbles: true }));
+        else host.dispatchEvent(new Event('animationend', { bubbles: true }));
+      } catch {}
+    }, 280);
+  });
+}
+function enhanceOsdSettingsMenu() {
+  const osd = document.getElementById('videoOsdPage');
+  if (!osd || osd.classList.contains('hide') || osd.classList.contains('hidePage') || osd.hidden) return;
+  const audioBtn = osd.querySelector('.btnAudio');
+  const favBtn = osd.querySelector('.btnUserRating');
+  const canAudio = Boolean(audioBtn && !audioBtn.classList.contains('hide') && !audioBtn.hidden && !audioBtn.disabled);
+  const canFav = Boolean(favBtn && !favBtn.classList.contains('hide') && !favBtn.hidden && !favBtn.disabled);
+  if (!canAudio && !canFav) return;
+  document.querySelectorAll('.dialog.actionSheet').forEach(sheet => {
+    if (sheet.classList.contains('sleekfin-menu-closing')) return;
+    const scroller = sheet.querySelector('.actionSheetScroller');
+    const sleekPopup = sheet.querySelector('.sleekfin-menu-popup');
+    const rawItems = scroller ? [...scroller.querySelectorAll('.actionSheetMenuItem, button[data-id]')] : [];
+    const popupItems = sleekPopup ? [...sleekPopup.querySelectorAll('.sleekfin-menu-item')] : [];
+    const inspectItems = rawItems.length ? rawItems : popupItems;
+    if (!inspectItems.length) return;
+    const labels = inspectItems.map(i => (i.textContent || '').trim().toLowerCase());
+    const ids = rawItems.map(i => (i.getAttribute('data-id') || '').toLowerCase());
+    const looksLikeSettings =
+      ids.some(id => ['quality', 'playbackrate', 'aspectratio', 'stats', 'subtitleoffset', 'repeatmode', 'videostretch'].includes(id)) ||
+      labels.some(l => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
+    if (!looksLikeSettings) return;
+    const isFav = Boolean(favBtn && (favBtn.getAttribute('data-isfavorite') === 'true' || favBtn.classList.contains('ratingbutton-withrating')));
+    const closeSheet = () => {
+      const bd = sheet.closest('.dialogContainer')?.previousElementSibling;
+      if (bd?.classList?.contains('dialogBackdrop')) {
+        try { bd.click(); } catch {}
+      } else {
+        try {
+          const Ev = typeof KeyboardEvent === 'function' ? KeyboardEvent : document.defaultView?.KeyboardEvent;
+          if (Ev) document.dispatchEvent(new Ev('keydown', { key: 'Escape', keyCode: 27, bubbles: true }));
+        } catch {}
+      }
+    };
+    const triggerAudio = () => {
+      closeSheet();
+      setTimeout(() => { try { audioBtn?.click(); } catch {} }, 45);
+    };
+    const triggerFav = () => {
+      closeSheet();
+      setTimeout(() => {
+        try { favBtn?.click(); } catch {}
+        showToast(isFav ? 'Removed from Favorites' : 'Added to Favorites');
+      }, 30);
+    };
+    if (scroller && sheet.dataset.fxOsdEnhanced !== 'true') {
+      sheet.dataset.fxOsdEnhanced = 'true';
+      const makeActionItem = (id, iconName, labelText, onClick) => {
+        const btn = element('button', 'listItem listItem-button actionSheetMenuItem emby-button');
+        btn.type = 'button';
+        btn.setAttribute('data-id', id);
+        btn.dataset.fxOsdMenuItem = id;
+        const ic = element('span', `actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons ${iconName}`);
+        ic.setAttribute('aria-hidden', 'true');
+        const body = element('div', 'listItemBody actionsheetListItemBody');
+        body.append(element('div', 'listItemBodyText actionSheetItemText', labelText));
+        btn.append(ic, body);
+        btn.addEventListener('click', ev => {
+          ev.preventDefault();
+          ev.stopImmediatePropagation?.();
+          ev.stopPropagation();
+          onClick();
+        });
+        return btn;
+      };
+      if (canAudio && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
+        scroller.append(makeActionItem('fx-osd-audio', 'audiotrack', 'Audio', triggerAudio));
+      }
+      if (canFav && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
+        scroller.append(makeActionItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', isFav ? 'Remove from Favorites' : 'Add to Favorites', triggerFav));
+      }
+    }
+    if (sleekPopup) {
+      const popupLabels = new Set([...sleekPopup.querySelectorAll('.sleekfin-menu-item')].map(el => (el.textContent || '').trim().toLowerCase()));
+      const makeSleekItem = (id, iconName, labelText, onClick) => {
+        const btn = element('button', 'sleekfin-menu-item');
+        btn.type = 'button';
+        btn.setAttribute('role', 'menuitem');
+        btn.dataset.fxOsdMenuItem = id;
+        const ic = element('span', `sleekfin-menu-icon material-icons ${iconName}`);
+        ic.setAttribute('aria-hidden', 'true');
+        const copy = element('div', 'sleekfin-menu-copy');
+        copy.append(element('div', 'sleekfin-menu-primary', labelText));
+        btn.append(ic, copy);
+        btn.addEventListener('click', ev => {
+          ev.preventDefault();
+          ev.stopImmediatePropagation?.();
+          ev.stopPropagation();
+          onClick();
+        });
+        return btn;
+      };
+      if (canAudio && !popupLabels.has('audio') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
+        sleekPopup.append(makeSleekItem('fx-osd-audio', 'audiotrack', 'Audio', triggerAudio));
+      }
+      const favLabel = isFav ? 'Remove from Favorites' : 'Add to Favorites';
+      if (canFav && !popupLabels.has('add to favorites') && !popupLabels.has('remove from favorites') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
+        sleekPopup.append(makeSleekItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', favLabel, triggerFav));
+      }
+    }
+  });
+}
 function anchorOpenPopovers() {
+  hideSleekFinUserSettingsMenu();
+  guardStuckClosingMenus();
+  enhanceOsdSettingsMenu();
   const scrollY = Math.round(window.scrollY ?? window.pageYOffset ?? document.documentElement?.scrollTop ?? 0);
   const scrollX = Math.round(window.scrollX ?? window.pageXOffset ?? document.documentElement?.scrollLeft ?? 0);
   let hasOpenPopover = false;
@@ -2897,12 +3177,63 @@ function restart(clearCache = false) {
   }
   cleanup(false);if(key)savedFeeds.delete(key);reconcile();
 }
+const LIVETV_TABS = [
+  { idx: '0', label: 'On Now' },
+  { idx: '1', label: 'Guide' },
+  { idx: '2', label: 'Channels' },
+  { idx: '3', label: 'Recordings' },
+  { idx: '4', label: 'Schedule' }
+];
+function syncLiveTvUi() {
+  const page = document.getElementById('liveTvSuggestedPage');
+  if (!page || !visible(page)) return;
+  const host = page.querySelector('.liveTvContainer') || page;
+  let bar = host.querySelector('.fx-livetv-bar');
+  const q = new URLSearchParams(String(location.hash || '').split('?')[1] || '');
+  const activeTab = q.get('tab') || '0';
+  if (!bar) {
+    bar = element('div', 'fx-livetv-bar');
+    const title = element('h1', 'fx-livetv-title', 'Live TV');
+    const pills = element('div', 'fx-livetv-tabs');
+    pills.setAttribute('role', 'tablist');
+    pills.setAttribute('aria-label', 'Live TV sections');
+    for (const t of LIVETV_TABS) {
+      const btn = element('button', 'fx-livetv-tab', t.label);
+      btn.type = 'button';
+      btn.setAttribute('role', 'tab');
+      btn.dataset.livetvTab = t.idx;
+      btn.addEventListener('click', ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const curQ = new URLSearchParams(String(location.hash || '').split('?')[1] || '');
+        curQ.set('tab', t.idx);
+        const basePath = (String(location.hash || '#/livetv').split('?')[0]) || '#/livetv';
+        scrollToTop();
+        location.hash = `${basePath}?${curQ}`;
+        const nativeTabBtn = document.querySelector(`.emby-tabs-slider .emby-tab-button[data-index="${t.idx}"]`);
+        if (nativeTabBtn) {
+          try { nativeTabBtn.click(); } catch {}
+        }
+        syncLiveTvUi();
+      });
+      pills.append(btn);
+    }
+    bar.append(title, pills);
+    host.prepend(bar);
+  }
+  bar.querySelectorAll('.fx-livetv-tab').forEach(btn => {
+    const isSel = btn.dataset.livetvTab === activeTab;
+    btn.classList.toggle('is-active', isSel);
+    btn.setAttribute('aria-selected', isSel ? 'true' : 'false');
+  });
+}
 function reconcile() {
   clearTimeout(timer); timer = 0;
   if (stopped) return;
   const api = window.ApiClient, route = routeInfo(location.hash);
   syncSettings(api);
   syncLibraryViewMenu();
+  syncLiveTvUi();
   syncMobileOverflowDrawer(api);
   syncHomeModeAttr(api);
   syncDocumentStateAttrs();
@@ -3068,10 +3399,12 @@ function navSuggestions(event){
   const target=event.target.closest?.('[data-sleekfin-header-proxy-item],[data-sleekfin-header-overflow-item],a[href]');if(!target)return;
   const proxy=target.getAttribute('data-sleekfin-header-proxy-item')||target.getAttribute('data-sleekfin-header-overflow-item')||'';
   if(proxy==='fx:settings')return;
+  const targetLabel=(target.getAttribute('aria-label')||target.getAttribute('title')||target.textContent||'').trim().toLowerCase();
   let route=null;
   if(proxy==='jellyfin:movies')route='#/movies';
   else if(proxy==='jellyfin:shows')route='#/tv';
   else if(proxy==='jellyfin:home')route='#/home';
+  else if(proxy==='source:v1:164f41b42f7a4221084a13ce51114045'||targetLabel==='live tv')route='#/livetv';
   else if(proxy.startsWith('jellyfin:view:')){
     const viewId=proxy.slice('jellyfin:view:'.length);
     const sourceLink=document.querySelector(`a[data-itemid="${viewId}"],a[data-id="${viewId}"],a[href*="topParentId=${viewId}"],a[href*="parentId=${viewId}"]`);
@@ -3082,6 +3415,7 @@ function navSuggestions(event){
       if(label==='movies')route=`#/movies.html?topParentId=${encodeURIComponent(viewId)}`;
       else if(label==='shows'||label==='tv shows')route=`#/tv.html?topParentId=${encodeURIComponent(viewId)}`;
       else if(label==='collections')route=`#/list.html?topParentId=${encodeURIComponent(viewId)}&collectionType=boxsets`;
+      else if(label==='live tv')route='#/livetv';
     }
   }else{
     route=target.getAttribute('href');
@@ -3101,7 +3435,7 @@ function navSuggestions(event){
     setTimeout(closeDrawers,40);
     return;
   }
-  if(proxy.startsWith('jellyfin:view:')||proxy==='jellyfin:home'){
+  if(proxy.startsWith('jellyfin:view:')||proxy==='jellyfin:home'||/^#!?\/?livetv(?:\.html)?(?:[?]|$)/i.test(normalized)){
     event.preventDefault();event.stopImmediatePropagation?.();event.stopPropagation();
     closeDrawers();
     scrollToTop();
@@ -3329,11 +3663,81 @@ function releaseOsdSpeedHold() {
     hideOsdGesturePill();
   }
 }
+const osdKeySkip = {
+  timer: 0,
+  streakTimer: 0,
+  streakDir: '',
+  streakSec: 0
+};
+const SKIP_CHEVRON_RIGHT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>';
+const SKIP_CHEVRON_LEFT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>';
+function showOsdSkipOverlay(direction, totalSec) {
+  let overlay = document.querySelector('.fx-osd-skip-overlay');
+  if (!overlay) {
+    overlay = element('div', 'fx-osd-skip-overlay');
+    overlay.setAttribute('aria-live', 'polite');
+    const chevrons = element('div', 'fx-osd-skip-chevrons');
+    const label = element('span', 'fx-osd-skip-label');
+    overlay.append(chevrons, label);
+    document.body.append(overlay);
+  }
+  const chevrons = overlay.querySelector('.fx-osd-skip-chevrons');
+  const label = overlay.querySelector('.fx-osd-skip-label');
+  const svg = direction === 'right' ? SKIP_CHEVRON_RIGHT_SVG : SKIP_CHEVRON_LEFT_SVG;
+  if (chevrons && overlay.dataset.dir !== direction) {
+    chevrons.innerHTML = `<span class="fx-skip-ch fx-skip-ch-1">${svg}</span><span class="fx-skip-ch fx-skip-ch-2">${svg}</span><span class="fx-skip-ch fx-skip-ch-3">${svg}</span>`;
+  }
+  overlay.dataset.dir = direction;
+  if (label) {
+    const absSec = Math.abs(totalSec);
+    label.textContent = direction === 'right' ? `+${absSec}s` : `-${absSec}s`;
+  }
+  clearTimeout(osdKeySkip.timer);
+  overlay.classList.remove('is-pulse');
+  void overlay.offsetWidth;
+  overlay.classList.add('is-visible', 'is-pulse');
+  osdKeySkip.timer = setTimeout(() => {
+    overlay.classList.remove('is-visible', 'is-pulse');
+  }, 760);
+}
+function onOsdKeyDown(event) {
+  if (stopped) return;
+  const key = event.key;
+  if (key !== 'ArrowRight' && key !== 'ArrowLeft') return;
+  if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+  if (document.documentElement?.classList?.contains('layout-tv') || document.body?.classList?.contains('layout-tv')) return;
+  const video = findActiveOsdVideo();
+  if (!video) return;
+  const target = event.target;
+  if (target?.closest?.('input, select, textarea, [contenteditable="true"], [role="slider"], .mdl-slider, .dialog, .actionSheet, .sleekfin-menu-popup, .MuiPopover-root')) return;
+  if (document.querySelector('.dialog:not(.hide):not(.sleekfin-menu-closing), .actionSheet:not(.hide):not(.sleekfin-menu-closing), .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)')) return;
+  const direction = key === 'ArrowRight' ? 'right' : 'left';
+  const delta = direction === 'right' ? 30 : -30;
+  const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Infinity;
+  const cur = Number(video.currentTime) || 0;
+  const nextTime = Math.max(0, Math.min(dur, cur + delta));
+  try { video.currentTime = nextTime; } catch {}
+  if (osdKeySkip.streakDir === direction) {
+    osdKeySkip.streakSec += delta;
+  } else {
+    osdKeySkip.streakDir = direction;
+    osdKeySkip.streakSec = delta;
+  }
+  clearTimeout(osdKeySkip.streakTimer);
+  osdKeySkip.streakTimer = setTimeout(() => {
+    osdKeySkip.streakDir = '';
+    osdKeySkip.streakSec = 0;
+  }, 900);
+  showOsdSkipOverlay(direction, osdKeySkip.streakSec);
+  event.preventDefault();
+  event.stopImmediatePropagation?.();
+  event.stopPropagation();
+}
 function isOsdInteractiveTarget(target) {
-  return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .upNextContainer, .dialog, .actionSheet, .fx-download-menu'));
+  return Boolean(target?.closest?.('button, a, input, select, textarea, [role="slider"], [role="button"], [role="menuitem"], .mdl-slider, .mdl-slider-container, .paper-icon-button-light, .videoOsdBottom, .osdControls, .osdHeader, .upNextContainer, .dialog, .dialogContainer, .dialogBackdrop, .actionSheet, .sleekfin-menu-popup, .sleekfin-popup-layer, .MuiPopover-root, .fx-download-menu'));
 }
 function isOsdScrollableOrSliderTarget(target) {
-  return Boolean(target?.closest?.('[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .actionSheet, .actionSheetScroller, .smoothScrollY, .fx-download-menu'));
+  return Boolean(target?.closest?.('[role="slider"], .mdl-slider, .mdl-slider-container, input[type="range"], .dialog, .dialogContainer, .actionSheet, .actionSheetScroller, .sleekfin-menu-popup, .smoothScrollY, .fx-download-menu'));
 }
 function onOsdTouchStart(event) {
   if (!event.touches || event.touches.length !== 1) {
@@ -3497,6 +3901,7 @@ function start() {
   }
   observer = new MutationObserver(records => {
     let needsPopover = false;
+    let needsFilterImmediate = false;
     let needsHeader = false;
     let needsSearch = false;
     let needsReconcile = false;
@@ -3504,20 +3909,26 @@ function start() {
       const r = records[i];
       const t = r.target;
       if (!t || t.nodeType !== 1) continue;
+      if (!needsFilterImmediate && (t.id === 'filter-popover' || t.closest?.('#filter-popover'))) {
+        needsFilterImmediate = true;
+      }
       if (!needsPopover) {
-        if (t === document.body || t.id === 'videoOsdPage' || t.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,header.MuiAppBar-root') || t.closest?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu')) {
+        if (t === document.body || t.id === 'videoOsdPage' || t.id === 'app-user-menu' || t.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root') || t.closest?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.actionSheet,.sleekfin-menu-host')) {
           needsPopover = true;
         } else if (r.type === 'childList' && r.addedNodes.length) {
           for (let j = 0; j < r.addedNodes.length; j++) {
             const n = r.addedNodes[j];
-            if (n.nodeType === 1 && n.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu')) {
-              needsPopover = true;
-              break;
+            if (n.nodeType === 1) {
+              if (n.id === 'filter-popover' || n.querySelector?.('#filter-popover')) needsFilterImmediate = true;
+              if (n.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link]')) {
+                needsPopover = true;
+                break;
+              }
             }
           }
         }
       }
-      if (!needsHeader && r.type === 'childList' && t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage')) {
+      if (!needsHeader && r.type === 'childList' && t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage')) {
         needsHeader = true;
       }
       if (!needsSearch && t.id === 'searchPage') {
@@ -3525,22 +3936,30 @@ function start() {
       } else if (!needsSearch && t.closest?.('#searchPage') && !t.closest?.('.fx-search-library,.searchResults,.searchSuggestions')) {
         needsSearch = true;
       }
-      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-range,.fx-filter-footer,.fx-osd-gesture-pill,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
+      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
         needsReconcile = true;
+      }
+    }
+    if (needsFilterImmediate) {
+      const fp = document.getElementById('filter-popover');
+      if (fp && fp.getAttribute('aria-hidden') !== 'true' && !fp.classList.contains('MuiModal-hidden')) {
+        enhanceFilterPopover(fp);
       }
     }
     if (needsPopover) schedulePopoverSync();
     if (needsHeader) {
       hideLeavingSoonNav();
+      hideSleekFinUserSettingsMenu();
       syncMobileOverflowDrawer(window.ApiClient);
     }
     if (needsSearch) syncSearchPage(window.ApiClient);
     if (needsReconcile) schedule();
   });
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden'] });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden', 'aria-expanded'] });
   document.addEventListener('click', onOsdSuppressClick, true);
   document.addEventListener('dblclick', onOsdDblClick, true);
   document.addEventListener('contextmenu', onOsdContextMenu, true);
+  document.addEventListener('keydown', onOsdKeyDown, true);
   document.addEventListener('click',navSuggestions,true);window.addEventListener('hashchange', onRouteEvent); window.addEventListener('popstate', onRouteEvent); document.addEventListener('viewshow', onRouteEvent);
   document.addEventListener('touchstart', onOsdTouchStart, { passive: true, capture: true });
   document.addEventListener('touchmove', onOsdTouchMove, { passive: false, capture: true });
@@ -3557,19 +3976,21 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
     document.documentElement?.removeAttribute?.('data-fx-subpage');
     document.documentElement?.removeAttribute?.('data-fx-popover-open');
     document.documentElement?.removeAttribute?.('data-fx-video-osd');
+    document.documentElement?.removeAttribute?.('data-fx-livetv');
     document.documentElement?.removeAttribute?.('data-fx-has-subheader');
     document.getElementById('searchPage')?.removeAttribute?.('data-fx-search-active');
-    document.querySelectorAll('.fx-search-library').forEach(n => n.remove());
+    document.querySelectorAll('.fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay').forEach(n => n.remove());
     document.removeEventListener('click', onOsdSuppressClick, true);
     document.removeEventListener('dblclick', onOsdDblClick, true);
     document.removeEventListener('contextmenu', onOsdContextMenu, true);
+    document.removeEventListener('keydown', onOsdKeyDown, true);
     document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
     document.removeEventListener('touchstart', onOsdTouchStart, true);
     document.removeEventListener('touchmove', onOsdTouchMove, true);
@@ -3578,7 +3999,7 @@ window.FazFortDiscovery = {
     window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-toast').forEach(n=>n.remove());
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast').forEach(n=>n.remove());
     document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };

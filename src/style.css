@@ -315,7 +315,8 @@ html.sleekfin-main-ui .dialogBackdrop.sleekfin-menu-backdrop{
   -webkit-backdrop-filter:none!important;
   opacity:0!important;
 }
-/* SleekFin wraps MUI/ActionSheet menus in .sleekfin-menu-host > .sleekfin-menu-popup; keep the host 100% invisible so there is NEVER a box-within-a-box */
+/* SleekFin wraps MUI/ActionSheet menus in .sleekfin-menu-host > .sleekfin-menu-popup; keep the host 100% invisible so there is NEVER a box-within-a-box.
+   IMPORTANT: Never set animation:none here — Jellyfin's legacy dialogHelper relies on SleekFin's 1ms settle animationend to close actionSheet dialogs without hanging! */
 html:root .sleekfin-menu-host,
 html:root .MuiPopover-root > .MuiPaper-root.sleekfin-menu-host,
 html:root #app-user-menu .MuiPaper-root.sleekfin-menu-host,
@@ -338,7 +339,6 @@ html:root .dialog.filterDialog.sleekfin-menu-host{
   max-width:none!important;
   max-height:none!important;
   overflow:visible!important;
-  animation:none!important;
 }
 /* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
 .MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
@@ -463,7 +463,10 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   color:#fff!important;
 }
 #filter-popover .MuiAccordion-root:has(#filtersTags-header),
-.MuiPopover-root .MuiAccordion-root:has(#filtersTags-header){
+.MuiPopover-root .MuiAccordion-root:has(#filtersTags-header),
+#filter-popover .MuiAccordion-root:has(#filtersStudios-header),
+.MuiPopover-root .MuiAccordion-root:has(#filtersStudios-header),
+.dialog.filterDialog :is(.filterTagsSection,.filterStudiosSection){
   display:none!important;
 }
 .MuiPopover-root .MuiAccordion-root{
@@ -592,46 +595,115 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   background:rgba(255,255,255,.12)!important;
   color:var(--sleekfin-text,#f1f2f4)!important;
 }
-#filtersYears-content[data-fx-years-enhanced="true"] .MuiFormGroup-root{
+/* Unconditionally hide native Years checkboxes at Frame 0 so they NEVER flash before or during expansion */
+#filtersYears-content .MuiFormGroup-root,
+#filtersYears-content .MuiFormControlLabel-root,
+#filtersYears-content input[type="checkbox"],
+#filter-popover #filtersYears-content .MuiFormGroup-root{
+  display:none!important;
+}
+.fx-year-picker{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 6px 6px;
+  margin:2px 0 4px;
+  border-radius:9px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.07);
+  box-sizing:border-box;
+}
+.fx-year-picker[hidden]{
   display:none!important;
 }
 .fx-year-range{
   display:grid;
   grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-  align-items:center;
+  align-items:end;
   gap:6px;
-  padding:4px 2px 2px;
+}
+.fx-year-field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+.fx-year-label{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.52);
+  padding-left:2px;
+  user-select:none;
 }
 .fx-year-range-sep{
-  color:rgba(255,255,255,.45);
-  font-size:12px;
-  font-weight:500;
+  color:rgba(255,255,255,.4);
+  font-size:13px;
+  font-weight:600;
+  line-height:32px;
   user-select:none;
 }
 .fx-year-input{
   width:100%;
   min-width:0;
   height:32px;
-  padding:0 6px;
+  padding:0 8px;
   border-radius:7px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(12,13,16,.72);
-  color:var(--sleekfin-text,#f1f2f4);
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(10,11,14,.86);
+  color:#fff;
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
-  font-size:12.5px;
-  font-weight:500;
+  font-size:13px;
+  font-weight:600;
   text-align:center;
   font-variant-numeric:tabular-nums;
   box-sizing:border-box;
-  transition:border-color .14s ease,background-color .14s ease;
+  transition:border-color .14s ease,background-color .14s ease,box-shadow .14s ease;
 }
 .fx-year-input::placeholder{
-  color:rgba(255,255,255,.4);
+  color:rgba(255,255,255,.32);
+  font-weight:500;
 }
 .fx-year-input:focus{
   outline:none;
   border-color:var(--sleekfin-accent,#dc2626);
-  background:rgba(16,17,21,.92);
+  background:rgba(14,15,19,.98);
+  box-shadow:0 0 0 2px rgba(229,9,20,.22);
+}
+.fx-year-presets{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px;
+}
+button.fx-year-chip{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 4px!important;
+  border-radius:6px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  background:rgba(255,255,255,.045)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:11.5px!important;
+  font-weight:600!important;
+  font-variant-numeric:tabular-nums!important;
+  cursor:pointer!important;
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+button.fx-year-chip:hover{
+  background:rgba(255,255,255,.12)!important;
+  border-color:rgba(255,255,255,.18)!important;
+  color:#fff!important;
+}
+button.fx-year-chip.is-active{
+  background:rgba(229,9,20,.24)!important;
+  border-color:var(--sleekfin-accent,#e50914)!important;
+  color:#fff!important;
 }
 .fx-filter-footer{
   margin-top:5px;
@@ -1042,11 +1114,11 @@ header :is(button,a)[aria-label*="Leaving Soon" i],
   display:none!important;
 }
 html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-  padding-top:calc(var(--sleekfin-header-height,80px) + 18px)!important;
+  padding-top:calc(var(--sleekfin-header-height,72px) + 2px)!important;
   margin-top:0!important;
 }
 html[data-fx-has-subheader="true"] #searchPage#searchPage{
-  padding-top:16px!important;
+  padding-top:4px!important;
   margin-top:0!important;
 }
 #searchPage#searchPage{
@@ -1054,11 +1126,15 @@ html[data-fx-has-subheader="true"] #searchPage#searchPage{
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
+#searchPage#searchPage :is(.padded-top-page,.content-primary){
+  padding-top:0!important;
+  margin-top:0!important;
+}
 #searchPage#searchPage .alphaPicker:empty{
   display:none!important;
 }
 #searchPage#searchPage .searchFields{
-  padding:6px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 24px!important;
+  padding:2px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 18px!important;
   padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   margin:0!important;
   box-sizing:border-box!important;
@@ -2067,9 +2143,369 @@ html[data-fx-video-osd="true"] .videoPlayerContainer{
 #videoOsdPage :is(.osdPositionSlider,.osdVolumeSlider,.mdl-slider,.sliderContainer,input[type="range"]){
   touch-action:pan-x!important;
 }
-html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.smoothScrollY,.sleekfin-details-track-dialog){
+html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sleekfin-menu-popup,.smoothScrollY,.sleekfin-details-track-dialog){
   touch-action:pan-y!important;
   overscroll-behavior:contain!important;
+  pointer-events:auto!important;
+}
+/* Clean Video Playback OSD: hide standalone Audio/Favorites (moved into Settings dropdown), chapter markers/skip buttons & ±skip buttons across all viewports */
+#videoOsdPage :is(.btnAudio,.btnUserRating,.btnRewind,.btnFastForward,.btnPreviousChapter,.btnNextChapter,.btnPreviousTrack,.btnNextTrack,.sliderMarkerContainer,.sliderMarker,.chapterMarker){
+  display:none!important;
+}
+/* YouTube-Style Keyboard Skip Overlay (±30s on Desktop/Laptop ArrowLeft / ArrowRight) */
+@keyframes fx-skip-chevron{
+  0%{opacity:.22;transform:scale(.9)}
+  45%{opacity:1;transform:scale(1.04)}
+  100%{opacity:.22;transform:scale(.9)}
+}
+@keyframes fx-skip-pop{
+  0%{opacity:0;transform:translateY(-50%) scale(.88)}
+  100%{opacity:1;transform:translateY(-50%) scale(1)}
+}
+.fx-osd-skip-overlay{
+  position:fixed;
+  top:50%;
+  z-index:100016;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:108px;
+  height:108px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(20,21,25,.82) 0%,rgba(12,13,16,.62) 100%);
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 16px 40px rgba(0,0,0,.55);
+  color:#fff;
+  opacity:0;
+  transform:translateY(-50%) scale(.9);
+  transition:opacity .18s cubic-bezier(.22,1,.36,1),transform .18s cubic-bezier(.22,1,.36,1);
+}
+.fx-osd-skip-overlay[data-dir="right"]{
+  right:14%;
+  left:auto;
+}
+.fx-osd-skip-overlay[data-dir="left"]{
+  left:14%;
+  right:auto;
+}
+.fx-osd-skip-overlay.is-visible{
+  opacity:1;
+  transform:translateY(-50%) scale(1);
+}
+.fx-osd-skip-overlay.is-pulse{
+  animation:fx-skip-pop .16s cubic-bezier(.22,1,.36,1) both;
+}
+.fx-osd-skip-chevrons{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  height:22px;
+}
+.fx-skip-ch{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:20px;
+  color:#fff;
+}
+.fx-skip-ch svg{
+  width:20px;
+  height:20px;
+  display:block;
+}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-1{animation:fx-skip-chevron .62s ease-in-out 0ms infinite}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-2{animation:fx-skip-chevron .62s ease-in-out 110ms infinite}
+.fx-osd-skip-overlay[data-dir="right"] .fx-skip-ch-3{animation:fx-skip-chevron .62s ease-in-out 220ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-3{animation:fx-skip-chevron .62s ease-in-out 0ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-2{animation:fx-skip-chevron .62s ease-in-out 110ms infinite}
+.fx-osd-skip-overlay[data-dir="left"] .fx-skip-ch-1{animation:fx-skip-chevron .62s ease-in-out 220ms infinite}
+.fx-osd-skip-label{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:14.5px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+  color:#fff;
+  line-height:1.2;
+}
+@media(prefers-reduced-motion:reduce){
+  .fx-osd-skip-overlay,.fx-skip-ch{animation:none!important}
+}
+
+/* Hide SleekFin User Settings Option in Profile Dropdown & Settings Menu + Pointer Cursor on Navigation Header Buttons */
+[data-sleekfin-user-settings-link="true"],
+#app-user-menu [data-sleekfin-user-settings-link="true"],
+#myPreferencesMenuPage [data-sleekfin-user-settings-link="true"]{
+  display:none!important;
+}
+[data-sleekfin-header-proxy] :is(button,a,[role="button"]),
+[data-sleekfin-header-proxy] :is(button,a,[role="button"]) *,
+[data-sleekfin-header-overflow-drawer] :is(button,a,[role="button"]),
+[data-sleekfin-header-overflow-drawer] :is(button,a,[role="button"]) *,
+header.MuiAppBar-root :is(button,a,[role="button"]),
+.skinHeader :is(button,a,[role="button"]){
+  cursor:pointer!important;
+}
+
+/* Unified Dark-Glass Live TV Overhaul (On Now, Guide EPG, Channels, Recordings, Schedule, Series & Programs) */
+html[data-fx-livetv="true"] :is(.headerTabs,.emby-tabs-slider),
+html body #liveTvSuggestedPage:has(.fx-livetv-bar) :is(.headerTabs,.emby-tabs-slider){
+  display:none!important;
+}
+.fx-livetv-bar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px 20px;
+  padding:10px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 20px;
+  margin:0;
+  box-sizing:border-box;
+  width:100%;
+}
+.fx-livetv-title{
+  margin:0;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  font-size:28px;
+  line-height:34px;
+  font-weight:700;
+  color:#fff;
+  border-left:3px solid var(--sleekfin-accent,#e50914);
+  padding-left:10px;
+}
+.fx-livetv-tabs{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px;
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012)),rgba(20,21,24,.88);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 10px 26px -10px rgba(0,0,0,.6);
+  max-width:100%;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.fx-livetv-tabs::-webkit-scrollbar{display:none}
+button.fx-livetv-tab{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0 14px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.72)!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:13.5px!important;
+  font-weight:500!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  transition:background-color .15s ease,color .15s ease!important;
+}
+button.fx-livetv-tab:hover{
+  background:rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+button.fx-livetv-tab.is-active{
+  background:rgba(255,255,255,.15)!important;
+  color:#fff!important;
+  font-weight:600!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.12)!important;
+}
+#liveTvSuggestedPage,
+#liveTvPage{
+  background:var(--sleekfin-bg,#070809)!important;
+  min-height:100vh!important;
+  box-sizing:border-box!important;
+}
+#liveTvSuggestedPage .verticalSection:not(:has(.card)):not(:has(.listItem)),
+#liveTvPage .verticalSection:not(:has(.card)):not(:has(.listItem)){
+  display:none!important;
+}
+#liveTvSuggestedPage .verticalSection,
+#liveTvPage .verticalSection{
+  margin:0 0 28px!important;
+}
+#liveTvSuggestedPage .sectionTitleContainer,
+#liveTvSuggestedPage .sectionTitleContainer-cards,
+#liveTvPage .sectionTitleContainer,
+#liveTvPage .sectionTitleContainer-cards{
+  padding-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  padding-right:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 12px)!important;
+}
+#liveTvSuggestedPage .verticalSection > :is(h2.sectionTitle,.sectionTitle.padded-left,.sectionTitle-cards.padded-left){
+  margin-left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-bottom:14px!important;
+}
+/* On Now & Program Cards */
+#liveTvSuggestedPage .cardBox,
+#liveTvPage .cardBox{
+  background:transparent!important;
+  border-radius:10px!important;
+}
+#liveTvSuggestedPage .cardScalable,
+#liveTvPage .cardScalable{
+  background:#121418!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:10px!important;
+  transition:border-color .16s ease,transform .16s ease!important;
+}
+#liveTvSuggestedPage .card:hover .cardScalable,
+#liveTvPage .card:hover .cardScalable{
+  border-color:rgba(255,255,255,.22)!important;
+}
+#liveTvSuggestedPage .itemProgressBar,
+#liveTvPage .itemProgressBar{
+  height:3px!important;
+  background:rgba(255,255,255,.22)!important;
+}
+#liveTvSuggestedPage .itemProgressBarForeground,
+#liveTvPage .itemProgressBarForeground{
+  background:var(--sleekfin-accent,#e50914)!important;
+}
+#liveTvSuggestedPage .cardText-first,
+#liveTvPage .cardText-first{
+  color:#f1f2f4!important;
+  font-weight:600!important;
+  padding:6px 2px 0!important;
+}
+#liveTvSuggestedPage .cardText-secondary,
+#liveTvPage .cardText-secondary{
+  display:block!important;
+  color:rgba(255,255,255,.62)!important;
+  font-size:12.5px!important;
+  padding:2px 2px 0!important;
+}
+/* Channels Tab: Sleek Dark-Glass Channel Tiles */
+#liveTvSuggestedPage #channelsTab .itemsContainer.vertical-wrap{
+  grid-template-columns:repeat(auto-fill,minmax(clamp(165px,16vw,220px),1fr))!important;
+  gap:16px!important;
+  padding-top:6px!important;
+}
+#liveTvSuggestedPage #channelsTab .cardScalable{
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),rgba(18,19,24,.94)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+}
+#liveTvSuggestedPage #channelsTab .card:hover .cardScalable{
+  border-color:var(--sleekfin-accent,#e50914)!important;
+}
+/* Guide Tab (EPG): Modern Dark-Glass Grid (YouTube TV / Plex Inspired) */
+#liveTvSuggestedPage #guideTab{
+  padding:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 48px!important;
+  box-sizing:border-box!important;
+}
+#liveTvSuggestedPage #guideTab .epg{
+  background:rgba(15,16,20,.94)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:16px!important;
+  overflow:hidden!important;
+  box-shadow:0 18px 44px -12px rgba(0,0,0,.65)!important;
+}
+#liveTvSuggestedPage #guideTab .guideHeader{
+  background:rgba(20,21,26,.96)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  padding:10px 14px!important;
+}
+#liveTvSuggestedPage #guideTab .guideDateTabs,
+#liveTvSuggestedPage #guideTab .btnGuideDate,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings{
+  color:#f1f2f4!important;
+  border-radius:8px!important;
+}
+#liveTvSuggestedPage #guideTab .btnGuideDate,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings{
+  background:rgba(255,255,255,.06)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  padding:6px 12px!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  cursor:pointer!important;
+}
+#liveTvSuggestedPage #guideTab .btnGuideDate:hover,
+#liveTvSuggestedPage #guideTab .btnGuideViewSettings:hover{
+  background:rgba(255,255,255,.13)!important;
+  color:#fff!important;
+}
+#liveTvSuggestedPage #guideTab .timeslotHeaders{
+  background:rgba(18,19,24,.96)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-variant-numeric:tabular-nums!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+}
+#liveTvSuggestedPage #guideTab .channelCell{
+  background:rgba(19,20,25,.98)!important;
+  border-color:rgba(255,255,255,.07)!important;
+  color:#f1f2f4!important;
+  transition:background-color .14s ease!important;
+}
+#liveTvSuggestedPage #guideTab .channelCell:hover{
+  background:rgba(30,32,40,.98)!important;
+}
+#liveTvSuggestedPage #guideTab .programCell{
+  background:rgba(24,26,32,.84)!important;
+  border-color:rgba(255,255,255,.06)!important;
+  color:#f1f2f4!important;
+  transition:background-color .14s ease,border-color .14s ease!important;
+}
+#liveTvSuggestedPage #guideTab .programCell:hover,
+#liveTvSuggestedPage #guideTab .programCell:focus-visible{
+  background:rgba(229,9,20,.18)!important;
+  border-color:rgba(229,9,20,.45)!important;
+}
+#liveTvSuggestedPage #guideTab .programCellInner{
+  padding:8px 12px!important;
+}
+#liveTvSuggestedPage #guideTab .guideProgramName{
+  color:#fff!important;
+  font-weight:600!important;
+  font-size:13.5px!important;
+}
+#liveTvSuggestedPage #guideTab .guideProgramSecondaryInfo{
+  color:rgba(255,255,255,.62)!important;
+  font-size:12px!important;
+}
+/* Recordings, Schedule & Series Tabs */
+#liveTvSuggestedPage :is(#recordingsTab,#scheduleTab,#seriesTab) .listItem,
+#liveTvPage .listItem{
+  background:rgba(18,19,24,.9)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:12px!important;
+  margin:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 10px!important;
+  padding:10px 14px!important;
+  transition:background-color .14s ease,border-color .14s ease!important;
+}
+#liveTvSuggestedPage :is(#recordingsTab,#scheduleTab,#seriesTab) .listItem:hover,
+#liveTvPage .listItem:hover{
+  background:rgba(28,30,36,.96)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+#liveTvSuggestedPage .noItemsMessage,
+#liveTvPage .noItemsMessage{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:72px 24px!important;
+  margin:12px auto!important;
+  max-width:480px!important;
+  text-align:center!important;
+  color:rgba(255,255,255,.68)!important;
 }
 @media(max-width:899px),(hover:none) and (pointer:coarse),(max-height:520px) and (pointer:coarse){
   #videoOsdPage .btnFullscreen{
@@ -2233,12 +2669,31 @@ html[data-fx-video-osd="true"] :is(.dialog,.actionSheet,.actionSheetScroller,.sm
     max-width:100%!important;
   }
   html:not([data-fx-has-subheader="true"]) #searchPage#searchPage{
-    padding-top:calc(22px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
     margin-top:0!important;
   }
   html:not([data-fx-has-subheader="true"]) :is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage):has(.fx-discovery),
   html:not([data-fx-has-subheader="true"]) :is(#liveTvSuggestedPage,#liveTvPage){
-    padding-top:calc(16px + env(safe-area-inset-top,0px))!important;
+    padding-top:calc(14px + env(safe-area-inset-top,0px))!important;
+  }
+  .fx-livetv-bar{
+    padding:4px 14px 14px!important;
+    gap:10px!important;
+  }
+  .fx-livetv-title{
+    font-size:22px!important;
+    line-height:28px!important;
+  }
+  .fx-livetv-tabs{
+    width:100%!important;
+  }
+  button.fx-livetv-tab{
+    flex:1 0 auto!important;
+    padding:0 11px!important;
+    font-size:12.5px!important;
+  }
+  #liveTvSuggestedPage #guideTab{
+    padding:0 14px calc(96px + env(safe-area-inset-bottom,0px))!important;
   }
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root[data-sleekfin-header-toolbar]:not(:has([data-sleekfin-header-brand])),
   header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) > .MuiToolbar-root:first-child:not(:has([data-sleekfin-header-brand])){

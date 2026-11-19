@@ -857,3 +857,208 @@ test('category subpages open all matching items on heading click, unified search
 
   f.ctx.window.FazFortDiscovery.stop();
 });
+
+test('v0.5.9 fixes actionSheet freeze, filter Studios/Years draft, SleekFin user menu, Live TV, OSD settings & keyboard skip', async () => {
+  const f = fixture();
+  await f.settle();
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. Freeze fix: .sleekfin-menu-host rule must NOT disable settle animation
+  const hostRuleMatch = styleText.match(/html:root \.sleekfin-menu-host[\s\S]*?\{[\s\S]*?\}/);
+  assert.ok(hostRuleMatch, 'expected .sleekfin-menu-host CSS rule');
+  assert.equal(/animation\s*:\s*none/i.test(hostRuleMatch[0]), false, '.sleekfin-menu-host must preserve animationend');
+
+  // 2. CSS hides Studios, unconditionally hides Years checkboxes, hides SleekFin user settings, sets pointer cursor, and hides OSD clutter
+  assert.ok(styleText.includes('#filtersStudios-header'));
+  assert.ok(styleText.includes('#filtersYears-content .MuiFormGroup-root'));
+  assert.ok(styleText.includes('[data-sleekfin-user-settings-link="true"]'));
+  assert.ok(styleText.includes('[data-sleekfin-header-proxy] :is(button,a,[role="button"])'));
+  assert.ok(styleText.includes('.sliderMarkerContainer'));
+  assert.ok(styleText.includes('.btnPreviousChapter'));
+  assert.ok(styleText.includes('.btnRewind'));
+  assert.ok(styleText.includes('.btnAudio'));
+  assert.ok(styleText.includes('.btnUserRating'));
+
+  // 3. Filter popover hides Tags + Studios, preserves partial year draft across re-sync, and supports era preset chips
+  let filterState = { StartIndex: 0, Filters: {} };
+  const filterPop = f.document.createElement('div');
+  filterPop.id = 'filter-popover';
+  filterPop.className = 'MuiPopover-root';
+  const filterPaper = f.document.createElement('div');
+  filterPaper.className = 'MuiPaper-root';
+  const studiosAcc = f.document.createElement('div');
+  studiosAcc.className = 'MuiAccordion-root';
+  const studiosHdr = f.document.createElement('div');
+  studiosHdr.id = 'filtersStudios-header';
+  studiosAcc.append(studiosHdr);
+  const yearsContent = f.document.createElement('div');
+  yearsContent.id = 'filtersYears-content';
+  const nativeGroup = f.document.createElement('div');
+  nativeGroup.className = 'MuiFormGroup-root';
+  const cb = f.document.createElement('input');
+  cb.type = 'checkbox';
+  nativeGroup.append(cb);
+  const yearsDetails = f.document.createElement('div');
+  yearsDetails.className = 'MuiAccordionDetails-root';
+  yearsDetails.append(nativeGroup);
+  yearsContent.append(yearsDetails);
+  filterPaper.append(studiosAcc, yearsContent);
+  filterPop.append(filterPaper);
+  filterPaper.__reactFiber$unit = {
+    return: {
+      memoizedProps: {
+        get libraryViewSettings() { return filterState; },
+        yearsOptions: [1995, 2010, 2012, 2015, 2019, 2022].map(y => ({ Name: String(y), Value: y })),
+        setLibraryViewSettings: updater => { filterState = typeof updater === 'function' ? updater(filterState) : updater; }
+      }
+    }
+  };
+  f.document.body.append(filterPop);
+  f.notify();
+  f.frames();
+  assert.equal(studiosAcc.style.display, 'none');
+  assert.equal(nativeGroup.style.display, 'none');
+  const fromYear = filterPaper.querySelector('.fx-year-from');
+  const toYear = filterPaper.querySelector('.fx-year-to');
+  fromYear.value = '201';
+  fromYear.dispatchEvent(new f.ctx.document.defaultView.Event('input', { bubbles: true }));
+  // Trigger another popover sync while draft is incomplete — must NOT wipe the partial input!
+  f.notify();
+  f.frames();
+  assert.equal(fromYear.value, '201');
+  const chip2010s = [...filterPaper.querySelectorAll('.fx-year-chip')].find(b => b.textContent === '2010s');
+  assert.ok(chip2010s);
+  chip2010s.click();
+  assert.deepEqual([...filterState.Filters.Years], [2010, 2012, 2015, 2019]);
+  assert.equal(chip2010s.classList.contains('is-active'), true);
+  filterPop.remove();
+
+  // 4. SleekFin user settings link hidden in Profile menu
+  const userMenu = f.document.createElement('div');
+  userMenu.id = 'app-user-menu';
+  const sfLink = f.document.createElement('a');
+  sfLink.setAttribute('data-sleekfin-user-settings-link', 'true');
+  sfLink.textContent = 'SleekFin';
+  const sfPopup = f.document.createElement('div');
+  sfPopup.className = 'sleekfin-menu-popup';
+  const sfClone = f.document.createElement('button');
+  sfClone.className = 'sleekfin-menu-item';
+  sfClone.textContent = 'SleekFin';
+  sfPopup.append(sfClone);
+  userMenu.append(sfLink, sfPopup);
+  f.document.body.append(userMenu);
+  f.notify();
+  f.frames();
+  assert.equal(sfLink.style.display, 'none');
+  assert.equal(sfClone.style.display, 'none');
+  userMenu.remove();
+
+  // 5. Live TV header click navigates directly without drawer & renders unified .fx-livetv-bar
+  const proxy = f.document.createElement('div');
+  proxy.setAttribute('data-sleekfin-header-proxy', 'true');
+  const liveTvBtn = f.document.createElement('button');
+  liveTvBtn.setAttribute('data-sleekfin-header-proxy-item', 'source:v1:164f41b42f7a4221084a13ce51114045');
+  liveTvBtn.textContent = 'Live TV';
+  proxy.append(liveTvBtn);
+  const drawer = f.document.createElement('div');
+  drawer.className = 'mainDrawer drawer-open';
+  f.document.body.append(proxy, drawer);
+  const liveTvPage = f.document.createElement('div');
+  liveTvPage.id = 'liveTvSuggestedPage';
+  liveTvPage.className = 'page';
+  f.document.body.append(liveTvPage);
+  const clickEv = new f.ctx.document.defaultView.Event('click', { bubbles: true, cancelable: true });
+  liveTvBtn.dispatchEvent(clickEv);
+  assert.equal(clickEv.defaultPrevented, true);
+  assert.equal(drawer.classList.contains('drawer-open'), false);
+  assert.equal(f.ctx.location.hash, '#/livetv');
+  await f.settle();
+  const liveBar = liveTvPage.querySelector('.fx-livetv-bar');
+  assert.ok(liveBar);
+  assert.equal(liveBar.querySelector('.fx-livetv-title')?.textContent, 'Live TV');
+  const guideTabBtn = [...liveBar.querySelectorAll('.fx-livetv-tab')].find(b => b.textContent === 'Guide');
+  assert.ok(guideTabBtn);
+  guideTabBtn.click();
+  assert.ok(f.ctx.location.hash.includes('tab=1'));
+  liveTvPage.classList.add('hide');
+  proxy.remove();
+  drawer.remove();
+
+  // 6. Video playback OSD: ArrowRight/ArrowLeft ±30s keyboard seek + YouTube-style overlay + Settings menu Audio/Favorites injection
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  const video = f.document.createElement('video');
+  video.className = 'htmlvideoplayer';
+  video.currentTime = 100;
+  Object.defineProperty(video, 'duration', { value: 600, configurable: true });
+  let audioClicked = 0;
+  let favClicked = 0;
+  const audioBtn = f.document.createElement('button');
+  audioBtn.className = 'btnAudio';
+  audioBtn.addEventListener('click', () => { audioClicked++; });
+  const favBtn = f.document.createElement('button');
+  favBtn.className = 'btnUserRating';
+  favBtn.addEventListener('click', () => { favClicked++; });
+  osd.append(video, audioBtn, favBtn);
+  f.document.body.append(osd);
+
+  const KeyEv = f.ctx.document.defaultView.KeyboardEvent || f.ctx.document.defaultView.Event;
+  const pressArrow = key => {
+    const ev = new KeyEv('keydown', { key, bubbles: true, cancelable: true });
+    if (!ev.key) Object.defineProperty(ev, 'key', { value: key });
+    f.document.dispatchEvent(ev);
+  };
+  pressArrow('ArrowRight');
+  assert.equal(video.currentTime, 130);
+  const skipOverlay = f.document.querySelector('.fx-osd-skip-overlay');
+  assert.ok(skipOverlay);
+  assert.equal(skipOverlay.dataset.dir, 'right');
+  assert.equal(skipOverlay.querySelector('.fx-osd-skip-label')?.textContent, '+30s');
+  pressArrow('ArrowRight');
+  assert.equal(video.currentTime, 160);
+  assert.equal(skipOverlay.querySelector('.fx-osd-skip-label')?.textContent, '+60s');
+  pressArrow('ArrowLeft');
+  assert.equal(video.currentTime, 130);
+  assert.equal(skipOverlay.dataset.dir, 'left');
+  assert.equal(skipOverlay.querySelector('.fx-osd-skip-label')?.textContent, '-30s');
+
+  // Inject Audio & Add to Favorites into Playback Settings actionSheet
+  const sheet = f.document.createElement('div');
+  sheet.className = 'dialog actionSheet sleekfin-menu-host';
+  const scroller = f.document.createElement('div');
+  scroller.className = 'actionSheetScroller';
+  const qualityItem = f.document.createElement('button');
+  qualityItem.className = 'actionSheetMenuItem';
+  qualityItem.setAttribute('data-id', 'quality');
+  qualityItem.textContent = 'Quality';
+  scroller.append(qualityItem);
+  const sheetPopup = f.document.createElement('div');
+  sheetPopup.className = 'sleekfin-menu-popup';
+  const qClone = f.document.createElement('button');
+  qClone.className = 'sleekfin-menu-item';
+  qClone.textContent = 'Quality';
+  sheetPopup.append(qClone);
+  sheet.append(scroller, sheetPopup);
+  f.document.body.append(sheet);
+  f.notify();
+  f.frames();
+
+  const injectedAudio = sheetPopup.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]');
+  const injectedFav = sheetPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]');
+  assert.ok(injectedAudio, 'Audio item injected into SleekFin OSD Settings popup');
+  assert.ok(injectedFav, 'Favorites item injected into SleekFin OSD Settings popup');
+  injectedAudio.click();
+  f.flushTimeouts(45);
+  assert.equal(audioClicked, 1);
+  injectedFav.click();
+  f.flushTimeouts(30);
+  assert.equal(favClicked, 1);
+
+  // 7. Request Hub modal fade-in keyframes present
+  const rhSrc = await readFile(new URL('../requests/web.js', import.meta.url), 'utf8');
+  assert.ok(rhSrc.includes('@keyframes rh-overlay-in'));
+  assert.ok(rhSrc.includes('@keyframes rh-dialog-in'));
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
