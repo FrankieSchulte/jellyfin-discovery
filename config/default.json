@@ -7,6 +7,11 @@
   "maxLiveRows": 24,
   "endless": true,
   "hideWatched": false,
+  "ratings": {
+    "tomatometer": true,
+    "popcornmeter": true,
+    "stars": false
+  },
   "pages": {
     "home": {
       "anchors": [

@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.5.12 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.0 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -15,6 +15,11 @@
       "maxLiveRows": 24,
       "endless": true,
       "hideWatched": false,
+      "ratings": {
+        "tomatometer": true,
+        "popcornmeter": true,
+        "stars": false
+      },
       "pages": {
         "home": {
           "anchors": [
@@ -2352,13 +2357,13 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   gap:2px!important;
   box-sizing:border-box!important;
 }
-/* Playback OSD Settings, Subtitles & Track Popups: anchored at Frame 0 cleanly above bottom-right controls (zero shift!) with higher opacity */
+/* Playback OSD Settings, Subtitles & Track Popups: anchored cleanly above bottom-right controls; top-header triggers (SyncPlay, Cast) anchor directly below their button */
 @keyframes fx-dropdown-enter-up{
   from{opacity:0;transform:translateY(6px) scale(.96)}
   to{opacity:1;transform:none}
 }
-html[data-fx-video-osd="true"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
-html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-popup[data-fx-osd-popup="true"],.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-osd-popup="true"]:not(.sleekfin-menu-host)){
+html[data-fx-video-osd="true"]:not([data-fx-osd-anchor="top"]) :is(.sleekfin-menu-popup:not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"])),
+html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-popup[data-fx-osd-popup="true"]:not([data-fx-header-anchored="true"]),.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-osd-popup="true"]:not(.sleekfin-menu-host):not([data-fx-header-anchored="true"])){
   position:fixed!important;
   top:auto!important;
   left:auto!important;
@@ -2372,6 +2377,22 @@ html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-p
   border:1px solid rgba(255,255,255,.11)!important;
   transform-origin:bottom right!important;
   animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
+}
+html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
+html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
+  position:fixed!important;
+  top:var(--fx-header-popup-top,64px)!important;
+  right:var(--fx-header-popup-right,20px)!important;
+  left:auto!important;
+  bottom:auto!important;
+  max-height:min(68dvh,calc(100dvh - var(--fx-header-popup-top,64px) - 20px))!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
+  background-color:rgba(15,16,20,.97)!important;
+  backdrop-filter:blur(22px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  transform-origin:top right!important;
+  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
 }
 .MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
 .MuiPopover-root.MuiModal-hidden .MuiPaper-root,
@@ -3168,7 +3189,7 @@ html[data-fx-has-subheader="true"] #searchPage#searchPage{
   margin-top:0!important;
 }
 #searchPage#searchPage{
-  background:var(--sleekfin-bg,#070809)!important;
+  background:transparent!important;
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
@@ -4551,7 +4572,7 @@ button.fx-livetv-tab.is-active{
 }
 #liveTvSuggestedPage,
 #liveTvPage{
-  background:var(--sleekfin-bg,#070809)!important;
+  background:transparent!important;
   min-height:100vh!important;
   box-sizing:border-box!important;
 }
@@ -5131,6 +5152,984 @@ button.fx-livetv-tab.is-active{
     pointer-events:none!important;
   }
 }
+
+/* ==========================================================================
+   v0.6.0 Visual Polish, Loading UX, Ratings, Ambient Background & Playback
+   ========================================================================== */
+
+/* 1. Netflix-Style Edge Gradient Mask on Horizontal Category Rows (works over any textured background!) */
+.fx-track-wrap{
+  position:relative;
+  --fx-edge-fade:clamp(26px,4.2vw,76px);
+  margin-inline:calc(-1 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)));
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-edge-fade)),transparent 100%);
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-edge-fade)),transparent 100%);
+}
+.fx-track-wrap[data-fx-scroll-start="false"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-edge-fade),#000 calc(100% - var(--fx-edge-fade)),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-edge-fade),#000 calc(100% - var(--fx-edge-fade)),transparent 100%);
+}
+.fx-track-wrap[data-fx-scroll-end="true"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-edge-fade),#000 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-edge-fade),#000 100%);
+}
+.fx-track-wrap[data-fx-scroll-start="true"][data-fx-scroll-end="true"]{
+  -webkit-mask-image:none;
+  mask-image:none;
+}
+.fx-track-wrap > .fx-track{
+  padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
+  scroll-padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
+}
+.fx-row-head button:disabled{
+  opacity:.24!important;
+  pointer-events:none;
+}
+html body :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller{
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - clamp(20px,3vw,54px)),transparent 100%);
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - clamp(20px,3vw,54px)),transparent 100%);
+}
+@media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
+  .fx-track-wrap{
+    --fx-edge-fade:clamp(18px,5.5vw,34px);
+    margin-inline:-14px;
+  }
+  .fx-track-wrap > .fx-track{
+    padding-inline:14px;
+    scroll-padding-inline:14px;
+  }
+}
+
+/* 4. Netflix-Style Hero Banner on Curated Movies & Shows Subpages (Hidden on Library, Favorites, Genres & Category Subpages) */
+html[data-fx-page-hero="true"] header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root){
+  position:absolute!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  z-index:25!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+}
+html[data-fx-page-hero="true"] header.MuiAppBar-root:has(> .MuiToolbar-root + .MuiToolbar-root) :is(button,a,[role="button"]){
+  pointer-events:auto!important;
+}
+html[data-fx-page-hero="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]{
+  text-shadow:0 2px 14px rgba(0,0,0,.78)!important;
+  background:rgba(12,13,16,.28)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  transition:background-color .16s ease!important;
+}
+html[data-fx-page-hero="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
+  background:rgba(20,21,26,.56)!important;
+}
+html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage){
+  padding-top:0!important;
+  margin-top:0!important;
+}
+html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) .fx-discovery{
+  padding-top:0!important;
+}
+.fx-page-hero{
+  position:relative;
+  width:calc(100% + 2 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)));
+  margin:0 calc(-1 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px))) 24px;
+  height:var(--sleekfin-hero-desktop-height,clamp(460px,76vh,760px));
+  min-height:440px;
+  overflow:hidden;
+  background:transparent;
+  color:#fff;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  box-sizing:border-box;
+  isolation:isolate;
+}
+.fx-page-hero[hidden]{
+  display:none!important;
+}
+.fx-page-hero-slides{
+  position:absolute;
+  inset:0;
+}
+.fx-page-hero-slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  transform:translate3d(2.5%,0,0);
+  transition:opacity 420ms cubic-bezier(.22,1,.36,1),transform 420ms cubic-bezier(.22,1,.36,1);
+}
+.fx-page-hero-slide[data-active="true"]{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate3d(0,0,0);
+  z-index:2;
+}
+.fx-page-hero-backdrop-wrap{
+  position:absolute;
+  inset:0;
+  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 68%,rgba(0,0,0,.62) 84%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0,#000 68%,rgba(0,0,0,.62) 84%,transparent 100%);
+}
+.fx-page-hero-backdrop{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+  display:block;
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.fx-page-hero-backdrop[data-loaded="true"]{
+  opacity:1;
+}
+.fx-page-hero-vignette{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(7,8,10,.62) 0%,rgba(7,8,10,.14) 24%,transparent 48%,rgba(7,8,10,.52) 78%,transparent 100%),
+    linear-gradient(90deg,rgba(7,8,10,.88) 0%,rgba(7,8,10,.64) 26%,rgba(7,8,10,.26) 50%,transparent 76%);
+}
+.fx-page-hero-content{
+  position:relative;
+  z-index:3;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  height:100%;
+  width:100%;
+  padding:calc(var(--sleekfin-header-height,80px) + 64px) var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 56px;
+  box-sizing:border-box;
+}
+.fx-page-hero-stack{
+  max-width:min(580px,62vw);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+.fx-page-hero-logo{
+  display:block;
+  max-width:min(420px,54vw);
+  max-height:112px;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  object-position:left bottom;
+  margin:0 0 14px;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.65));
+}
+.fx-page-hero-title{
+  margin:0 0 10px;
+  font-size:clamp(30px,4vw,52px);
+  line-height:1.06;
+  font-weight:800;
+  letter-spacing:-.025em;
+  color:#fff;
+  text-shadow:0 6px 26px rgba(0,0,0,.68);
+}
+.fx-page-hero-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:500;
+  color:rgba(255,255,255,.88);
+  text-shadow:0 2px 10px rgba(0,0,0,.55);
+}
+.fx-page-hero-sep{
+  color:rgba(255,255,255,.46);
+  user-select:none;
+}
+.fx-page-hero-cert{
+  display:inline-flex;
+  align-items:center;
+  padding:1px 6px;
+  border:1px solid rgba(255,255,255,.4);
+  border-radius:4px;
+  font-size:11.5px;
+  font-weight:600;
+  line-height:1.45;
+  color:rgba(255,255,255,.92);
+}
+.fx-page-hero-desc{
+  margin:12px 0 0;
+  color:rgba(255,255,255,.86);
+  font-size:15px;
+  line-height:1.48;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
+}
+.fx-page-hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-top:20px;
+}
+.fx-discovery .fx-page-hero-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0 22px!important;
+  border-radius:999px!important;
+  font-size:14.5px!important;
+  font-weight:600!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+  box-sizing:border-box!important;
+  transition:background-color .16s ease,border-color .16s ease,transform .16s ease,color .16s ease!important;
+}
+.fx-discovery .fx-page-hero-btn-primary{
+  background:var(--sleekfin-accent,#e50914)!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  color:#fff!important;
+  box-shadow:0 10px 26px -6px rgba(229,9,20,.55)!important;
+}
+.fx-discovery .fx-page-hero-btn-primary:hover{
+  background:#f6121d!important;
+  transform:translateY(-1px)!important;
+}
+.fx-discovery .fx-page-hero-btn-secondary{
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),rgba(20,21,25,.66)!important;
+  backdrop-filter:blur(16px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  color:#fff!important;
+}
+.fx-discovery .fx-page-hero-btn-secondary:hover{
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08)),rgba(30,32,38,.78)!important;
+  border-color:rgba(255,255,255,.3)!important;
+  transform:translateY(-1px)!important;
+}
+.fx-page-hero-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:4;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  border-radius:50%!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(16,17,22,.62)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  color:#fff!important;
+  opacity:0;
+  transition:opacity .18s ease,background-color .16s ease,transform .16s ease!important;
+}
+.fx-page-hero:hover .fx-page-hero-nav,
+.fx-page-hero:focus-within .fx-page-hero-nav{
+  opacity:1;
+}
+.fx-page-hero-nav:hover{
+  background:rgba(28,30,38,.88)!important;
+}
+.fx-page-hero-prev{left:16px}
+.fx-page-hero-next{right:16px}
+.fx-page-hero-dots{
+  position:absolute;
+  right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
+  bottom:22px;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.fx-discovery button.fx-page-hero-dot{
+  width:8px!important;
+  height:8px!important;
+  min-width:8px!important;
+  min-height:8px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.32)!important;
+  cursor:pointer!important;
+  transition:width .22s cubic-bezier(.22,1,.36,1),background-color .18s ease!important;
+}
+.fx-discovery button.fx-page-hero-dot[aria-current="true"]{
+  width:24px!important;
+  background:var(--sleekfin-accent,#e50914)!important;
+}
+@media(max-width:768px){
+  .fx-page-hero{
+    height:var(--sleekfin-hero-mobile-height,64vh);
+    min-height:380px;
+    width:calc(100% + 28px);
+    margin:0 -14px 18px;
+  }
+  .fx-page-hero-content{
+    padding:calc(74px + env(safe-area-inset-top,0px)) 14px 44px;
+  }
+  .fx-page-hero-stack{
+    max-width:100%;
+  }
+  .fx-page-hero-logo{
+    max-width:72vw;
+    max-height:74px;
+  }
+  .fx-page-hero-title{
+    font-size:26px;
+  }
+  .fx-page-hero-desc{
+    font-size:13.5px;
+    -webkit-line-clamp:2;
+  }
+  .fx-page-hero-nav{
+    display:none!important;
+  }
+  .fx-page-hero-dots{
+    right:14px;
+    bottom:14px;
+  }
+}
+
+/* 5. Subtle Noisy Textured Ambient Background (GPU-Composited) + Live Interactive Corner Tuner Widget */
+:root{
+  --fx-bg-base:#090a0d;
+  --fx-bg-glow1:#2a2e38;
+  --fx-bg-glow2:#1f2128;
+  --fx-bg-glow3:#272a32;
+  --fx-bg-glow-opacity:.52;
+  --fx-bg-spread:58%;
+  --fx-bg-noise-opacity:.055;
+  --fx-bg-noise-size:180px;
+  --fx-bg-anim-duration:28s;
+  --fx-bg-anim-amp:4%;
+}
+@keyframes fx-ambient-drift-a{
+  0%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.6 * var(--fx-bg-anim-amp,4%)),0) scale(1)}
+  50%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.8 * var(--fx-bg-anim-amp,4%)),0) scale(1.06)}
+  100%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.6 * var(--fx-bg-anim-amp,4%)),0) scale(1)}
+}
+@keyframes fx-ambient-drift-b{
+  0%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.5 * var(--fx-bg-anim-amp,4%)),0) scale(1.04)}
+  50%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.7 * var(--fx-bg-anim-amp,4%)),0) scale(.97)}
+  100%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.5 * var(--fx-bg-anim-amp,4%)),0) scale(1.04)}
+}
+.fx-ambient-bg{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  overflow:hidden;
+  background-color:var(--fx-bg-base,#090a0d);
+  contain:strict;
+}
+html[data-fx-video-osd="true"] .fx-ambient-bg{
+  display:none!important;
+}
+.fx-ambient-mesh{
+  position:absolute;
+  inset:-18%;
+  opacity:var(--fx-bg-glow-opacity,.52);
+  will-change:transform;
+  transform:translate3d(0,0,0);
+}
+.fx-ambient-mesh-a{
+  background:
+    radial-gradient(ellipse var(--fx-bg-spread,58%) calc(var(--fx-bg-spread,58%) * 0.85) at 18% 16%,var(--fx-bg-glow1,#2a2e38) 0%,transparent 72%),
+    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 0.92) var(--fx-bg-spread,58%) at 84% 34%,var(--fx-bg-glow2,#1f2128) 0%,transparent 74%);
+}
+.fx-ambient-mesh-b{
+  background:
+    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 1.08) calc(var(--fx-bg-spread,58%) * 0.8) at 46% 86%,var(--fx-bg-glow3,#272a32) 0%,transparent 72%),
+    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 0.72) calc(var(--fx-bg-spread,58%) * 0.72) at 72% 76%,var(--fx-bg-glow1,#2a2e38) 0%,transparent 70%);
+}
+.fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-a{
+  animation:fx-ambient-drift-a var(--fx-bg-anim-duration,28s) ease-in-out infinite;
+}
+.fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-b{
+  animation:fx-ambient-drift-b calc(var(--fx-bg-anim-duration,28s) * 1.24) ease-in-out infinite;
+}
+.fx-ambient-noise{
+  position:absolute;
+  inset:0;
+  opacity:var(--fx-bg-noise-opacity,.055);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  background-size:var(--fx-bg-noise-size,180px) var(--fx-bg-noise-size,180px);
+  mix-blend-mode:overlay;
+}
+html[data-fx-ambient-bg="true"],
+html[data-fx-ambient-bg="true"] body,
+html[data-fx-ambient-bg="true"] .backgroundContainer:not(.withBackdrop),
+html[data-fx-ambient-bg="true"] .mainAnimatedPages,
+html[data-fx-ambient-bg="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage,#liveTvSuggestedPage,#liveTvPage,#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage,.rh-root){
+  background:transparent!important;
+  background-color:transparent!important;
+}
+html[data-fx-ambient-bg="true"] .sleekfin-hero{
+  background:transparent!important;
+}
+html[data-fx-ambient-bg="true"] .sleekfin-hero-backdrop{
+  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 70%,rgba(0,0,0,.55) 86%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0,#000 70%,rgba(0,0,0,.55) 86%,transparent 100%);
+}
+/* Collapsible Temporary Bottom-Corner Background Tuner Widget */
+.fx-bg-tuner{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:99990;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+  color:#f1f2f4;
+  box-sizing:border-box;
+}
+html[data-fx-video-osd="true"] .fx-bg-tuner{
+  display:none!important;
+}
+.fx-bg-tuner-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  height:36px;
+  padding:0 13px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),rgba(18,19,24,.9);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 10px 28px -6px rgba(0,0,0,.68);
+  color:rgba(255,255,255,.88);
+  font:600 12px/1 inherit;
+  cursor:pointer;
+  transition:background-color .15s ease,border-color .15s ease,color .15s ease;
+}
+.fx-bg-tuner-toggle:hover{
+  background:rgba(32,34,42,.95);
+  border-color:rgba(255,255,255,.26);
+  color:#fff;
+}
+.fx-bg-tuner-panel{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 10px);
+  width:min(308px,calc(100vw - 28px));
+  max-height:min(76dvh,540px);
+  overflow-y:auto;
+  padding:14px 15px;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),rgba(16,17,21,.95);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 22px 48px -8px rgba(0,0,0,.78);
+  box-sizing:border-box;
+  transform-origin:bottom right;
+  animation:fx-dropdown-enter-up .18s cubic-bezier(.22,1,.36,1) both;
+}
+.fx-bg-tuner-panel[hidden]{
+  display:none!important;
+}
+.fx-bg-tuner-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:0 0 10px;
+}
+.fx-bg-tuner-head strong{
+  font-size:13px;
+  font-weight:700;
+  color:#fff;
+  border-left:2.5px solid var(--sleekfin-accent,#e50914);
+  padding-left:8px;
+}
+.fx-bg-tuner-close{
+  width:26px;
+  height:26px;
+  border-radius:7px;
+  border:0;
+  background:rgba(255,255,255,.07);
+  color:rgba(255,255,255,.78);
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+}
+.fx-bg-tuner-close:hover{
+  background:rgba(255,255,255,.16);
+  color:#fff;
+}
+.fx-bg-tuner-presets{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  margin-bottom:12px;
+}
+.fx-bg-tuner-presets button{
+  padding:6px 8px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);
+  color:rgba(255,255,255,.82);
+  font:600 11.5px/1.2 inherit;
+  cursor:pointer;
+  transition:background-color .14s ease,border-color .14s ease;
+}
+.fx-bg-tuner-presets button:hover,
+.fx-bg-tuner-presets button.is-active{
+  background:rgba(229,9,20,.22);
+  border-color:rgba(229,9,20,.65);
+  color:#fff;
+}
+.fx-bg-tuner-colors{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:12px;
+}
+.fx-bg-tuner-color{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-size:11px;
+  color:rgba(255,255,255,.7);
+}
+.fx-bg-tuner-color input[type="color"]{
+  width:100%;
+  height:28px;
+  padding:2px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#0d0e12;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+.fx-bg-tuner-row{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-bottom:9px;
+}
+.fx-bg-tuner-row-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:11.5px;
+  color:rgba(255,255,255,.78);
+}
+.fx-bg-tuner-row-top span:last-child{
+  font-variant-numeric:tabular-nums;
+  color:#fff;
+  font-weight:600;
+}
+.fx-bg-tuner-row input[type="range"]{
+  width:100%;
+  accent-color:var(--sleekfin-accent,#e50914);
+  margin:0;
+  cursor:pointer;
+}
+.fx-bg-tuner-check{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:7px 10px;
+  margin:6px 0 10px;
+  border-radius:9px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+  font-size:12px;
+  font-weight:600;
+  color:rgba(255,255,255,.88);
+  cursor:pointer;
+}
+.fx-bg-tuner-check input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:var(--sleekfin-accent,#e50914);
+}
+.fx-bg-tuner-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.fx-bg-tuner-actions button{
+  flex:1;
+  padding:7px 10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  font:600 12px/1.2 inherit;
+  cursor:pointer;
+}
+.fx-bg-tuner-actions button:hover{
+  background:rgba(255,255,255,.14);
+}
+.fx-bg-tuner-actions button.is-primary{
+  background:var(--sleekfin-accent,#e50914);
+  border-color:#ff2c37;
+}
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
+  .fx-bg-tuner{
+    right:12px;
+    bottom:calc(72px + env(safe-area-inset-bottom,0px));
+  }
+}
+
+/* 6. Subtle Luminous Diagonal Shimmer Animation on Unloaded UI Elements (GPU-Only transform) */
+@keyframes fx-shimmer-wave{
+  0%{transform:translate3d(-100%,0,0)}
+  100%{transform:translate3d(100%,0,0)}
+}
+.fx-card-visual.is-loading,
+.fx-skeleton-box,
+.fx-skeleton-title,
+.fx-skeleton-line,
+.fx-page-hero.is-loading,
+.cardScalable[data-fx-img-loading="true"],
+.cardImageContainer[data-fx-img-loading="true"]{
+  position:relative!important;
+  overflow:hidden!important;
+  background:#15171c!important;
+  background-image:none!important;
+  animation:none!important;
+}
+.fx-card-visual.is-loading::after,
+.fx-skeleton-box::after,
+.fx-skeleton-title::after,
+.fx-skeleton-line::after,
+.fx-page-hero.is-loading::after,
+.cardScalable[data-fx-img-loading="true"]::after,
+.cardImageContainer[data-fx-img-loading="true"]::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  z-index:1!important;
+  background:linear-gradient(108deg,transparent 18%,rgba(255,255,255,.04) 36%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.04) 64%,transparent 82%)!important;
+  transform:translate3d(-100%,0,0);
+  will-change:transform;
+  animation:fx-shimmer-wave 1.85s cubic-bezier(.4,0,.2,1) infinite!important;
+}
+
+/* 7. Origin-Morphing Modal Animation (Info Button, Detail Track Dialog, Discovery & Request Hub Modals) */
+@keyframes fx-modal-from-origin{
+  0%{
+    opacity:0;
+    transform:translate3d(var(--fx-origin-x,0px),var(--fx-origin-y,22px),0) scale(.24);
+  }
+  100%{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+  }
+}
+.fx-modal-origin-anim,
+.sleekfin-details-info-container .dialog.fx-modal-origin-anim,
+.dialog.sleekfin-details-track-dialog.fx-modal-origin-anim,
+.fx-dialog.fx-modal-origin-anim,
+.rh-dialog.fx-modal-origin-anim{
+  transform-origin:center center!important;
+  animation:fx-modal-from-origin 260ms cubic-bezier(.22,1,.36,1) both!important;
+}
+
+/* 8. Rotten Tomatoes (Tomatometer + Popcornmeter) & Star Ratings Display */
+.fx-ratings-group{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  vertical-align:middle;
+}
+.fx-rating-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-variant-numeric:tabular-nums;
+  font-weight:600;
+  color:#fff;
+  line-height:1.1;
+  white-space:nowrap;
+}
+.fx-rating-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+}
+.fx-rating-icon svg{
+  width:17px;
+  height:17px;
+  display:block;
+}
+.fx-rating-val{
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.01em;
+}
+[data-fx-rating-hidden="true"]{
+  display:none!important;
+}
+.sleekfin-hero-score[data-fx-ratings-mounted="true"] > :not(.fx-ratings-group),
+.sleekfin-details-score[data-fx-ratings-mounted="true"] > :not(.fx-ratings-group){
+  display:none!important;
+}
+#itemDetailPage[data-fx-ratings-active="true"] .starRatingContainer:not([data-fx-ratings-mounted="true"]),
+#itemDetailPage[data-fx-ratings-active="true"] .mediaInfoCriticRating:not([data-fx-ratings-mounted="true"]){
+  display:none!important;
+}
+
+/* 9. Detail Page Three-Dots (...) Menu Smart Placement & Origin-Morph Animation */
+@keyframes fx-more-from-bottom{
+  from{opacity:0;transform:translate3d(var(--fx-more-dx,0px),-12px,0) scale(.76)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes fx-more-from-top{
+  from{opacity:0;transform:translate3d(var(--fx-more-dx,0px),12px,0) scale(.76)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes fx-more-from-right{
+  from{opacity:0;transform:translate3d(-14px,var(--fx-more-dy,0px),0) scale(.76)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes fx-more-from-left{
+  from{opacity:0;transform:translate3d(14px,var(--fx-more-dy,0px),0) scale(.76)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+html:root [data-fx-detail-more="true"]{
+  position:fixed!important;
+  right:auto!important;
+  bottom:auto!important;
+  max-height:calc(100dvh - 24px)!important;
+  overflow-y:auto!important;
+}
+html:root [data-fx-detail-more="true"][data-fx-more-place="bottom"]{
+  animation:fx-more-from-bottom 190ms cubic-bezier(.22,1,.36,1) both!important;
+}
+html:root [data-fx-detail-more="true"][data-fx-more-place="top"]{
+  animation:fx-more-from-top 190ms cubic-bezier(.22,1,.36,1) both!important;
+}
+html:root [data-fx-detail-more="true"][data-fx-more-place="right"]{
+  animation:fx-more-from-right 190ms cubic-bezier(.22,1,.36,1) both!important;
+}
+html:root [data-fx-detail-more="true"][data-fx-more-place="left"]{
+  animation:fx-more-from-left 190ms cubic-bezier(.22,1,.36,1) both!important;
+}
+
+/* 11. Playback Page (#videoOsdPage) Visual Identity Overhaul */
+html[data-fx-video-osd="true"] .skinHeader{
+  background:linear-gradient(180deg,rgba(7,8,10,.82) 0%,rgba(7,8,10,.36) 62%,transparent 100%)!important;
+  box-shadow:none!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  margin-left:8px!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.075) 0%,rgba(255,255,255,.015) 100%),rgba(20,21,25,.78)!important;
+  backdrop-filter:blur(18px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.09),0 6px 16px -6px rgba(0,0,0,.6)!important;
+  color:rgba(255,255,255,.9)!important;
+  transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .14s ease!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton:hover{
+  background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 100%),rgba(34,36,42,.9)!important;
+  border-color:rgba(255,255,255,.24)!important;
+  color:#fff!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton:active{
+  transform:scale(.94)!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .pageTitle{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-weight:600!important;
+  letter-spacing:-.01em!important;
+  text-shadow:0 2px 12px rgba(0,0,0,.7)!important;
+}
+#videoOsdPage .videoOsdBottom{
+  background:linear-gradient(180deg,transparent 0%,rgba(7,8,10,.56) 36%,rgba(7,8,10,.92) 100%)!important;
+  padding-top:26px!important;
+}
+#videoOsdPage .paper-icon-button-light,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton){
+  border-radius:999px!important;
+  color:rgba(255,255,255,.84)!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transition:background-color .15s cubic-bezier(.22,1,.36,1),color .15s ease,transform .14s ease,box-shadow .15s ease!important;
+}
+#videoOsdPage .paper-icon-button-light::before,
+#videoOsdPage .paper-icon-button-light::after,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light::before,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light::after{
+  display:none!important;
+  content:none!important;
+}
+#videoOsdPage .paper-icon-button-light:hover,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover{
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.14)!important;
+}
+#videoOsdPage .paper-icon-button-light:active,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active{
+  transform:scale(.92)!important;
+  background:rgba(255,255,255,.2)!important;
+}
+#videoOsdPage .paper-icon-button-light:focus:not(:hover):not(:focus-visible),
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus:not(:hover):not(:focus-visible){
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+#videoOsdPage .paper-icon-button-light:focus-visible,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visible{
+  outline:2px solid rgba(255,255,255,.85)!important;
+  outline-offset:2px!important;
+}
+#videoOsdPage .btnPause{
+  background:rgba(255,255,255,.08)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+}
+#videoOsdPage .btnPause:hover{
+  background:rgba(255,255,255,.18)!important;
+  border-color:rgba(255,255,255,.22)!important;
+}
+#videoOsdPage .osdTimeText{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-variant-numeric:tabular-nums!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  color:rgba(255,255,255,.86)!important;
+}
+/* Scrub Bar & Volume Bar Modern Hover/Expand Styling */
+#videoOsdPage .osdPositionSliderContainer .mdl-slider-background-flex,
+#videoOsdPage .osdVolumeSliderContainer .mdl-slider-background-flex{
+  height:4px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.22)!important;
+  overflow:hidden!important;
+  transition:height .15s cubic-bezier(.22,1,.36,1),background-color .15s ease!important;
+}
+#videoOsdPage .osdPositionSliderContainer:hover .mdl-slider-background-flex,
+#videoOsdPage .osdPositionSliderContainer:focus-within .mdl-slider-background-flex{
+  height:6px!important;
+  background:rgba(255,255,255,.28)!important;
+}
+#videoOsdPage .osdVolumeSliderContainer:hover .mdl-slider-background-flex,
+#videoOsdPage .osdVolumeSliderContainer:focus-within .mdl-slider-background-flex{
+  height:5px!important;
+}
+#videoOsdPage .mdl-slider-background-upper{
+  background:rgba(255,255,255,.36)!important;
+  border-radius:999px!important;
+}
+#videoOsdPage .osdPositionSliderContainer .mdl-slider-background-lower{
+  background:var(--sleekfin-accent,#e50914)!important;
+  border-radius:999px!important;
+}
+#videoOsdPage .osdVolumeSliderContainer .mdl-slider-background-lower{
+  background:#fff!important;
+  border-radius:999px!important;
+}
+#videoOsdPage input.mdl-slider::-webkit-slider-thumb{
+  width:13px!important;
+  height:13px!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  border:2px solid var(--sleekfin-accent,#e50914)!important;
+  box-shadow:0 0 0 0 rgba(229,9,20,0),0 2px 6px rgba(0,0,0,.55)!important;
+  transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s ease!important;
+}
+#videoOsdPage .osdPositionSliderContainer:hover input.mdl-slider::-webkit-slider-thumb,
+#videoOsdPage input.osdPositionSlider:active::-webkit-slider-thumb{
+  transform:scale(1.22)!important;
+  box-shadow:0 0 0 5px rgba(229,9,20,.28),0 2px 10px rgba(0,0,0,.65)!important;
+}
+#videoOsdPage input.osdVolumeSlider::-webkit-slider-thumb{
+  width:12px!important;
+  height:12px!important;
+  background:#fff!important;
+  border:0!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
+}
+#videoOsdPage .osdVolumeSliderContainer:hover input.osdVolumeSlider::-webkit-slider-thumb{
+  transform:scale(1.18)!important;
+  box-shadow:0 0 0 4px rgba(255,255,255,.22),0 2px 8px rgba(0,0,0,.6)!important;
+}
+#videoOsdPage input.mdl-slider::-moz-range-thumb{
+  width:13px!important;
+  height:13px!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  border:2px solid var(--sleekfin-accent,#e50914)!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
+  transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s ease!important;
+}
+#videoOsdPage .sliderBubble{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015)),rgba(16,17,22,.94)!important;
+  backdrop-filter:blur(18px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:10px!important;
+  box-shadow:0 12px 30px -6px rgba(0,0,0,.75)!important;
+  color:#fff!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-variant-numeric:tabular-nums!important;
+  font-weight:600!important;
+}
+.playerStats .playerStats-stats{
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-variant-numeric:tabular-nums!important;
+  font-size:13px!important;
+  line-height:1.5!important;
+}
+.playerStats .playerStats-stat-label{
+  color:rgba(255,255,255,.6)!important;
+}
+.playerStats .playerStats-stat-value{
+  color:#fff!important;
+  font-weight:500!important;
+}
+
+/* 13. Hide Top-of-Screen Volume Bar Popup (.volumeOsd) During Playback */
+.volumeOsd,
+.iconOsd.volumeOsd,
+.iconOsd:has(.volume_up,.volume_down,.volume_off,.volume_mute){
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-a,
+  .fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-b,
+  .fx-card-visual.is-loading::after,
+  .fx-skeleton-box::after,
+  .fx-skeleton-title::after,
+  .fx-skeleton-line::after,
+  .fx-page-hero.is-loading::after,
+  .cardScalable[data-fx-img-loading="true"]::after,
+  .cardImageContainer[data-fx-img-loading="true"]::after,
+  .fx-modal-origin-anim,
+  [data-fx-detail-more="true"]{
+    animation:none!important;
+  }
+}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLowerCase();
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
@@ -5168,14 +6167,14 @@ button.fx-livetv-tab.is-active{
       return map;
     }
     function badgeFor(item, seasons, now, tracking = null) {
-      var _a;
       if (item.Type === "Series") {
         if (tracking) {
           const record = tracking.get(item.Id);
-          const newEpDate = (_a = record == null ? void 0 : record.NewEpisodesAt) != null ? _a : null;
-          return recent(newEpDate, now, 30) ? "New Episodes" : "";
+          if (recent(record == null ? void 0 : record.NewEpisodesAt, now, 30)) return "New Episodes";
+          return recent(record == null ? void 0 : record.AddedAt, now, 7) ? "Recently Added" : "";
         }
-        return seasons.has(item.Id) ? "New Episodes" : "";
+        if (seasons.has(item.Id)) return "New Episodes";
+        return recent(item.DateCreated, now, 7) ? "Recently Added" : "";
       }
       if (item.Type !== "Movie") return "";
       if (tracking) {
@@ -5183,6 +6182,16 @@ button.fx-livetv-tab.is-active{
         return recent(record == null ? void 0 : record.AddedAt, now, 7) ? "Recently Added" : "";
       }
       return recent(item.DateCreated, now, 7) ? "Recently Added" : "";
+    }
+    const DEFAULT_RATINGS = { tomatometer: true, popcornmeter: true, stars: false };
+    function resolveRatingsConfig(config) {
+      const r = config == null ? void 0 : config.ratings;
+      if (!r || typeof r !== "object") return { ...DEFAULT_RATINGS };
+      return {
+        tomatometer: typeof r.tomatometer === "boolean" ? r.tomatometer : DEFAULT_RATINGS.tomatometer,
+        popcornmeter: typeof r.popcornmeter === "boolean" ? r.popcornmeter : DEFAULT_RATINGS.popcornmeter,
+        stars: typeof r.stars === "boolean" ? r.stars : DEFAULT_RATINGS.stars
+      };
     }
     const DEFAULT_FILTERS = { query: "", genre: "", tag: "", watched: "all", maxMinutes: "", minRating: "", decade: "", type: "", sort: "recommended" };
     function filtersActive(filters) {
@@ -5242,6 +6251,13 @@ button.fx-livetv-tab.is-active{
       }
       if (config.minimumItems > config.cardsPerShelf) throw Error("minimumItems cannot exceed cardsPerShelf.");
       if (typeof config.endless !== "boolean" || typeof config.hideWatched !== "boolean") throw Error("endless and hideWatched must be true or false.");
+      if (config.ratings != null) {
+        if (typeof config.ratings !== "object" || Array.isArray(config.ratings)) throw Error("ratings must be an object.");
+        const allowedRatings = /* @__PURE__ */ new Set(["tomatometer", "popcornmeter", "stars"]);
+        for (const [k, v] of Object.entries(config.ratings)) {
+          if (!allowedRatings.has(k) || typeof v !== "boolean") throw Error(`ratings.${k} must be true or false.`);
+        }
+      }
       for (const page of ["home", "movies", "shows"]) {
         const profile = (_a = config.pages) == null ? void 0 : _a[page];
         if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);
@@ -5583,6 +6599,34 @@ button.fx-livetv-tab.is-active{
         this.assertCurrent();
         return this.request(this.api.ajax({ url: this.api.getUrl("FazFortDiscovery/Preferences"), type: "POST", contentType: "application/json", dataType: "json", data: JSON.stringify({ ExpectedVersion: version, Config: config }) }));
       }
+      async ratings(ids, sync = false) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
+        const clean = [...new Set((ids || []).filter((id) => /^[a-f0-9-]{32,36}$/i.test(String(id || ""))))];
+        const map = /* @__PURE__ */ new Map();
+        if (!clean.length) return map;
+        for (let offset = 0; offset < clean.length; offset += 80) {
+          const batch = clean.slice(offset, offset + 80);
+          const result = await this.json("FazFortDiscovery/Ratings", { Ids: batch.join(","), ...sync ? { sync: "true" } : {} });
+          const raw = (_b = (_a = result == null ? void 0 : result.Ratings) != null ? _a : result == null ? void 0 : result.ratings) != null ? _b : {};
+          for (const id of batch) {
+            const norm = normalizeGuid(id);
+            const r = raw[id] || raw[norm];
+            if (r && typeof r === "object") {
+              const entry = {
+                criticScore: (_d = (_c = r.criticScore) != null ? _c : r.CriticScore) != null ? _d : null,
+                criticState: (_f = (_e = r.criticState) != null ? _e : r.CriticState) != null ? _f : null,
+                audienceScore: (_h = (_g = r.audienceScore) != null ? _g : r.AudienceScore) != null ? _h : null,
+                audienceState: (_j = (_i = r.audienceState) != null ? _i : r.AudienceState) != null ? _j : null,
+                source: (_l = (_k = r.source) != null ? _k : r.Source) != null ? _l : "none",
+                pending: Boolean((_m = r.pending) != null ? _m : r.Pending)
+              };
+              map.set(id, entry);
+              if (norm && norm !== id) map.set(norm, entry);
+            }
+          }
+        }
+        return map;
+      }
       async tracking(items) {
         var _a, _b, _c, _d, _e, _f;
         const records = /* @__PURE__ */ new Map();
@@ -5637,11 +6681,11 @@ button.fx-livetv-tab.is-active{
                   ParentId: folder.Id,
                   Recursive: true,
                   IncludeItemTypes: types,
-                  Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds",
+                  Fields: "Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds,Overview,OfficialRating,RunTimeTicks,CommunityRating,CriticRating",
                   EnableUserData: true,
                   EnableImages: true,
                   ImageTypeLimit: 1,
-                  EnableImageTypes: "Primary,Backdrop,Thumb",
+                  EnableImageTypes: "Primary,Backdrop,Thumb,Logo",
                   SortBy: "SortName",
                   SortOrder: "Ascending",
                   StartIndex: offset,
@@ -5667,7 +6711,7 @@ button.fx-livetv-tab.is-active{
       async hydrate(items) {
         const ids = items.filter((i) => /^[a-f0-9-]{32,36}$/i.test(i.Id || "")).map((i) => i.Id);
         if (!ids.length) return items;
-        const response = await this.items({ Ids: ids.join(","), Fields: "DateCreated,PrimaryImageAspectRatio", EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" });
+        const response = await this.items({ Ids: ids.join(","), Fields: "DateCreated,PrimaryImageAspectRatio,CriticRating,CommunityRating", EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: "Primary,Backdrop,Thumb" });
         const byId = new Map((response.Items || []).map((i) => [i.Id, i]));
         return items.filter((i) => !ids.includes(i.Id) || byId.has(i.Id)).map((i) => byId.has(i.Id) ? { ...i, ...byId.get(i.Id) } : i);
       }
@@ -6169,6 +7213,40 @@ button.fx-livetv-tab.is-active{
         field(general, "Hide watched titles", draft.hideWatched, (v) => draft.hideWatched = v, null, "checkbox");
         sharedSec.append(general);
         host.append(sharedSec);
+        const ratingsSec = element("section", "fx-editor-section");
+        ratingsSec.append(
+          element("h3", "", "Ratings display"),
+          element("p", "fx-editor-help", "Choose which rating badges appear across Jellyfin. Tomatometer & Star Rating appear everywhere ratings show (hero banners and title pages); Popcornmeter appears only on individual movie and show pages.")
+        );
+        const getRatings = () => resolveRatingsConfig(draft);
+        const setRatings = (next2) => {
+          draft.ratings = { tomatometer: !!next2.tomatometer, popcornmeter: !!next2.popcornmeter, stars: !!next2.stars };
+          emit();
+          draw();
+        };
+        const curRatings = getRatings();
+        const ratingPresets = [
+          ["Rotten Tomatoes", { tomatometer: true, popcornmeter: true, stars: false }],
+          ["Tomatometer Only", { tomatometer: true, popcornmeter: false, stars: false }],
+          ["Popcornmeter Only", { tomatometer: false, popcornmeter: true, stars: false }],
+          ["Star Rating", { tomatometer: false, popcornmeter: false, stars: true }],
+          ["RT + Stars", { tomatometer: true, popcornmeter: true, stars: true }],
+          ["None", { tomatometer: false, popcornmeter: false, stars: false }]
+        ];
+        const rPresetRow = element("div", "fx-editor-presets");
+        for (const [lbl, val] of ratingPresets) {
+          const match = curRatings.tomatometer === val.tomatometer && curRatings.popcornmeter === val.popcornmeter && curRatings.stars === val.stars;
+          const b = button(lbl, () => setRatings(val));
+          if (match) b.className = "fx-subtab-btn is-active";
+          b.setAttribute("aria-pressed", String(match));
+          rPresetRow.append(b);
+        }
+        const rToggles = element("div", "fx-editor-fields fx-chip-toggles");
+        field(rToggles, "Tomatometer (Critics)", curRatings.tomatometer, (v) => setRatings({ ...getRatings(), tomatometer: v }), null, "checkbox");
+        field(rToggles, "Popcornmeter (Audience \u2014 detail pages)", curRatings.popcornmeter, (v) => setRatings({ ...getRatings(), popcornmeter: v }), null, "checkbox");
+        field(rToggles, "Star Rating (Community)", curRatings.stars, (v) => setRatings({ ...getRatings(), stars: v }), null, "checkbox");
+        ratingsSec.append(rPresetRow, rToggles);
+        host.append(ratingsSec);
         const openingSec = element("section", "fx-editor-section");
         openingSec.append(
           element("h3", "", "Opening rows & shelf order"),
@@ -6584,7 +7662,7 @@ button.fx-livetv-tab.is-active{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.5.12";
+      const VERSION = "0.6.0";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -6593,6 +7671,10 @@ button.fx-livetv-tab.is-active{
       const savedFeeds = /* @__PURE__ */ new Map();
       const loadedImages = /* @__PURE__ */ new Set();
       const sessionShuffles = /* @__PURE__ */ new Map();
+      const ratingsCache = /* @__PURE__ */ new Map();
+      const ratingsInflight = /* @__PURE__ */ new Map();
+      let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, ratingsSyncTimer = 0;
+      const osdMuteState = { muted: false, savedVolume: 100 };
       let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
       const searchInvListeners = /* @__PURE__ */ new Set();
       const searchUiState = { query: "", remoteQuery: "", remoteItems: [], remoteTimer: 0, inputTimer: 0, token: 0, lastSignature: "", tracking: null, trackingScope: "", ranked: [], renderedCount: 0, batchIo: null };
@@ -6617,6 +7699,507 @@ button.fx-livetv-tab.is-active{
       const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
       const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ""}:${route.view || "home"}`;
       const trackingCacheKey = (scope) => `fazfort-discovery:tracking:v2:${scope}`;
+      const ratingsSessionKey = "fazfort-discovery:ratings:v1";
+      const bgTunerStorageKey = "fazfort-discovery:bg-tuner:v1";
+      const DEFAULT_BG_TUNER = {
+        base: "#090a0d",
+        glow1: "#2a2e38",
+        glow2: "#1f2128",
+        glowOpacity: 52,
+        spread: 58,
+        noiseOpacity: 5.5,
+        noiseSize: 180,
+        animated: false,
+        animSpeed: 28,
+        animIntensity: 4
+      };
+      const BG_TUNER_PRESETS = [
+        { name: "Subtle Mist", cfg: { ...DEFAULT_BG_TUNER } },
+        { name: "Charcoal Slate", cfg: { base: "#0a0b0f", glow1: "#323846", glow2: "#222630", glowOpacity: 62, spread: 66, noiseOpacity: 6.5, noiseSize: 165, animated: false, animSpeed: 30, animIntensity: 4 } },
+        { name: "Cinema Warm", cfg: { base: "#0a0909", glow1: "#30292b", glow2: "#211d20", glowOpacity: 54, spread: 60, noiseOpacity: 6, noiseSize: 190, animated: false, animSpeed: 32, animIntensity: 3.5 } },
+        { name: "Deep Obsidian", cfg: { base: "#060709", glow1: "#1d2028", glow2: "#15171d", glowOpacity: 44, spread: 50, noiseOpacity: 4.5, noiseSize: 170, animated: false, animSpeed: 34, animIntensity: 3 } }
+      ];
+      function readBgTunerConfig() {
+        try {
+          const raw = localStorage.getItem(bgTunerStorageKey);
+          if (!raw) return { ...DEFAULT_BG_TUNER };
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return { ...DEFAULT_BG_TUNER };
+          return { ...DEFAULT_BG_TUNER, ...parsed };
+        } catch {
+          return { ...DEFAULT_BG_TUNER };
+        }
+      }
+      function applyBgTunerConfig(cfg, save = true) {
+        var _a2;
+        const c = { ...DEFAULT_BG_TUNER, ...cfg || {} };
+        const rootEl = document.documentElement;
+        if ((_a2 = rootEl == null ? void 0 : rootEl.style) == null ? void 0 : _a2.setProperty) {
+          rootEl.style.setProperty("--fx-bg-base", String(c.base || DEFAULT_BG_TUNER.base));
+          rootEl.style.setProperty("--fx-bg-glow1", String(c.glow1 || DEFAULT_BG_TUNER.glow1));
+          rootEl.style.setProperty("--fx-bg-glow2", String(c.glow2 || DEFAULT_BG_TUNER.glow2));
+          rootEl.style.setProperty("--fx-bg-glow3", String(c.glow2 || DEFAULT_BG_TUNER.glow2));
+          rootEl.style.setProperty("--fx-bg-glow-opacity", String(Math.max(0, Math.min(1, Number(c.glowOpacity) / 100))));
+          rootEl.style.setProperty("--fx-bg-spread", `${Math.max(20, Math.min(120, Number(c.spread) || 58))}%`);
+          rootEl.style.setProperty("--fx-bg-noise-opacity", String(Math.max(0, Math.min(0.25, Number(c.noiseOpacity) / 100))));
+          rootEl.style.setProperty("--fx-bg-noise-size", `${Math.max(80, Math.min(360, Number(c.noiseSize) || 180))}px`);
+          rootEl.style.setProperty("--fx-bg-anim-duration", `${Math.max(6, Math.min(90, Number(c.animSpeed) || 28))}s`);
+          rootEl.style.setProperty("--fx-bg-anim-amp", `${Math.max(1, Math.min(16, Number(c.animIntensity) || 4))}%`);
+        }
+        const bg = document.querySelector(".fx-ambient-bg");
+        if (bg) bg.dataset.animated = c.animated ? "true" : "false";
+        if (save) {
+          try {
+            localStorage.setItem(bgTunerStorageKey, JSON.stringify(c));
+          } catch {
+          }
+        }
+        return c;
+      }
+      function ensureAmbientBackground() {
+        if (stopped || !document.body) return;
+        let bg = document.querySelector(".fx-ambient-bg");
+        if (!bg) {
+          bg = element("div", "fx-ambient-bg");
+          bg.setAttribute("aria-hidden", "true");
+          bg.append(
+            element("div", "fx-ambient-mesh fx-ambient-mesh-a"),
+            element("div", "fx-ambient-mesh fx-ambient-mesh-b"),
+            element("div", "fx-ambient-noise")
+          );
+          document.body.prepend(bg);
+        }
+        setRootAttr("data-fx-ambient-bg", true);
+        const cfg = applyBgTunerConfig(readBgTunerConfig(), false);
+        ensureBgTuner(cfg);
+      }
+      function ensureBgTuner(initialCfg) {
+        if (stopped || !document.body || document.querySelector(".fx-bg-tuner")) return;
+        let cfg = { ...DEFAULT_BG_TUNER, ...initialCfg || readBgTunerConfig() };
+        const wrap = element("div", "fx-bg-tuner");
+        const toggleBtn = element("button", "fx-bg-tuner-toggle");
+        toggleBtn.type = "button";
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg><span>BG Tuner</span>';
+        const panel = element("div", "fx-bg-tuner-panel");
+        panel.hidden = true;
+        const setOpen = (open) => {
+          panel.hidden = !open;
+          toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        };
+        toggleBtn.addEventListener("click", () => setOpen(panel.hidden));
+        function drawPanel() {
+          panel.replaceChildren();
+          const head = element("div", "fx-bg-tuner-head");
+          head.append(element("strong", "", "Background Tuner"));
+          const closeBtn = element("button", "fx-bg-tuner-close", "\xD7");
+          closeBtn.type = "button";
+          closeBtn.setAttribute("aria-label", "Close background tuner");
+          closeBtn.addEventListener("click", () => setOpen(false));
+          head.append(closeBtn);
+          panel.append(head);
+          const presets = element("div", "fx-bg-tuner-presets");
+          for (const preset of BG_TUNER_PRESETS) {
+            const b = button(preset.name, () => {
+              cfg = applyBgTunerConfig({ ...preset.cfg, animated: cfg.animated, animSpeed: cfg.animSpeed, animIntensity: cfg.animIntensity }, true);
+              drawPanel();
+            });
+            presets.append(b);
+          }
+          panel.append(presets);
+          const colors = element("div", "fx-bg-tuner-colors");
+          for (const [key, label] of [["base", "Base"], ["glow1", "Glow A"], ["glow2", "Glow B"]]) {
+            const lbl = element("label", "fx-bg-tuner-color", label);
+            const inp = element("input");
+            inp.type = "color";
+            inp.value = cfg[key];
+            inp.setAttribute("aria-label", `${label} color`);
+            inp.addEventListener("input", () => {
+              cfg[key] = inp.value;
+              applyBgTunerConfig(cfg, true);
+            });
+            lbl.append(inp);
+            colors.append(lbl);
+          }
+          panel.append(colors);
+          const addSlider = (key, label, min, max, step, fmt) => {
+            const row = element("label", "fx-bg-tuner-row");
+            const top = element("div", "fx-bg-tuner-row-top");
+            const valSpan = element("span", "", fmt(cfg[key]));
+            top.append(element("span", "", label), valSpan);
+            const rng = element("input");
+            rng.type = "range";
+            rng.min = String(min);
+            rng.max = String(max);
+            rng.step = String(step);
+            rng.value = String(cfg[key]);
+            rng.setAttribute("aria-label", label);
+            rng.addEventListener("input", () => {
+              cfg[key] = Number(rng.value);
+              valSpan.textContent = fmt(cfg[key]);
+              applyBgTunerConfig(cfg, true);
+            });
+            row.append(top, rng);
+            panel.append(row);
+          };
+          addSlider("glowOpacity", "Glow Concentration", 0, 100, 1, (v) => `${Math.round(v)}%`);
+          addSlider("spread", "Gradient Distribution", 25, 110, 1, (v) => `${Math.round(v)}%`);
+          addSlider("noiseOpacity", "Noise / Grain", 0, 18, 0.5, (v) => `${Number(v).toFixed(1)}%`);
+          addSlider("noiseSize", "Grain Fineness", 90, 320, 5, (v) => `${Math.round(v)}px`);
+          const animWrap = element("label", "fx-bg-tuner-check");
+          animWrap.append(element("span", "", "Subtle Drift Motion (GPU)"));
+          const animBox = element("input");
+          animBox.type = "checkbox";
+          animBox.checked = Boolean(cfg.animated);
+          animBox.addEventListener("change", () => {
+            cfg.animated = animBox.checked;
+            applyBgTunerConfig(cfg, true);
+            drawPanel();
+          });
+          animWrap.append(animBox);
+          panel.append(animWrap);
+          if (cfg.animated) {
+            addSlider("animSpeed", "Motion Cycle Speed", 8, 60, 1, (v) => `${Math.round(v)}s`);
+            addSlider("animIntensity", "Motion Intensity", 1, 14, 0.5, (v) => `${Number(v).toFixed(1)}%`);
+          }
+          const actions = element("div", "fx-bg-tuner-actions");
+          const resetBtn = button("Reset", () => {
+            cfg = applyBgTunerConfig({ ...DEFAULT_BG_TUNER }, true);
+            drawPanel();
+            showToast("Background reset to defaults");
+          });
+          const copyBtn = button("Copy Config", () => {
+            var _a2, _b2;
+            const txt = JSON.stringify(cfg, null, 2);
+            try {
+              (_b2 = (_a2 = navigator.clipboard) == null ? void 0 : _a2.writeText) == null ? void 0 : _b2.call(_a2, txt);
+            } catch {
+            }
+            showToast("Background config copied!");
+          });
+          copyBtn.className = "is-primary";
+          actions.append(resetBtn, copyBtn);
+          panel.append(actions);
+        }
+        drawPanel();
+        wrap.append(panel, toggleBtn);
+        document.body.append(wrap);
+      }
+      const RT_CERTIFIED_FRESH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12,1 14.8,3.6 18.5,3.2 19.6,6.8 22.8,8.8 21.7,12.4 22.8,16 19.6,18 18.5,21.6 14.8,21.2 12,23.5 9.2,21.2 5.5,21.6 4.4,18 1.2,16 2.3,12.4 1.2,8.8 4.4,6.8 5.5,3.2 9.2,3.6" fill="#F5B82E"/><circle cx="12" cy="13" r="6.4" fill="#FA320A"/><path d="M9.6 8.3c1-.8 2.4-.9 2.4-.9s1.4.1 2.4.9c-.8.4-1.5.5-2.4.2-.9.3-1.6.2-2.4-.2z" fill="#1F9D45"/><path d="M12 5.5c.3 1 .6 1.7 1.6 2.1-1 .2-1.6.1-1.6.1s-.6.1-1.6-.1c1-.4 1.3-1.1 1.6-2.1z" fill="#27B854"/><ellipse cx="9.8" cy="11.2" rx="1.6" ry="1" transform="rotate(-24 9.8 11.2)" fill="#FF8C73" opacity=".7"/></svg>';
+      const RT_FRESH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.6c4.8 0 8.6 3.1 8.6 7.4 0 4.5-3.7 8-8.6 8s-8.6-3.5-8.6-8c0-4.3 3.8-7.4 8.6-7.4z" fill="#FA320A"/><path d="M12 2.4c.5 1.8 1.4 3 3.6 3.4-1.4.8-2.4 1-3.6.5-1.2.5-2.2.3-3.6-.5 2.2-.4 3.1-1.6 3.6-3.4z" fill="#22B14C"/><path d="M7.6 7.4c1.3-.9 2.9-1.1 4.4-.5 1.5-.6 3.1-.4 4.4.5-1.2.8-2.7 1.1-4.4.6-1.7.5-3.2.2-4.4-.6z" fill="#198F3C"/><ellipse cx="8.8" cy="12" rx="2.1" ry="1.2" transform="rotate(-25 8.8 12)" fill="#FF927A" opacity=".62"/></svg>';
+      const RT_ROTTEN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.3 3.2c1.2-.2 2 1.3 2.8 2.1.9.8 2.8-.5 3.6.5.8 1-.3 2.6.2 3.8.5 1.2 2.4 1.6 2.3 3-.1 1.4-2.1 1.6-2.7 2.8-.6 1.2.5 3-.6 3.9-1.1.9-2.5-.5-3.8-.3-1.3.2-2.1 2-3.4 1.8-1.3-.2-1.5-2.2-2.7-2.7-1.2-.5-2.9.6-3.8-.5-.9-1 .4-2.6 0-3.8-.4-1.2-2.3-1.8-2.1-3.1.2-1.3 2.1-1.4 2.8-2.5.7-1.1-.4-2.9.7-3.8 1.1-.9 2.5.5 3.8.2 1.3-.3 1.8-1.3 2.9-1.4z" fill="#1FA847"/><circle cx="9.6" cy="10.8" r="1.4" fill="#6EE787" opacity=".5"/><circle cx="15.2" cy="14.2" r="1.1" fill="#11692B" opacity=".45"/></svg>';
+      const RT_POPCORN_HOT_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="11" fill="none" stroke="#F5B82E" stroke-width="1.6" opacity=".92"/><path d="M7.2 10.6h9.6l-1.1 9.2H8.3z" fill="#E51C23"/><path d="M9.7 10.6h1.6l-.3 9.2H9.9zM12.8 10.6h1.6l-.4 9.2h-1.3z" fill="#FFF"/><circle cx="8.5" cy="9.2" r="2.2" fill="#FFE066"/><circle cx="12" cy="7.6" r="2.5" fill="#FFF0A8"/><circle cx="15.5" cy="9.2" r="2.2" fill="#FFD43B"/><circle cx="10.4" cy="9.7" r="1.9" fill="#FFF5C4"/><circle cx="13.8" cy="9.8" r="1.9" fill="#FFE066"/></svg>';
+      const RT_POPCORN_FRESH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.4 10.2h11.2l-1.4 10.8H7.8z" fill="#E51C23"/><path d="M9.1 10.2h1.8l-.4 10.8H9.4zM13.1 10.2h1.8l-.5 10.8h-1.5z" fill="#FFF"/><circle cx="8" cy="8.7" r="2.4" fill="#FFE066"/><circle cx="12" cy="6.8" r="2.8" fill="#FFF1AD"/><circle cx="16" cy="8.7" r="2.4" fill="#FFD43B"/><circle cx="10.2" cy="9.3" r="2.1" fill="#FFF6C9"/><circle cx="14" cy="9.4" r="2.1" fill="#FFE066"/></svg>';
+      const RT_POPCORN_SPILLED_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g transform="rotate(62 12 12)"><path d="M7.2 8.4h9.6l-1.2 9.8H8.4z" fill="#46A856"/><path d="M9.7 8.4h1.6l-.3 9.8H9.9zM12.9 8.4h1.5l-.4 9.8h-1.2z" fill="#DCE5DF"/></g><circle cx="18.2" cy="15.8" r="1.8" fill="#D8CF90"/><circle cx="20.2" cy="18.4" r="1.5" fill="#C4B974"/><circle cx="15.6" cy="18.6" r="1.6" fill="#E2D99D"/></svg>';
+      const STAR_RATING_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.2l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.1l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95z" fill="#F5C518"/></svg>';
+      function readSessionRatings() {
+        var _a2, _b2;
+        try {
+          const raw = (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.getItem) == null ? void 0 : _b2.call(_a2, ratingsSessionKey);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            for (const [k, v] of Object.entries(parsed)) {
+              if (v && typeof v === "object") ratingsCache.set(k, v);
+            }
+          }
+        } catch {
+        }
+      }
+      function writeSessionRatings() {
+        var _a2, _b2;
+        try {
+          const obj = {};
+          let count = 0;
+          for (const [k, v] of ratingsCache.entries()) {
+            if (k.length === 32 && v && !v.pending) {
+              obj[k] = v;
+              if (++count >= 400) break;
+            }
+          }
+          (_b2 = (_a2 = window.sessionStorage) == null ? void 0 : _a2.setItem) == null ? void 0 : _b2.call(_a2, ratingsSessionKey, JSON.stringify(obj));
+        } catch {
+        }
+      }
+      function getActiveRatingsConfig(api = window.ApiClient) {
+        var _a2;
+        if (state == null ? void 0 : state.config) return resolveRatingsConfig(state.config);
+        if ((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) {
+          try {
+            return resolveRatingsConfig(readConfig(api));
+          } catch {
+          }
+        }
+        return resolveRatingsConfig(DEFAULT_CONFIG2);
+      }
+      function lookupCachedRating(itemId, item = null) {
+        const norm = normalizeGuid(itemId || (item == null ? void 0 : item.Id));
+        const hit = norm && ratingsCache.get(norm) || itemId && ratingsCache.get(itemId) || null;
+        if (hit && (hit.criticScore != null || hit.audienceScore != null)) return hit;
+        if (item && Number.isFinite(Number(item.CriticRating)) && Number(item.CriticRating) > 0) {
+          const score = Math.max(0, Math.min(100, Math.round(Number(item.CriticRating))));
+          return { criticScore: score, criticState: score >= 60 ? "fresh" : "rotten", audienceScore: null, audienceState: null, source: "jellyfin", pending: true };
+        }
+        return hit;
+      }
+      function fetchRatingsBatch(api, ids, sync = false) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) || !Array.isArray(ids) || !ids.length) return Promise.resolve(/* @__PURE__ */ new Map());
+        const needed = [];
+        for (const id of ids) {
+          const norm = normalizeGuid(id);
+          if (!norm || norm.length !== 32) continue;
+          const cached = ratingsCache.get(norm);
+          if (cached && (!cached.pending || !sync && cached.source === "rt")) continue;
+          if (!ratingsInflight.has(norm)) needed.push(id);
+        }
+        if (!needed.length) return Promise.resolve(/* @__PURE__ */ new Map());
+        const client = new JellyfinClient(api, () => !stopped);
+        const promise = client.ratings(needed, sync).then((map) => {
+          let anyPending = false;
+          for (const id of needed) {
+            const norm = normalizeGuid(id);
+            ratingsInflight.delete(norm);
+            const entry = map.get(id) || map.get(norm);
+            if (entry) {
+              ratingsCache.set(norm, entry);
+              if (entry.pending) anyPending = true;
+            }
+          }
+          writeSessionRatings();
+          if (anyPending && !stopped) {
+            clearTimeout(ratingsSyncTimer);
+            ratingsSyncTimer = setTimeout(() => {
+              if (!stopped) syncHeroAndDetailRatings(window.ApiClient || api);
+            }, 1800);
+          }
+          return map;
+        }).catch(() => {
+          for (const id of needed) ratingsInflight.delete(normalizeGuid(id));
+          return /* @__PURE__ */ new Map();
+        });
+        for (const id of needed) ratingsInflight.set(normalizeGuid(id), promise);
+        return promise;
+      }
+      function buildRatingsGroup(item, rtEntry, ratingsCfg, includePopcorn = false) {
+        var _a2, _b2;
+        const cfg = ratingsCfg || DEFAULT_RATINGS;
+        const chips = [];
+        if (cfg.tomatometer) {
+          const cScore = (_a2 = rtEntry == null ? void 0 : rtEntry.criticScore) != null ? _a2 : Number.isFinite(Number(item == null ? void 0 : item.CriticRating)) && Number(item == null ? void 0 : item.CriticRating) > 0 ? Math.round(Number(item.CriticRating)) : null;
+          if (cScore != null && Number.isFinite(cScore)) {
+            const cState = (rtEntry == null ? void 0 : rtEntry.criticState) || (cScore >= 60 ? "fresh" : "rotten");
+            const svg = cState === "certified" ? RT_CERTIFIED_FRESH_SVG : cState === "rotten" ? RT_ROTTEN_SVG : RT_FRESH_SVG;
+            const label = cState === "certified" ? "Certified Fresh" : cState === "rotten" ? "Rotten" : "Fresh";
+            const chip = element("span", `fx-rating-chip fx-rating-tomatometer is-${cState}`);
+            chip.title = `Tomatometer (${label}): ${cScore}%`;
+            chip.setAttribute("aria-label", `Tomatometer ${cScore}% ${label}`);
+            const icon = element("span", "fx-rating-icon");
+            icon.innerHTML = svg;
+            chip.append(icon, element("span", "fx-rating-val", `${cScore}%`));
+            chips.push(chip);
+          }
+        }
+        if (includePopcorn && cfg.popcornmeter) {
+          const aScore = (_b2 = rtEntry == null ? void 0 : rtEntry.audienceScore) != null ? _b2 : null;
+          if (aScore != null && Number.isFinite(aScore)) {
+            const aState = (rtEntry == null ? void 0 : rtEntry.audienceState) || (aScore >= 60 ? "fresh" : "spilled");
+            const svg = aState === "hot" ? RT_POPCORN_HOT_SVG : aState === "spilled" ? RT_POPCORN_SPILLED_SVG : RT_POPCORN_FRESH_SVG;
+            const label = aState === "hot" ? "Verified Hot" : aState === "spilled" ? "Spilled" : "Fresh";
+            const chip = element("span", `fx-rating-chip fx-rating-popcornmeter is-${aState}`);
+            chip.title = `Popcornmeter (${label}): ${aScore}%`;
+            chip.setAttribute("aria-label", `Popcornmeter ${aScore}% ${label}`);
+            const icon = element("span", "fx-rating-icon");
+            icon.innerHTML = svg;
+            chip.append(icon, element("span", "fx-rating-val", `${aScore}%`));
+            chips.push(chip);
+          }
+        }
+        if (cfg.stars) {
+          const starVal = Number((item == null ? void 0 : item.CommunityRating) || 0);
+          if (starVal > 0) {
+            const formatted = starVal.toFixed(1);
+            const chip = element("span", "fx-rating-chip fx-rating-star");
+            chip.title = `Community Rating: ${formatted}`;
+            chip.setAttribute("aria-label", `Star rating ${formatted}`);
+            const icon = element("span", "fx-rating-icon");
+            icon.innerHTML = STAR_RATING_SVG;
+            chip.append(icon, element("span", "fx-rating-val", formatted));
+            chips.push(chip);
+          }
+        }
+        if (!chips.length) return null;
+        const group = element("span", "fx-ratings-group");
+        group.append(...chips);
+        return group;
+      }
+      function extractItemIdFromNode(node) {
+        var _a2, _b2, _c2, _d2;
+        if (!node) return "";
+        const direct = ((_a2 = node.getAttribute) == null ? void 0 : _a2.call(node, "data-item-id")) || ((_b2 = node.getAttribute) == null ? void 0 : _b2.call(node, "data-id"));
+        if (direct && /^[a-f0-9-]{32,36}$/i.test(direct)) return direct;
+        const link = (_c2 = node.querySelector) == null ? void 0 : _c2.call(node, 'a[href*="id="]');
+        if (link) {
+          const m = String(link.getAttribute("href") || "").match(/[?&]id=([a-f0-9-]{32,36})/i);
+          if (m) return m[1];
+        }
+        const img = (_d2 = node.querySelector) == null ? void 0 : _d2.call(node, 'img[src*="/Items/"]');
+        if (img) {
+          const m = String(img.getAttribute("src") || "").match(/\/Items\/([a-f0-9-]{32,36})\//i);
+          if (m) return m[1];
+        }
+        return "";
+      }
+      function findInventoryItemById(itemId) {
+        var _a2, _b2, _c2;
+        const norm = normalizeGuid(itemId);
+        if (!norm) return null;
+        if (state == null ? void 0 : state.byId) {
+          const exact = state.byId.get(itemId);
+          if (exact) return exact;
+          for (const it of state.byId.values()) {
+            if (normalizeGuid(it.Id) === norm) return it;
+          }
+        }
+        for (const snap of snapshots.values()) {
+          const hit = (_c2 = (_b2 = (_a2 = snap == null ? void 0 : snap.value) == null ? void 0 : _a2.items) == null ? void 0 : _b2.find) == null ? void 0 : _c2.call(_b2, (i) => normalizeGuid(i.Id) === norm);
+          if (hit) return hit;
+        }
+        return null;
+      }
+      let detailItemCache = { id: "", item: null, pending: false };
+      function syncHeroAndDetailRatings(api = window.ApiClient) {
+        var _a2, _b2, _c2, _d2, _e2, _f;
+        if (stopped || !((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) return;
+        const cfg = getActiveRatingsConfig(api);
+        const wantHero = cfg.tomatometer || cfg.stars;
+        const wantDetail = cfg.tomatometer || cfg.popcornmeter || cfg.stars;
+        const batchIds = [];
+        document.querySelectorAll(".fx-page-hero-ratings[data-item-id]").forEach((slot) => {
+          var _a3;
+          const itemId = slot.dataset.itemId;
+          if (!itemId) return;
+          const item = findInventoryItemById(itemId) || { Id: itemId, CommunityRating: Number(slot.dataset.star || 0), CriticRating: Number(slot.dataset.critic || 0) || null };
+          const rt = lookupCachedRating(itemId, item);
+          if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(itemId);
+          const group = wantHero ? buildRatingsGroup(item, rt, cfg, false) : null;
+          const sig = group ? group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars : "none";
+          if (slot.dataset.fxSig !== sig) {
+            slot.dataset.fxSig = sig;
+            slot.replaceChildren();
+            if (group) slot.append(group);
+            slot.hidden = !group;
+            const sep = slot.nextElementSibling;
+            if ((_a3 = sep == null ? void 0 : sep.classList) == null ? void 0 : _a3.contains("fx-page-hero-sep")) sep.hidden = !group;
+          }
+        });
+        document.querySelectorAll(".sleekfin-hero .sleekfin-hero-slide").forEach((slide) => {
+          var _a3, _b3, _c3, _d3, _e3;
+          const itemId = extractItemIdFromNode(slide);
+          if (!itemId) return;
+          const item = findInventoryItemById(itemId) || {};
+          const scoreEl = slide.querySelector(".sleekfin-hero-score");
+          if (scoreEl && !scoreEl.dataset.fxOrigStar) {
+            const m = (scoreEl.textContent || "").match(/\d+(?:\.\d+)?/);
+            if (m) scoreEl.dataset.fxOrigStar = m[0];
+          }
+          const mergedItem = { ...item, Id: itemId, CommunityRating: (_b3 = item.CommunityRating) != null ? _b3 : Number(((_a3 = scoreEl == null ? void 0 : scoreEl.dataset) == null ? void 0 : _a3.fxOrigStar) || 0) || null };
+          const rt = lookupCachedRating(itemId, mergedItem);
+          if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(itemId);
+          const group = wantHero ? buildRatingsGroup(mergedItem, rt, cfg, false) : null;
+          if (scoreEl) {
+            if (!wantHero || !group) {
+              scoreEl.setAttribute("data-fx-rating-hidden", "true");
+              const nextSep = scoreEl.nextElementSibling;
+              if ((_c3 = nextSep == null ? void 0 : nextSep.classList) == null ? void 0 : _c3.contains("sleekfin-meta-separator")) nextSep.setAttribute("data-fx-rating-hidden", "true");
+            } else {
+              scoreEl.removeAttribute("data-fx-rating-hidden");
+              const nextSep = scoreEl.nextElementSibling;
+              if ((_d3 = nextSep == null ? void 0 : nextSep.classList) == null ? void 0 : _d3.contains("sleekfin-meta-separator")) nextSep.removeAttribute("data-fx-rating-hidden");
+              const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
+              if (scoreEl.dataset.fxSig !== sig) {
+                scoreEl.dataset.fxSig = sig;
+                scoreEl.dataset.fxRatingsMounted = "true";
+                (_e3 = scoreEl.querySelector(".fx-ratings-group")) == null ? void 0 : _e3.remove();
+                scoreEl.append(group);
+              }
+            }
+          }
+        });
+        if (batchIds.length) {
+          fetchRatingsBatch(api, batchIds, false).then(() => {
+            if (!stopped) syncHeroAndDetailRatings(api);
+          });
+        }
+        const detailPage = document.getElementById("itemDetailPage");
+        if (detailPage && visible(detailPage)) {
+          const hashId = new URLSearchParams(String(location.hash || "").split("?")[1] || "").get("id") || "";
+          if (hashId && /^[a-f0-9-]{32,36}$/i.test(hashId)) {
+            const scoreHost = detailPage.querySelector(".sleekfin-details-score") || detailPage.querySelector(".starRatingContainer");
+            if (scoreHost && !scoreHost.dataset.fxOrigStar) {
+              const m = (scoreHost.textContent || "").match(/\d+(?:\.\d+)?/);
+              if (m) scoreHost.dataset.fxOrigStar = m[0];
+            }
+            let item = findInventoryItemById(hashId) || (detailItemCache.id === hashId ? detailItemCache.item : null);
+            if (!item && !detailItemCache.pending && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
+              detailItemCache = { id: hashId, item: null, pending: true };
+              api.getJSON(api.getUrl(`Users/${encodeURIComponent(api.getCurrentUserId())}/Items/${encodeURIComponent(hashId)}`)).then((fetched) => {
+                detailItemCache = { id: hashId, item: fetched || null, pending: false };
+                if (!stopped) syncHeroAndDetailRatings(api);
+              }).catch(() => {
+                detailItemCache = { id: hashId, item: null, pending: false };
+              });
+            }
+            if (!item || item.Type === "Movie" || item.Type === "Series") {
+              const mergedItem = {
+                ...item || {},
+                Id: hashId,
+                CommunityRating: (_c2 = item == null ? void 0 : item.CommunityRating) != null ? _c2 : Number(((_b2 = scoreHost == null ? void 0 : scoreHost.dataset) == null ? void 0 : _b2.fxOrigStar) || 0) || null
+              };
+              const rt = lookupCachedRating(hashId, mergedItem);
+              if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.source !== "rt" && rt.pending !== false)) {
+                fetchRatingsBatch(api, [hashId], true).then(() => {
+                  if (!stopped) syncHeroAndDetailRatings(api);
+                });
+              }
+              const group = wantDetail ? buildRatingsGroup(mergedItem, rt, cfg, true) : null;
+              detailPage.dataset.fxRatingsActive = "true";
+              if (scoreHost) {
+                if (!wantDetail || !group) {
+                  scoreHost.setAttribute("data-fx-rating-hidden", "true");
+                  const sep = scoreHost.nextElementSibling;
+                  if ((_d2 = sep == null ? void 0 : sep.classList) == null ? void 0 : _d2.contains("sleekfin-meta-separator")) sep.setAttribute("data-fx-rating-hidden", "true");
+                } else {
+                  scoreHost.removeAttribute("data-fx-rating-hidden");
+                  const sep = scoreHost.nextElementSibling;
+                  if ((_e2 = sep == null ? void 0 : sep.classList) == null ? void 0 : _e2.contains("sleekfin-meta-separator")) sep.removeAttribute("data-fx-rating-hidden");
+                  const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.popcornmeter + "|" + cfg.stars;
+                  if (scoreHost.dataset.fxSig !== sig) {
+                    scoreHost.dataset.fxSig = sig;
+                    scoreHost.dataset.fxRatingsMounted = "true";
+                    (_f = scoreHost.querySelector(".fx-ratings-group")) == null ? void 0 : _f.remove();
+                    scoreHost.append(group);
+                  }
+                }
+              } else if (group) {
+                const facts = detailPage.querySelector(".sleekfin-details-facts, .itemMiscInfo-primary");
+                if (facts) {
+                  let wrap = facts.querySelector(".fx-detail-injected-ratings");
+                  const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.popcornmeter + "|" + cfg.stars;
+                  if (!wrap) {
+                    wrap = element("span", "fx-detail-injected-ratings");
+                    facts.prepend(wrap);
+                  }
+                  if (wrap.dataset.fxSig !== sig) {
+                    wrap.dataset.fxSig = sig;
+                    wrap.replaceChildren(group);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       function getSessionShuffle(scope, page, day, forceNew = false) {
         var _a2, _b2, _c2, _d2;
         const k = `${scope}:${day}:${page}`;
@@ -7164,7 +8747,7 @@ button.fx-livetv-tab.is-active{
         return Boolean(osd && !osd.classList.contains("hide") && !osd.classList.contains("hidePage") && !osd.hidden);
       }
       function syncDocumentStateAttrs() {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f;
         const osdOpen = isVideoOsdOpen();
         setRootAttr("data-fx-video-osd", osdOpen);
         if (osdOpen) {
@@ -7173,6 +8756,9 @@ button.fx-livetv-tab.is-active{
           if (gearBtn && !((_d2 = (_c2 = (_b2 = document.documentElement) == null ? void 0 : _b2.style) == null ? void 0 : _c2.getPropertyValue) == null ? void 0 : _d2.call(_c2, "--fx-osd-popup-bottom"))) {
             updateOsdPopupAnchor(gearBtn);
           }
+        } else {
+          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-osd-anchor");
+          osdMuteState.muted = false;
         }
         const liveTvPage = document.getElementById("liveTvSuggestedPage");
         const liveTvOpen = Boolean(liveTvPage && !liveTvPage.classList.contains("hide") && !liveTvPage.classList.contains("hidePage") && !liveTvPage.hidden);
@@ -7223,47 +8809,267 @@ button.fx-livetv-tab.is-active{
         (_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.setProperty) == null ? void 0 : _e2.call(_d2, "--fx-osd-popup-bottom", `${bottomPx}px`);
         (_g = (_f = document.documentElement.style) == null ? void 0 : _f.setProperty) == null ? void 0 : _g.call(_f, "--fx-osd-popup-right", `${rightPx}px`);
       }
-      function onOsdAnchorPointer(event) {
+      function updateHeaderPopupAnchor(anchorEl) {
+        var _a2, _b2, _c2, _d2, _e2;
+        if (!anchorEl || !document.documentElement) return false;
+        const r = (_a2 = anchorEl.getBoundingClientRect) == null ? void 0 : _a2.call(anchorEl);
+        if (!r || r.width <= 0 && r.height <= 0) return false;
+        const vw = window.innerWidth || document.documentElement.clientWidth || 1280;
+        const vh = window.innerHeight || document.documentElement.clientHeight || 720;
+        const topPx = Math.max(40, Math.min(vh - 140, Math.round(r.bottom + 8)));
+        const rightPx = Math.max(12, Math.min(vw - 200, Math.round(vw - r.right)));
+        (_c2 = (_b2 = document.documentElement.style) == null ? void 0 : _b2.setProperty) == null ? void 0 : _c2.call(_b2, "--fx-header-popup-top", `${topPx}px`);
+        (_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.setProperty) == null ? void 0 : _e2.call(_d2, "--fx-header-popup-right", `${rightPx}px`);
+        return true;
+      }
+      function isSyncPlayOrCastTrigger(el) {
         var _a2, _b2, _c2;
-        if (stopped || !isVideoOsdOpen()) return;
-        const trigger = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio");
+        if (!el) return false;
+        if ((_a2 = el.matches) == null ? void 0 : _a2.call(el, ".headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast")) return true;
+        const label = `${((_b2 = el.getAttribute) == null ? void 0 : _b2.call(el, "title")) || ""} ${((_c2 = el.getAttribute) == null ? void 0 : _c2.call(el, "aria-label")) || ""} ${el.className || ""}`.toLowerCase();
+        return /syncplay|sync\s*play|cast|play\s*on/.test(label);
+      }
+      function onOsdAnchorPointer(event) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+        if (stopped) return;
+        const clicked = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, 'button, a, [role="button"], .fx-card, .card');
+        if (clicked && typeof clicked.getBoundingClientRect === "function") {
+          const cr = clicked.getBoundingClientRect();
+          if (cr && (cr.width > 0 || cr.height > 0)) {
+            lastTriggerRect = {
+              left: cr.left,
+              top: cr.top,
+              right: cr.right,
+              bottom: cr.bottom,
+              width: cr.width,
+              height: cr.height,
+              cx: cr.left + cr.width / 2,
+              cy: cr.top + cr.height / 2,
+              at: Date.now()
+            };
+          }
+        }
+        const detailMoreBtn = (_d2 = (_c2 = event.target) == null ? void 0 : _c2.closest) == null ? void 0 : _d2.call(_c2, '#itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i]');
+        if (detailMoreBtn && typeof detailMoreBtn.getBoundingClientRect === "function") {
+          const r = detailMoreBtn.getBoundingClientRect();
+          if (r && (r.width > 0 || r.height > 0)) {
+            detailMoreAnchor = {
+              left: r.left,
+              top: r.top,
+              right: r.right,
+              bottom: r.bottom,
+              width: r.width,
+              height: r.height,
+              cx: r.left + r.width / 2,
+              cy: r.top + r.height / 2,
+              at: Date.now()
+            };
+          }
+        }
+        const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, ".headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button");
+        if (headerBtn && (isSyncPlayOrCastTrigger(headerBtn) || isVideoOsdOpen() && headerBtn.closest(".skinHeader"))) {
+          updateHeaderPopupAnchor(headerBtn);
+          headerMenuAnchor = { el: headerBtn, at: Date.now() };
+          if (isVideoOsdOpen()) (_h = (_g = document.documentElement) == null ? void 0 : _g.setAttribute) == null ? void 0 : _h.call(_g, "data-fx-osd-anchor", "top");
+          return;
+        }
+        if (!isVideoOsdOpen()) return;
+        const statsTrigger = (_j = (_i = event.target) == null ? void 0 : _i.closest) == null ? void 0 : _j.call(_i, '[data-id="stats"], .sleekfin-menu-item, .actionSheetMenuItem');
+        if (statsTrigger) {
+          const txt = (statsTrigger.textContent || "").trim().toLowerCase();
+          if (statsTrigger.getAttribute("data-id") === "stats" || /playback\s*(data|info)|stats\s*for\s*nerds/.test(txt)) {
+            setTimeout(() => syncPlaybackStats(), 60);
+            setTimeout(() => syncPlaybackStats(), 220);
+          }
+        }
+        const trigger = (_l = (_k = event.target) == null ? void 0 : _k.closest) == null ? void 0 : _l.call(_k, "#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio");
         if (trigger) {
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.setAttribute) == null ? void 0 : _n.call(_m, "data-fx-osd-anchor", "bottom");
+          headerMenuAnchor = null;
           const osd = document.getElementById("videoOsdPage");
-          const gearBtn = (_c2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _c2.call(osd, ".btnVideoOsdSettings");
+          const gearBtn = (_o = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _o.call(osd, ".btnVideoOsdSettings");
           const anchor = trigger.classList.contains("btnAudio") && gearBtn ? gearBtn : trigger;
           updateOsdPopupAnchor(anchor);
         }
       }
-      function enhanceOsdSettingsMenu() {
-        var _a2, _b2, _c2;
-        const osd = document.getElementById("videoOsdPage");
-        if (!isVideoOsdOpen() || !osd) return;
-        const gearBtn = osd.querySelector(".btnVideoOsdSettings");
-        if (gearBtn && !((_c2 = (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.style) == null ? void 0 : _b2.getPropertyValue) == null ? void 0 : _c2.call(_b2, "--fx-osd-popup-bottom"))) {
-          updateOsdPopupAnchor(gearBtn);
+      function animateModalFromOrigin(dialog, rectOverride = null) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
+        if (!dialog || dialog.dataset.fxOriginAnimated === "true") return;
+        const r = rectOverride || (lastTriggerRect && Date.now() - lastTriggerRect.at < 1e3 ? lastTriggerRect : null);
+        dialog.dataset.fxOriginAnimated = "true";
+        if (!r) return;
+        const vw = window.innerWidth || ((_a2 = document.documentElement) == null ? void 0 : _a2.clientWidth) || 1280;
+        const vh = window.innerHeight || ((_b2 = document.documentElement) == null ? void 0 : _b2.clientHeight) || 720;
+        const targetRect = typeof dialog.getBoundingClientRect === "function" ? dialog.getBoundingClientRect() : null;
+        const targetCx = targetRect && targetRect.width > 0 ? targetRect.left + targetRect.width / 2 : vw / 2;
+        const targetCy = targetRect && targetRect.height > 0 ? targetRect.top + targetRect.height / 2 : vh / 2;
+        const dx = Math.round(r.cx - targetCx);
+        const dy = Math.round(r.cy - targetCy);
+        (_d2 = (_c2 = dialog.style) == null ? void 0 : _c2.setProperty) == null ? void 0 : _d2.call(_c2, "--fx-origin-x", `${dx}px`);
+        (_f = (_e2 = dialog.style) == null ? void 0 : _e2.setProperty) == null ? void 0 : _f.call(_e2, "--fx-origin-y", `${dy}px`);
+        dialog.classList.add("fx-modal-origin-anim");
+        const clear = () => dialog.classList.remove("fx-modal-origin-anim");
+        (_g = dialog.addEventListener) == null ? void 0 : _g.call(dialog, "animationend", clear, { once: true });
+        setTimeout(clear, 360);
+      }
+      function syncOriginModals() {
+        document.querySelectorAll(".sleekfin-details-info-container .dialog, .dialog.sleekfin-details-track-dialog, .dialogContainer > .dialog:not(.actionSheet):not(.sleekfin-menu-host):not(.filterDialog):not(.hide)").forEach((dlg) => {
+          if (dlg.classList.contains("sleekfin-menu-closing") || dlg.classList.contains("hide")) return;
+          animateModalFromOrigin(dlg);
+        });
+      }
+      function positionDetailMoreMenu(popup, anchor) {
+        var _a2, _b2;
+        if (!popup || !anchor) return;
+        const vw = window.innerWidth || ((_a2 = document.documentElement) == null ? void 0 : _a2.clientWidth) || 1280;
+        const vh = window.innerHeight || ((_b2 = document.documentElement) == null ? void 0 : _b2.clientHeight) || 720;
+        const margin = 12;
+        const gap = 10;
+        const measured = typeof popup.getBoundingClientRect === "function" ? popup.getBoundingClientRect() : null;
+        const pw = Math.max(180, Math.min(vw - margin * 2, Math.round(popup.offsetWidth || (measured == null ? void 0 : measured.width) || 228)));
+        const rawPh = Math.round(popup.scrollHeight || popup.offsetHeight || (measured == null ? void 0 : measured.height) || 260);
+        const ph = Math.max(80, Math.min(vh - margin * 2, rawPh));
+        const spaceBelow = vh - anchor.bottom - gap - margin;
+        const spaceAbove = anchor.top - gap - margin;
+        const spaceRight = vw - anchor.right - gap - margin;
+        const spaceLeft = anchor.left - gap - margin;
+        let place = "bottom";
+        let left = Math.round(anchor.cx - pw / 2);
+        let top = Math.round(anchor.bottom + gap);
+        if (spaceBelow >= ph) {
+          place = "bottom";
+          top = Math.round(anchor.bottom + gap);
+          left = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+        } else if (spaceAbove >= ph) {
+          place = "top";
+          top = Math.round(anchor.top - gap - ph);
+          left = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+        } else {
+          place = spaceRight >= spaceLeft ? "right" : "left";
+          top = Math.max(margin, Math.min(vh - ph - margin, Math.round(anchor.cy - ph / 2)));
+          left = place === "right" ? Math.min(vw - pw - margin, Math.round(anchor.right + gap)) : Math.max(margin, Math.round(anchor.left - gap - pw));
         }
-        const audioBtn = osd.querySelector(".btnAudio");
-        const favBtn = osd.querySelector(".btnUserRating");
-        const canAudio = Boolean(audioBtn && !audioBtn.classList.contains("hide") && !audioBtn.hidden && !audioBtn.disabled);
-        const canFav = Boolean(favBtn && !favBtn.classList.contains("hide") && !favBtn.hidden && !favBtn.disabled);
+        const originX = Math.max(0, Math.min(pw, Math.round(anchor.cx - left)));
+        const originY = Math.max(0, Math.min(ph, Math.round(anchor.cy - top)));
+        const dx = Math.max(-44, Math.min(44, Math.round(anchor.cx - (left + pw / 2))));
+        const dy = Math.max(-44, Math.min(44, Math.round(anchor.cy - (top + ph / 2))));
+        popup.dataset.fxDetailMore = "true";
+        popup.dataset.fxMorePlace = place;
+        popup.style.setProperty("position", "fixed", "important");
+        popup.style.setProperty("left", `${left}px`, "important");
+        popup.style.setProperty("top", `${top}px`, "important");
+        popup.style.setProperty("right", "auto", "important");
+        popup.style.setProperty("bottom", "auto", "important");
+        popup.style.setProperty("transform-origin", `${originX}px ${originY}px`, "important");
+        popup.style.setProperty("--fx-more-dx", `${dx}px`);
+        popup.style.setProperty("--fx-more-dy", `${dy}px`);
+      }
+      function syncPlaybackStats() {
+        if (stopped) return;
+        document.querySelectorAll(".playerStats:not(.hide)").forEach((statsEl) => {
+          const body = statsEl.querySelector(".playerStats-stats");
+          if (body && body.children.length > 0 && (body.textContent || "").trim().length > 0) return;
+          const video = findActiveOsdVideo();
+          if (!video) return;
+          const poke = () => {
+            var _a2;
+            if (stopped || !statsEl.isConnected || statsEl.classList.contains("hide")) return;
+            const b = statsEl.querySelector(".playerStats-stats");
+            if (b && b.children.length > 0 && (b.textContent || "").trim().length > 0) return;
+            try {
+              const Ev = typeof Event === "function" ? Event : (_a2 = document.defaultView) == null ? void 0 : _a2.Event;
+              if (Ev) video.dispatchEvent(new Ev("timeupdate", { bubbles: false }));
+            } catch {
+            }
+          };
+          poke();
+          if (statsEl.dataset.fxStatsPoked !== "true") {
+            statsEl.dataset.fxStatsPoked = "true";
+            setTimeout(poke, 80);
+            setTimeout(poke, 240);
+            setTimeout(() => {
+              delete statsEl.dataset.fxStatsPoked;
+            }, 600);
+          }
+        });
+      }
+      function syncLoadingShimmers() {
+        if (stopped) return;
+        document.querySelectorAll(".cardScalable img, .cardImageContainer img").forEach((img) => {
+          if (img._fxShimmerBound) return;
+          img._fxShimmerBound = true;
+          const host = img.closest(".cardScalable") || img.parentElement;
+          if (!host) return;
+          if (img.complete && img.naturalWidth > 0) {
+            host.removeAttribute("data-fx-img-loading");
+            return;
+          }
+          host.setAttribute("data-fx-img-loading", "true");
+          const done = () => host.removeAttribute("data-fx-img-loading");
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+        });
+      }
+      function enhanceOsdSettingsMenu() {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k;
+        const osdOpen = isVideoOsdOpen();
+        const osd = document.getElementById("videoOsdPage");
+        if (osdOpen && osd) {
+          const gearBtn = osd.querySelector(".btnVideoOsdSettings");
+          if (gearBtn && !((_c2 = (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.style) == null ? void 0 : _b2.getPropertyValue) == null ? void 0 : _c2.call(_b2, "--fx-osd-popup-bottom"))) {
+            updateOsdPopupAnchor(gearBtn);
+          }
+        }
+        const audioBtn = (_d2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _d2.call(osd, ".btnAudio");
+        const favBtn = (_e2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _e2.call(osd, ".btnUserRating");
+        const canAudio = Boolean(osdOpen && audioBtn && !audioBtn.classList.contains("hide") && !audioBtn.hidden && !audioBtn.disabled);
+        const canFav = Boolean(osdOpen && favBtn && !favBtn.classList.contains("hide") && !favBtn.hidden && !favBtn.disabled);
         const portalPopups = [...document.querySelectorAll(".sleekfin-popup-layer .sleekfin-menu-popup")];
-        document.querySelectorAll(".dialog.actionSheet").forEach((sheet) => {
-          if (sheet.classList.contains("sleekfin-menu-closing")) return;
+        const sheets = [...document.querySelectorAll(".dialog.actionSheet")];
+        const freshHeaderAnchor = headerMenuAnchor && Date.now() - headerMenuAnchor.at < 1500 ? headerMenuAnchor : null;
+        const freshDetailMore = detailMoreAnchor && Date.now() - detailMoreAnchor.at < 1500 ? detailMoreAnchor : null;
+        const isHeaderMenuText = (txt) => /create\s+a\s+new\s+group|join\s+group|syncplay|play\s+on|my\s+device|cast\s+to/.test(txt);
+        for (const sheet of sheets) {
+          if (sheet.classList.contains("sleekfin-menu-closing")) continue;
           const scroller = sheet.querySelector(".actionSheetScroller");
           const sleekPopup = sheet.querySelector(".sleekfin-menu-popup") || portalPopups.find((p) => {
             const txt = (p.textContent || "").toLowerCase();
-            return /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/.test(txt);
+            return /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset|create\s+a\s+new\s+group|play\s+on|add\s+to\s+collection/.test(txt);
           }) || null;
           const rawItems = scroller ? [...scroller.querySelectorAll(".actionSheetMenuItem, button[data-id]")] : [];
           const popupItems = sleekPopup ? [...sleekPopup.querySelectorAll(".sleekfin-menu-item")] : [];
           const inspectItems = rawItems.length ? rawItems : popupItems;
-          if (!inspectItems.length) return;
+          const fullText = ((sleekPopup == null ? void 0 : sleekPopup.textContent) || sheet.textContent || "").toLowerCase();
+          if (freshHeaderAnchor || isHeaderMenuText(fullText)) {
+            if ((_f = freshHeaderAnchor == null ? void 0 : freshHeaderAnchor.el) == null ? void 0 : _f.isConnected) {
+              updateHeaderPopupAnchor(freshHeaderAnchor.el);
+            } else if (/create\s+a\s+new\s+group|syncplay/.test(fullText)) {
+              const spBtn = document.querySelector('.headerSyncPlayButton:not(.hide), .btnSyncPlay:not(.hide), button[title*="SyncPlay" i]');
+              if (spBtn) updateHeaderPopupAnchor(spBtn);
+            } else if (/play\s+on|my\s+device|cast/.test(fullText)) {
+              const castBtn = document.querySelector('.headerCastButton:not(.hide), .castButton:not(.hide), button[title*="Cast" i], button[aria-label*="Cast" i]');
+              if (castBtn) updateHeaderPopupAnchor(castBtn);
+            }
+            if (osdOpen) (_h = (_g = document.documentElement) == null ? void 0 : _g.setAttribute) == null ? void 0 : _h.call(_g, "data-fx-osd-anchor", "top");
+            sheet.dataset.fxHeaderAnchored = "true";
+            if (sleekPopup) sleekPopup.dataset.fxHeaderAnchored = "true";
+            continue;
+          }
+          if (!osdOpen && freshDetailMore && document.getElementById("itemDetailPage") && visible(document.getElementById("itemDetailPage"))) {
+            const targetPopup = sleekPopup || (!sheet.classList.contains("sleekfin-menu-host") ? sheet : null);
+            if (targetPopup && targetPopup.dataset.fxDetailMore !== "true") {
+              positionDetailMoreMenu(targetPopup, freshDetailMore);
+            }
+            continue;
+          }
+          if (!osdOpen || !inspectItems.length) continue;
           const labels = inspectItems.map((i) => (i.textContent || "").trim().toLowerCase());
           const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
           const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
+          (_j = (_i = document.documentElement) == null ? void 0 : _i.setAttribute) == null ? void 0 : _j.call(_i, "data-fx-osd-anchor", "bottom");
           sheet.dataset.fxOsdPopup = "true";
           if (sleekPopup) sleekPopup.dataset.fxOsdPopup = "true";
-          if (!looksLikeSettings) return;
+          if (!looksLikeSettings) continue;
           sheet.dataset.fxOsdSettings = "true";
           if (sleekPopup) sleekPopup.dataset.fxOsdSettings = "true";
           const isFav = Boolean(favBtn && (favBtn.getAttribute("data-isfavorite") === "true" || favBtn.classList.contains("ratingbutton-withrating")));
@@ -7361,13 +9167,26 @@ button.fx-livetv-tab.is-active{
               sleekPopup.append(makeSleekItem("fx-osd-favorite", isFav ? "favorite" : "favorite_border", favLabel, triggerFav));
             }
           }
-        });
+        }
+        for (const popup of portalPopups) {
+          if (popup.closest(".sleekfin-menu-closing")) continue;
+          const txt = (popup.textContent || "").toLowerCase();
+          if (freshHeaderAnchor || isHeaderMenuText(txt)) {
+            if ((_k = freshHeaderAnchor == null ? void 0 : freshHeaderAnchor.el) == null ? void 0 : _k.isConnected) updateHeaderPopupAnchor(freshHeaderAnchor.el);
+            popup.dataset.fxHeaderAnchored = "true";
+          } else if (!osdOpen && freshDetailMore && popup.dataset.fxDetailMore !== "true" && document.getElementById("itemDetailPage") && visible(document.getElementById("itemDetailPage"))) {
+            positionDetailMoreMenu(popup, freshDetailMore);
+          }
+        }
       }
       function anchorOpenPopovers() {
         var _a2, _b2, _c2, _d2, _e2, _f, _g, _h;
         hideSleekFinUserSettingsMenu();
         guardStuckClosingMenus();
         enhanceOsdSettingsMenu();
+        syncOriginModals();
+        syncPlaybackStats();
+        syncLoadingShimmers();
         const scrollY = Math.round((_d2 = (_c2 = (_a2 = window.scrollY) != null ? _a2 : window.pageYOffset) != null ? _c2 : (_b2 = document.documentElement) == null ? void 0 : _b2.scrollTop) != null ? _d2 : 0);
         const scrollX = Math.round((_h = (_g = (_e2 = window.scrollX) != null ? _e2 : window.pageXOffset) != null ? _g : (_f = document.documentElement) == null ? void 0 : _f.scrollLeft) != null ? _h : 0);
         let hasOpenPopover = false;
@@ -7392,6 +9211,7 @@ button.fx-livetv-tab.is-active{
         setRootAttr("data-fx-popover-open", hasOpenPopover && !hasOpenDialog);
         document.querySelectorAll(".sleekfin-popup-layer").forEach((layer) => {
           var _a3, _b3, _c3, _d3;
+          if (layer.querySelector('[data-fx-detail-more="true"], [data-fx-header-anchored="true"]')) return;
           if (layer.dataset.fxAnchored !== "true") {
             layer.dataset.fxAnchored = "true";
             (_b3 = (_a3 = layer.style) == null ? void 0 : _a3.setProperty) == null ? void 0 : _b3.call(_a3, "--fx-popover-scroll-y", `${scrollY}px`);
@@ -7416,6 +9236,7 @@ button.fx-livetv-tab.is-active{
           if (stopped) return;
           anchorOpenPopovers();
           syncDocumentStateAttrs();
+          syncHeroAndDetailRatings(window.ApiClient);
         };
         if (typeof requestAnimationFrame === "function") popoverFrame = requestAnimationFrame(run);
         else popoverFrame = setTimeout(run, 16);
@@ -8404,6 +10225,7 @@ button.fx-livetv-tab.is-active{
           dialog.setAttribute("open", "");
           dialog.classList.add("fx-dialog-fallback");
         }
+        animateModalFromOrigin(dialog);
         (_b2 = (_a2 = dialog.querySelector("button,input,select,textarea,a[href]") || dialog).focus) == null ? void 0 : _b2.call(_a2);
       }
       function controlsMode(s) {
@@ -8692,6 +10514,7 @@ button.fx-livetv-tab.is-active{
         s.footer.hidden = !!(s.full || !s.slots.length && !s.finished);
         s.more.hidden = !s.pauseAutomatic;
         s.matchCount.hidden = !!s.full;
+        syncPageHero(s);
         const savedScroll = s.savedSubpageScroll || 0;
         s.savedSubpageScroll = 0;
         requestAnimationFrame(() => {
@@ -8796,6 +10619,7 @@ button.fx-livetv-tab.is-active{
         s.matchCount.hidden = true;
         s.list.hidden = true;
         s.footer.hidden = true;
+        syncPageHero(s);
         scrollToTop();
         const resolved = resolveCategoryShelf(s, catKey, fallbackRow);
         let titleText = resolved.title;
@@ -8874,154 +10698,117 @@ button.fx-livetv-tab.is-active{
         });
       }
       function fillSlot(slot, s) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2;
         const row = slot.data;
-        const head = element("div", "fx-row-head"), title = element("h2", "", row.title), track = element("div", "fx-track");
+        const head = element("div", "fx-row-head"), title = element("h2", "", row.title), trackWrap = element("div", "fx-track-wrap"), track = element("div", "fx-track");
+        trackWrap.dataset.fxScrollStart = "true";
+        trackWrap.dataset.fxScrollEnd = "false";
+        trackWrap.append(track);
         bindRowHeading(title, slot, s);
         const baseCount = row.items.length;
         const hasSeeMore = row.key === "DiscoverMovies" || row.key === "DiscoverTV" || row.items.some((i) => i.Type === "SeeMore");
-        const compactTouch = isCompactTouchViewport();
-        const noLoop = hasSeeMore || row.key === "MyMedia" || compactTouch;
+        const noLoop = hasSeeMore || row.key === "MyMedia" || baseCount < 2;
         if (noLoop) track.dataset.noLoop = "true";
-        const copies = !noLoop && baseCount >= 2 ? s.route.view === "genres" ? Math.max(2, Math.ceil(10 / baseCount)) : Math.max(3, Math.ceil(16 / baseCount)) : 1;
-        const cycleWidth = () => {
-          if (copies <= 1) return 0;
-          const first = track.children[0], secondCycle = track.children[baseCount];
-          return first && secondCycle && typeof secondCycle.offsetLeft === "number" && secondCycle.offsetLeft > first.offsetLeft ? secondCycle.offsetLeft - first.offsetLeft : 0;
-        };
-        const normalizeLoop = () => {
-          if (track._fxProgrammatic) return;
-          const cw = cycleWidth();
-          if (!cw) return;
-          while (track.scrollLeft >= cw * 2) track.scrollLeft -= cw;
-          if (track.scrollLeft <= 2 && track._fxMoved) track.scrollLeft += cw;
-        };
-        const finishProgrammatic = () => {
-          clearTimeout(track._fxScrollTimer);
-          track._fxProgrammatic = false;
-          normalizeLoop();
-        };
-        const bumpProgrammaticTimer = (ms = 200) => {
-          clearTimeout(track._fxScrollTimer);
-          track._fxScrollTimer = setTimeout(finishProgrammatic, ms);
-        };
-        const scroll = (direction) => {
-          const cw = cycleWidth(), step = Math.max(180, Math.round((track.clientWidth || 320) * 0.85));
-          if (cw > 0) {
-            clearTimeout(track._fxScrollTimer);
-            track._fxProgrammatic = true;
-            const prevBehavior = track.style.scrollBehavior;
-            track.style.scrollBehavior = "auto";
-            if (direction > 0) {
-              while (track.scrollLeft >= cw * 2 || track.scrollLeft + step >= cw * (copies - 1.2)) track.scrollLeft -= cw;
-            } else {
-              while (track.scrollLeft < step + 16) track.scrollLeft += cw;
-            }
-            track.style.scrollBehavior = prevBehavior;
-            track._fxMoved = true;
-            const delta = snapScrollDelta(track, direction, step, false);
-            if (delta !== 0) {
-              track.scrollBy({ left: delta, behavior: "smooth" });
-              bumpProgrammaticTimer(750);
-            } else {
-              finishProgrammatic();
-            }
-            return;
-          }
-          if (hasSeeMore) {
-            const delta = snapScrollDelta(track, direction, step, true);
-            if (delta !== 0) track.scrollBy({ left: delta, behavior: "smooth" });
-            return;
-          }
-          const end = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
-          if (direction > 0 && track.scrollLeft >= end - 2) {
-            if (typeof track.scrollTo === "function" && compactTouch) track.scrollTo({ left: 0, behavior: "smooth" });
-            else track.scrollLeft = 0;
-          } else if (direction < 0 && track.scrollLeft <= 2) {
-            if (typeof track.scrollTo === "function" && compactTouch) track.scrollTo({ left: end, behavior: "smooth" });
-            else track.scrollLeft = end;
-          } else {
-            const delta = snapScrollDelta(track, direction, step, true);
-            if (delta !== 0) track.scrollBy({ left: delta, behavior: "smooth" });
-          }
-        };
-        track.addEventListener("scroll", () => {
-          if (track.scrollLeft > 12) track._fxMoved = true;
-          if (track._fxProgrammatic) {
-            bumpProgrammaticTimer(180);
-            return;
-          }
-          normalizeLoop();
-        }, { passive: true });
-        track.addEventListener("scrollend", () => {
-          if (track._fxProgrammatic) finishProgrammatic();
-          else normalizeLoop();
-        }, { passive: true });
-        track.addEventListener("wheel", (e) => {
-          if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-          const cw = cycleWidth();
-          if (cw > 0) {
-            if (e.deltaX < 0 && track.scrollLeft <= 12) {
-              track.scrollLeft += cw;
-              track._fxMoved = true;
-            } else if (e.deltaX > 0 && track.scrollLeft >= cw * (copies - 1.5)) {
-              track.scrollLeft -= cw;
-              track._fxMoved = true;
-            }
-            return;
-          }
-          if (noLoop) return;
-          const end = track.scrollWidth - track.clientWidth;
-          if (end > 0 && (e.deltaX > 0 && track.scrollLeft >= end - 2 || e.deltaX < 0 && track.scrollLeft <= 2)) {
-            e.preventDefault();
-            scroll(e.deltaX > 0 ? 1 : -1);
-          }
-        }, { passive: false });
-        if (!noLoop) {
-          let touchX;
-          track.addEventListener("touchstart", (e) => {
-            var _a3;
-            touchX = (_a3 = e.touches[0]) == null ? void 0 : _a3.clientX;
-            const cw = cycleWidth();
-            if (cw > 0 && track.scrollLeft <= 12) {
-              track.scrollLeft += cw;
-              track._fxMoved = true;
-            }
-          }, { passive: true });
-          track.addEventListener("touchend", (e) => {
-            var _a3;
-            const delta = touchX - ((_a3 = e.changedTouches[0]) == null ? void 0 : _a3.clientX);
-            if (Math.abs(delta) > 40) {
-              const cw = cycleWidth();
-              if (cw > 0) {
-                normalizeLoop();
-                return;
-              }
-              const end = track.scrollWidth - track.clientWidth;
-              if (end > 0 && (delta > 0 && track.scrollLeft >= end - 2 || delta < 0 && track.scrollLeft <= 2)) scroll(delta > 0 ? 1 : -1);
-            }
-          }, { passive: true });
-        }
-        const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
-        back.setAttribute("aria-label", `Previous ${row.title}`);
-        forward.setAttribute("aria-label", `More ${row.title}`);
+        const initialCopies = !noLoop ? s.route.view === "genres" ? Math.max(2, Math.ceil(10 / baseCount)) : Math.max(2, Math.ceil(12 / baseCount)) : 1;
+        const MAX_LOOP_CYCLES = 24;
+        let renderedCycles = initialCopies;
         const token = row.family === "anchor" ? `anchor:${row.key}` : row.family === "theme" ? row.key : `family:${row.family}`;
         const requested = ((_b2 = (_a2 = s.profile) == null ? void 0 : _a2.layouts) == null ? void 0 : _b2[token]) || row.layout || "auto";
         const portraitOnly = row.key !== "MyMedia" && row.items.filter((i) => {
-          var _a3, _b3, _c3, _d3, _e2;
-          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b3 = i.BackdropImageTags) == null ? void 0 : _b3.length) && !((_c3 = i.ParentBackdropImageTags) == null ? void 0 : _c3.length) && (((_d3 = i.ImageTags) == null ? void 0 : _d3.Primary) || ((_e2 = i.ProviderIds) == null ? void 0 : _e2.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
+          var _a3, _b3, _c3, _d3, _e3;
+          return !((_a3 = i.ImageTags) == null ? void 0 : _a3.Thumb) && !((_b3 = i.BackdropImageTags) == null ? void 0 : _b3.length) && !((_c3 = i.ParentBackdropImageTags) == null ? void 0 : _c3.length) && (((_d3 = i.ImageTags) == null ? void 0 : _d3.Primary) || ((_e3 = i.ProviderIds) == null ? void 0 : _e3.JellyseerrPoster)) && (!i.PrimaryImageAspectRatio || i.PrimaryImageAspectRatio < 1);
         }).length > row.items.length / 2;
         const layout = s.route.view === "genres" ? "landscape" : requested === "auto" ? row.external || row.key === "DiscoverMovies" || row.key === "DiscoverTV" || portraitOnly ? "portrait" : "landscape" : requested;
+        const back = button("\u2039", () => scroll(-1)), forward = button("\u203A", () => scroll(1));
+        back.setAttribute("aria-label", `Previous ${row.title}`);
+        forward.setAttribute("aria-label", `More ${row.title}`);
+        back.disabled = true;
+        const cycleWidth = () => {
+          if (noLoop || baseCount < 2) return 0;
+          const first = track.children[0], secondCycle = track.children[baseCount];
+          return first && secondCycle && typeof secondCycle.offsetLeft === "number" && secondCycle.offsetLeft > first.offsetLeft ? secondCycle.offsetLeft - first.offsetLeft : 0;
+        };
+        const appendLoopCycle = () => {
+          if (noLoop || baseCount < 2 || renderedCycles >= MAX_LOOP_CYCLES) return false;
+          const cycleIdx = renderedCycles++;
+          const frag = document.createDocumentFragment();
+          row.items.forEach((item) => {
+            const cardNode = renderCard(item, s, true, layout);
+            cardNode.dataset.loopClone = String(cycleIdx);
+            frag.append(cardNode);
+          });
+          track.append(frag);
+          return true;
+        };
+        const ensureRightCycles = (extraPx = 0) => {
+          if (noLoop || baseCount < 2) return;
+          const cw = cycleWidth();
+          if (!cw) return;
+          let safety = 0;
+          while ((track.scrollLeft || 0) + (track.clientWidth || 0) + extraPx >= (track.scrollWidth || 0) - cw * 0.9 && safety++ < 4) {
+            if (!appendLoopCycle()) {
+              track.scrollLeft = Math.max(cw, (track.scrollLeft || 0) - cw);
+              break;
+            }
+          }
+        };
+        const updateTrackEdges = () => {
+          const cur = track.scrollLeft || 0;
+          const maxScroll = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+          const atStart = cur <= 2;
+          const atEnd = noLoop && maxScroll > 0 && cur >= maxScroll - 2;
+          const noOverflow = noLoop && maxScroll <= 2 && (track.scrollWidth || 0) > 0 && (track.clientWidth || 0) > 0;
+          trackWrap.dataset.fxScrollStart = atStart ? "true" : "false";
+          trackWrap.dataset.fxScrollEnd = atEnd || noOverflow ? "true" : "false";
+          back.disabled = atStart;
+          forward.disabled = atEnd || noOverflow;
+        };
+        track._fxEnsureRight = ensureRightCycles;
+        track._fxUpdateEdges = updateTrackEdges;
+        const scroll = (direction) => {
+          const step = Math.max(180, Math.round((track.clientWidth || 320) * 0.85));
+          if (direction < 0) {
+            if ((track.scrollLeft || 0) <= 2) {
+              updateTrackEdges();
+              return;
+            }
+            const delta2 = snapScrollDelta(track, -1, step, true);
+            if (delta2 !== 0) track.scrollBy({ left: delta2, behavior: "smooth" });
+            return;
+          }
+          if (!noLoop) {
+            ensureRightCycles(step + 80);
+            const cw = cycleWidth();
+            if (cw > 0) {
+              const delta2 = snapScrollDelta(track, 1, step, false);
+              if (delta2 !== 0) track.scrollBy({ left: delta2, behavior: "smooth" });
+              return;
+            }
+          }
+          const delta = snapScrollDelta(track, 1, step, true);
+          if (delta !== 0) track.scrollBy({ left: delta, behavior: "smooth" });
+          updateTrackEdges();
+        };
+        track.addEventListener("scroll", () => {
+          if (!noLoop) ensureRightCycles(240);
+          updateTrackEdges();
+        }, { passive: true });
+        track.addEventListener("scrollend", () => {
+          if (!noLoop) ensureRightCycles(240);
+          updateTrackEdges();
+        }, { passive: true });
+        track.addEventListener("wheel", (e) => {
+          if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          if (!noLoop && e.deltaX > 0) {
+            ensureRightCycles(320);
+          }
+        }, { passive: true });
         const existingTrack = slot.node.querySelector(".fx-track");
         if (existingTrack && slot.node.dataset.layout === layout) {
           const existingEntries = [...existingTrack.querySelectorAll(".fx-card-entry")];
-          const expectedIds = [];
-          for (let copy = 0; copy < copies; copy++) {
-            row.items.forEach((item) => expectedIds.push(item.Id || ""));
-          }
-          if (existingEntries.length === expectedIds.length && existingEntries.every((el, idx) => {
-            var _a3, _b3;
-            return (((_b3 = (_a3 = el.querySelector(".fx-card")) == null ? void 0 : _a3.dataset) == null ? void 0 : _b3.itemId) || "") === expectedIds[idx];
+          if (existingEntries.length >= baseCount && (noLoop ? existingEntries.length === baseCount : existingEntries.length % baseCount === 0) && row.items.every((item, idx) => {
+            var _a3, _b3, _c3;
+            return (((_c3 = (_b3 = (_a3 = existingEntries[idx]) == null ? void 0 : _a3.querySelector(".fx-card")) == null ? void 0 : _b3.dataset) == null ? void 0 : _c3.itemId) || "") === (item.Id || "");
           })) {
             const existingHeading = slot.node.querySelector(".fx-row-head h2");
             if (existingHeading) {
@@ -9040,13 +10827,14 @@ button.fx-livetv-tab.is-active{
             slot.node.className = "fx-shelf";
             slot.node.style.height = "";
             slot.live = true;
+            (_c2 = existingTrack._fxUpdateEdges) == null ? void 0 : _c2.call(existingTrack);
             return;
           }
         }
         const reusablePool = /* @__PURE__ */ new Map();
         if (existingTrack && slot.node.dataset.layout === layout) {
           for (const entry of existingTrack.querySelectorAll(".fx-card-entry")) {
-            const itemId = ((_d2 = (_c2 = entry.querySelector(".fx-card")) == null ? void 0 : _c2.dataset) == null ? void 0 : _d2.itemId) || "";
+            const itemId = ((_e2 = (_d2 = entry.querySelector(".fx-card")) == null ? void 0 : _d2.dataset) == null ? void 0 : _e2.itemId) || "";
             if (!itemId) continue;
             if (!reusablePool.has(itemId)) reusablePool.set(itemId, []);
             reusablePool.get(itemId).push(entry);
@@ -9055,7 +10843,7 @@ button.fx-livetv-tab.is-active{
         const preservedScroll = existingTrack ? existingTrack.scrollLeft : slot.scrollLeft || 0;
         slot.node.dataset.layout = layout;
         head.append(title, back, forward);
-        for (let copy = 0; copy < copies; copy++) {
+        for (let copy = 0; copy < initialCopies; copy++) {
           row.items.forEach((item) => {
             const pool = item.Id ? reusablePool.get(item.Id) : null;
             let cardNode = (pool == null ? void 0 : pool.length) ? pool.shift() : null;
@@ -9072,11 +10860,15 @@ button.fx-livetv-tab.is-active{
             track.append(cardNode);
           });
         }
-        slot.node.replaceChildren(head, track);
+        slot.node.replaceChildren(head, trackWrap);
         slot.node.className = "fx-shelf";
         slot.node.style.height = "";
         slot.live = true;
-        if (preservedScroll) track.scrollLeft = preservedScroll;
+        if (preservedScroll) {
+          track.scrollLeft = preservedScroll;
+          if (!noLoop) ensureRightCycles(240);
+        }
+        updateTrackEdges();
       }
       function virtualize(s) {
         var _a2;
@@ -9107,6 +10899,8 @@ button.fx-livetv-tab.is-active{
           sec.dataset.skeleton = "true";
           const head = element("div", "fx-row-head");
           head.append(element("div", "fx-skeleton-title"));
+          const trackWrap = element("div", "fx-track-wrap");
+          trackWrap.dataset.fxScrollStart = "true";
           const track = element("div", "fx-track");
           for (let c = 0; c < 6; c++) {
             const entry = element("div", "fx-card-entry");
@@ -9115,8 +10909,265 @@ button.fx-livetv-tab.is-active{
             entry.append(vis, line);
             track.append(entry);
           }
-          sec.append(head, track);
+          trackWrap.append(track);
+          sec.append(head, trackWrap);
           s.list.append(sec);
+        }
+      }
+      function shouldShowPageHero(s) {
+        var _a2, _b2, _c2, _d2;
+        if (!s || s.full || s.failed || s.subpageActive || ((_a2 = s.route) == null ? void 0 : _a2.cat)) return false;
+        return (((_b2 = s.route) == null ? void 0 : _b2.page) === "movies" || ((_c2 = s.route) == null ? void 0 : _c2.page) === "shows") && ((_d2 = s.route) == null ? void 0 : _d2.view) === "suggestions";
+      }
+      function formatHeroRuntime(item, seasonsList = []) {
+        if (item.Type === "Series") {
+          const count = (seasonsList || []).filter((sn) => (sn.SeriesId === item.Id || sn.ParentId === item.Id) && Number(sn.IndexNumber) > 0).length;
+          return count > 0 ? `${count} ${count === 1 ? "Season" : "Seasons"}` : "Series";
+        }
+        const mins = Math.round((Number(item.RunTimeTicks) || 0) / 6e8);
+        if (mins <= 0) return "";
+        const h = Math.floor(mins / 60), m = mins % 60;
+        return h > 0 ? m > 0 ? `${h}h ${m}m` : `${h}h` : `${m}m`;
+      }
+      function pickPageHeroItems(s, count = 8) {
+        var _a2, _b2;
+        const wantType = s.route.page === "movies" ? "Movie" : "Series";
+        const pool = (((_a2 = s.inventory) == null ? void 0 : _a2.items) || []).filter((i) => {
+          var _a3, _b3, _c2;
+          return i && i.Type === wantType && !isLeavingSoonItem(i) && (((_a3 = i.BackdropImageTags) == null ? void 0 : _a3.length) || ((_b3 = i.ImageTags) == null ? void 0 : _b3.Thumb) || ((_c2 = i.ImageTags) == null ? void 0 : _c2.Primary));
+        });
+        if (!pool.length) return [];
+        const withBackdrop = pool.filter((i) => {
+          var _a3;
+          return (_a3 = i.BackdropImageTags) == null ? void 0 : _a3.length;
+        });
+        const candidates = withBackdrop.length >= Math.min(4, count) ? withBackdrop : pool;
+        const seed = `${s.scope}:${dayInZone(s.now, ((_b2 = s.config) == null ? void 0 : _b2.timeZone) || "America/Los_Angeles")}:${s.route.page}:${s.shuffle}`;
+        const scored = candidates.map((item) => {
+          var _a3;
+          const rating = Number(item.CommunityRating || 0);
+          const critic = Number(item.CriticRating || 0) / 10;
+          const hasLogo = ((_a3 = item.ImageTags) == null ? void 0 : _a3.Logo) ? 1.2 : 0;
+          const hasOverview = item.Overview ? 0.6 : 0;
+          const jitter = hash(`${seed}:hero:${item.Id}`) % 1e3 / 350;
+          return { item, score: Math.max(rating, critic) + hasLogo + hasOverview + jitter };
+        }).sort((a, b) => b.score - a.score);
+        return scored.slice(0, count).map((x) => x.item);
+      }
+      function stopPageHeroTimer(s) {
+        if (s == null ? void 0 : s.heroTimer) {
+          clearInterval(s.heroTimer);
+          s.heroTimer = 0;
+        }
+      }
+      function syncPageHero(s) {
+        var _a2, _b2, _c2, _d2;
+        if (!s || !s.root) return;
+        const wantHero = shouldShowPageHero(s);
+        setRootAttr("data-fx-page-hero", wantHero);
+        if (!wantHero) {
+          stopPageHeroTimer(s);
+          if (s.heroEl) {
+            s.heroEl.remove();
+            s.heroEl = null;
+          }
+          return;
+        }
+        if (!s.heroEl) {
+          s.heroEl = element("section", "fx-page-hero is-loading");
+          s.heroEl.setAttribute("aria-label", s.route.page === "movies" ? "Featured Movies" : "Featured TV Shows");
+          s.root.prepend(s.heroEl);
+        }
+        if (!((_b2 = (_a2 = s.inventory) == null ? void 0 : _a2.items) == null ? void 0 : _b2.length)) return;
+        const featured = pickPageHeroItems(s, 8);
+        if (!featured.length) {
+          s.heroEl.remove();
+          s.heroEl = null;
+          setRootAttr("data-fx-page-hero", false);
+          return;
+        }
+        const sig = featured.map((i) => i.Id).join(",");
+        if (s.heroEl.dataset.heroSig === sig) {
+          syncHeroAndDetailRatings(s.api);
+          return;
+        }
+        s.heroEl.dataset.heroSig = sig;
+        s.heroEl.classList.remove("is-loading");
+        stopPageHeroTimer(s);
+        const slidesWrap = element("div", "fx-page-hero-slides");
+        const dotsWrap = element("div", "fx-page-hero-dots");
+        const ratingsCfg = getActiveRatingsConfig(s.api);
+        const compact = isCompactTouchViewport();
+        const slides = [];
+        const dots = [];
+        let activeIdx = 0;
+        let paused = false;
+        const setActive = (nextIdx) => {
+          activeIdx = (nextIdx % slides.length + slides.length) % slides.length;
+          slides.forEach((sl, idx) => {
+            sl.dataset.active = idx === activeIdx ? "true" : "false";
+          });
+          dots.forEach((dt, idx) => {
+            dt.setAttribute("aria-current", idx === activeIdx ? "true" : "false");
+          });
+        };
+        featured.forEach((item, idx) => {
+          var _a3, _b3, _c3, _d3, _e2, _f, _g, _h, _i;
+          const slide = element("article", "fx-page-hero-slide");
+          slide.dataset.active = idx === 0 ? "true" : "false";
+          slide.dataset.itemId = item.Id;
+          const bgWrap = element("div", "fx-page-hero-backdrop-wrap");
+          const bgTag = ((_a3 = item.BackdropImageTags) == null ? void 0 : _a3[0]) || ((_b3 = item.ImageTags) == null ? void 0 : _b3.Thumb) || ((_c3 = item.ImageTags) == null ? void 0 : _c3.Primary);
+          const bgType = ((_d3 = item.BackdropImageTags) == null ? void 0 : _d3[0]) ? "Backdrop" : ((_e2 = item.ImageTags) == null ? void 0 : _e2.Thumb) ? "Thumb" : "Primary";
+          if (bgTag && typeof ((_f = s.api) == null ? void 0 : _f.getImageUrl) === "function") {
+            const img = element("img", "fx-page-hero-backdrop");
+            img.alt = "";
+            img.loading = idx === 0 ? "eager" : "lazy";
+            img.decoding = "async";
+            img.dataset.loaded = "false";
+            const url = safeUrl(s.api.getImageUrl(item.Id, { type: bgType, tag: bgTag, maxWidth: compact ? 960 : 1920, quality: 86, ...bgType === "Backdrop" ? { index: 0 } : {} }));
+            img.addEventListener("load", () => {
+              img.dataset.loaded = "true";
+            });
+            img.src = url;
+            if (img.complete && img.naturalWidth > 0) img.dataset.loaded = "true";
+            bgWrap.append(img);
+          }
+          const vignette = element("div", "fx-page-hero-vignette");
+          const content = element("div", "fx-page-hero-content");
+          const stack = element("div", "fx-page-hero-stack");
+          const titleNode = element("h1", "fx-page-hero-title", item.Name || "Untitled");
+          if (((_g = item.ImageTags) == null ? void 0 : _g.Logo) && typeof ((_h = s.api) == null ? void 0 : _h.getImageUrl) === "function") {
+            const logo = element("img", "fx-page-hero-logo");
+            logo.alt = item.Name || "";
+            logo.loading = idx === 0 ? "eager" : "lazy";
+            logo.src = safeUrl(s.api.getImageUrl(item.Id, { type: "Logo", tag: item.ImageTags.Logo, maxWidth: 520, quality: 90 }));
+            titleNode.hidden = true;
+            logo.addEventListener("load", () => {
+              if (logo.naturalWidth > 0 && (logo.naturalWidth < 160 || logo.naturalHeight < 28)) {
+                logo.remove();
+                titleNode.hidden = false;
+              }
+            });
+            logo.addEventListener("error", () => {
+              logo.remove();
+              titleNode.hidden = false;
+            });
+            stack.append(logo, titleNode);
+          } else {
+            stack.append(titleNode);
+          }
+          const meta = element("div", "fx-page-hero-meta");
+          const ratingSlot = element("span", "fx-page-hero-ratings");
+          ratingSlot.dataset.itemId = item.Id;
+          if (item.CommunityRating) ratingSlot.dataset.star = String(item.CommunityRating);
+          if (item.CriticRating) ratingSlot.dataset.critic = String(item.CriticRating);
+          const rt = lookupCachedRating(item.Id, item);
+          const group = ratingsCfg.tomatometer || ratingsCfg.stars ? buildRatingsGroup(item, rt, ratingsCfg, false) : null;
+          if (group) {
+            ratingSlot.append(group);
+            ratingSlot.dataset.fxSig = group.textContent + "|" + ratingsCfg.tomatometer + "|" + ratingsCfg.stars;
+          } else {
+            ratingSlot.hidden = true;
+          }
+          const metaParts = [];
+          if (item.ProductionYear) metaParts.push(element("span", "", String(item.ProductionYear)));
+          if (item.OfficialRating) metaParts.push(element("span", "fx-page-hero-cert", String(item.OfficialRating)));
+          const runtimeTxt = formatHeroRuntime(item, (_i = s.inventory) == null ? void 0 : _i.seasons);
+          if (runtimeTxt) metaParts.push(element("span", "", runtimeTxt));
+          (item.Genres || []).slice(0, 2).forEach((g) => metaParts.push(element("span", "", g)));
+          meta.append(ratingSlot);
+          const firstSep = element("span", "fx-page-hero-sep", "\xB7");
+          firstSep.hidden = !group || !metaParts.length;
+          meta.append(firstSep);
+          metaParts.forEach((node, pIdx) => {
+            if (pIdx > 0) meta.append(element("span", "fx-page-hero-sep", "\xB7"));
+            meta.append(node);
+          });
+          stack.append(meta);
+          if (item.Overview) {
+            stack.append(element("p", "fx-page-hero-desc", item.Overview));
+          }
+          const actions = element("div", "fx-page-hero-actions");
+          const detailsHref = itemHref(item, s.api) || "#";
+          const playBtn = element("a", "fx-page-hero-btn fx-page-hero-btn-primary");
+          playBtn.href = detailsHref;
+          playBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><polygon points="6,4 20,12 6,20"></polygon></svg><span>Play</span>';
+          playBtn.addEventListener("click", (ev) => {
+            var _a4, _b4, _c4, _d4;
+            try {
+              const wreq = window._fxWebpackReq;
+              if (wreq == null ? void 0 : wreq.c) {
+                for (const mid of Object.keys(wreq.c)) {
+                  const exp = (_a4 = wreq.c[mid]) == null ? void 0 : _a4.exports;
+                  const pm = (exp == null ? void 0 : exp.playbackManager) || (typeof ((_b4 = exp == null ? void 0 : exp.default) == null ? void 0 : _b4.play) === "function" ? exp.default : null);
+                  if (pm && typeof pm.play === "function") {
+                    ev.preventDefault();
+                    pm.play({ ids: [item.Id], serverId: (_d4 = (_c4 = s.api).serverId) == null ? void 0 : _d4.call(_c4) });
+                    return;
+                  }
+                }
+              }
+            } catch {
+            }
+          });
+          const infoBtn = element("a", "fx-page-hero-btn fx-page-hero-btn-secondary");
+          infoBtn.href = detailsHref;
+          infoBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>More Info</span>';
+          actions.append(playBtn, infoBtn);
+          stack.append(actions);
+          content.append(stack);
+          slide.append(bgWrap, vignette, content);
+          slidesWrap.append(slide);
+          slides.push(slide);
+          const dot = element("button", "fx-page-hero-dot");
+          dot.type = "button";
+          dot.setAttribute("aria-label", `Featured slide ${idx + 1}: ${item.Name || ""}`);
+          dot.setAttribute("aria-current", idx === 0 ? "true" : "false");
+          dot.addEventListener("click", () => setActive(idx));
+          dotsWrap.append(dot);
+          dots.push(dot);
+        });
+        const prevBtn = element("button", "fx-page-hero-nav fx-page-hero-prev");
+        prevBtn.type = "button";
+        prevBtn.setAttribute("aria-label", "Previous featured title");
+        prevBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+        prevBtn.addEventListener("click", () => setActive(activeIdx - 1));
+        const nextBtn = element("button", "fx-page-hero-nav fx-page-hero-next");
+        nextBtn.type = "button";
+        nextBtn.setAttribute("aria-label", "Next featured title");
+        nextBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        nextBtn.addEventListener("click", () => setActive(activeIdx + 1));
+        s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
+        s.heroEl.addEventListener("mouseenter", () => {
+          paused = true;
+        });
+        s.heroEl.addEventListener("mouseleave", () => {
+          paused = false;
+        });
+        let swipeStartX = 0;
+        s.heroEl.addEventListener("touchstart", (e) => {
+          var _a3, _b3;
+          swipeStartX = ((_b3 = (_a3 = e.touches) == null ? void 0 : _a3[0]) == null ? void 0 : _b3.clientX) || 0;
+        }, { passive: true });
+        s.heroEl.addEventListener("touchend", (e) => {
+          var _a3, _b3;
+          const endX = ((_b3 = (_a3 = e.changedTouches) == null ? void 0 : _a3[0]) == null ? void 0 : _b3.clientX) || 0;
+          const dx = swipeStartX - endX;
+          if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1));
+        }, { passive: true });
+        const reduceMotion = Boolean((_d2 = (_c2 = window.matchMedia) == null ? void 0 : _c2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _d2.matches);
+        if (slides.length > 1 && !reduceMotion) {
+          s.heroTimer = setInterval(() => {
+            var _a3;
+            if (stopped || state !== s || paused || document.hidden || !((_a3 = s.heroEl) == null ? void 0 : _a3.isConnected)) return;
+            setActive(activeIdx + 1);
+          }, 9e3);
+        }
+        if (ratingsCfg.tomatometer) {
+          fetchRatingsBatch(s.api, featured.map((i) => i.Id), false).then(() => {
+            if (!stopped && state === s) syncHeroAndDetailRatings(s.api);
+          });
         }
       }
       function appendRow(row, s, isBoot = false, atIndex = -1) {
@@ -9338,6 +11389,7 @@ button.fx-livetv-tab.is-active{
         if (full || inSubpage) s.panel.hidden = true;
         s.toggle.textContent = full ? "Discover shelves" : s.route.page === "home" ? "Normal home" : "Full library";
         syncNative(s, !(full || s.failed));
+        syncPageHero(s);
         if (remember) {
           try {
             localStorage.setItem(prefKey(s.api, s.route.page), full ? "native" : "discover");
@@ -9649,7 +11701,9 @@ button.fx-livetv-tab.is-active{
           s.inventory.tracking = s.tracking;
           s.byId = new Map(s.inventory.items.map((i) => [i.Id, i]));
           s.filterToggle.disabled = s.full;
+          syncPageHero(s);
           decorateNative(s);
+          syncHeroAndDetailRatings(s.api);
           const trackingTask = s.client.tracking(s.inventory.items).then(async (arrival) => {
             var _a3;
             if (state !== s) return;
@@ -10282,7 +12336,7 @@ button.fx-livetv-tab.is-active{
         }
       }
       function cleanup(preserve = true) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f;
         generation++;
         if (selectHold) {
           clearTimeout(selectHold.timer);
@@ -10290,14 +12344,16 @@ button.fx-livetv-tab.is-active{
         }
         closeDialog();
         (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-subpage");
+        (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-page-hero");
         if (!state) return;
+        stopPageHeroTimer(state);
         if (preserve) saveFeed(state);
         clearTimeout(state.filterTimer);
-        (_c2 = state.io) == null ? void 0 : _c2.disconnect();
+        (_e2 = state.io) == null ? void 0 : _e2.disconnect();
         syncNative(state, false);
         state.root.remove();
         state = null;
-        (_d2 = document.getElementById("fx-customize")) == null ? void 0 : _d2.remove();
+        (_f = document.getElementById("fx-customize")) == null ? void 0 : _f.remove();
         document.querySelectorAll("[data-fx-native-badge]").forEach((n) => n.remove());
         document.querySelectorAll("[data-fx-badge-host]").forEach((n) => n.removeAttribute("data-fx-badge-host"));
       }
@@ -10381,6 +12437,7 @@ button.fx-livetv-tab.is-active{
         anchorOpenPopovers();
         syncSearchPage(api);
         guardMicroLogos();
+        syncHeroAndDetailRatings(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
           cleanup(false);
           savedFeeds.clear();
@@ -10422,6 +12479,7 @@ button.fx-livetv-tab.is-active{
           state.root.hidden = !!(state.full && state.route.page !== "home" && hasHeaderViewMenu && !state.failed);
           if (!state.full && !state.failed) syncNative(state, true);
           syncCategorySubpage(state, route.cat || "");
+          syncPageHero(state);
           decorateNative(state);
           return;
         }
@@ -10659,7 +12717,7 @@ button.fx-livetv-tab.is-active{
         if (s && card && s.root.contains(card)) s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: card.dataset.itemId };
       }
       function remoteKey(event) {
-        var _a2, _b2, _c2, _d2, _e2, _f;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
         const s = state;
         const key = { 37: "ArrowLeft", 38: "ArrowUp", 39: "ArrowRight", 40: "ArrowDown", 13: "Enter", 27: "Escape", 10009: "Escape", 461: "Escape", 457: "ContextMenu" }[event.keyCode] || event.key;
         const target = event.target || document.activeElement;
@@ -10752,15 +12810,22 @@ button.fx-livetv-tab.is-active{
         if (card) {
           const slotIndex = s.slots.findIndex((slot) => slot.node.contains(card)), track = card.closest(".fx-track"), cards = [...track.querySelectorAll(".fx-card")], index = cards.indexOf(card);
           if (key === "ArrowLeft" || key === "ArrowRight") {
-            const delta = key === "ArrowLeft" ? -1 : 1;
-            next = ((_f = track == null ? void 0 : track.dataset) == null ? void 0 : _f.noLoop) === "true" ? cards[Math.max(0, Math.min(cards.length - 1, index + delta))] : cards[(index + delta + cards.length) % cards.length];
+            if (key === "ArrowLeft") {
+              next = cards[Math.max(0, index - 1)];
+            } else {
+              if (((_f = track == null ? void 0 : track.dataset) == null ? void 0 : _f.noLoop) !== "true" && index >= cards.length - 3) {
+                (_g = track == null ? void 0 : track._fxEnsureRight) == null ? void 0 : _g.call(track, 600);
+              }
+              const updatedCards = [...track.querySelectorAll(".fx-card")];
+              next = updatedCards[Math.min(updatedCards.length - 1, index + 1)];
+            }
           } else {
             const nextSlot = s.slots[slotIndex + (key === "ArrowUp" ? -1 : 1)];
             if (nextSlot) {
               if (!nextSlot.live) fillSlot(nextSlot, s);
               const options = [...nextSlot.node.querySelectorAll(".fx-card")];
               next = options[Math.min(index, options.length - 1)];
-            } else if (key === "ArrowUp") next = s.route.page === "home" ? s.page.querySelector(".sleekfin-hero button,.sleekfin-hero a[href]") : s.root.querySelector(".fx-toolbar select");
+            } else if (key === "ArrowUp") next = s.page.querySelector(".sleekfin-hero button,.sleekfin-hero a[href],.fx-page-hero a[href],.fx-page-hero button") || s.root.querySelector(".fx-toolbar select");
             else {
               next = s.more;
               if (!s.finished) loadMore(s);
@@ -10988,11 +13053,126 @@ button.fx-livetv-tab.is-active{
           overlay.classList.remove("is-visible", "is-pulse");
         }, 760);
       }
+      function syncMuteButtonIcon(btn, muted) {
+        if (!btn) return;
+        const ic = btn.querySelector(".material-icons");
+        if (ic) {
+          ic.classList.toggle("volume_off", muted);
+          ic.classList.toggle("volume_up", !muted);
+        }
+        btn.setAttribute("aria-pressed", muted ? "true" : "false");
+      }
+      function setOsdVolumeAndSync(slider, video, volPercent, muted) {
+        var _a2, _b2, _c2;
+        const clamped = Math.max(0, Math.min(100, Math.round(Number(volPercent) || 0)));
+        if (video) {
+          try {
+            video.muted = Boolean(muted);
+          } catch {
+          }
+          try {
+            video.volume = clamped / 100;
+          } catch {
+          }
+        }
+        if (slider) {
+          slider._fxInternalVol = true;
+          try {
+            slider.value = String(clamped);
+            const lower = (_b2 = (_a2 = slider.parentElement) == null ? void 0 : _a2.querySelector) == null ? void 0 : _b2.call(_a2, ".mdl-slider-background-lower");
+            if (lower) lower.style.width = `${clamped}%`;
+            const Ev = typeof Event === "function" ? Event : (_c2 = document.defaultView) == null ? void 0 : _c2.Event;
+            if (Ev) {
+              slider.dispatchEvent(new Ev("input", { bubbles: true }));
+              slider.dispatchEvent(new Ev("change", { bubbles: true }));
+            }
+          } finally {
+            slider._fxInternalVol = false;
+          }
+        }
+        const muteBtn = document.querySelector("#videoOsdPage .buttonMute");
+        syncMuteButtonIcon(muteBtn, Boolean(muted) || clamped <= 0);
+      }
+      function toggleOsdMuteWithMemory() {
+        var _a2, _b2;
+        const osd = document.getElementById("videoOsdPage");
+        const slider = ((_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".osdVolumeSlider")) || null;
+        const video = findActiveOsdVideo();
+        const sliderVal = slider ? Number(slider.value) : NaN;
+        const curVol = Number.isFinite(sliderVal) ? sliderVal : Math.round(((_b2 = video == null ? void 0 : video.volume) != null ? _b2 : 1) * 100);
+        const isMuted = osdMuteState.muted || Boolean(video == null ? void 0 : video.muted) || curVol <= 0;
+        if (!isMuted) {
+          osdMuteState.savedVolume = curVol > 0 ? curVol : osdMuteState.savedVolume > 0 ? osdMuteState.savedVolume : 100;
+          osdMuteState.muted = true;
+          setOsdVolumeAndSync(slider, video, 0, true);
+        } else {
+          const restore = osdMuteState.savedVolume > 0 ? osdMuteState.savedVolume : 100;
+          osdMuteState.muted = false;
+          setOsdVolumeAndSync(slider, video, restore, false);
+        }
+      }
+      function onOsdMuteClick(event) {
+        var _a2, _b2, _c2;
+        if (stopped || !isVideoOsdOpen()) return;
+        const muteBtn = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .buttonMute");
+        if (!muteBtn) return;
+        event.preventDefault();
+        (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+        event.stopPropagation();
+        toggleOsdMuteWithMemory();
+      }
+      function onOsdVolumeSliderInput(event) {
+        var _a2, _b2, _c2, _d2;
+        if (stopped || !isVideoOsdOpen()) return;
+        const slider = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .osdVolumeSlider");
+        if (!slider || slider._fxInternalVol) return;
+        const val = Number(slider.value);
+        if (!Number.isFinite(val)) return;
+        const video = findActiveOsdVideo();
+        const lower = (_d2 = (_c2 = slider.parentElement) == null ? void 0 : _c2.querySelector) == null ? void 0 : _d2.call(_c2, ".mdl-slider-background-lower");
+        if (lower) lower.style.width = `${Math.max(0, Math.min(100, val))}%`;
+        const muteBtn = document.querySelector("#videoOsdPage .buttonMute");
+        if (val > 0) {
+          osdMuteState.muted = false;
+          osdMuteState.savedVolume = val;
+          if (video) {
+            try {
+              if (video.muted) video.muted = false;
+            } catch {
+            }
+            try {
+              video.volume = Math.max(0, Math.min(1, val / 100));
+            } catch {
+            }
+          }
+          syncMuteButtonIcon(muteBtn, false);
+        } else {
+          osdMuteState.muted = true;
+          if (video) {
+            try {
+              video.muted = true;
+              video.volume = 0;
+            } catch {
+            }
+          }
+          syncMuteButtonIcon(muteBtn, true);
+        }
+      }
+      function onOsdWheel(event) {
+        var _a2;
+        if (stopped || !isVideoOsdOpen()) return;
+        if (isOsdScrollableMenuTarget(event.target)) {
+          event.stopPropagation();
+          return;
+        }
+        event.preventDefault();
+        (_a2 = event.stopImmediatePropagation) == null ? void 0 : _a2.call(event);
+        event.stopPropagation();
+      }
       function onOsdKeyDown(event) {
-        var _a2, _b2, _c2, _d2, _e2, _f;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
         if (stopped) return;
         const key = event.key;
-        if (key !== "ArrowRight" && key !== "ArrowLeft") return;
         if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
         if (((_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.classList) == null ? void 0 : _b2.contains("layout-tv")) || ((_d2 = (_c2 = document.body) == null ? void 0 : _c2.classList) == null ? void 0 : _d2.contains("layout-tv"))) return;
         const video = findActiveOsdVideo();
@@ -11000,6 +13180,14 @@ button.fx-livetv-tab.is-active{
         const target = event.target;
         if ((_e2 = target == null ? void 0 : target.closest) == null ? void 0 : _e2.call(target, 'input, select, textarea, [contenteditable="true"], [role="slider"], .mdl-slider, .dialog, .actionSheet, .sleekfin-menu-popup, .MuiPopover-root')) return;
         if (document.querySelector('.dialog:not(.hide):not(.sleekfin-menu-closing), .actionSheet:not(.hide):not(.sleekfin-menu-closing), .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)')) return;
+        if (key === "m" || key === "M") {
+          toggleOsdMuteWithMemory();
+          event.preventDefault();
+          (_f = event.stopImmediatePropagation) == null ? void 0 : _f.call(event);
+          event.stopPropagation();
+          return;
+        }
+        if (key !== "ArrowRight" && key !== "ArrowLeft") return;
         const direction = key === "ArrowRight" ? "right" : "left";
         const delta = direction === "right" ? 30 : -30;
         const dur = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Infinity;
@@ -11022,7 +13210,7 @@ button.fx-livetv-tab.is-active{
         }, 900);
         showOsdSkipOverlay(direction, osdKeySkip.streakSec);
         event.preventDefault();
-        (_f = event.stopImmediatePropagation) == null ? void 0 : _f.call(event);
+        (_g = event.stopImmediatePropagation) == null ? void 0 : _g.call(event);
         event.stopPropagation();
       }
       function isOsdInteractiveTarget(target) {
@@ -11248,6 +13436,8 @@ button.fx-livetv-tab.is-active{
         style.id = "fx-discovery-style";
         style.textContent = DISCOVERY_CSS2;
         document.head.append(style);
+        readSessionRatings();
+        ensureAmbientBackground();
         installNativeFullscreenGuard();
         installFiltersFetchGuard();
         if (window.ApiClient) patchApiClientLeavingSoon(window.ApiClient);
@@ -11258,6 +13448,7 @@ button.fx-livetv-tab.is-active{
         syncDocumentStateAttrs();
         anchorOpenPopovers();
         syncSearchPage(window.ApiClient);
+        syncHeroAndDetailRatings(window.ApiClient);
         if (!window.JellyfinRequestHub && document.querySelector('script[data-fazfort-discovery],[src*="FazFortDiscovery"]') && !document.querySelector("script[data-requesthub-asset]")) {
           const rh = element("script");
           rh.defer = true;
@@ -11266,12 +13457,13 @@ button.fx-livetv-tab.is-active{
           document.head.append(rh);
         }
         observer = new MutationObserver((records) => {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l;
           let needsPopover = false;
           let needsFilterImmediate = false;
           let needsHeader = false;
           let needsSearch = false;
           let needsReconcile = false;
+          let needsRatings = false;
           for (let i = 0; i < records.length; i++) {
             const r = records[i];
             const t = r.target;
@@ -11279,15 +13471,18 @@ button.fx-livetv-tab.is-active{
             if (!needsFilterImmediate && (t.id === "filter-popover" || ((_a2 = t.closest) == null ? void 0 : _a2.call(t, "#filter-popover")))) {
               needsFilterImmediate = true;
             }
+            if (!needsRatings && (t.id === "itemDetailPage" || ((_b2 = t.matches) == null ? void 0 : _b2.call(t, ".sleekfin-hero,.sleekfin-hero-slide,.sleekfin-details-score,.sleekfin-hero-score")) || ((_c2 = t.closest) == null ? void 0 : _c2.call(t, ".sleekfin-hero,#itemDetailPage")))) {
+              if (!((_d2 = t.closest) == null ? void 0 : _d2.call(t, ".fx-ratings-group,.fx-detail-injected-ratings"))) needsRatings = true;
+            }
             if (!needsPopover) {
-              if (t === document.body || t.id === "videoOsdPage" || t.id === "app-user-menu" || ((_b2 = t.matches) == null ? void 0 : _b2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root")) || ((_c2 = t.closest) == null ? void 0 : _c2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.actionSheet,.sleekfin-menu-host"))) {
+              if (t === document.body || t.id === "videoOsdPage" || t.id === "app-user-menu" || ((_e2 = t.matches) == null ? void 0 : _e2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root")) || ((_f = t.closest) == null ? void 0 : _f.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.actionSheet,.sleekfin-menu-host"))) {
                 needsPopover = true;
               } else if (r.type === "childList" && r.addedNodes.length) {
                 for (let j = 0; j < r.addedNodes.length; j++) {
                   const n = r.addedNodes[j];
                   if (n.nodeType === 1) {
-                    if (n.id === "filter-popover" || ((_d2 = n.querySelector) == null ? void 0 : _d2.call(n, "#filter-popover"))) needsFilterImmediate = true;
-                    if ((_e2 = n.matches) == null ? void 0 : _e2.call(n, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link]")) {
+                    if (n.id === "filter-popover" || ((_g = n.querySelector) == null ? void 0 : _g.call(n, "#filter-popover"))) needsFilterImmediate = true;
+                    if ((_h = n.matches) == null ? void 0 : _h.call(n, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link]")) {
                       needsPopover = true;
                       break;
                     }
@@ -11295,15 +13490,15 @@ button.fx-livetv-tab.is-active{
                 }
               }
             }
-            if (!needsHeader && r.type === "childList" && ((_f = t.closest) == null ? void 0 : _f.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
+            if (!needsHeader && r.type === "childList" && ((_i = t.closest) == null ? void 0 : _i.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
               needsHeader = true;
             }
             if (!needsSearch && t.id === "searchPage") {
               needsSearch = true;
-            } else if (!needsSearch && ((_g = t.closest) == null ? void 0 : _g.call(t, "#searchPage")) && !((_h = t.closest) == null ? void 0 : _h.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
+            } else if (!needsSearch && ((_j = t.closest) == null ? void 0 : _j.call(t, "#searchPage")) && !((_k = t.closest) == null ? void 0 : _k.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_i = t.closest) == null ? void 0 : _i.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
             }
           }
@@ -11313,10 +13508,13 @@ button.fx-livetv-tab.is-active{
               enhanceFilterPopover(fp);
             }
           }
-          if (needsPopover && isVideoOsdOpen()) {
+          if (needsPopover) {
             enhanceOsdSettingsMenu();
+            syncOriginModals();
+            syncPlaybackStats();
+            schedulePopoverSync();
           }
-          if (needsPopover) schedulePopoverSync();
+          if (needsRatings) syncHeroAndDetailRatings(window.ApiClient);
           if (needsHeader) {
             hideLeavingSoonNav();
             hideSleekFinUserSettingsMenu();
@@ -11328,6 +13526,11 @@ button.fx-livetv-tab.is-active{
         observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "aria-hidden", "aria-expanded"] });
         document.addEventListener("pointerdown", onOsdAnchorPointer, true);
         document.addEventListener("click", onOsdAnchorPointer, true);
+        document.addEventListener("click", onOsdMuteClick, true);
+        document.addEventListener("input", onOsdVolumeSliderInput, true);
+        document.addEventListener("change", onOsdVolumeSliderInput, true);
+        window.addEventListener("wheel", onOsdWheel, { passive: false, capture: true });
+        document.addEventListener("wheel", onOsdWheel, { passive: false, capture: true });
         document.addEventListener("click", onOsdSuppressClick, true);
         document.addEventListener("dblclick", onOsdDblClick, true);
         document.addEventListener("contextmenu", onOsdContextMenu, true);
@@ -11362,9 +13565,10 @@ button.fx-livetv-tab.is-active{
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M;
           stopped = true;
           clearTimeout(timer);
+          clearTimeout(ratingsSyncTimer);
           clearTimeout(searchUiState.remoteTimer);
           clearTimeout(searchUiState.inputTimer);
           clearTimeout(osdKeySkip.timer);
@@ -11395,17 +13599,27 @@ button.fx-livetv-tab.is-active{
           (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
           (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
           (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-subpage");
-          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-popover-open");
-          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-video-osd");
-          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-livetv");
-          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-search-page");
-          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-has-subheader");
-          (_u = (_t = (_s = document.documentElement) == null ? void 0 : _s.style) == null ? void 0 : _t.removeProperty) == null ? void 0 : _u.call(_t, "--fx-osd-popup-bottom");
-          (_x = (_w = (_v = document.documentElement) == null ? void 0 : _v.style) == null ? void 0 : _w.removeProperty) == null ? void 0 : _x.call(_w, "--fx-osd-popup-right");
-          (_z = (_y = document.getElementById("searchPage")) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-search-active");
-          document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay").forEach((n) => n.remove());
+          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-page-hero");
+          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-ambient-bg");
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-popover-open");
+          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-video-osd");
+          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-osd-anchor");
+          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-livetv");
+          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-search-page");
+          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-has-subheader");
+          (_A = (_z = (_y = document.documentElement) == null ? void 0 : _y.style) == null ? void 0 : _z.removeProperty) == null ? void 0 : _A.call(_z, "--fx-osd-popup-bottom");
+          (_D = (_C = (_B = document.documentElement) == null ? void 0 : _B.style) == null ? void 0 : _C.removeProperty) == null ? void 0 : _D.call(_C, "--fx-osd-popup-right");
+          (_G = (_F = (_E = document.documentElement) == null ? void 0 : _E.style) == null ? void 0 : _F.removeProperty) == null ? void 0 : _G.call(_F, "--fx-header-popup-top");
+          (_J = (_I = (_H = document.documentElement) == null ? void 0 : _H.style) == null ? void 0 : _I.removeProperty) == null ? void 0 : _J.call(_I, "--fx-header-popup-right");
+          (_L = (_K = document.getElementById("searchPage")) == null ? void 0 : _K.removeAttribute) == null ? void 0 : _L.call(_K, "data-fx-search-active");
+          document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
           document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdAnchorPointer, true);
+          document.removeEventListener("click", onOsdMuteClick, true);
+          document.removeEventListener("input", onOsdVolumeSliderInput, true);
+          document.removeEventListener("change", onOsdVolumeSliderInput, true);
+          window.removeEventListener("wheel", onOsdWheel, true);
+          document.removeEventListener("wheel", onOsdWheel, true);
           document.removeEventListener("click", onOsdSuppressClick, true);
           document.removeEventListener("dblclick", onOsdDblClick, true);
           document.removeEventListener("contextmenu", onOsdContextMenu, true);
@@ -11428,7 +13642,7 @@ button.fx-livetv-tab.is-active{
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
-          (_A = document.getElementById("fx-discovery-style")) == null ? void 0 : _A.remove();
+          (_M = document.getElementById("fx-discovery-style")) == null ? void 0 : _M.remove();
           delete window.FazFortDiscovery;
         }
       };

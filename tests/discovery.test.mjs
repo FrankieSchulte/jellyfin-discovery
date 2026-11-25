@@ -26,11 +26,12 @@ test('filter search includes names/credits and sort uses reliable tracked time',
   const tracking=new Map([['show',{AddedAt:'2026-11-05'}],['near',{AddedAt:'2026-11-04'}]]);
   assert.equal(filterItems(items,{...DEFAULT_FILTERS,sort:'added'},tracking)[0].Id,'show');
 });
-test('reliable badges never infer arrival from filesystem dates and never put Recently Added on TV shows',()=>{
+test('reliable badges never infer arrival from filesystem dates and give TV shows Recently Added with New Episodes priority',()=>{
   const now=new Date('2026-11-05'),item={...seed,DateCreated:'2026-11-04'};
   assert.equal(badgeFor(item,new Map(),now,new Map()),'');
   assert.equal(badgeFor(item,new Map(),now,new Map([['seed',{AddedAt:'2026-11-04'}]])),'Recently Added');
-  assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{AddedAt:'2026-11-04'}]])),'');
+  assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{AddedAt:'2026-11-04'}]])),'Recently Added');
   assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{NewEpisodesAt:'2026-10-15',AddedAt:'2026-11-04'}]])),'New Episodes');
-  assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{NewEpisodesAt:'2026-09-20',AddedAt:'2026-11-04'}]])),'');
+  assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{NewEpisodesAt:'2026-09-20',AddedAt:'2026-11-04'}]])),'Recently Added');
+  assert.equal(badgeFor({...item,Type:'Series'},new Map(),now,new Map([['seed',{NewEpisodesAt:'2026-09-20',AddedAt:'2026-10-20'}]])),'');
 });

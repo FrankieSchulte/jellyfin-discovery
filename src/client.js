@@ -45,6 +45,33 @@ export class JellyfinClient {
     this.assertCurrent();
     return this.request(this.api.ajax({ url: this.api.getUrl('FazFortDiscovery/Preferences'), type: 'POST', contentType: 'application/json', dataType: 'json', data: JSON.stringify({ ExpectedVersion: version, Config: config }) }));
   }
+  async ratings(ids, sync = false) {
+    const clean = [...new Set((ids || []).filter(id => /^[a-f0-9-]{32,36}$/i.test(String(id || ''))))];
+    const map = new Map();
+    if (!clean.length) return map;
+    for (let offset = 0; offset < clean.length; offset += 80) {
+      const batch = clean.slice(offset, offset + 80);
+      const result = await this.json('FazFortDiscovery/Ratings', { Ids: batch.join(','), ...(sync ? { sync: 'true' } : {}) });
+      const raw = result?.Ratings ?? result?.ratings ?? {};
+      for (const id of batch) {
+        const norm = normalizeGuid(id);
+        const r = raw[id] || raw[norm];
+        if (r && typeof r === 'object') {
+          const entry = {
+            criticScore: r.criticScore ?? r.CriticScore ?? null,
+            criticState: r.criticState ?? r.CriticState ?? null,
+            audienceScore: r.audienceScore ?? r.AudienceScore ?? null,
+            audienceState: r.audienceState ?? r.AudienceState ?? null,
+            source: r.source ?? r.Source ?? 'none',
+            pending: Boolean(r.pending ?? r.Pending)
+          };
+          map.set(id, entry);
+          if (norm && norm !== id) map.set(norm, entry);
+        }
+      }
+    }
+    return map;
+  }
   async tracking(items) {
     const records = new Map();
     let ready = false;
@@ -96,9 +123,9 @@ export class JellyfinClient {
           for (;;) {
             this.assertCurrent();
             const response = await this.items({ ParentId: folder.Id, Recursive: true, IncludeItemTypes: types,
-              Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds',
+              Fields: 'Genres,Tags,People,Studios,DateCreated,ParentId,PrimaryImageAspectRatio,ProviderIds,Overview,OfficialRating,RunTimeTicks,CommunityRating,CriticRating',
               EnableUserData: true, EnableImages: true, ImageTypeLimit: 1,
-              EnableImageTypes: 'Primary,Backdrop,Thumb', SortBy: 'SortName', SortOrder: 'Ascending', StartIndex: offset, Limit: 200 });
+              EnableImageTypes: 'Primary,Backdrop,Thumb,Logo', SortBy: 'SortName', SortOrder: 'Ascending', StartIndex: offset, Limit: 200 });
             const list = response.Items || [], target = types === 'Season' ? seasons : all;
             let added = 0;
             for (const item of list) if (item.Id && !target.has(item.Id)) { target.set(item.Id, item); added++; }
@@ -116,7 +143,7 @@ export class JellyfinClient {
   async hydrate(items) {
     const ids = items.filter(i => /^[a-f0-9-]{32,36}$/i.test(i.Id || '')).map(i => i.Id);
     if (!ids.length) return items;
-    const response = await this.items({ Ids: ids.join(','), Fields: 'DateCreated,PrimaryImageAspectRatio', EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' });
+    const response = await this.items({ Ids: ids.join(','), Fields: 'DateCreated,PrimaryImageAspectRatio,CriticRating,CommunityRating', EnableImages: true, EnableUserData: true, ImageTypeLimit: 1, EnableImageTypes: 'Primary,Backdrop,Thumb' });
     const byId = new Map((response.Items || []).map(i => [i.Id, i]));
     // A missing item may have been removed or lost permission since the inventory read.
     return items.filter(i => !ids.includes(i.Id) || byId.has(i.Id)).map(i => byId.has(i.Id) ? { ...i, ...byId.get(i.Id) } : i);

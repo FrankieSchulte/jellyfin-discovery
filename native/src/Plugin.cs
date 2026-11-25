@@ -48,7 +48,9 @@ public sealed class Registrator : IPluginServiceRegistrator
     public void RegisterServices(IServiceCollection services, IServerApplicationHost host)
     {
         services.AddSingleton<DiscoveryStore>();
+        services.AddSingleton<RatingsService>();
         services.AddHostedService<ArrivalMonitor>();
+        services.AddHostedService<RatingsWarmupService>();
         services.AddHostedService<Registration>();
         services.AddHostedService<WebRegistration>();
     }

@@ -14,7 +14,7 @@ public sealed class ProfileWrite
 [ApiController]
 [Route("FazFortDiscovery")]
 [Authorize]
-public sealed class DiscoveryController(DiscoveryStore store, ILibraryManager library, IUserManager users) : ControllerBase
+public sealed class DiscoveryController(DiscoveryStore store, RatingsService ratings, ILibraryManager library, IUserManager users) : ControllerBase
 {
     private Guid? OwnUser()
     {
@@ -36,6 +36,22 @@ public sealed class DiscoveryController(DiscoveryStore store, ILibraryManager li
             .Where(item => item is not null && item.GetBaseItemKind().ToString() is "Movie" or "Series")
             .Select(item => item!.Id);
         return Ok(store.Tracking(visible));
+    }
+    [HttpGet("Ratings")]
+    public async Task<ActionResult> GetRatings([FromQuery] string ids = "", [FromQuery] bool sync = false, CancellationToken ct = default)
+    {
+        Guid? userId = OwnUser(); if (userId is null) return Forbid();
+        var parts = ids.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length > 100 || parts.Any(p => !Guid.TryParse(p, out _))) return BadRequest("Use at most 100 valid item IDs.");
+        var requested = parts.Select(Guid.Parse).Distinct().ToArray();
+        if (requested.Length == 0) return Ok(new { Ratings = new Dictionary<string, RatingResult>() });
+        var user = users.GetUserById(userId.Value)!;
+        var visible = requested.Select(id => library.GetItemById<BaseItem>(id, user))
+            .Where(item => item is not null && item.GetBaseItemKind().ToString() is "Movie" or "Series")
+            .Select(item => item!)
+            .ToArray();
+        var data = await ratings.GetRatingsAsync(visible, sync, ct).ConfigureAwait(false);
+        return Ok(new { Ratings = data });
     }
     [HttpGet("Preferences")]
     public ActionResult GetPreferences()

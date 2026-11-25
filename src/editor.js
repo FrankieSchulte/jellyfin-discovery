@@ -189,6 +189,38 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
     sharedSec.append(general);
     host.append(sharedSec);
 
+    // 1b. Ratings display preferences (Rotten Tomatoes Tomatometer / Popcornmeter / Stars / None)
+    const ratingsSec=element('section','fx-editor-section');
+    ratingsSec.append(
+      element('h3','','Ratings display'),
+      element('p','fx-editor-help','Choose which rating badges appear across Jellyfin. Tomatometer & Star Rating appear everywhere ratings show (hero banners and title pages); Popcornmeter appears only on individual movie and show pages.')
+    );
+    const getRatings=()=>resolveRatingsConfig(draft);
+    const setRatings=next=>{draft.ratings={tomatometer:!!next.tomatometer,popcornmeter:!!next.popcornmeter,stars:!!next.stars};emit();draw();};
+    const curRatings=getRatings();
+    const ratingPresets=[
+      ['Rotten Tomatoes',{tomatometer:true,popcornmeter:true,stars:false}],
+      ['Tomatometer Only',{tomatometer:true,popcornmeter:false,stars:false}],
+      ['Popcornmeter Only',{tomatometer:false,popcornmeter:true,stars:false}],
+      ['Star Rating',{tomatometer:false,popcornmeter:false,stars:true}],
+      ['RT + Stars',{tomatometer:true,popcornmeter:true,stars:true}],
+      ['None',{tomatometer:false,popcornmeter:false,stars:false}]
+    ];
+    const rPresetRow=element('div','fx-editor-presets');
+    for(const [lbl,val] of ratingPresets){
+      const match=curRatings.tomatometer===val.tomatometer&&curRatings.popcornmeter===val.popcornmeter&&curRatings.stars===val.stars;
+      const b=button(lbl,()=>setRatings(val));
+      if(match)b.className='fx-subtab-btn is-active';
+      b.setAttribute('aria-pressed',String(match));
+      rPresetRow.append(b);
+    }
+    const rToggles=element('div','fx-editor-fields fx-chip-toggles');
+    field(rToggles,'Tomatometer (Critics)',curRatings.tomatometer,v=>setRatings({...getRatings(),tomatometer:v}),null,'checkbox');
+    field(rToggles,'Popcornmeter (Audience — detail pages)',curRatings.popcornmeter,v=>setRatings({...getRatings(),popcornmeter:v}),null,'checkbox');
+    field(rToggles,'Star Rating (Community)',curRatings.stars,v=>setRatings({...getRatings(),stars:v}),null,'checkbox');
+    ratingsSec.append(rPresetRow,rToggles);
+    host.append(ratingsSec);
+
     // 2. Opening rows & organization
     const openingSec=element('section','fx-editor-section');
     openingSec.append(

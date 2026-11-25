@@ -15,9 +15,13 @@ function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   window.HTMLElement.prototype.focus=function(){focused=this;};
   window.HTMLElement.prototype.scrollIntoView=function(){};
   const storage=new Map();
-  const api={ajax:async options=>{const body=JSON.parse(options.data);saves.push(body);config=body.Config;return {Version:saves.length};},getCurrentUserId:()=> 'u',serverId:()=> 's',getImageUrl:(i,o)=>`https://example.test/Items/${i}/Images/${o.type}`,getUrl:(p,q)=>({p,q}),getJSON:async ({p})=>{
+  const api={ajax:async options=>{const body=JSON.parse(options.data);saves.push(body);config=body.Config;return {Version:saves.length};},getCurrentUserId:()=> 'u',serverId:()=> 's',getImageUrl:(i,o)=>`https://example.test/Items/${i}/Images/${o.type}`,getUrl:(p,q)=>({p,q}),getJSON:async ({p,q})=>{
     if(p==='FazFortDiscovery/Preferences')return {Version:saves.length,Config:config};
     if(p==='FazFortDiscovery/Tracking')return {Ready:true,Records:Object.fromEntries(fixtureItems.map(i=>[i.Id,{AddedAt:new Date().toISOString()}]))};
+    if(p==='FazFortDiscovery/Ratings'){
+      const ids=String(q?.Ids||'').split(',').filter(Boolean);
+      return {Ratings:Object.fromEntries(ids.map((itemId,idx)=>[itemId.replace(/-/g,'').toLowerCase(),{criticScore:idx%2===0?94:42,criticState:idx%2===0?'certified':'rotten',audienceScore:idx%2===0?91:48,audienceState:idx%2===0?'hot':'spilled',source:'rt',pending:false}]))};
+    }
     if(p.endsWith('/Views'))return {Items:[{Id:'m',Name:'Movies',CollectionType:'movies'},{Id:'t',Name:'Shows',CollectionType:'tvshows'}]};
     return {Items:fixtureItems.slice(0,3)};
   },getItems:async(u,p)=>{
@@ -258,11 +262,21 @@ test('Settings menu omits separate Discovery row while Customize dialog stays op
   await f.settle();assert.ok(f.document.querySelector('#fx-customize'));
   f.navigate('#/mypreferencesmenu');await f.settle();assert.ok(f.document.querySelector('#fx-customize'));f.ctx.window.FazFortDiscovery.stop();
 });
-test('category arrows wrap at either horizontal edge and remote navigation loops cards',async()=>{
-  const f=fixture();await f.settle();const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track');
-  Object.defineProperties(track,{clientWidth:{value:500},scrollWidth:{value:1500}});track.scrollLeft=1000;shelf.querySelectorAll('.fx-row-head button')[1].click();assert.equal(track.scrollLeft,0);
-  shelf.querySelector('.fx-row-head button').click();assert.equal(track.scrollLeft,1000);
-  f.storage.set('fazfort-discovery:controls:s:u','tv');const cards=track.querySelectorAll('.fx-card');cards[cards.length-1].focus();f.key(cards[cards.length-1],'ArrowRight',39);assert.equal(f.document.activeElement,cards[0]);f.ctx.window.FazFortDiscovery.stop();
+test('one-way anchored endless scroll locks left start at Item 1 and expands rightward endlessly',async()=>{
+  const f=fixture();await f.settle();const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track'),wrap=shelf.querySelector('.fx-track-wrap');
+  const [backBtn,fwdBtn]=shelf.querySelectorAll('.fx-row-head button');
+  assert.ok(wrap);
+  assert.equal(wrap.dataset.fxScrollStart,'true');
+  assert.equal(backBtn.disabled,true);
+  // Clicking back at start must NOT wrap backward to the end of the list
+  track.scrollLeft=0;
+  backBtn.click();
+  assert.equal(track.scrollLeft,0);
+  // TV remote ArrowLeft at index 0 stays at index 0 (no backward wrap)
+  f.storage.set('fazfort-discovery:controls:s:u','tv');const cards=track.querySelectorAll('.fx-card');
+  cards[0].focus();f.key(cards[0],'ArrowLeft',37);assert.equal(f.document.activeElement,cards[0]);
+  f.key(cards[0],'ArrowRight',39);assert.equal(f.document.activeElement,cards[1]);
+  f.ctx.window.FazFortDiscovery.stop();
 });
 test('default native categories are hidden immediately on mount before async inventory resolves',async()=>{
   const f=fixture({delay:true});
@@ -270,24 +284,40 @@ test('default native categories are hidden immediately on mount before async inv
   assert.equal(f.document.querySelector('.homeSectionsContainer .card').getAttribute('data-fx-native-hidden'),'true');
   f.resolve();await f.settle();f.ctx.window.FazFortDiscovery.stop();
 });
-test('horizontal track repeats item cycles and normalizes scrollLeft seamlessly without resetting to zero',async()=>{
+test('horizontal track starts anchored at Item 1, dynamically appends rightward cycles on scroll, and walks left back to 0',async()=>{
   const f=fixture();await f.settle();
-  const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track');
+  const shelf=f.document.querySelector('.fx-shelf'),track=shelf.querySelector('.fx-track'),wrap=shelf.querySelector('.fx-track-wrap');
+  const [backBtn,fwdBtn]=shelf.querySelectorAll('.fx-row-head button');
+  const initialCount=track.children.length;
   const clones=track.querySelectorAll('[data-loop-clone]');
   assert.ok(clones.length>0);
-  [...track.children].forEach((child,idx)=>{Object.defineProperty(child,'offsetLeft',{configurable:true,value:idx*280});});
-  const baseCount=track.children.length-clones.length;
+  const baseCount=initialCount-clones.length;
+  const layoutOffsets=()=>{
+    [...track.children].forEach((child,idx)=>{Object.defineProperty(child,'offsetLeft',{configurable:true,value:idx*280});});
+    Object.defineProperty(track,'scrollWidth',{configurable:true,value:track.children.length*280});
+  };
+  Object.defineProperty(track,'clientWidth',{configurable:true,value:800});
+  layoutOffsets();
+  // Scrolling near right edge dynamically appends another full loop cycle without teleporting scrollLeft
   const cw=baseCount*280;
-  Object.defineProperties(track,{clientWidth:{value:800},scrollWidth:{value:track.children.length*280}});
-  track.scrollLeft=cw*2;
-  track.dispatchEvent(new f.ctx.document.defaultView.Event('scrollend'));
-  assert.equal(track.scrollLeft,cw);
+  track.scrollLeft=track.scrollWidth-800;
+  track.dispatchEvent(new f.ctx.document.defaultView.Event('scroll'));
+  layoutOffsets();
+  assert.ok(track.children.length>=initialCount+baseCount,'must append new cycle on rightward scroll');
+  assert.equal(wrap.dataset.fxScrollStart,'false');
+  assert.equal(backBtn.disabled,false);
+  // Clicking forward snaps cleanly to card alignment; clicking back walks toward 0 without ever jumping past 0
   let lastScrollBy=null;
-  track.scrollBy=opts=>{lastScrollBy=opts;};
-  track.scrollLeft=cw*2+40;
-  shelf.querySelectorAll('.fx-row-head button')[1].click();
-  assert.equal(track.scrollLeft,cw+40);
-  assert.equal((track.scrollLeft + lastScrollBy.left) % 280, 0);
+  track.scrollBy=opts=>{lastScrollBy=opts;track.scrollLeft=Math.max(0,track.scrollLeft+(opts.left||0));};
+  fwdBtn.click();
+  assert.ok(lastScrollBy && lastScrollBy.left>0);
+  assert.equal(track.scrollLeft%280,0);
+  track.scrollLeft=280;
+  backBtn.click();
+  assert.equal(track.scrollLeft,0);
+  track.dispatchEvent(new f.ctx.document.defaultView.Event('scroll'));
+  assert.equal(wrap.dataset.fxScrollStart,'true');
+  assert.equal(backBtn.disabled,true);
   f.ctx.window.FazFortDiscovery.stop();
 });
 test('React library pages without pageTabContent mount discovery, customize dropdown views, and support dedicated search page and instant boot rows',async()=>{
@@ -1236,4 +1266,209 @@ test('v0.5.11 fixes playback Back tap vs swipe lock, Frame-0 Settings/Subtitles 
   assert.equal(renumberedMap.movies[0].isAlphabetPickerEnabled, false);
 
   f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.0 adds Movies/Shows hero banner, noisy ambient BG + tuner, RT Tomatometer/Popcornmeter ratings, origin modals, smart three-dots, SyncPlay/Cast anchoring, paused Playback Info fix, and volume wheel/mute memory', async () => {
+  const f = fixture();
+  await f.settle();
+  const Ev = f.ctx.document.defaultView.Event;
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. Ambient noisy textured background + bottom-corner live tuner widget
+  assert.ok(f.document.querySelector('.fx-ambient-bg .fx-ambient-noise'), 'ambient textured background mounted');
+  assert.equal(f.document.documentElement.getAttribute('data-fx-ambient-bg'), 'true');
+  const tuner = f.document.querySelector('.fx-bg-tuner');
+  assert.ok(tuner, 'background tuner widget mounted');
+  const tunerToggle = tuner.querySelector('.fx-bg-tuner-toggle');
+  const tunerPanel = tuner.querySelector('.fx-bg-tuner-panel');
+  assert.equal(tunerPanel.hidden, true);
+  tunerToggle.click();
+  assert.equal(tunerPanel.hidden, false);
+  const animBox = tunerPanel.querySelector('input[type="checkbox"]');
+  animBox.checked = true;
+  animBox.dispatchEvent(new Ev('change', { bubbles: true }));
+  assert.equal(f.document.querySelector('.fx-ambient-bg').dataset.animated, 'true');
+
+  // 2. Movies & Shows Hero Banner appears ONLY on curated Movies & Shows tabs, NEVER on Library, Genres, or category subpages
+  f.document.getElementById('indexPage').classList.add('hide');
+  const moviesPage = f.document.getElementById('moviesPage');
+  moviesPage.classList.remove('hide');
+  for (const idx of [1, 4]) {
+    const tab = f.document.createElement('div');
+    tab.className = 'pageTabContent';
+    tab.dataset.index = String(idx);
+    moviesPage.append(tab);
+  }
+  f.navigate('#/movies?tab=1');
+  await f.settle();
+  assert.equal(f.document.documentElement.getAttribute('data-fx-page-hero'), 'true');
+  const hero = moviesPage.querySelector('.fx-page-hero');
+  assert.ok(hero && hero.querySelectorAll('.fx-page-hero-slide').length >= 1, 'Movies hero banner rendered');
+  // Tomatometer shows on hero, Popcornmeter NEVER shows on hero
+  assert.ok(hero.querySelector('.fx-rating-tomatometer'), 'Tomatometer badge on Movies hero');
+  assert.equal(hero.querySelector('.fx-rating-popcornmeter'), null, 'Popcornmeter must NOT appear on hero banner');
+  // Hidden on Library (tab=0) and Genres (tab=4)
+  f.navigate('#/movies?tab=0');
+  await f.settle();
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-page-hero'), false);
+  f.navigate('#/movies?tab=4');
+  await f.settle();
+  assert.equal(f.document.documentElement.hasAttribute('data-fx-page-hero'), false);
+  assert.equal(moviesPage.querySelector('.fx-page-hero'), null);
+
+  // 3. Detail Page (#itemDetailPage) shows BOTH Tomatometer & Popcornmeter (Certified Fresh + Verified Hot), and respects plugin ratings settings
+  const detailPage = f.document.createElement('div');
+  detailPage.id = 'itemDetailPage';
+  detailPage.className = 'page';
+  const detailScore = f.document.createElement('span');
+  detailScore.className = 'sleekfin-details-score';
+  detailScore.textContent = '8.4';
+  const infoBtn = f.document.createElement('button');
+  infoBtn.className = 'sleekfin-details-track-settings';
+  infoBtn.getBoundingClientRect = () => ({ left: 420, right: 464, top: 380, bottom: 424, width: 44, height: 44 });
+  const moreBtn = f.document.createElement('button');
+  moreBtn.className = 'btnMoreCommands';
+  moreBtn.getBoundingClientRect = () => ({ left: 500, right: 544, top: 680, bottom: 724, width: 44, height: 44 });
+  detailPage.append(detailScore, infoBtn, moreBtn);
+  f.document.body.append(detailPage);
+  f.navigate(`#/details?id=${id(2)}`);
+  await f.settle();
+  f.notify();
+  f.frames();
+  await f.settle();
+  assert.ok(detailScore.querySelector('.fx-rating-tomatometer.is-certified'), 'Certified Fresh Tomatometer on detail page');
+  assert.ok(detailScore.querySelector('.fx-rating-popcornmeter.is-hot'), 'Verified Hot Popcornmeter on detail page');
+  assert.equal(detailScore.querySelector('.fx-rating-star'), null, 'Star rating hidden by default when RT mode is active');
+
+  // 4. Ratings toggle in visual editor saves custom combination (e.g. Star Rating only / None)
+  moviesPage.classList.add('hide');
+  detailPage.classList.add('hide');
+  f.document.getElementById('indexPage').classList.remove('hide');
+  f.navigate('#/home');
+  await f.settle();
+  [...f.document.querySelectorAll('.fx-toolbar button')].find(b => b.textContent === 'Customize').click();
+  const dlg = f.document.querySelector('#fx-customize');
+  assert.ok(dlg.classList.contains('fx-modal-origin-anim') || dlg.dataset.fxOriginAnimated === 'true', 'Customize dialog tracks origin animation');
+  [...dlg.querySelectorAll('button')].find(b => b.textContent === 'Star Rating').click();
+  const draftCfg = JSON.parse(dlg.querySelector('textarea').value);
+  assert.deepEqual(draftCfg.ratings, { tomatometer: false, popcornmeter: false, stars: true });
+  [...dlg.querySelectorAll('button')].find(b => b.textContent === 'Cancel').click();
+
+  // 5. Origin-morphing Info modal on detail page
+  detailPage.classList.remove('hide');
+  infoBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  const infoWrap = f.document.createElement('div');
+  infoWrap.className = 'sleekfin-details-info-container';
+  const infoDlg = f.document.createElement('div');
+  infoDlg.className = 'dialog sleekfin-details-track-dialog';
+  infoWrap.append(infoDlg);
+  f.document.body.append(infoWrap);
+  f.notify();
+  f.frames();
+  assert.equal(infoDlg.dataset.fxOriginAnimated, 'true');
+  assert.ok(infoDlg.style.getPropertyValue('--fx-origin-x') !== '');
+  infoWrap.remove();
+
+  // 6. Smart-positioned Detail Three-Dots (...) menu: places ABOVE when button is near bottom of viewport, or SIDE when cramped
+  moreBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  const moreSheet = f.document.createElement('div');
+  moreSheet.className = 'dialog actionSheet';
+  const morePopup = f.document.createElement('div');
+  morePopup.className = 'sleekfin-menu-popup';
+  morePopup.textContent = 'Add to collection Refresh metadata';
+  Object.defineProperties(morePopup, { offsetWidth: { value: 220 }, scrollHeight: { value: 260 }, offsetHeight: { value: 260 } });
+  moreSheet.append(morePopup);
+  f.document.body.append(moreSheet);
+  f.notify();
+  f.frames();
+  assert.equal(morePopup.dataset.fxDetailMore, 'true');
+  assert.equal(morePopup.dataset.fxMorePlace, 'top', 'places above three dots when bottom space is insufficient');
+  moreSheet.remove();
+
+  // 7. Playback OSD: SyncPlay & Cast anchor directly below their top-header buttons, Playback Info triggers timeupdate while paused, wheel volume is blocked, and Mute sets slider to 0 & restores saved volume
+  detailPage.classList.add('hide');
+  const skinHeader = f.document.createElement('div');
+  skinHeader.className = 'skinHeader';
+  const hdrRight = f.document.createElement('div');
+  hdrRight.className = 'headerRight';
+  const syncBtn = f.document.createElement('button');
+  syncBtn.className = 'headerSyncPlayButton';
+  syncBtn.getBoundingClientRect = () => ({ left: 1120, right: 1160, top: 12, bottom: 52, width: 40, height: 40 });
+  hdrRight.append(syncBtn);
+  skinHeader.append(hdrRight);
+
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  const video = f.document.createElement('video');
+  video.className = 'htmlvideoplayer';
+  video.volume = 0.75;
+  video.muted = false;
+  let timeupdateCount = 0;
+  video.addEventListener('timeupdate', () => { timeupdateCount++; });
+  const muteBtn = f.document.createElement('button');
+  muteBtn.className = 'buttonMute';
+  muteBtn.innerHTML = '<span class="material-icons volume_up"></span>';
+  const volSlider = f.document.createElement('input');
+  volSlider.className = 'osdVolumeSlider';
+  volSlider.type = 'range';
+  volSlider.value = '75';
+  osd.append(video, muteBtn, volSlider);
+  f.document.body.append(skinHeader, osd);
+  f.notify();
+  f.frames();
+
+  // SyncPlay button anchors popup at top below SyncPlay button (NOT bottom!)
+  syncBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-osd-anchor'), 'top');
+  assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '60px');
+  const spSheet = f.document.createElement('div');
+  spSheet.className = 'dialog actionSheet';
+  spSheet.textContent = 'Create a new group';
+  f.document.body.append(spSheet);
+  f.notify();
+  f.frames();
+  assert.equal(spSheet.dataset.fxHeaderAnchored, 'true');
+  spSheet.remove();
+
+  // Paused Playback Info (.playerStats) receives synthetic timeupdate so stats populate immediately
+  const stats = f.document.createElement('div');
+  stats.className = 'playerStats';
+  const statsBody = f.document.createElement('div');
+  statsBody.className = 'playerStats-stats';
+  stats.append(statsBody);
+  f.document.body.append(stats);
+  f.notify();
+  f.frames();
+  assert.ok(timeupdateCount >= 1, 'synthetic timeupdate dispatched to wake paused Playback Info');
+  stats.remove();
+
+  // Scroll wheel over volume bar is blocked during playback
+  const wheelEv = new Ev('wheel', { bubbles: true, cancelable: true });
+  volSlider.dispatchEvent(wheelEv);
+  assert.equal(wheelEv.defaultPrevented, true, 'wheel event blocked over volume slider during playback');
+
+  // Mute sets slider to 0 & mutes; Unmute restores saved volume (75); Dragging slider > 0 unmutes
+  muteBtn.click();
+  assert.equal(volSlider.value, '0');
+  assert.equal(video.muted, true);
+  assert.equal(video.volume, 0);
+  muteBtn.click();
+  assert.equal(volSlider.value, '75');
+  assert.equal(video.muted, false);
+  assert.equal(video.volume, 0.75);
+  muteBtn.click();
+  assert.equal(volSlider.value, '0');
+  volSlider.value = '40';
+  volSlider.dispatchEvent(new Ev('input', { bubbles: true }));
+  assert.equal(video.muted, false, 'dragging volume scrubber > 0 automatically unmutes');
+  assert.equal(video.volume, 0.4);
+
+  // Top volume bar toast CSS hidden + diagonal shimmer wave present
+  assert.ok(styleText.includes('.volumeOsd'));
+  assert.ok(styleText.includes('@keyframes fx-shimmer-wave'));
+
+  f.ctx.window.FazFortDiscovery.stop();
+  assert.equal(f.document.querySelector('.fx-ambient-bg'), null);
+  assert.equal(f.document.querySelector('.fx-bg-tuner'), null);
 });

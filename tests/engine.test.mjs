@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, routeInfo, searchAndRankInventory, seasonBadges, validateConfig } from '../src/engine.js';
+import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, validateConfig } from '../src/engine.js';
 const config = JSON.parse(await readFile(new URL('../config/default.json', import.meta.url)));
 const now = new Date('2026-11-04T12:00:00Z');
 const items = Array.from({length: 48}, (_, n) => ({ Id: n.toString(16).padStart(32,'0'), Name: 'Item '+n, Type: n % 3 ? 'Movie' : 'Series', Genres: ['Action', 'Comedy'], Tags: ['space', 'superhero'], CommunityRating: n % 2 ? 8 : 6, RunTimeTicks: 90*600000000, ProductionYear: 2000 + n % 20, People: [{ Name: 'Director '+(n % 4), Type: 'Director' }, { Name: 'Actor '+(n % 3), Type: 'Actor' }], Studios:[{Name:'Studio'}], UserData:{ Played: n % 5 === 0 } }));
@@ -23,13 +23,14 @@ test('seven-day recent badge boundary and monthAgo helper', () => {
   assert.ok(!recent('2026-11-05',now));
   assert.ok(!recent(undefined,now));
 });
-test('new episodes uses 30-day premiere window and Recently Added is movies only', () => {
+test('new episodes uses 30-day premiere window and takes priority over 7-day Recently Added on TV shows', () => {
   const seasons=[{Id:'s',Type:'Season',SeriesId:'good',IndexNumber:2,PremiereDate:'2026-10-20'},
     {Type:'Episode',SeriesId:'episode',IndexNumber:2,PremiereDate:'2026-10-30'},
     {Type:'Season',SeriesId:'old',IndexNumber:2,PremiereDate:'2026-09-15'}];
   const map=seasonBadges(seasons,now);assert.deepEqual([...map.keys()],['good']);
   assert.equal(badgeFor({Id:'good',Type:'Series',DateCreated:'2026-11-01'},map,now),'New Episodes');
-  assert.equal(badgeFor({Id:'otherShow',Type:'Series',DateCreated:'2026-11-01'},map,now),'');
+  assert.equal(badgeFor({Id:'otherShow',Type:'Series',DateCreated:'2026-11-01'},map,now),'Recently Added');
+  assert.equal(badgeFor({Id:'olderShow',Type:'Series',DateCreated:'2026-10-15'},map,now),'');
   assert.equal(badgeFor({Id:'other',Type:'Movie',DateCreated:'2026-10-30'},map,now),'Recently Added');
   assert.equal(badgeFor({Id:'older',Type:'Movie',DateCreated:'2026-10-15'},map,now),'');
 });
@@ -134,4 +135,15 @@ test('searchAndRankInventory ranks title matches first, then closest tag alignme
   assert.equal(ranked[0].Id,'m-nightmare');
   assert.equal(ranked[1].Id,'m-wonderful');
   assert.equal(ranked[2].Id,'m-diehard');
+});
+test('ratings preference validates allowed combinations and rejects malformed values', () => {
+  assert.deepEqual(resolveRatingsConfig({}), { tomatometer: true, popcornmeter: true, stars: false });
+  const c = structuredClone(config);
+  c.ratings = { tomatometer: false, popcornmeter: true, stars: true };
+  assert.doesNotThrow(() => validateConfig(c));
+  assert.deepEqual(resolveRatingsConfig(c), { tomatometer: false, popcornmeter: true, stars: true });
+  c.ratings = { tomatometer: 'yes' };
+  assert.throws(() => validateConfig(c), /ratings/);
+  c.ratings = { unknown: true };
+  assert.throws(() => validateConfig(c), /ratings/);
 });

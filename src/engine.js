@@ -39,10 +39,11 @@ export function badgeFor(item, seasons, now, tracking = null) {
   if (item.Type === 'Series') {
     if (tracking) {
       const record = tracking.get(item.Id);
-      const newEpDate = record?.NewEpisodesAt ?? null;
-      return recent(newEpDate, now, 30) ? 'New Episodes' : '';
+      if (recent(record?.NewEpisodesAt, now, 30)) return 'New Episodes';
+      return recent(record?.AddedAt, now, 7) ? 'Recently Added' : '';
     }
-    return seasons.has(item.Id) ? 'New Episodes' : '';
+    if (seasons.has(item.Id)) return 'New Episodes';
+    return recent(item.DateCreated, now, 7) ? 'Recently Added' : '';
   }
   if (item.Type !== 'Movie') return '';
   if (tracking) {
@@ -50,6 +51,16 @@ export function badgeFor(item, seasons, now, tracking = null) {
     return recent(record?.AddedAt, now, 7) ? 'Recently Added' : '';
   }
   return recent(item.DateCreated, now, 7) ? 'Recently Added' : '';
+}
+export const DEFAULT_RATINGS = { tomatometer: true, popcornmeter: true, stars: false };
+export function resolveRatingsConfig(config) {
+  const r = config?.ratings;
+  if (!r || typeof r !== 'object') return { ...DEFAULT_RATINGS };
+  return {
+    tomatometer: typeof r.tomatometer === 'boolean' ? r.tomatometer : DEFAULT_RATINGS.tomatometer,
+    popcornmeter: typeof r.popcornmeter === 'boolean' ? r.popcornmeter : DEFAULT_RATINGS.popcornmeter,
+    stars: typeof r.stars === 'boolean' ? r.stars : DEFAULT_RATINGS.stars
+  };
 }
 export const DEFAULT_FILTERS = { query: '', genre: '', tag: '', watched: 'all', maxMinutes: '', minRating: '', decade: '', type: '', sort: 'recommended' };
 export function filtersActive(filters) {
@@ -115,6 +126,13 @@ export function validateConfig(config) {
   }
   if (config.minimumItems > config.cardsPerShelf) throw Error('minimumItems cannot exceed cardsPerShelf.');
   if (typeof config.endless !== 'boolean' || typeof config.hideWatched !== 'boolean') throw Error('endless and hideWatched must be true or false.');
+  if (config.ratings != null) {
+    if (typeof config.ratings !== 'object' || Array.isArray(config.ratings)) throw Error('ratings must be an object.');
+    const allowedRatings = new Set(['tomatometer', 'popcornmeter', 'stars']);
+    for (const [k, v] of Object.entries(config.ratings)) {
+      if (!allowedRatings.has(k) || typeof v !== 'boolean') throw Error(`ratings.${k} must be true or false.`);
+    }
+  }
   for (const page of ['home', 'movies', 'shows']) {
     const profile = config.pages?.[page];
     if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);

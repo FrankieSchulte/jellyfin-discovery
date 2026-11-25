@@ -9,11 +9,17 @@ public static class ConfigPolicy
         try
         {
             if (c.ValueKind != JsonValueKind.Object || c.GetRawText().Length > 256000 || !Integer(c,"schemaVersion",1,1)) return false;
-            var allowed = new HashSet<string> { "schemaVersion","timeZone","cardsPerShelf","batchSize","minimumItems","maxLiveRows","endless","hideWatched","pages" };
+            var allowed = new HashSet<string> { "schemaVersion","timeZone","cardsPerShelf","batchSize","minimumItems","maxLiveRows","endless","hideWatched","ratings","pages" };
             if (c.EnumerateObject().Any(p => !allowed.Contains(p.Name))) return false;
             _ = TimeZoneInfo.FindSystemTimeZoneById(c.GetProperty("timeZone").GetString()!);
             if (!Integer(c,"cardsPerShelf",3,24) || !Integer(c,"batchSize",1,8) || !Integer(c,"minimumItems",1,12) || !Integer(c,"maxLiveRows",12,60) || c.GetProperty("minimumItems").GetInt32() > c.GetProperty("cardsPerShelf").GetInt32()) return false;
             if (!Boolean(c.GetProperty("endless")) || !Boolean(c.GetProperty("hideWatched"))) return false;
+            if (c.TryGetProperty("ratings", out var ratings) && ratings.ValueKind != JsonValueKind.Null)
+            {
+                if (ratings.ValueKind != JsonValueKind.Object) return false;
+                var rAllowed = new HashSet<string> { "tomatometer", "popcornmeter", "stars" };
+                if (ratings.EnumerateObject().Any(p => !rAllowed.Contains(p.Name) || !Boolean(p.Value))) return false;
+            }
             var pages=c.GetProperty("pages"); if (pages.ValueKind != JsonValueKind.Object) return false;
             foreach(var page in new[]{"home","movies","shows"})
             {
