@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.1';
+const VERSION = '0.6.2';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -26,185 +26,10 @@ const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`
 const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
 const trackingCacheKey = scope => `fazfort-discovery:tracking:v2:${scope}`;
 const ratingsSessionKey = 'fazfort-discovery:ratings:v1';
-const bgTunerStorageKey = 'fazfort-discovery:bg-tuner:v1';
-const DEFAULT_BG_TUNER = {
-  base: '#090a0d',
-  glow1: '#2a2e38',
-  glow2: '#1f2128',
-  glowOpacity: 52,
-  spread: 58,
-  noiseOpacity: 5.5,
-  noiseSize: 180,
-  animated: false,
-  animSpeed: 28,
-  animIntensity: 4
-};
-const BG_TUNER_PRESETS = [
-  { name: 'Subtle Mist', cfg: { ...DEFAULT_BG_TUNER } },
-  { name: 'Charcoal Slate', cfg: { base: '#0a0b0f', glow1: '#323846', glow2: '#222630', glowOpacity: 62, spread: 66, noiseOpacity: 6.5, noiseSize: 165, animated: false, animSpeed: 30, animIntensity: 4 } },
-  { name: 'Cinema Warm', cfg: { base: '#0a0909', glow1: '#30292b', glow2: '#211d20', glowOpacity: 54, spread: 60, noiseOpacity: 6, noiseSize: 190, animated: false, animSpeed: 32, animIntensity: 3.5 } },
-  { name: 'Deep Obsidian', cfg: { base: '#060709', glow1: '#1d2028', glow2: '#15171d', glowOpacity: 44, spread: 50, noiseOpacity: 4.5, noiseSize: 170, animated: false, animSpeed: 34, animIntensity: 3 } }
-];
-function readBgTunerConfig() {
-  try {
-    const raw = localStorage.getItem(bgTunerStorageKey);
-    if (!raw) return { ...DEFAULT_BG_TUNER };
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return { ...DEFAULT_BG_TUNER };
-    return { ...DEFAULT_BG_TUNER, ...parsed };
-  } catch { return { ...DEFAULT_BG_TUNER }; }
-}
-function applyBgTunerConfig(cfg, save = true) {
-  const c = { ...DEFAULT_BG_TUNER, ...(cfg || {}) };
-  const rootEl = document.documentElement;
-  if (rootEl?.style?.setProperty) {
-    rootEl.style.setProperty('--fx-bg-base', String(c.base || DEFAULT_BG_TUNER.base));
-    rootEl.style.setProperty('--fx-bg-glow1', String(c.glow1 || DEFAULT_BG_TUNER.glow1));
-    rootEl.style.setProperty('--fx-bg-glow2', String(c.glow2 || DEFAULT_BG_TUNER.glow2));
-    rootEl.style.setProperty('--fx-bg-glow3', String(c.glow2 || DEFAULT_BG_TUNER.glow2));
-    rootEl.style.setProperty('--fx-bg-glow-opacity', String(Math.max(0, Math.min(1, Number(c.glowOpacity) / 100))));
-    rootEl.style.setProperty('--fx-bg-spread', `${Math.max(20, Math.min(120, Number(c.spread) || 58))}%`);
-    rootEl.style.setProperty('--fx-bg-noise-opacity', String(Math.max(0, Math.min(0.25, Number(c.noiseOpacity) / 100))));
-    rootEl.style.setProperty('--fx-bg-noise-size', `${Math.max(80, Math.min(360, Number(c.noiseSize) || 180))}px`);
-    rootEl.style.setProperty('--fx-bg-anim-duration', `${Math.max(6, Math.min(90, Number(c.animSpeed) || 28))}s`);
-    rootEl.style.setProperty('--fx-bg-anim-amp', `${Math.max(1, Math.min(16, Number(c.animIntensity) || 4))}%`);
-  }
-  const bg = document.querySelector('.fx-ambient-bg');
-  if (bg) bg.dataset.animated = c.animated ? 'true' : 'false';
-  if (save) {
-    try { localStorage.setItem(bgTunerStorageKey, JSON.stringify(c)); } catch {}
-  }
-  return c;
-}
 function ensureAmbientBackground() {
-  if (stopped || !document.body) return;
-  let bg = document.querySelector('.fx-ambient-bg');
-  if (!bg) {
-    bg = element('div', 'fx-ambient-bg');
-    bg.setAttribute('aria-hidden', 'true');
-    bg.append(
-      element('div', 'fx-ambient-mesh fx-ambient-mesh-a'),
-      element('div', 'fx-ambient-mesh fx-ambient-mesh-b'),
-      element('div', 'fx-ambient-noise')
-    );
-    document.body.prepend(bg);
-  }
+  if (stopped || !document.documentElement) return;
   setRootAttr('data-fx-ambient-bg', true);
-  const cfg = applyBgTunerConfig(readBgTunerConfig(), false);
-  ensureBgTuner(cfg);
-}
-function ensureBgTuner(initialCfg) {
-  if (stopped || !document.body || document.querySelector('.fx-bg-tuner')) return;
-  let cfg = { ...DEFAULT_BG_TUNER, ...(initialCfg || readBgTunerConfig()) };
-  const wrap = element('div', 'fx-bg-tuner');
-  const toggleBtn = element('button', 'fx-bg-tuner-toggle');
-  toggleBtn.type = 'button';
-  toggleBtn.setAttribute('aria-expanded', 'false');
-  toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg><span>BG Tuner</span>';
-  const panel = element('div', 'fx-bg-tuner-panel');
-  panel.hidden = true;
-  const setOpen = open => {
-    panel.hidden = !open;
-    toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  };
-  toggleBtn.addEventListener('click', () => setOpen(panel.hidden));
-
-  function drawPanel() {
-    panel.replaceChildren();
-    const head = element('div', 'fx-bg-tuner-head');
-    head.append(element('strong', '', 'Background Tuner'));
-    const closeBtn = element('button', 'fx-bg-tuner-close', '×');
-    closeBtn.type = 'button';
-    closeBtn.setAttribute('aria-label', 'Close background tuner');
-    closeBtn.addEventListener('click', () => setOpen(false));
-    head.append(closeBtn);
-    panel.append(head);
-
-    const presets = element('div', 'fx-bg-tuner-presets');
-    for (const preset of BG_TUNER_PRESETS) {
-      const b = button(preset.name, () => {
-        cfg = applyBgTunerConfig({ ...preset.cfg, animated: cfg.animated, animSpeed: cfg.animSpeed, animIntensity: cfg.animIntensity }, true);
-        drawPanel();
-      });
-      presets.append(b);
-    }
-    panel.append(presets);
-
-    const colors = element('div', 'fx-bg-tuner-colors');
-    for (const [key, label] of [['base', 'Base'], ['glow1', 'Glow A'], ['glow2', 'Glow B']]) {
-      const lbl = element('label', 'fx-bg-tuner-color', label);
-      const inp = element('input');
-      inp.type = 'color';
-      inp.value = cfg[key];
-      inp.setAttribute('aria-label', `${label} color`);
-      inp.addEventListener('input', () => { cfg[key] = inp.value; applyBgTunerConfig(cfg, true); });
-      lbl.append(inp);
-      colors.append(lbl);
-    }
-    panel.append(colors);
-
-    const addSlider = (key, label, min, max, step, fmt) => {
-      const row = element('label', 'fx-bg-tuner-row');
-      const top = element('div', 'fx-bg-tuner-row-top');
-      const valSpan = element('span', '', fmt(cfg[key]));
-      top.append(element('span', '', label), valSpan);
-      const rng = element('input');
-      rng.type = 'range';
-      rng.min = String(min);
-      rng.max = String(max);
-      rng.step = String(step);
-      rng.value = String(cfg[key]);
-      rng.setAttribute('aria-label', label);
-      rng.addEventListener('input', () => {
-        cfg[key] = Number(rng.value);
-        valSpan.textContent = fmt(cfg[key]);
-        applyBgTunerConfig(cfg, true);
-      });
-      row.append(top, rng);
-      panel.append(row);
-    };
-
-    addSlider('glowOpacity', 'Glow Concentration', 0, 100, 1, v => `${Math.round(v)}%`);
-    addSlider('spread', 'Gradient Distribution', 25, 110, 1, v => `${Math.round(v)}%`);
-    addSlider('noiseOpacity', 'Noise / Grain', 0, 18, 0.5, v => `${Number(v).toFixed(1)}%`);
-    addSlider('noiseSize', 'Grain Fineness', 90, 320, 5, v => `${Math.round(v)}px`);
-
-    const animWrap = element('label', 'fx-bg-tuner-check');
-    animWrap.append(element('span', '', 'Subtle Drift Motion (GPU)'));
-    const animBox = element('input');
-    animBox.type = 'checkbox';
-    animBox.checked = Boolean(cfg.animated);
-    animBox.addEventListener('change', () => {
-      cfg.animated = animBox.checked;
-      applyBgTunerConfig(cfg, true);
-      drawPanel();
-    });
-    animWrap.append(animBox);
-    panel.append(animWrap);
-
-    if (cfg.animated) {
-      addSlider('animSpeed', 'Motion Cycle Speed', 8, 60, 1, v => `${Math.round(v)}s`);
-      addSlider('animIntensity', 'Motion Intensity', 1, 14, 0.5, v => `${Number(v).toFixed(1)}%`);
-    }
-
-    const actions = element('div', 'fx-bg-tuner-actions');
-    const resetBtn = button('Reset', () => {
-      cfg = applyBgTunerConfig({ ...DEFAULT_BG_TUNER }, true);
-      drawPanel();
-      showToast('Background reset to defaults');
-    });
-    const copyBtn = button('Copy Config', () => {
-      const txt = JSON.stringify(cfg, null, 2);
-      try { navigator.clipboard?.writeText?.(txt); } catch {}
-      showToast('Background config copied!');
-    });
-    copyBtn.className = 'is-primary';
-    actions.append(resetBtn, copyBtn);
-    panel.append(actions);
-  }
-  drawPanel();
-  wrap.append(panel, toggleBtn);
-  document.body.append(wrap);
+  document.querySelectorAll('.fx-ambient-bg, .fx-bg-tuner').forEach(n => n.remove());
 }
 
 // Rotten Tomatoes & Star Rating Crisp Inline SVG Icons
@@ -1147,9 +972,9 @@ function updateHeaderPopupAnchor(anchorEl) {
 }
 function isSyncPlayOrCastTrigger(el) {
   if (!el) return false;
-  if (el.matches?.('.headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast')) return true;
-  const label = `${el.getAttribute?.('title') || ''} ${el.getAttribute?.('aria-label') || ''} ${el.className || ''}`.toLowerCase();
-  return /syncplay|sync\s*play|cast|play\s*on/.test(label);
+  if (el.matches?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i]')) return true;
+  const label = `${el.getAttribute?.('title') || ''} ${el.getAttribute?.('aria-label') || ''} ${el.getAttribute?.('aria-controls') || ''} ${el.className || ''}`.toLowerCase();
+  return /syncplay|sync[\s_-]*play|syncbutton|cast|play\s*on|remote[\s_-]*play/.test(label);
 }
 function onOsdAnchorPointer(event) {
   if (stopped) return;
@@ -1178,9 +1003,10 @@ function onOsdAnchorPointer(event) {
       };
     }
   }
-  // SyncPlay & Cast to Device header triggers (both during playback AND on regular pages)
-  const headerBtn = event.target?.closest?.('.headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button');
-  if (headerBtn && (isSyncPlayOrCastTrigger(headerBtn) || (isVideoOsdOpen() && headerBtn.closest('.skinHeader')))) {
+  // SyncPlay & Cast to Device header triggers (both during playback in .osdHeader/.videoOsd-appBar AND on regular pages)
+  const headerBtn = event.target?.closest?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button');
+  const isBackBtn = Boolean(headerBtn?.matches?.('.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
+  if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || (isVideoOsdOpen() && headerBtn.closest('.osdHeader, .videoOsd-appBar, .skinHeader')))) {
     updateHeaderPopupAnchor(headerBtn);
     headerMenuAnchor = { el: headerBtn, at: Date.now() };
     if (isVideoOsdOpen()) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
@@ -1222,9 +1048,9 @@ function animateModalFromOrigin(dialog, rectOverride = null) {
   dialog.style?.setProperty?.('--fx-origin-x', `${dx}px`);
   dialog.style?.setProperty?.('--fx-origin-y', `${dy}px`);
   dialog.classList.add('fx-modal-origin-anim');
-  const clear = () => dialog.classList.remove('fx-modal-origin-anim');
-  dialog.addEventListener?.('animationend', clear, { once: true });
-  setTimeout(clear, 360);
+  // Keep fx-modal-origin-anim active while open (animation-fill-mode: both) so Jellyfin's underlying
+  // entry animation never restarts from opacity:0 on animationend; release cleanly only on dialog close.
+  dialog.addEventListener?.('closing', () => dialog.classList.remove('fx-modal-origin-anim'), { once: true });
 }
 function syncOriginModals() {
   document.querySelectorAll('.sleekfin-details-info-container .dialog, .dialog.sleekfin-details-track-dialog, .dialogContainer > .dialog:not(.actionSheet):not(.sleekfin-menu-host):not(.filterDialog):not(.hide)').forEach(dlg => {
@@ -1344,6 +1170,38 @@ function enhanceOsdSettingsMenu() {
   const freshDetailMore = detailMoreAnchor && (Date.now() - detailMoreAnchor.at < 1500) ? detailMoreAnchor : null;
 
   const isHeaderMenuText = txt => /create\s+a\s+new\s+group|join\s+group|syncplay|play\s+on|my\s+device|cast\s+to/.test(txt);
+  const resolveHeaderTrigger = (menuId, txt) => {
+    if (freshHeaderAnchor?.el?.isConnected) return freshHeaderAnchor.el;
+    if (menuId) {
+      const byCtrl = document.querySelector(`button[aria-controls="${menuId}"]:not(.hide)`);
+      if (byCtrl) return byCtrl;
+    }
+    if (menuId === 'app-sync-play-menu' || /create\s+a\s+new\s+group|join\s+group|syncplay/.test(txt)) {
+      return document.querySelector('button[aria-controls="app-sync-play-menu"]:not(.hide), .headerSyncButton:not(.hide), .syncButton:not(.hide), .headerSyncPlayButton:not(.hide), .btnSyncPlay:not(.hide), button[title*="SyncPlay" i]:not(.hide), button[aria-label*="SyncPlay" i]:not(.hide)');
+    }
+    if (menuId === 'app-remote-play-menu' || /play\s+on|my\s+device|cast/.test(txt)) {
+      return document.querySelector('button[aria-controls="app-remote-play-menu"]:not(.hide), .headerCastButton:not(.hide), .castButton:not(.hide), button[title*="Cast" i]:not(.hide), button[aria-label*="Cast" i]:not(.hide)');
+    }
+    return null;
+  };
+
+  // 0. Modern React MUI SyncPlay (#app-sync-play-menu) & Cast (#app-remote-play-menu) Popovers -> anchor right below their trigger button!
+  let hasActiveHeaderPopover = false;
+  document.querySelectorAll('#app-sync-play-menu, #app-remote-play-menu, .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)').forEach(pop => {
+    const isHidden = pop.getAttribute('aria-hidden') === 'true' || pop.classList.contains('MuiModal-hidden');
+    if (isHidden) return;
+    const isKnownHeaderMenu = pop.id === 'app-sync-play-menu' || pop.id === 'app-remote-play-menu';
+    const txt = (pop.textContent || '').toLowerCase();
+    if (!isKnownHeaderMenu && !isHeaderMenuText(txt)) return;
+    hasActiveHeaderPopover = true;
+    const trig = resolveHeaderTrigger(pop.id, txt);
+    if (trig) updateHeaderPopupAnchor(trig);
+    if (osdOpen) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
+    const paper = pop.querySelector('.MuiPopover-paper');
+    const innerPopup = pop.querySelector('.sleekfin-menu-popup');
+    if (paper && !paper.classList.contains('sleekfin-menu-host')) paper.dataset.fxHeaderAnchored = 'true';
+    if (innerPopup) innerPopup.dataset.fxHeaderAnchored = 'true';
+  });
 
   for (const sheet of sheets) {
     if (sheet.classList.contains('sleekfin-menu-closing')) continue;
@@ -1359,15 +1217,9 @@ function enhanceOsdSettingsMenu() {
 
     // 1. SyncPlay / Cast to Device popup -> anchor directly below its header button!
     if (freshHeaderAnchor || isHeaderMenuText(fullText)) {
-      if (freshHeaderAnchor?.el?.isConnected) {
-        updateHeaderPopupAnchor(freshHeaderAnchor.el);
-      } else if (/create\s+a\s+new\s+group|syncplay/.test(fullText)) {
-        const spBtn = document.querySelector('.headerSyncPlayButton:not(.hide), .btnSyncPlay:not(.hide), button[title*="SyncPlay" i]');
-        if (spBtn) updateHeaderPopupAnchor(spBtn);
-      } else if (/play\s+on|my\s+device|cast/.test(fullText)) {
-        const castBtn = document.querySelector('.headerCastButton:not(.hide), .castButton:not(.hide), button[title*="Cast" i], button[aria-label*="Cast" i]');
-        if (castBtn) updateHeaderPopupAnchor(castBtn);
-      }
+      hasActiveHeaderPopover = true;
+      const trig = resolveHeaderTrigger('', fullText);
+      if (trig) updateHeaderPopupAnchor(trig);
       if (osdOpen) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
       sheet.dataset.fxHeaderAnchored = 'true';
       if (sleekPopup) sleekPopup.dataset.fxHeaderAnchored = 'true';
@@ -1389,7 +1241,7 @@ function enhanceOsdSettingsMenu() {
     const looksLikeSettings =
       ids.some(id => ['quality', 'playbackrate', 'aspectratio', 'stats', 'subtitleoffset', 'repeatmode', 'videostretch'].includes(id)) ||
       labels.some(l => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
-    document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'bottom');
+    if (!hasActiveHeaderPopover) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'bottom');
     sheet.dataset.fxOsdPopup = 'true';
     if (sleekPopup) sleekPopup.dataset.fxOsdPopup = 'true';
     if (!looksLikeSettings) continue;
@@ -1482,7 +1334,9 @@ function enhanceOsdSettingsMenu() {
     if (popup.closest('.sleekfin-menu-closing')) continue;
     const txt = (popup.textContent || '').toLowerCase();
     if (freshHeaderAnchor || isHeaderMenuText(txt)) {
-      if (freshHeaderAnchor?.el?.isConnected) updateHeaderPopupAnchor(freshHeaderAnchor.el);
+      const trig = resolveHeaderTrigger('', txt);
+      if (trig) updateHeaderPopupAnchor(trig);
+      if (osdOpen) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
       popup.dataset.fxHeaderAnchored = 'true';
     } else if (!osdOpen && freshDetailMore && popup.dataset.fxDetailMore !== 'true' && document.getElementById('itemDetailPage') && visible(document.getElementById('itemDetailPage'))) {
       positionDetailMoreMenu(popup, freshDetailMore);
@@ -2709,6 +2563,7 @@ function closeCategorySubpage(s = state, updateUrl = true) {
   });
 }
 const SUBPAGE_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>';
+const HERO_NEXT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
 function resolveCategoryShelf(s, catKey, fallbackRow = null) {
   const plannerShelf = s.planner?.shelves?.find(sh => sh.key === catKey);
   const slotRow = s.slots.find(sl => sl.data?.key === catKey)?.data || fallbackRow;
@@ -3292,13 +3147,13 @@ function syncPageHero(s) {
   const prevBtn = element('button', 'fx-page-hero-nav fx-page-hero-prev');
   prevBtn.type = 'button';
   prevBtn.setAttribute('aria-label', 'Previous featured title');
-  prevBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+  prevBtn.innerHTML = SUBPAGE_BACK_SVG;
   prevBtn.addEventListener('click', () => setActive(activeIdx - 1));
 
   const nextBtn = element('button', 'fx-page-hero-nav fx-page-hero-next');
   nextBtn.type = 'button';
   nextBtn.setAttribute('aria-label', 'Next featured title');
-  nextBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+  nextBtn.innerHTML = HERO_NEXT_SVG;
   nextBtn.addEventListener('click', () => setActive(activeIdx + 1));
 
   s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
@@ -4830,11 +4685,13 @@ function syncMuteButtonIcon(btn, muted) {
   }
   btn.setAttribute('aria-pressed', muted ? 'true' : 'false');
 }
+const osdPercentToLinearVolume = pct => Math.pow(Math.max(0, Math.min(100, Number(pct) || 0)) / 100, 3);
+const osdLinearVolumeToPercent = vol => Math.min(100, Math.max(0, Math.round(100 * Math.pow(Math.max(0, Math.min(1, Number(vol) || 0)), 1 / 3))));
 function setOsdVolumeAndSync(slider, video, volPercent, muted) {
   const clamped = Math.max(0, Math.min(100, Math.round(Number(volPercent) || 0)));
   if (video) {
     try { video.muted = Boolean(muted); } catch {}
-    try { video.volume = clamped / 100; } catch {}
+    try { video.volume = osdPercentToLinearVolume(clamped); } catch {}
   }
   if (slider) {
     slider._fxInternalVol = true;
@@ -4859,7 +4716,7 @@ function toggleOsdMuteWithMemory() {
   const slider = osd?.querySelector?.('.osdVolumeSlider') || null;
   const video = findActiveOsdVideo();
   const sliderVal = slider ? Number(slider.value) : NaN;
-  const curVol = Number.isFinite(sliderVal) ? sliderVal : Math.round((video?.volume ?? 1) * 100);
+  const curVol = Number.isFinite(sliderVal) ? sliderVal : osdLinearVolumeToPercent(video?.volume ?? 1);
   const isMuted = osdMuteState.muted || Boolean(video?.muted) || curVol <= 0;
   if (!isMuted) {
     osdMuteState.savedVolume = curVol > 0 ? curVol : (osdMuteState.savedVolume > 0 ? osdMuteState.savedVolume : 100);
@@ -4886,16 +4743,17 @@ function onOsdVolumeSliderInput(event) {
   if (!slider || slider._fxInternalVol) return;
   const val = Number(slider.value);
   if (!Number.isFinite(val)) return;
+  const clamped = Math.max(0, Math.min(100, Math.round(val)));
   const video = findActiveOsdVideo();
   const lower = slider.parentElement?.querySelector?.('.mdl-slider-background-lower');
-  if (lower) lower.style.width = `${Math.max(0, Math.min(100, val))}%`;
+  if (lower) lower.style.width = `${clamped}%`;
   const muteBtn = document.querySelector('#videoOsdPage .buttonMute');
-  if (val > 0) {
+  if (clamped > 0) {
     osdMuteState.muted = false;
-    osdMuteState.savedVolume = val;
+    osdMuteState.savedVolume = clamped;
     if (video) {
       try { if (video.muted) video.muted = false; } catch {}
-      try { video.volume = Math.max(0, Math.min(1, val / 100)); } catch {}
+      try { video.volume = osdPercentToLinearVolume(clamped); } catch {}
     }
     syncMuteButtonIcon(muteBtn, false);
   } else {

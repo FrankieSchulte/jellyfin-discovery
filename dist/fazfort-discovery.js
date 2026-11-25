@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.1 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.2 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2362,7 +2362,7 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   from{opacity:0;transform:translateY(6px) scale(.96)}
   to{opacity:1;transform:none}
 }
-html[data-fx-video-osd="true"]:not([data-fx-osd-anchor="top"]) :is(.sleekfin-menu-popup:not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"])),
+html[data-fx-video-osd="true"]:not([data-fx-osd-anchor="top"]) :is(.sleekfin-popup-layer .sleekfin-menu-popup:not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"]),.dialog.actionSheet .sleekfin-menu-popup:not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-header-anchored="true"]):not([data-fx-detail-more="true"])),
 html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-popup[data-fx-osd-popup="true"]:not([data-fx-header-anchored="true"]),.dialog.actionSheet[data-fx-osd-settings="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-osd-popup="true"]:not(.sleekfin-menu-host):not([data-fx-header-anchored="true"])){
   position:fixed!important;
   top:auto!important;
@@ -2379,7 +2379,8 @@ html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-p
   animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
 html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
-html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
+html:root :is(#app-sync-play-menu,#app-remote-play-menu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
+html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-paper[data-fx-header-anchored="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
   position:fixed!important;
   top:var(--fx-header-popup-top,64px)!important;
   right:var(--fx-header-popup-right,20px)!important;
@@ -4324,7 +4325,7 @@ html[data-fx-video-osd="true"] .videoPlayerContainer{
   user-select:none!important;
   -webkit-touch-callout:none!important;
 }
-/* Ensure top playback header & Back button always sit cleanly above #videoOsdPage (10) and below .dialogContainer (999999) with generous safe-area tap target */
+/* Ensure top playback header & Back button always sit cleanly above #videoOsdPage (10) and below .dialogContainer (999999) */
 html[data-fx-video-osd="true"] .skinHeader{
   z-index:999!important;
   padding-top:env(safe-area-inset-top,0px)!important;
@@ -4332,24 +4333,10 @@ html[data-fx-video-osd="true"] .skinHeader{
   padding-right:env(safe-area-inset-right,0px)!important;
   pointer-events:none!important;
 }
-html[data-fx-video-osd="true"] .skinHeader :is(button,a,.headerBackButton,.paper-icon-button-light){
+html[data-fx-video-osd="true"] .skinHeader :is(button,a,.headerBackButton,.paper-icon-button-light,.MuiIconButton-root){
   pointer-events:auto!important;
   touch-action:manipulation!important;
   cursor:pointer!important;
-}
-html[data-fx-video-osd="true"] .skinHeader .headerBackButton{
-  min-width:48px!important;
-  min-height:48px!important;
-  width:48px!important;
-  height:48px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  margin-left:4px!important;
-  border-radius:999px!important;
-}
-html[data-fx-video-osd="true"] .skinHeader .headerBackButton:hover{
-  background:rgba(255,255,255,.14)!important;
 }
 /* Lift & style Playback Info (.playerStats) overlay above the fixed video player so selecting Playback info always displays cleanly */
 .playerStats:not(.hide){
@@ -4809,7 +4796,7 @@ button.fx-livetv-tab.is-active{
 @media(max-width:899px){
   html,body{
     max-width:100%;
-    overflow-x:hidden;
+    overflow-x:clip;
   }
   .mainAnimatedPages,
   .page:not(#videoOsdPage):not(#itemDetailPage),
@@ -4830,7 +4817,7 @@ button.fx-livetv-tab.is-active{
   .userPreferencesPage{
     max-width:100vw!important;
     box-sizing:border-box!important;
-    overflow-x:hidden;
+    overflow-x:clip;
   }
   /* Restore Smooth Vertical Momentum Scroll on #itemDetailPage on Mobile (SleekFin locks body overflow: hidden) */
   #itemDetailPage:not(.hide):not(.hidePage):not([hidden]),
@@ -5217,13 +5204,15 @@ html[data-fx-page-hero="true"] header.MuiAppBar-root:has(> .MuiToolbar-root + .M
 }
 html[data-fx-page-hero="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]{
   text-shadow:0 2px 14px rgba(0,0,0,.78)!important;
-  background:rgba(12,13,16,.28)!important;
-  backdrop-filter:blur(8px)!important;
-  -webkit-backdrop-filter:blur(8px)!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  box-shadow:none!important;
   transition:background-color .16s ease!important;
 }
 html[data-fx-page-hero="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]:hover{
-  background:rgba(20,21,26,.56)!important;
+  background:rgba(255,255,255,.08)!important;
 }
 html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage){
   padding-top:0!important;
@@ -5269,8 +5258,8 @@ html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) 
 .fx-page-hero-backdrop-wrap{
   position:absolute;
   inset:0;
-  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 68%,rgba(0,0,0,.62) 84%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0,#000 68%,rgba(0,0,0,.62) 84%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 54%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.36) 86%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 54%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.36) 86%,transparent 100%);
 }
 .fx-page-hero-backdrop{
   width:100%;
@@ -5289,8 +5278,10 @@ html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) 
   inset:0;
   pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(7,8,10,.62) 0%,rgba(7,8,10,.14) 24%,transparent 48%,rgba(7,8,10,.52) 78%,transparent 100%),
-    linear-gradient(90deg,rgba(7,8,10,.88) 0%,rgba(7,8,10,.64) 26%,rgba(7,8,10,.26) 50%,transparent 76%);
+    linear-gradient(180deg,rgba(7,8,10,.56) 0%,rgba(7,8,10,.14) 24%,transparent 48%),
+    linear-gradient(90deg,rgba(7,8,10,.82) 0%,rgba(7,8,10,.56) 24%,rgba(7,8,10,.22) 48%,transparent 72%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 60%,rgba(0,0,0,.52) 82%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 60%,rgba(0,0,0,.52) 82%,transparent 100%);
 }
 .fx-page-hero-content{
   position:relative;
@@ -5416,32 +5407,45 @@ html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) 
   top:50%;
   transform:translateY(-50%);
   z-index:4;
-  width:42px!important;
-  height:42px!important;
-  min-width:42px!important;
-  min-height:42px!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
   padding:0!important;
-  border-radius:50%!important;
+  margin:0!important;
+  border-radius:999px!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  background:rgba(16,17,22,.62)!important;
-  backdrop-filter:blur(12px)!important;
-  -webkit-backdrop-filter:blur(12px)!important;
-  border:1px solid rgba(255,255,255,.14)!important;
-  color:#fff!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 100%),rgba(22,22,24,.86)!important;
+  backdrop-filter:blur(18px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  color:rgba(255,255,255,.86)!important;
   opacity:0;
-  transition:opacity .18s ease,background-color .16s ease,transform .16s ease!important;
+  cursor:pointer!important;
+  transition:opacity .18s ease,background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease!important;
+}
+.fx-page-hero-nav svg{
+  display:block;
+  width:18px;
+  height:18px;
 }
 .fx-page-hero:hover .fx-page-hero-nav,
 .fx-page-hero:focus-within .fx-page-hero-nav{
   opacity:1;
 }
 .fx-page-hero-nav:hover{
-  background:rgba(28,30,38,.88)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.92)!important;
+  border-color:rgba(255,255,255,.18)!important;
+  color:#fff!important;
 }
-.fx-page-hero-prev{left:16px}
-.fx-page-hero-next{right:16px}
+.fx-page-hero-nav:active{
+  transform:translateY(-50%) scale(.96)!important;
+}
+.fx-page-hero-prev{left:20px}
+.fx-page-hero-next{right:20px}
 .fx-page-hero-dots{
   position:absolute;
   right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
@@ -5500,289 +5504,85 @@ html[data-fx-page-hero="true"] :is(#moviesPage,#tvshowsPage,#tvRecommendedPage) 
   }
 }
 
-/* 5. Subtle Noisy Textured Ambient Background (GPU-Composited) + Live Interactive Corner Tuner Widget */
+/* 5. Permanent Static Scrollable Textured Ambient Background (Extends Infinitely Down, All Widths, Transparent Hero & Detail Transitions) */
 :root{
-  --fx-bg-base:#090a0d;
-  --fx-bg-glow1:#2a2e38;
-  --fx-bg-glow2:#1f2128;
-  --fx-bg-glow3:#272a32;
-  --fx-bg-glow-opacity:.52;
-  --fx-bg-spread:58%;
-  --fx-bg-noise-opacity:.055;
-  --fx-bg-noise-size:180px;
-  --fx-bg-anim-duration:28s;
-  --fx-bg-anim-amp:4%;
+  --fx-bg-base:#0a0b0f;
+  --fx-bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='290' height='290' viewBox='0 0 290 290'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='290' height='290' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 51% 32% at 18% 34%,rgba(50,56,70,.67) 0%,rgba(50,56,70,.31) 46%,rgba(50,56,70,.09) 76%,transparent 100%),
+    radial-gradient(ellipse 38% 26% at 74% 72%,rgba(50,56,70,.64) 0%,rgba(50,56,70,.29) 46%,rgba(50,56,70,.08) 76%,transparent 100%),
+    radial-gradient(ellipse 48% 30% at 84% 32%,rgba(34,38,48,.67) 0%,rgba(34,38,48,.33) 48%,rgba(34,38,48,.1) 76%,transparent 100%),
+    radial-gradient(ellipse 55% 28% at 44% 70%,rgba(34,38,48,.67) 0%,rgba(34,38,48,.32) 48%,rgba(34,38,48,.09) 76%,transparent 100%),
+    radial-gradient(ellipse 52% 36% at 50% 50%,rgba(44,50,63,.44) 0%,rgba(34,38,48,.18) 54%,transparent 100%);
+  --fx-bg-repeat:repeat,repeat-y,repeat-y,repeat-y,repeat-y,repeat-y;
+  --fx-bg-size:290px 290px,100% 1380px,100% 1380px,100% 1820px,100% 1820px,100% 2340px;
+  --fx-bg-blend:overlay,normal,normal,normal,normal,normal;
 }
-@keyframes fx-ambient-drift-a{
-  0%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.6 * var(--fx-bg-anim-amp,4%)),0) scale(1)}
-  50%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.8 * var(--fx-bg-anim-amp,4%)),0) scale(1.06)}
-  100%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.6 * var(--fx-bg-anim-amp,4%)),0) scale(1)}
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]),
+html[data-fx-ambient-bg="true"].sleekfin-main-ui:not([data-fx-video-osd="true"]),
+html[data-fx-ambient-bg="true"].sleekfin-details-mounted:not([data-fx-video-osd="true"]){
+  background-color:var(--fx-bg-base,#0a0b0f)!important;
+  background-image:var(--fx-bg-image)!important;
+  background-repeat:var(--fx-bg-repeat)!important;
+  background-size:var(--fx-bg-size)!important;
+  background-position:0 0!important;
+  background-attachment:scroll!important;
+  background-blend-mode:var(--fx-bg-blend)!important;
 }
-@keyframes fx-ambient-drift-b{
-  0%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.5 * var(--fx-bg-anim-amp,4%)),0) scale(1.04)}
-  50%{transform:translate3d(calc(-1 * var(--fx-bg-anim-amp,4%)),calc(-0.7 * var(--fx-bg-anim-amp,4%)),0) scale(.97)}
-  100%{transform:translate3d(var(--fx-bg-anim-amp,4%),calc(0.5 * var(--fx-bg-anim-amp,4%)),0) scale(1.04)}
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) body,
+html[data-fx-ambient-bg="true"].sleekfin-main-ui:not([data-fx-video-osd="true"]) body,
+html[data-fx-ambient-bg="true"].sleekfin-details-mounted:not([data-fx-video-osd="true"]) body,
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) .backgroundContainer:not(.withBackdrop),
+html[data-fx-ambient-bg="true"].sleekfin-main-ui:not([data-fx-video-osd="true"]) .backgroundContainer,
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) .mainAnimatedPages,
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) .mainAnimatedPage:not(#videoOsdPage):not(#loginPage),
+html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) .skinBody,
+html[data-fx-ambient-bg="true"].sleekfin-media-mounted body :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage,#liveTvSuggestedPage,#liveTvPage,#itemDetailPage,[data-seerrfin-modern-panel]),
+html[data-fx-ambient-bg="true"].sleekfin-main-ui body :is(#indexPage,#indexPage.homePage.libraryPage,#indexPage.homePage.libraryPage:has(.sleekfin-hero),#indexPage #homeTab,#indexPage .homeSectionsContainer,#indexPage .sections,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage,#liveTvSuggestedPage,#liveTvPage,#itemDetailPage,#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage,.rh-root),
+html[data-fx-ambient-bg="true"] body :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage,#liveTvSuggestedPage,#liveTvPage,#itemDetailPage,#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage,.rh-root){
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
 }
-.fx-ambient-bg{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  overflow:hidden;
-  background-color:var(--fx-bg-base,#090a0d);
-  contain:strict;
+/* Mobile #itemDetailPage uses its own fixed overflow-y:auto scroll container, so attach local scrolling texture there too */
+@media(max-width:899px){
+  html[data-fx-ambient-bg="true"]:not([data-fx-video-osd="true"]) #itemDetailPage:not(.hide):not(.hidePage):not([hidden]),
+  html[data-fx-ambient-bg="true"].sleekfin-details-mounted:not([data-fx-video-osd="true"]) #itemDetailPage[data-sleekfin-details]:not(.hide):not(.hidePage):not([hidden]){
+    background-color:var(--fx-bg-base,#0a0b0f)!important;
+    background-image:var(--fx-bg-image)!important;
+    background-repeat:var(--fx-bg-repeat)!important;
+    background-size:var(--fx-bg-size)!important;
+    background-position:0 0!important;
+    background-attachment:local!important;
+    background-blend-mode:var(--fx-bg-blend)!important;
+  }
 }
-html[data-fx-video-osd="true"] .fx-ambient-bg{
-  display:none!important;
-}
-.fx-ambient-mesh{
-  position:absolute;
-  inset:-18%;
-  opacity:var(--fx-bg-glow-opacity,.52);
-  will-change:transform;
-  transform:translate3d(0,0,0);
-}
-.fx-ambient-mesh-a{
-  background:
-    radial-gradient(ellipse var(--fx-bg-spread,58%) calc(var(--fx-bg-spread,58%) * 0.85) at 18% 16%,var(--fx-bg-glow1,#2a2e38) 0%,transparent 72%),
-    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 0.92) var(--fx-bg-spread,58%) at 84% 34%,var(--fx-bg-glow2,#1f2128) 0%,transparent 74%);
-}
-.fx-ambient-mesh-b{
-  background:
-    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 1.08) calc(var(--fx-bg-spread,58%) * 0.8) at 46% 86%,var(--fx-bg-glow3,#272a32) 0%,transparent 72%),
-    radial-gradient(ellipse calc(var(--fx-bg-spread,58%) * 0.72) calc(var(--fx-bg-spread,58%) * 0.72) at 72% 76%,var(--fx-bg-glow1,#2a2e38) 0%,transparent 70%);
-}
-.fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-a{
-  animation:fx-ambient-drift-a var(--fx-bg-anim-duration,28s) ease-in-out infinite;
-}
-.fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-b{
-  animation:fx-ambient-drift-b calc(var(--fx-bg-anim-duration,28s) * 1.24) ease-in-out infinite;
-}
-.fx-ambient-noise{
-  position:absolute;
-  inset:0;
-  opacity:var(--fx-bg-noise-opacity,.055);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  background-repeat:repeat;
-  background-size:var(--fx-bg-noise-size,180px) var(--fx-bg-noise-size,180px);
-  mix-blend-mode:overlay;
-}
-html[data-fx-ambient-bg="true"],
-html[data-fx-ambient-bg="true"] body,
-html[data-fx-ambient-bg="true"] .backgroundContainer:not(.withBackdrop),
-html[data-fx-ambient-bg="true"] .mainAnimatedPages,
-html[data-fx-ambient-bg="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#searchPage,#liveTvSuggestedPage,#liveTvPage,#userProfilePage,#myPreferencesMenuPage,#quickConnectPreferencesPage,#displayPreferencesPage,#homeScreenPreferencesPage,#languagePreferencesPage,#subtitlePreferencesPage,#controlsPreferencesPage,.userPreferencesPage,.rh-root){
+/* Transparent Hero Bottom Transition on Home (SleekFin Hero) & Detail Pages \u2014 Zero Black Band */
+html[data-fx-ambient-bg="true"] .sleekfin-hero,
+html[data-fx-ambient-bg="true"] .sleekfin-hero-slide{
   background:transparent!important;
   background-color:transparent!important;
 }
-html[data-fx-ambient-bg="true"] .sleekfin-hero{
+html[data-fx-ambient-bg="true"] .sleekfin-hero-seam{
+  display:none!important;
   background:transparent!important;
 }
 html[data-fx-ambient-bg="true"] .sleekfin-hero-backdrop{
-  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 70%,rgba(0,0,0,.55) 86%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0,#000 70%,rgba(0,0,0,.55) 86%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 54%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.36) 86%,transparent 100%)!important;
+  mask-image:linear-gradient(180deg,#000 0%,#000 54%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.36) 86%,transparent 100%)!important;
 }
-/* Collapsible Temporary Bottom-Corner Background Tuner Widget */
-.fx-bg-tuner{
-  position:fixed;
-  right:16px;
-  bottom:16px;
-  z-index:99990;
-  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
-  color:#f1f2f4;
-  box-sizing:border-box;
+html[data-fx-ambient-bg="true"] .sleekfin-hero-vignette{
+  background:linear-gradient(180deg,rgba(7,8,10,.44) 0%,transparent 28%,transparent 100%)!important;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 60%,rgba(0,0,0,.52) 82%,transparent 100%)!important;
+  mask-image:linear-gradient(180deg,#000 0%,#000 60%,rgba(0,0,0,.52) 82%,transparent 100%)!important;
 }
-html[data-fx-video-osd="true"] .fx-bg-tuner{
-  display:none!important;
+html[data-fx-ambient-bg="true"].sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop{
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 56%,rgba(0,0,0,.64) 78%,transparent 100%)!important;
+  mask-image:linear-gradient(180deg,#000 0%,#000 56%,rgba(0,0,0,.64) 78%,transparent 100%)!important;
 }
-.fx-bg-tuner-toggle{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  height:36px;
-  padding:0 13px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),rgba(18,19,24,.9);
-  backdrop-filter:blur(18px) saturate(140%);
-  -webkit-backdrop-filter:blur(18px) saturate(140%);
-  box-shadow:0 10px 28px -6px rgba(0,0,0,.68);
-  color:rgba(255,255,255,.88);
-  font:600 12px/1 inherit;
-  cursor:pointer;
-  transition:background-color .15s ease,border-color .15s ease,color .15s ease;
-}
-.fx-bg-tuner-toggle:hover{
-  background:rgba(32,34,42,.95);
-  border-color:rgba(255,255,255,.26);
-  color:#fff;
-}
-.fx-bg-tuner-panel{
-  position:absolute;
-  right:0;
-  bottom:calc(100% + 10px);
-  width:min(308px,calc(100vw - 28px));
-  max-height:min(76dvh,540px);
-  overflow-y:auto;
-  padding:14px 15px;
-  border-radius:14px;
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),rgba(16,17,21,.95);
-  backdrop-filter:blur(22px) saturate(140%);
-  -webkit-backdrop-filter:blur(22px) saturate(140%);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:inset 0 1px rgba(255,255,255,.08),0 22px 48px -8px rgba(0,0,0,.78);
-  box-sizing:border-box;
-  transform-origin:bottom right;
-  animation:fx-dropdown-enter-up .18s cubic-bezier(.22,1,.36,1) both;
-}
-.fx-bg-tuner-panel[hidden]{
-  display:none!important;
-}
-.fx-bg-tuner-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:0 0 10px;
-}
-.fx-bg-tuner-head strong{
-  font-size:13px;
-  font-weight:700;
-  color:#fff;
-  border-left:2.5px solid var(--sleekfin-accent,#e50914);
-  padding-left:8px;
-}
-.fx-bg-tuner-close{
-  width:26px;
-  height:26px;
-  border-radius:7px;
-  border:0;
-  background:rgba(255,255,255,.07);
-  color:rgba(255,255,255,.78);
-  font-size:15px;
-  line-height:1;
-  cursor:pointer;
-}
-.fx-bg-tuner-close:hover{
-  background:rgba(255,255,255,.16);
-  color:#fff;
-}
-.fx-bg-tuner-presets{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:6px;
-  margin-bottom:12px;
-}
-.fx-bg-tuner-presets button{
-  padding:6px 8px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.05);
-  color:rgba(255,255,255,.82);
-  font:600 11.5px/1.2 inherit;
-  cursor:pointer;
-  transition:background-color .14s ease,border-color .14s ease;
-}
-.fx-bg-tuner-presets button:hover,
-.fx-bg-tuner-presets button.is-active{
-  background:rgba(229,9,20,.22);
-  border-color:rgba(229,9,20,.65);
-  color:#fff;
-}
-.fx-bg-tuner-colors{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:8px;
-  margin-bottom:12px;
-}
-.fx-bg-tuner-color{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  font-size:11px;
-  color:rgba(255,255,255,.7);
-}
-.fx-bg-tuner-color input[type="color"]{
-  width:100%;
-  height:28px;
-  padding:2px;
-  border-radius:7px;
-  border:1px solid rgba(255,255,255,.14);
-  background:#0d0e12;
-  cursor:pointer;
-  box-sizing:border-box;
-}
-.fx-bg-tuner-row{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  margin-bottom:9px;
-}
-.fx-bg-tuner-row-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  font-size:11.5px;
-  color:rgba(255,255,255,.78);
-}
-.fx-bg-tuner-row-top span:last-child{
-  font-variant-numeric:tabular-nums;
-  color:#fff;
-  font-weight:600;
-}
-.fx-bg-tuner-row input[type="range"]{
-  width:100%;
-  accent-color:var(--sleekfin-accent,#e50914);
-  margin:0;
-  cursor:pointer;
-}
-.fx-bg-tuner-check{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:7px 10px;
-  margin:6px 0 10px;
-  border-radius:9px;
-  background:rgba(255,255,255,.045);
-  border:1px solid rgba(255,255,255,.08);
-  font-size:12px;
-  font-weight:600;
-  color:rgba(255,255,255,.88);
-  cursor:pointer;
-}
-.fx-bg-tuner-check input[type="checkbox"]{
-  width:16px;
-  height:16px;
-  accent-color:var(--sleekfin-accent,#e50914);
-}
-.fx-bg-tuner-actions{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-  padding-top:10px;
-  border-top:1px solid rgba(255,255,255,.08);
-}
-.fx-bg-tuner-actions button{
-  flex:1;
-  padding:7px 10px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.07);
-  color:#fff;
-  font:600 12px/1.2 inherit;
-  cursor:pointer;
-}
-.fx-bg-tuner-actions button:hover{
-  background:rgba(255,255,255,.14);
-}
-.fx-bg-tuner-actions button.is-primary{
-  background:var(--sleekfin-accent,#e50914);
-  border-color:#ff2c37;
-}
-@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
-  .fx-bg-tuner{
-    right:12px;
-    bottom:calc(72px + env(safe-area-inset-bottom,0px));
-  }
+html[data-fx-ambient-bg="true"].sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop::after{
+  background:transparent!important;
+  background-image:none!important;
 }
 
 /* 6. Subtle Luminous Diagonal Shimmer Animation on Unloaded UI Elements (GPU-Only transform) */
@@ -5832,11 +5632,11 @@ html[data-fx-video-osd="true"] .fx-bg-tuner{
     transform:translate3d(0,0,0) scale(1);
   }
 }
-.fx-modal-origin-anim,
-.sleekfin-details-info-container .dialog.fx-modal-origin-anim,
-.dialog.sleekfin-details-track-dialog.fx-modal-origin-anim,
-.fx-dialog.fx-modal-origin-anim,
-.rh-dialog.fx-modal-origin-anim{
+.fx-modal-origin-anim:not(.hide):not(.closing):not(.dialog-closing):not(.sleekfin-menu-closing),
+.sleekfin-details-info-container .dialog.fx-modal-origin-anim:not(.hide):not(.closing):not(.dialog-closing):not(.sleekfin-menu-closing),
+.dialog.sleekfin-details-track-dialog.fx-modal-origin-anim:not(.hide):not(.closing):not(.dialog-closing):not(.sleekfin-menu-closing),
+.fx-dialog.fx-modal-origin-anim:not(.hide):not(.closing),
+.rh-dialog.fx-modal-origin-anim:not(.hide):not(.closing){
   transform-origin:center center!important;
   animation:fx-modal-from-origin 260ms cubic-bezier(.22,1,.36,1) both!important;
 }
@@ -5924,35 +5724,93 @@ html:root [data-fx-detail-more="true"][data-fx-more-place="left"]{
   animation:fx-more-from-left 190ms cubic-bezier(.22,1,.36,1) both!important;
 }
 
-/* 11. Playback Page (#videoOsdPage) Visual Identity Overhaul */
+/* 11. Playback Page (#videoOsdPage) Visual Identity, Unified Back Arrow, Symmetric Bottom Controls & Accurate Sliders */
 html[data-fx-video-osd="true"] .skinHeader{
   background:linear-gradient(180deg,rgba(7,8,10,.82) 0%,rgba(7,8,10,.36) 62%,transparent 100%)!important;
   box-shadow:none!important;
 }
-html[data-fx-video-osd="true"] .skinHeader .headerBackButton{
-  width:42px!important;
-  height:42px!important;
-  min-width:42px!important;
-  min-height:42px!important;
-  margin-left:8px!important;
+html[data-fx-video-osd="true"] .skinHeader .videoOsd-appBar,
+html[data-fx-video-osd="true"] .skinHeader .headerTop{
+  padding-top:var(--sleekfin-header-bar-top,20px)!important;
+  padding-bottom:8px!important;
+  padding-left:calc(var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) + 52px)!important;
+  padding-right:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  min-height:40px!important;
+  max-height:none!important;
+  align-items:center!important;
+  box-sizing:content-box!important;
+}
+html[data-fx-video-osd="true"] .skinHeader .headerBackButton,
+html[data-fx-video-osd="true"] :is(.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])){
+  position:fixed!important;
+  top:var(--sleekfin-header-bar-top,20px)!important;
+  left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
+  z-index:1105!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  padding:0!important;
+  margin:0!important;
   border-radius:999px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.075) 0%,rgba(255,255,255,.015) 100%),rgba(20,21,25,.78)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 100%),rgba(22,22,24,.86)!important;
   backdrop-filter:blur(18px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(18px) saturate(140%)!important;
-  border:1px solid rgba(255,255,255,.12)!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.09),0 6px 16px -6px rgba(0,0,0,.6)!important;
-  color:rgba(255,255,255,.9)!important;
-  transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .14s ease!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  color:rgba(255,255,255,.86)!important;
+  cursor:pointer!important;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease!important;
 }
-html[data-fx-video-osd="true"] .skinHeader .headerBackButton:hover{
-  background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 100%),rgba(34,36,42,.9)!important;
-  border-color:rgba(255,255,255,.24)!important;
+html[data-fx-video-osd="true"] :is(.skinHeader .headerBackButton,.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])) > :is(svg,.material-icons,.MuiTouchRipple-root){
+  display:none!important;
+}
+html[data-fx-video-osd="true"] :is(.skinHeader .headerBackButton,.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"]))::before{
+  content:""!important;
+  display:block!important;
+  width:18px!important;
+  height:18px!important;
+  background-color:currentColor!important;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='19' y1='12' x2='5' y2='12'/%3E%3Cpolyline points='12 19 5 12 12 5'/%3E%3C/svg%3E") center/18px 18px no-repeat!important;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='19' y1='12' x2='5' y2='12'/%3E%3Cpolyline points='12 19 5 12 12 5'/%3E%3C/svg%3E") center/18px 18px no-repeat!important;
+}
+html[data-fx-video-osd="true"] :is(.skinHeader .headerBackButton,.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])):hover{
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.92)!important;
+  border-color:rgba(255,255,255,.18)!important;
   color:#fff!important;
 }
-html[data-fx-video-osd="true"] .skinHeader .headerBackButton:active{
-  transform:scale(.94)!important;
+html[data-fx-video-osd="true"] :is(.skinHeader .headerBackButton,.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])):active{
+  transform:scale(.96)!important;
 }
-html[data-fx-video-osd="true"] .skinHeader .pageTitle{
+html[data-fx-video-osd="true"] .skinHeader.osdHeader-hidden :is(.headerBackButton,.videoOsd-appBar > button:first-child,button[aria-label="Back" i],.MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])){
+  opacity:0!important;
+  pointer-events:none!important;
+}
+@media(max-width:599px),((max-width:899px) and (hover:none) and (pointer:coarse)){
+  html[data-fx-video-osd="true"] .skinHeader .videoOsd-appBar,
+  html[data-fx-video-osd="true"] .skinHeader .headerTop{
+    padding-top:calc(12px + env(safe-area-inset-top,0px))!important;
+    padding-left:62px!important;
+    padding-right:14px!important;
+    min-height:38px!important;
+  }
+  html[data-fx-video-osd="true"] .skinHeader .headerBackButton,
+html[data-fx-video-osd="true"] :is(.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])){
+    top:calc(12px + env(safe-area-inset-top,0px))!important;
+    left:14px!important;
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    min-height:38px!important;
+  }
+}
+html[data-fx-video-osd="true"] .skinHeader .pageTitle,
+html[data-fx-video-osd="true"] .osdHeader .MuiTypography-root{
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-weight:600!important;
   letter-spacing:-.01em!important;
@@ -5960,10 +5818,60 @@ html[data-fx-video-osd="true"] .skinHeader .pageTitle{
 }
 #videoOsdPage .videoOsdBottom{
   background:linear-gradient(180deg,transparent 0%,rgba(7,8,10,.56) 36%,rgba(7,8,10,.92) 100%)!important;
-  padding-top:26px!important;
+  padding-top:30px!important;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
+}
+#videoOsdPage .osdControls{
+  padding:0 clamp(14px,2.4vw,28px)!important;
+  box-sizing:border-box!important;
+}
+#videoOsdPage .osdControls > .flex.align-items-center,
+#videoOsdPage .osdControls > div:has(.osdPositionSliderContainer){
+  margin:0 0 16px 0!important;
+  padding:0!important;
+  align-items:center!important;
+}
+#videoOsdPage .videoOsdBottom .buttons{
+  display:flex!important;
+  align-items:center!important;
+  min-height:44px!important;
+  padding:0!important;
+  margin:0!important;
+  gap:4px!important;
+}
+#videoOsdPage .videoOsdBottom .buttons > div[dir="ltr"]{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0!important;
+  padding:0!important;
+}
+#videoOsdPage .videoOsdBottom .paper-icon-button-light{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+#videoOsdPage .videoOsdBottom .paper-icon-button-light .material-icons{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:22px!important;
+  width:22px!important;
+  height:22px!important;
+  line-height:1!important;
+  margin:0!important;
 }
 #videoOsdPage .paper-icon-button-light,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton){
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton),
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])){
   border-radius:999px!important;
   color:rgba(255,255,255,.84)!important;
   background:transparent!important;
@@ -5973,24 +5881,26 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerB
 }
 #videoOsdPage .paper-icon-button-light::before,
 #videoOsdPage .paper-icon-button-light::after,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light::before,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light::after{
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton)::before,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton)::after{
   display:none!important;
   content:none!important;
 }
 #videoOsdPage .paper-icon-button-light:hover,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover{
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover{
   background:rgba(255,255,255,.14)!important;
   color:#fff!important;
   box-shadow:inset 0 1px rgba(255,255,255,.14)!important;
 }
 #videoOsdPage .paper-icon-button-light:active,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active{
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active{
   transform:scale(.92)!important;
   background:rgba(255,255,255,.2)!important;
 }
 #videoOsdPage .paper-icon-button-light:focus:not(:hover):not(:focus-visible),
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus:not(:hover):not(:focus-visible){
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus:not(:hover):not(:focus-visible){
   background:transparent!important;
   box-shadow:none!important;
   outline:none!important;
@@ -6001,12 +5911,60 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
   outline-offset:2px!important;
 }
 #videoOsdPage .btnPause{
-  background:rgba(255,255,255,.08)!important;
-  border:1px solid rgba(255,255,255,.1)!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  min-height:44px!important;
+  background:rgba(255,255,255,.09)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+#videoOsdPage .btnPause .material-icons{
+  font-size:26px!important;
+  width:26px!important;
+  height:26px!important;
+}
+#videoOsdPage .btnPause .material-icons.play_arrow{
+  transform:translateX(1px)!important;
 }
 #videoOsdPage .btnPause:hover{
   background:rgba(255,255,255,.18)!important;
-  border-color:rgba(255,255,255,.22)!important;
+  border-color:rgba(255,255,255,.24)!important;
+}
+#videoOsdPage .volumeButtons{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0 8px 0 4px!important;
+  height:40px!important;
+}
+#videoOsdPage .osdVolumeSliderContainer{
+  display:flex!important;
+  align-items:center!important;
+  height:40px!important;
+  width:108px!important;
+  flex-grow:0!important;
+  margin:0!important;
+}
+#videoOsdPage .osdVolumeSliderContainer .mdl-slider-container{
+  width:100%!important;
+  height:24px!important;
+  align-items:center!important;
+}
+#videoOsdPage .osdVolumeSliderContainer .slider-browser-edge,
+#videoOsdPage .osdPositionSliderContainer .slider-browser-edge{
+  width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+#videoOsdPage .osdVolumeSliderContainer .mdl-slider-background-flex-container{
+  padding:0 6px!important;
+}
+#videoOsdPage .osdPositionSliderContainer .mdl-slider-background-flex-container{
+  padding:0 6.5px!important;
+}
+#videoOsdPage .osdVolumeSliderContainer .sliderBubbleTrack,
+#videoOsdPage .osdVolumeSliderContainer .sliderBubble{
+  display:none!important;
 }
 #videoOsdPage .osdTimeText{
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
@@ -6014,24 +5972,29 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
   font-size:13px!important;
   font-weight:500!important;
   color:rgba(255,255,255,.86)!important;
+  margin-left:12px!important;
+  margin-right:auto!important;
 }
 /* Scrub Bar & Volume Bar Modern Hover/Expand Styling */
 #videoOsdPage .osdPositionSliderContainer .mdl-slider-background-flex,
 #videoOsdPage .osdVolumeSliderContainer .mdl-slider-background-flex{
   height:4px!important;
+  margin-top:-2px!important;
   border-radius:999px!important;
   background:rgba(255,255,255,.22)!important;
   overflow:hidden!important;
-  transition:height .15s cubic-bezier(.22,1,.36,1),background-color .15s ease!important;
+  transition:height .15s cubic-bezier(.22,1,.36,1),margin-top .15s cubic-bezier(.22,1,.36,1),background-color .15s ease!important;
 }
 #videoOsdPage .osdPositionSliderContainer:hover .mdl-slider-background-flex,
 #videoOsdPage .osdPositionSliderContainer:focus-within .mdl-slider-background-flex{
   height:6px!important;
+  margin-top:-3px!important;
   background:rgba(255,255,255,.28)!important;
 }
 #videoOsdPage .osdVolumeSliderContainer:hover .mdl-slider-background-flex,
 #videoOsdPage .osdVolumeSliderContainer:focus-within .mdl-slider-background-flex{
   height:5px!important;
+  margin-top:-2.5px!important;
 }
 #videoOsdPage .mdl-slider-background-upper{
   background:rgba(255,255,255,.36)!important;
@@ -6079,6 +6042,12 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
   box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
   transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .15s ease!important;
 }
+#videoOsdPage input.osdVolumeSlider::-moz-range-thumb{
+  width:12px!important;
+  height:12px!important;
+  background:#fff!important;
+  border:0!important;
+}
 #videoOsdPage .sliderBubble{
   background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015)),rgba(16,17,22,.94)!important;
   backdrop-filter:blur(18px) saturate(140%)!important;
@@ -6116,8 +6085,6 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
 }
 
 @media(prefers-reduced-motion:reduce){
-  .fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-a,
-  .fx-ambient-bg[data-animated="true"] .fx-ambient-mesh-b,
   .fx-card-visual.is-loading::after,
   .fx-skeleton-box::after,
   .fx-skeleton-title::after,
@@ -7662,7 +7629,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.1";
+      const VERSION = "0.6.2";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -7701,190 +7668,10 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
       const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ""}:${route.view || "home"}`;
       const trackingCacheKey = (scope) => `fazfort-discovery:tracking:v2:${scope}`;
       const ratingsSessionKey = "fazfort-discovery:ratings:v1";
-      const bgTunerStorageKey = "fazfort-discovery:bg-tuner:v1";
-      const DEFAULT_BG_TUNER = {
-        base: "#090a0d",
-        glow1: "#2a2e38",
-        glow2: "#1f2128",
-        glowOpacity: 52,
-        spread: 58,
-        noiseOpacity: 5.5,
-        noiseSize: 180,
-        animated: false,
-        animSpeed: 28,
-        animIntensity: 4
-      };
-      const BG_TUNER_PRESETS = [
-        { name: "Subtle Mist", cfg: { ...DEFAULT_BG_TUNER } },
-        { name: "Charcoal Slate", cfg: { base: "#0a0b0f", glow1: "#323846", glow2: "#222630", glowOpacity: 62, spread: 66, noiseOpacity: 6.5, noiseSize: 165, animated: false, animSpeed: 30, animIntensity: 4 } },
-        { name: "Cinema Warm", cfg: { base: "#0a0909", glow1: "#30292b", glow2: "#211d20", glowOpacity: 54, spread: 60, noiseOpacity: 6, noiseSize: 190, animated: false, animSpeed: 32, animIntensity: 3.5 } },
-        { name: "Deep Obsidian", cfg: { base: "#060709", glow1: "#1d2028", glow2: "#15171d", glowOpacity: 44, spread: 50, noiseOpacity: 4.5, noiseSize: 170, animated: false, animSpeed: 34, animIntensity: 3 } }
-      ];
-      function readBgTunerConfig() {
-        try {
-          const raw = localStorage.getItem(bgTunerStorageKey);
-          if (!raw) return { ...DEFAULT_BG_TUNER };
-          const parsed = JSON.parse(raw);
-          if (!parsed || typeof parsed !== "object") return { ...DEFAULT_BG_TUNER };
-          return { ...DEFAULT_BG_TUNER, ...parsed };
-        } catch {
-          return { ...DEFAULT_BG_TUNER };
-        }
-      }
-      function applyBgTunerConfig(cfg, save = true) {
-        var _a2;
-        const c = { ...DEFAULT_BG_TUNER, ...cfg || {} };
-        const rootEl = document.documentElement;
-        if ((_a2 = rootEl == null ? void 0 : rootEl.style) == null ? void 0 : _a2.setProperty) {
-          rootEl.style.setProperty("--fx-bg-base", String(c.base || DEFAULT_BG_TUNER.base));
-          rootEl.style.setProperty("--fx-bg-glow1", String(c.glow1 || DEFAULT_BG_TUNER.glow1));
-          rootEl.style.setProperty("--fx-bg-glow2", String(c.glow2 || DEFAULT_BG_TUNER.glow2));
-          rootEl.style.setProperty("--fx-bg-glow3", String(c.glow2 || DEFAULT_BG_TUNER.glow2));
-          rootEl.style.setProperty("--fx-bg-glow-opacity", String(Math.max(0, Math.min(1, Number(c.glowOpacity) / 100))));
-          rootEl.style.setProperty("--fx-bg-spread", `${Math.max(20, Math.min(120, Number(c.spread) || 58))}%`);
-          rootEl.style.setProperty("--fx-bg-noise-opacity", String(Math.max(0, Math.min(0.25, Number(c.noiseOpacity) / 100))));
-          rootEl.style.setProperty("--fx-bg-noise-size", `${Math.max(80, Math.min(360, Number(c.noiseSize) || 180))}px`);
-          rootEl.style.setProperty("--fx-bg-anim-duration", `${Math.max(6, Math.min(90, Number(c.animSpeed) || 28))}s`);
-          rootEl.style.setProperty("--fx-bg-anim-amp", `${Math.max(1, Math.min(16, Number(c.animIntensity) || 4))}%`);
-        }
-        const bg = document.querySelector(".fx-ambient-bg");
-        if (bg) bg.dataset.animated = c.animated ? "true" : "false";
-        if (save) {
-          try {
-            localStorage.setItem(bgTunerStorageKey, JSON.stringify(c));
-          } catch {
-          }
-        }
-        return c;
-      }
       function ensureAmbientBackground() {
-        if (stopped || !document.body) return;
-        let bg = document.querySelector(".fx-ambient-bg");
-        if (!bg) {
-          bg = element("div", "fx-ambient-bg");
-          bg.setAttribute("aria-hidden", "true");
-          bg.append(
-            element("div", "fx-ambient-mesh fx-ambient-mesh-a"),
-            element("div", "fx-ambient-mesh fx-ambient-mesh-b"),
-            element("div", "fx-ambient-noise")
-          );
-          document.body.prepend(bg);
-        }
+        if (stopped || !document.documentElement) return;
         setRootAttr("data-fx-ambient-bg", true);
-        const cfg = applyBgTunerConfig(readBgTunerConfig(), false);
-        ensureBgTuner(cfg);
-      }
-      function ensureBgTuner(initialCfg) {
-        if (stopped || !document.body || document.querySelector(".fx-bg-tuner")) return;
-        let cfg = { ...DEFAULT_BG_TUNER, ...initialCfg || readBgTunerConfig() };
-        const wrap = element("div", "fx-bg-tuner");
-        const toggleBtn = element("button", "fx-bg-tuner-toggle");
-        toggleBtn.type = "button";
-        toggleBtn.setAttribute("aria-expanded", "false");
-        toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg><span>BG Tuner</span>';
-        const panel = element("div", "fx-bg-tuner-panel");
-        panel.hidden = true;
-        const setOpen = (open) => {
-          panel.hidden = !open;
-          toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
-        };
-        toggleBtn.addEventListener("click", () => setOpen(panel.hidden));
-        function drawPanel() {
-          panel.replaceChildren();
-          const head = element("div", "fx-bg-tuner-head");
-          head.append(element("strong", "", "Background Tuner"));
-          const closeBtn = element("button", "fx-bg-tuner-close", "\xD7");
-          closeBtn.type = "button";
-          closeBtn.setAttribute("aria-label", "Close background tuner");
-          closeBtn.addEventListener("click", () => setOpen(false));
-          head.append(closeBtn);
-          panel.append(head);
-          const presets = element("div", "fx-bg-tuner-presets");
-          for (const preset of BG_TUNER_PRESETS) {
-            const b = button(preset.name, () => {
-              cfg = applyBgTunerConfig({ ...preset.cfg, animated: cfg.animated, animSpeed: cfg.animSpeed, animIntensity: cfg.animIntensity }, true);
-              drawPanel();
-            });
-            presets.append(b);
-          }
-          panel.append(presets);
-          const colors = element("div", "fx-bg-tuner-colors");
-          for (const [key, label] of [["base", "Base"], ["glow1", "Glow A"], ["glow2", "Glow B"]]) {
-            const lbl = element("label", "fx-bg-tuner-color", label);
-            const inp = element("input");
-            inp.type = "color";
-            inp.value = cfg[key];
-            inp.setAttribute("aria-label", `${label} color`);
-            inp.addEventListener("input", () => {
-              cfg[key] = inp.value;
-              applyBgTunerConfig(cfg, true);
-            });
-            lbl.append(inp);
-            colors.append(lbl);
-          }
-          panel.append(colors);
-          const addSlider = (key, label, min, max, step, fmt) => {
-            const row = element("label", "fx-bg-tuner-row");
-            const top = element("div", "fx-bg-tuner-row-top");
-            const valSpan = element("span", "", fmt(cfg[key]));
-            top.append(element("span", "", label), valSpan);
-            const rng = element("input");
-            rng.type = "range";
-            rng.min = String(min);
-            rng.max = String(max);
-            rng.step = String(step);
-            rng.value = String(cfg[key]);
-            rng.setAttribute("aria-label", label);
-            rng.addEventListener("input", () => {
-              cfg[key] = Number(rng.value);
-              valSpan.textContent = fmt(cfg[key]);
-              applyBgTunerConfig(cfg, true);
-            });
-            row.append(top, rng);
-            panel.append(row);
-          };
-          addSlider("glowOpacity", "Glow Concentration", 0, 100, 1, (v) => `${Math.round(v)}%`);
-          addSlider("spread", "Gradient Distribution", 25, 110, 1, (v) => `${Math.round(v)}%`);
-          addSlider("noiseOpacity", "Noise / Grain", 0, 18, 0.5, (v) => `${Number(v).toFixed(1)}%`);
-          addSlider("noiseSize", "Grain Fineness", 90, 320, 5, (v) => `${Math.round(v)}px`);
-          const animWrap = element("label", "fx-bg-tuner-check");
-          animWrap.append(element("span", "", "Subtle Drift Motion (GPU)"));
-          const animBox = element("input");
-          animBox.type = "checkbox";
-          animBox.checked = Boolean(cfg.animated);
-          animBox.addEventListener("change", () => {
-            cfg.animated = animBox.checked;
-            applyBgTunerConfig(cfg, true);
-            drawPanel();
-          });
-          animWrap.append(animBox);
-          panel.append(animWrap);
-          if (cfg.animated) {
-            addSlider("animSpeed", "Motion Cycle Speed", 8, 60, 1, (v) => `${Math.round(v)}s`);
-            addSlider("animIntensity", "Motion Intensity", 1, 14, 0.5, (v) => `${Number(v).toFixed(1)}%`);
-          }
-          const actions = element("div", "fx-bg-tuner-actions");
-          const resetBtn = button("Reset", () => {
-            cfg = applyBgTunerConfig({ ...DEFAULT_BG_TUNER }, true);
-            drawPanel();
-            showToast("Background reset to defaults");
-          });
-          const copyBtn = button("Copy Config", () => {
-            var _a2, _b2;
-            const txt = JSON.stringify(cfg, null, 2);
-            try {
-              (_b2 = (_a2 = navigator.clipboard) == null ? void 0 : _a2.writeText) == null ? void 0 : _b2.call(_a2, txt);
-            } catch {
-            }
-            showToast("Background config copied!");
-          });
-          copyBtn.className = "is-primary";
-          actions.append(resetBtn, copyBtn);
-          panel.append(actions);
-        }
-        drawPanel();
-        wrap.append(panel, toggleBtn);
-        document.body.append(wrap);
+        document.querySelectorAll(".fx-ambient-bg, .fx-bg-tuner").forEach((n) => n.remove());
       }
       const RT_CERTIFIED_FRESH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12,1 14.8,3.6 18.5,3.2 19.6,6.8 22.8,8.8 21.7,12.4 22.8,16 19.6,18 18.5,21.6 14.8,21.2 12,23.5 9.2,21.2 5.5,21.6 4.4,18 1.2,16 2.3,12.4 1.2,8.8 4.4,6.8 5.5,3.2 9.2,3.6" fill="#F5B82E"/><circle cx="12" cy="13" r="6.4" fill="#FA320A"/><path d="M9.6 8.3c1-.8 2.4-.9 2.4-.9s1.4.1 2.4.9c-.8.4-1.5.5-2.4.2-.9.3-1.6.2-2.4-.2z" fill="#1F9D45"/><path d="M12 5.5c.3 1 .6 1.7 1.6 2.1-1 .2-1.6.1-1.6.1s-.6.1-1.6-.1c1-.4 1.3-1.1 1.6-2.1z" fill="#27B854"/><ellipse cx="9.8" cy="11.2" rx="1.6" ry="1" transform="rotate(-24 9.8 11.2)" fill="#FF8C73" opacity=".7"/></svg>';
       const RT_FRESH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.6c4.8 0 8.6 3.1 8.6 7.4 0 4.5-3.7 8-8.6 8s-8.6-3.5-8.6-8c0-4.3 3.8-7.4 8.6-7.4z" fill="#FA320A"/><path d="M12 2.4c.5 1.8 1.4 3 3.6 3.4-1.4.8-2.4 1-3.6.5-1.2.5-2.2.3-3.6-.5 2.2-.4 3.1-1.6 3.6-3.4z" fill="#22B14C"/><path d="M7.6 7.4c1.3-.9 2.9-1.1 4.4-.5 1.5-.6 3.1-.4 4.4.5-1.2.8-2.7 1.1-4.4.6-1.7.5-3.2.2-4.4-.6z" fill="#198F3C"/><ellipse cx="8.8" cy="12" rx="2.1" ry="1.2" transform="rotate(-25 8.8 12)" fill="#FF927A" opacity=".62"/></svg>';
@@ -8858,14 +8645,14 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         return true;
       }
       function isSyncPlayOrCastTrigger(el) {
-        var _a2, _b2, _c2;
+        var _a2, _b2, _c2, _d2;
         if (!el) return false;
-        if ((_a2 = el.matches) == null ? void 0 : _a2.call(el, ".headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast")) return true;
-        const label = `${((_b2 = el.getAttribute) == null ? void 0 : _b2.call(el, "title")) || ""} ${((_c2 = el.getAttribute) == null ? void 0 : _c2.call(el, "aria-label")) || ""} ${el.className || ""}`.toLowerCase();
-        return /syncplay|sync\s*play|cast|play\s*on/.test(label);
+        if ((_a2 = el.matches) == null ? void 0 : _a2.call(el, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i]')) return true;
+        const label = `${((_b2 = el.getAttribute) == null ? void 0 : _b2.call(el, "title")) || ""} ${((_c2 = el.getAttribute) == null ? void 0 : _c2.call(el, "aria-label")) || ""} ${((_d2 = el.getAttribute) == null ? void 0 : _d2.call(el, "aria-controls")) || ""} ${el.className || ""}`.toLowerCase();
+        return /syncplay|sync[\s_-]*play|syncbutton|cast|play\s*on|remote[\s_-]*play/.test(label);
       }
       function onOsdAnchorPointer(event) {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
         if (stopped) return;
         const clicked = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, 'button, a, [role="button"], .fx-card, .card');
         if (clicked && typeof clicked.getBoundingClientRect === "function") {
@@ -8901,15 +8688,16 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
             };
           }
         }
-        const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, ".headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button");
-        if (headerBtn && (isSyncPlayOrCastTrigger(headerBtn) || isVideoOsdOpen() && headerBtn.closest(".skinHeader"))) {
+        const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button');
+        const isBackBtn = Boolean((_g = headerBtn == null ? void 0 : headerBtn.matches) == null ? void 0 : _g.call(headerBtn, '.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
+        if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || isVideoOsdOpen() && headerBtn.closest(".osdHeader, .videoOsd-appBar, .skinHeader"))) {
           updateHeaderPopupAnchor(headerBtn);
           headerMenuAnchor = { el: headerBtn, at: Date.now() };
-          if (isVideoOsdOpen()) (_h = (_g = document.documentElement) == null ? void 0 : _g.setAttribute) == null ? void 0 : _h.call(_g, "data-fx-osd-anchor", "top");
+          if (isVideoOsdOpen()) (_i = (_h = document.documentElement) == null ? void 0 : _h.setAttribute) == null ? void 0 : _i.call(_h, "data-fx-osd-anchor", "top");
           return;
         }
         if (!isVideoOsdOpen()) return;
-        const statsTrigger = (_j = (_i = event.target) == null ? void 0 : _i.closest) == null ? void 0 : _j.call(_i, '[data-id="stats"], .sleekfin-menu-item, .actionSheetMenuItem');
+        const statsTrigger = (_k = (_j = event.target) == null ? void 0 : _j.closest) == null ? void 0 : _k.call(_j, '[data-id="stats"], .sleekfin-menu-item, .actionSheetMenuItem');
         if (statsTrigger) {
           const txt = (statsTrigger.textContent || "").trim().toLowerCase();
           if (statsTrigger.getAttribute("data-id") === "stats" || /playback\s*(data|info)|stats\s*for\s*nerds/.test(txt)) {
@@ -8917,12 +8705,12 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
             setTimeout(() => syncPlaybackStats(), 220);
           }
         }
-        const trigger = (_l = (_k = event.target) == null ? void 0 : _k.closest) == null ? void 0 : _l.call(_k, "#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio");
+        const trigger = (_m = (_l = event.target) == null ? void 0 : _l.closest) == null ? void 0 : _m.call(_l, "#videoOsdPage .btnVideoOsdSettings, #videoOsdPage .btnSubtitles, #videoOsdPage .btnAudio");
         if (trigger) {
-          (_n = (_m = document.documentElement) == null ? void 0 : _m.setAttribute) == null ? void 0 : _n.call(_m, "data-fx-osd-anchor", "bottom");
+          (_o = (_n = document.documentElement) == null ? void 0 : _n.setAttribute) == null ? void 0 : _o.call(_n, "data-fx-osd-anchor", "bottom");
           headerMenuAnchor = null;
           const osd = document.getElementById("videoOsdPage");
-          const gearBtn = (_o = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _o.call(osd, ".btnVideoOsdSettings");
+          const gearBtn = (_p = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _p.call(osd, ".btnVideoOsdSettings");
           const anchor = trigger.classList.contains("btnAudio") && gearBtn ? gearBtn : trigger;
           updateOsdPopupAnchor(anchor);
         }
@@ -8943,9 +8731,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         (_d2 = (_c2 = dialog.style) == null ? void 0 : _c2.setProperty) == null ? void 0 : _d2.call(_c2, "--fx-origin-x", `${dx}px`);
         (_f = (_e2 = dialog.style) == null ? void 0 : _e2.setProperty) == null ? void 0 : _f.call(_e2, "--fx-origin-y", `${dy}px`);
         dialog.classList.add("fx-modal-origin-anim");
-        const clear = () => dialog.classList.remove("fx-modal-origin-anim");
-        (_g = dialog.addEventListener) == null ? void 0 : _g.call(dialog, "animationend", clear, { once: true });
-        setTimeout(clear, 360);
+        (_g = dialog.addEventListener) == null ? void 0 : _g.call(dialog, "closing", () => dialog.classList.remove("fx-modal-origin-anim"), { once: true });
       }
       function syncOriginModals() {
         document.querySelectorAll(".sleekfin-details-info-container .dialog, .dialog.sleekfin-details-track-dialog, .dialogContainer > .dialog:not(.actionSheet):not(.sleekfin-menu-host):not(.filterDialog):not(.hide)").forEach((dlg) => {
@@ -9064,6 +8850,38 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         const freshHeaderAnchor = headerMenuAnchor && Date.now() - headerMenuAnchor.at < 1500 ? headerMenuAnchor : null;
         const freshDetailMore = detailMoreAnchor && Date.now() - detailMoreAnchor.at < 1500 ? detailMoreAnchor : null;
         const isHeaderMenuText = (txt) => /create\s+a\s+new\s+group|join\s+group|syncplay|play\s+on|my\s+device|cast\s+to/.test(txt);
+        const resolveHeaderTrigger = (menuId, txt) => {
+          var _a3;
+          if ((_a3 = freshHeaderAnchor == null ? void 0 : freshHeaderAnchor.el) == null ? void 0 : _a3.isConnected) return freshHeaderAnchor.el;
+          if (menuId) {
+            const byCtrl = document.querySelector(`button[aria-controls="${menuId}"]:not(.hide)`);
+            if (byCtrl) return byCtrl;
+          }
+          if (menuId === "app-sync-play-menu" || /create\s+a\s+new\s+group|join\s+group|syncplay/.test(txt)) {
+            return document.querySelector('button[aria-controls="app-sync-play-menu"]:not(.hide), .headerSyncButton:not(.hide), .syncButton:not(.hide), .headerSyncPlayButton:not(.hide), .btnSyncPlay:not(.hide), button[title*="SyncPlay" i]:not(.hide), button[aria-label*="SyncPlay" i]:not(.hide)');
+          }
+          if (menuId === "app-remote-play-menu" || /play\s+on|my\s+device|cast/.test(txt)) {
+            return document.querySelector('button[aria-controls="app-remote-play-menu"]:not(.hide), .headerCastButton:not(.hide), .castButton:not(.hide), button[title*="Cast" i]:not(.hide), button[aria-label*="Cast" i]:not(.hide)');
+          }
+          return null;
+        };
+        let hasActiveHeaderPopover = false;
+        document.querySelectorAll('#app-sync-play-menu, #app-remote-play-menu, .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden)').forEach((pop) => {
+          var _a3, _b3;
+          const isHidden = pop.getAttribute("aria-hidden") === "true" || pop.classList.contains("MuiModal-hidden");
+          if (isHidden) return;
+          const isKnownHeaderMenu = pop.id === "app-sync-play-menu" || pop.id === "app-remote-play-menu";
+          const txt = (pop.textContent || "").toLowerCase();
+          if (!isKnownHeaderMenu && !isHeaderMenuText(txt)) return;
+          hasActiveHeaderPopover = true;
+          const trig = resolveHeaderTrigger(pop.id, txt);
+          if (trig) updateHeaderPopupAnchor(trig);
+          if (osdOpen) (_b3 = (_a3 = document.documentElement) == null ? void 0 : _a3.setAttribute) == null ? void 0 : _b3.call(_a3, "data-fx-osd-anchor", "top");
+          const paper = pop.querySelector(".MuiPopover-paper");
+          const innerPopup = pop.querySelector(".sleekfin-menu-popup");
+          if (paper && !paper.classList.contains("sleekfin-menu-host")) paper.dataset.fxHeaderAnchored = "true";
+          if (innerPopup) innerPopup.dataset.fxHeaderAnchored = "true";
+        });
         for (const sheet of sheets) {
           if (sheet.classList.contains("sleekfin-menu-closing")) continue;
           const scroller = sheet.querySelector(".actionSheetScroller");
@@ -9076,16 +8894,10 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           const inspectItems = rawItems.length ? rawItems : popupItems;
           const fullText = ((sleekPopup == null ? void 0 : sleekPopup.textContent) || sheet.textContent || "").toLowerCase();
           if (freshHeaderAnchor || isHeaderMenuText(fullText)) {
-            if ((_f = freshHeaderAnchor == null ? void 0 : freshHeaderAnchor.el) == null ? void 0 : _f.isConnected) {
-              updateHeaderPopupAnchor(freshHeaderAnchor.el);
-            } else if (/create\s+a\s+new\s+group|syncplay/.test(fullText)) {
-              const spBtn = document.querySelector('.headerSyncPlayButton:not(.hide), .btnSyncPlay:not(.hide), button[title*="SyncPlay" i]');
-              if (spBtn) updateHeaderPopupAnchor(spBtn);
-            } else if (/play\s+on|my\s+device|cast/.test(fullText)) {
-              const castBtn = document.querySelector('.headerCastButton:not(.hide), .castButton:not(.hide), button[title*="Cast" i], button[aria-label*="Cast" i]');
-              if (castBtn) updateHeaderPopupAnchor(castBtn);
-            }
-            if (osdOpen) (_h = (_g = document.documentElement) == null ? void 0 : _g.setAttribute) == null ? void 0 : _h.call(_g, "data-fx-osd-anchor", "top");
+            hasActiveHeaderPopover = true;
+            const trig = resolveHeaderTrigger("", fullText);
+            if (trig) updateHeaderPopupAnchor(trig);
+            if (osdOpen) (_g = (_f = document.documentElement) == null ? void 0 : _f.setAttribute) == null ? void 0 : _g.call(_f, "data-fx-osd-anchor", "top");
             sheet.dataset.fxHeaderAnchored = "true";
             if (sleekPopup) sleekPopup.dataset.fxHeaderAnchored = "true";
             continue;
@@ -9101,7 +8913,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           const labels = inspectItems.map((i) => (i.textContent || "").trim().toLowerCase());
           const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
           const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
-          (_j = (_i = document.documentElement) == null ? void 0 : _i.setAttribute) == null ? void 0 : _j.call(_i, "data-fx-osd-anchor", "bottom");
+          if (!hasActiveHeaderPopover) (_i = (_h = document.documentElement) == null ? void 0 : _h.setAttribute) == null ? void 0 : _i.call(_h, "data-fx-osd-anchor", "bottom");
           sheet.dataset.fxOsdPopup = "true";
           if (sleekPopup) sleekPopup.dataset.fxOsdPopup = "true";
           if (!looksLikeSettings) continue;
@@ -9207,7 +9019,9 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           if (popup.closest(".sleekfin-menu-closing")) continue;
           const txt = (popup.textContent || "").toLowerCase();
           if (freshHeaderAnchor || isHeaderMenuText(txt)) {
-            if ((_k = freshHeaderAnchor == null ? void 0 : freshHeaderAnchor.el) == null ? void 0 : _k.isConnected) updateHeaderPopupAnchor(freshHeaderAnchor.el);
+            const trig = resolveHeaderTrigger("", txt);
+            if (trig) updateHeaderPopupAnchor(trig);
+            if (osdOpen) (_k = (_j = document.documentElement) == null ? void 0 : _j.setAttribute) == null ? void 0 : _k.call(_j, "data-fx-osd-anchor", "top");
             popup.dataset.fxHeaderAnchored = "true";
           } else if (!osdOpen && freshDetailMore && popup.dataset.fxDetailMore !== "true" && document.getElementById("itemDetailPage") && visible(document.getElementById("itemDetailPage"))) {
             positionDetailMoreMenu(popup, freshDetailMore);
@@ -10560,6 +10374,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         });
       }
       const SUBPAGE_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>';
+      const HERO_NEXT_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
       function resolveCategoryShelf(s, catKey, fallbackRow = null) {
         var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
         const plannerShelf = (_b2 = (_a2 = s.planner) == null ? void 0 : _a2.shelves) == null ? void 0 : _b2.find((sh) => sh.key === catKey);
@@ -11166,12 +10981,12 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         const prevBtn = element("button", "fx-page-hero-nav fx-page-hero-prev");
         prevBtn.type = "button";
         prevBtn.setAttribute("aria-label", "Previous featured title");
-        prevBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+        prevBtn.innerHTML = SUBPAGE_BACK_SVG;
         prevBtn.addEventListener("click", () => setActive(activeIdx - 1));
         const nextBtn = element("button", "fx-page-hero-nav fx-page-hero-next");
         nextBtn.type = "button";
         nextBtn.setAttribute("aria-label", "Next featured title");
-        nextBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+        nextBtn.innerHTML = HERO_NEXT_SVG;
         nextBtn.addEventListener("click", () => setActive(activeIdx + 1));
         s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
         s.heroEl.addEventListener("mouseenter", () => {
@@ -13100,6 +12915,8 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         }
         btn.setAttribute("aria-pressed", muted ? "true" : "false");
       }
+      const osdPercentToLinearVolume = (pct) => Math.pow(Math.max(0, Math.min(100, Number(pct) || 0)) / 100, 3);
+      const osdLinearVolumeToPercent = (vol) => Math.min(100, Math.max(0, Math.round(100 * Math.pow(Math.max(0, Math.min(1, Number(vol) || 0)), 1 / 3))));
       function setOsdVolumeAndSync(slider, video, volPercent, muted) {
         var _a2, _b2, _c2;
         const clamped = Math.max(0, Math.min(100, Math.round(Number(volPercent) || 0)));
@@ -13109,7 +12926,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           } catch {
           }
           try {
-            video.volume = clamped / 100;
+            video.volume = osdPercentToLinearVolume(clamped);
           } catch {
           }
         }
@@ -13137,7 +12954,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         const slider = ((_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".osdVolumeSlider")) || null;
         const video = findActiveOsdVideo();
         const sliderVal = slider ? Number(slider.value) : NaN;
-        const curVol = Number.isFinite(sliderVal) ? sliderVal : Math.round(((_b2 = video == null ? void 0 : video.volume) != null ? _b2 : 1) * 100);
+        const curVol = Number.isFinite(sliderVal) ? sliderVal : osdLinearVolumeToPercent((_b2 = video == null ? void 0 : video.volume) != null ? _b2 : 1);
         const isMuted = osdMuteState.muted || Boolean(video == null ? void 0 : video.muted) || curVol <= 0;
         if (!isMuted) {
           osdMuteState.savedVolume = curVol > 0 ? curVol : osdMuteState.savedVolume > 0 ? osdMuteState.savedVolume : 100;
@@ -13166,20 +12983,21 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
         if (!slider || slider._fxInternalVol) return;
         const val = Number(slider.value);
         if (!Number.isFinite(val)) return;
+        const clamped = Math.max(0, Math.min(100, Math.round(val)));
         const video = findActiveOsdVideo();
         const lower = (_d2 = (_c2 = slider.parentElement) == null ? void 0 : _c2.querySelector) == null ? void 0 : _d2.call(_c2, ".mdl-slider-background-lower");
-        if (lower) lower.style.width = `${Math.max(0, Math.min(100, val))}%`;
+        if (lower) lower.style.width = `${clamped}%`;
         const muteBtn = document.querySelector("#videoOsdPage .buttonMute");
-        if (val > 0) {
+        if (clamped > 0) {
           osdMuteState.muted = false;
-          osdMuteState.savedVolume = val;
+          osdMuteState.savedVolume = clamped;
           if (video) {
             try {
               if (video.muted) video.muted = false;
             } catch {
             }
             try {
-              video.volume = Math.max(0, Math.min(1, val / 100));
+              video.volume = osdPercentToLinearVolume(clamped);
             } catch {
             }
           }

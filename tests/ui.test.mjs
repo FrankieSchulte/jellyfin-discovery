@@ -1274,20 +1274,17 @@ test('v0.6.0 adds Movies/Shows hero banner, noisy ambient BG + tuner, RT Tomatom
   const Ev = f.ctx.document.defaultView.Event;
   const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
 
-  // 1. Ambient noisy textured background + bottom-corner live tuner widget
-  assert.ok(f.document.querySelector('.fx-ambient-bg .fx-ambient-noise'), 'ambient textured background mounted');
+  // 1. Baked permanent static scrollable ambient textured background (no temporary BG tuner, no animations)
   assert.equal(f.document.documentElement.getAttribute('data-fx-ambient-bg'), 'true');
-  const tuner = f.document.querySelector('.fx-bg-tuner');
-  assert.ok(tuner, 'background tuner widget mounted');
-  const tunerToggle = tuner.querySelector('.fx-bg-tuner-toggle');
-  const tunerPanel = tuner.querySelector('.fx-bg-tuner-panel');
-  assert.equal(tunerPanel.hidden, true);
-  tunerToggle.click();
-  assert.equal(tunerPanel.hidden, false);
-  const animBox = tunerPanel.querySelector('input[type="checkbox"]');
-  animBox.checked = true;
-  animBox.dispatchEvent(new Ev('change', { bubbles: true }));
-  assert.equal(f.document.querySelector('.fx-ambient-bg').dataset.animated, 'true');
+  assert.equal(f.document.querySelector('.fx-bg-tuner'), null, 'temporary background tuner removed in v0.6.2');
+  assert.equal(f.document.querySelector('.fx-ambient-bg'), null, 'static canvas CSS background needs no fixed overlay node');
+  assert.ok(styleText.includes('--fx-bg-base:#0a0b0f;'), 'baked base color #0a0b0f');
+  assert.ok(styleText.includes('rgba(50,56,70,.67)'), 'baked glow1 #323846 at 67%');
+  assert.ok(styleText.includes('rgba(34,38,48,.67)'), 'baked glow2 #222630 at 67%');
+  assert.ok(styleText.includes("opacity='0.12'"), 'baked noise opacity 12%');
+  assert.ok(styleText.includes('290px 290px'), 'baked noise size 290px');
+  assert.ok(styleText.includes('background-attachment:scroll!important;'), 'background scrolls statically with page');
+  assert.equal(styleText.includes('fx-ambient-drift'), false, 'no background drift animation');
 
   // 2. Movies & Shows Hero Banner appears ONLY on curated Movies & Shows tabs, NEVER on Library, Genres, or category subpages
   f.document.getElementById('indexPage').classList.add('hide');
@@ -1448,7 +1445,7 @@ test('v0.6.0 adds Movies/Shows hero banner, noisy ambient BG + tuner, RT Tomatom
   volSlider.dispatchEvent(wheelEv);
   assert.equal(wheelEv.defaultPrevented, true, 'wheel event blocked over volume slider during playback');
 
-  // Mute sets slider to 0 & mutes; Unmute restores saved volume (75); Dragging slider > 0 unmutes
+  // Mute sets slider to 0 & mutes; Unmute restores saved volume (75) using Jellyfin's cubic volume curve; Dragging slider > 0 unmutes
   muteBtn.click();
   assert.equal(volSlider.value, '0');
   assert.equal(video.muted, true);
@@ -1456,13 +1453,13 @@ test('v0.6.0 adds Movies/Shows hero banner, noisy ambient BG + tuner, RT Tomatom
   muteBtn.click();
   assert.equal(volSlider.value, '75');
   assert.equal(video.muted, false);
-  assert.equal(video.volume, 0.75);
+  assert.ok(Math.abs(video.volume - Math.pow(0.75, 3)) < 1e-6, 'restored volume matches Jellyfin cubic curve');
   muteBtn.click();
   assert.equal(volSlider.value, '0');
   volSlider.value = '40';
   volSlider.dispatchEvent(new Ev('input', { bubbles: true }));
   assert.equal(video.muted, false, 'dragging volume scrubber > 0 automatically unmutes');
-  assert.equal(video.volume, 0.4);
+  assert.ok(Math.abs(video.volume - Math.pow(0.4, 3)) < 1e-6, 'slider drag matches Jellyfin cubic curve (no rightward jump)');
 
   // Top volume bar toast CSS hidden + diagonal shimmer wave present
   assert.ok(styleText.includes('.volumeOsd'));
@@ -1517,6 +1514,129 @@ test('v0.6.1 prevents microtask freeze when Ratings API is in-flight, pending, o
   await f.settle();
   assert.equal(ratingsCalls, 1, 'pending:true respects cooldown instead of looping synchronously');
   assert.ok(score.querySelector('.fx-rating-tomatometer'), 'fallback Tomatometer rendered immediately');
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.2 fixes transparent hero transitions, borderless hero title, unified arrows, non-flashing info modal, MUI SyncPlay/Cast top anchoring, symmetric OSD bar, and cubic volume accuracy', async () => {
+  const f = fixture();
+  await f.settle();
+  const Ev = f.ctx.document.defaultView.Event;
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. Transparent hero bottom fades (Home SleekFin hero + Movies/Shows hero + Detail hero) & all-widths background visibility
+  assert.ok(styleText.includes('html[data-fx-ambient-bg="true"] .sleekfin-hero-seam{\n  display:none!important;'));
+  assert.ok(styleText.includes('html[data-fx-ambient-bg="true"].sleekfin-media-mounted body :is(#indexPage,#moviesPage,#tvshowsPage'));
+  assert.ok(styleText.includes('overflow-x:clip;'));
+  // Borderless hero title dropdown (no translucent box)
+  assert.ok(styleText.includes('html[data-fx-page-hero="true"] header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root button[aria-controls="library-view-menu"]{\n  text-shadow:0 2px 14px rgba(0,0,0,.78)!important;\n  background:transparent!important;'));
+
+  // 2. Hero side arrows match backpage arrow SVG & circular dark-glass styling
+  f.document.getElementById('indexPage').classList.add('hide');
+  const moviesPage = f.document.getElementById('moviesPage');
+  moviesPage.classList.remove('hide');
+  const tab1 = f.document.createElement('div');
+  tab1.className = 'pageTabContent';
+  tab1.dataset.index = '1';
+  moviesPage.append(tab1);
+  f.navigate('#/movies?tab=1');
+  await f.settle();
+  const prevArrow = moviesPage.querySelector('.fx-page-hero-prev svg');
+  const nextArrow = moviesPage.querySelector('.fx-page-hero-next svg');
+  assert.ok(prevArrow && prevArrow.innerHTML.includes('x1="19" y1="12" x2="5" y2="12"'), 'hero prev arrow matches backpage thin arrow');
+  assert.ok(nextArrow && nextArrow.innerHTML.includes('x1="5" y1="12" x2="19" y2="12"'), 'hero next arrow matches mirrored backpage thin arrow');
+
+  // 3. Playback top-left Back button CSS matches backpage arrow style & top-left position + bottom bar symmetric centering
+  assert.ok(styleText.includes('.osdHeader .videoOsd-appBar > button:first-child'));
+  assert.ok(styleText.includes('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;'));
+  assert.ok(styleText.includes('margin:0 0 16px 0!important;'));
+  assert.ok(styleText.includes('#videoOsdPage .btnPause .material-icons.play_arrow{\n  transform:translateX(1px)!important;'));
+
+  // 4. Info modal keeps .fx-modal-origin-anim after animationend (zero flash/reappear) and releases only on closing
+  const infoBtn = f.document.createElement('button');
+  infoBtn.getBoundingClientRect = () => ({ left: 400, right: 444, top: 360, bottom: 404, width: 44, height: 44 });
+  f.document.body.append(infoBtn);
+  infoBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  const infoWrap = f.document.createElement('div');
+  infoWrap.className = 'sleekfin-details-info-container';
+  const infoDlg = f.document.createElement('div');
+  infoDlg.className = 'dialog sleekfin-details-track-dialog';
+  infoWrap.append(infoDlg);
+  f.document.body.append(infoWrap);
+  f.notify();
+  f.frames();
+  assert.equal(infoDlg.classList.contains('fx-modal-origin-anim'), true);
+  infoDlg.dispatchEvent(new Ev('animationend', { bubbles: true }));
+  f.flushTimeouts(400);
+  assert.equal(infoDlg.classList.contains('fx-modal-origin-anim'), true, 'keeps origin class while open so Jellyfin open animation never replays');
+  infoDlg.dispatchEvent(new Ev('closing', { bubbles: true }));
+  assert.equal(infoDlg.classList.contains('fx-modal-origin-anim'), false, 'releases origin class cleanly on closing');
+  infoWrap.remove();
+  infoBtn.remove();
+
+  // 5. Jellyfin 10.11 React .osdHeader / .videoOsd-appBar SyncPlay (#app-sync-play-menu) & Cast (#app-remote-play-menu) anchor below clicked button
+  moviesPage.classList.add('hide');
+  const osdHeader = f.document.createElement('div');
+  osdHeader.className = 'skinHeader osdHeader';
+  const appBar = f.document.createElement('div');
+  appBar.className = 'MuiToolbar-root videoOsd-appBar';
+  const backBtn = f.document.createElement('button');
+  backBtn.setAttribute('aria-label', 'Back');
+  const syncBtn = f.document.createElement('button');
+  syncBtn.setAttribute('aria-controls', 'app-sync-play-menu');
+  syncBtn.setAttribute('aria-label', 'SyncPlay');
+  syncBtn.getBoundingClientRect = () => ({ left: 1120, right: 1160, top: 20, bottom: 60, width: 40, height: 40 });
+  const castBtn = f.document.createElement('button');
+  castBtn.setAttribute('aria-controls', 'app-remote-play-menu');
+  castBtn.setAttribute('aria-label', 'Cast to device');
+  castBtn.getBoundingClientRect = () => ({ left: 1170, right: 1210, top: 20, bottom: 60, width: 40, height: 40 });
+  appBar.append(backBtn, syncBtn, castBtn);
+  osdHeader.append(appBar);
+
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  f.document.body.append(osdHeader, osd);
+  f.notify();
+  f.frames();
+
+  // Clicking SyncPlay button in .videoOsd-appBar anchors #app-sync-play-menu below it
+  syncBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-osd-anchor'), 'top');
+  assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '68px');
+  const syncMenu = f.document.createElement('div');
+  syncMenu.id = 'app-sync-play-menu';
+  syncMenu.className = 'MuiPopover-root MuiMenu-root';
+  const syncPopup = f.document.createElement('div');
+  syncPopup.className = 'sleekfin-menu-popup';
+  syncPopup.textContent = 'Create a new group';
+  syncMenu.append(syncPopup);
+  f.document.body.append(syncMenu);
+  f.notify();
+  f.frames();
+  assert.equal(syncPopup.dataset.fxHeaderAnchored, 'true');
+  syncMenu.remove();
+
+  // Clicking Cast button in .videoOsd-appBar anchors #app-remote-play-menu below it
+  castBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-osd-anchor'), 'top');
+  const castMenu = f.document.createElement('div');
+  castMenu.id = 'app-remote-play-menu';
+  castMenu.className = 'MuiPopover-root MuiMenu-root';
+  const castPopup = f.document.createElement('div');
+  castPopup.className = 'sleekfin-menu-popup';
+  castPopup.textContent = 'Play On My Device';
+  castMenu.append(castPopup);
+  f.document.body.append(castMenu);
+  f.notify();
+  f.frames();
+  assert.equal(castPopup.dataset.fxHeaderAnchored, 'true');
+  castMenu.remove();
+
+  // Clicking Back button does NOT falsely set header anchor
+  f.document.documentElement.setAttribute('data-fx-osd-anchor', 'bottom');
+  backBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-osd-anchor'), 'bottom');
 
   f.ctx.window.FazFortDiscovery.stop();
 });
