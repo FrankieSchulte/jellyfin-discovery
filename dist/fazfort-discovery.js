@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.0 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.1 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -7662,7 +7662,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.0";
+      const VERSION = "0.6.1";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -7673,6 +7673,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
       const sessionShuffles = /* @__PURE__ */ new Map();
       const ratingsCache = /* @__PURE__ */ new Map();
       const ratingsInflight = /* @__PURE__ */ new Map();
+      const ratingsCooldown = /* @__PURE__ */ new Map();
       let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, ratingsSyncTimer = 0;
       const osdMuteState = { muted: false, savedVolume: 100 };
       let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
@@ -7944,26 +7945,51 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
       }
       function fetchRatingsBatch(api, ids, sync = false) {
         var _a2;
-        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) || !Array.isArray(ids) || !ids.length) return Promise.resolve(/* @__PURE__ */ new Map());
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) || !Array.isArray(ids) || !ids.length) return null;
+        const now = Date.now();
         const needed = [];
+        const seen = /* @__PURE__ */ new Set();
         for (const id of ids) {
           const norm = normalizeGuid(id);
-          if (!norm || norm.length !== 32) continue;
+          if (!norm || norm.length !== 32 || seen.has(norm)) continue;
+          seen.add(norm);
+          if (ratingsInflight.has(norm)) continue;
           const cached = ratingsCache.get(norm);
-          if (cached && (!cached.pending || !sync && cached.source === "rt")) continue;
-          if (!ratingsInflight.has(norm)) needed.push(id);
+          if (cached && !cached.pending) continue;
+          const cool = ratingsCooldown.get(norm);
+          if (cool && (now < cool.until || cool.attempts >= 3)) continue;
+          needed.push(id);
         }
-        if (!needed.length) return Promise.resolve(/* @__PURE__ */ new Map());
+        if (!needed.length) return null;
         const client = new JellyfinClient(api, () => !stopped);
-        const promise = client.ratings(needed, sync).then((map) => {
+        for (const id of needed) {
+          const norm = normalizeGuid(id);
+          const prev = ratingsCooldown.get(norm);
+          ratingsCooldown.set(norm, { until: now + 3500, attempts: ((prev == null ? void 0 : prev.attempts) || 0) + 1 });
+          ratingsInflight.set(norm, true);
+        }
+        return client.ratings(needed, sync).then((map) => {
           let anyPending = false;
+          let updated = 0;
+          const doneAt = Date.now();
           for (const id of needed) {
             const norm = normalizeGuid(id);
             ratingsInflight.delete(norm);
             const entry = map.get(id) || map.get(norm);
             if (entry) {
               ratingsCache.set(norm, entry);
-              if (entry.pending) anyPending = true;
+              updated++;
+              if (entry.pending) {
+                const prev = ratingsCooldown.get(norm);
+                const attempts = (prev == null ? void 0 : prev.attempts) || 1;
+                ratingsCooldown.set(norm, { until: doneAt + 2500, attempts });
+                if (attempts < 3) anyPending = true;
+              } else {
+                ratingsCooldown.delete(norm);
+              }
+            } else {
+              const prev = ratingsCooldown.get(norm);
+              ratingsCooldown.set(norm, { until: doneAt + 6e4, attempts: Math.max(3, (prev == null ? void 0 : prev.attempts) || 1) });
             }
           }
           writeSessionRatings();
@@ -7971,15 +7997,18 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
             clearTimeout(ratingsSyncTimer);
             ratingsSyncTimer = setTimeout(() => {
               if (!stopped) syncHeroAndDetailRatings(window.ApiClient || api);
-            }, 1800);
+            }, 2600);
           }
-          return map;
+          return updated > 0;
         }).catch(() => {
-          for (const id of needed) ratingsInflight.delete(normalizeGuid(id));
-          return /* @__PURE__ */ new Map();
+          const failAt = Date.now();
+          for (const id of needed) {
+            const norm = normalizeGuid(id);
+            ratingsInflight.delete(norm);
+            ratingsCooldown.set(norm, { until: failAt + 6e4, attempts: 3 });
+          }
+          return false;
         });
-        for (const id of needed) ratingsInflight.set(normalizeGuid(id), promise);
-        return promise;
       }
       function buildRatingsGroup(item, rtEntry, ratingsCfg, includePopcorn = false) {
         var _a2, _b2;
@@ -8127,9 +8156,12 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           }
         });
         if (batchIds.length) {
-          fetchRatingsBatch(api, batchIds, false).then(() => {
-            if (!stopped) syncHeroAndDetailRatings(api);
-          });
+          const req = fetchRatingsBatch(api, batchIds, false);
+          if (req) {
+            req.then((updated) => {
+              if (updated && !stopped) syncHeroAndDetailRatings(api);
+            });
+          }
         }
         const detailPage = document.getElementById("itemDetailPage");
         if (detailPage && visible(detailPage)) {
@@ -8157,10 +8189,13 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
                 CommunityRating: (_c2 = item == null ? void 0 : item.CommunityRating) != null ? _c2 : Number(((_b2 = scoreHost == null ? void 0 : scoreHost.dataset) == null ? void 0 : _b2.fxOrigStar) || 0) || null
               };
               const rt = lookupCachedRating(hashId, mergedItem);
-              if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.source !== "rt" && rt.pending !== false)) {
-                fetchRatingsBatch(api, [hashId], true).then(() => {
-                  if (!stopped) syncHeroAndDetailRatings(api);
-                });
+              if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.pending)) {
+                const req = fetchRatingsBatch(api, [hashId], true);
+                if (req) {
+                  req.then((updated) => {
+                    if (updated && !stopped) syncHeroAndDetailRatings(api);
+                  });
+                }
               }
               const group = wantDetail ? buildRatingsGroup(mergedItem, rt, cfg, true) : null;
               detailPage.dataset.fxRatingsActive = "true";
@@ -11165,9 +11200,12 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
           }, 9e3);
         }
         if (ratingsCfg.tomatometer) {
-          fetchRatingsBatch(s.api, featured.map((i) => i.Id), false).then(() => {
-            if (!stopped && state === s) syncHeroAndDetailRatings(s.api);
-          });
+          const req = fetchRatingsBatch(s.api, featured.map((i) => i.Id), false);
+          if (req) {
+            req.then((updated) => {
+              if (updated && !stopped && state === s) syncHeroAndDetailRatings(s.api);
+            });
+          }
         }
       }
       function appendRow(row, s, isBoot = false, atIndex = -1) {
@@ -13472,7 +13510,11 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
               needsFilterImmediate = true;
             }
             if (!needsRatings && (t.id === "itemDetailPage" || ((_b2 = t.matches) == null ? void 0 : _b2.call(t, ".sleekfin-hero,.sleekfin-hero-slide,.sleekfin-details-score,.sleekfin-hero-score")) || ((_c2 = t.closest) == null ? void 0 : _c2.call(t, ".sleekfin-hero,#itemDetailPage")))) {
-              if (!((_d2 = t.closest) == null ? void 0 : _d2.call(t, ".fx-ratings-group,.fx-detail-injected-ratings"))) needsRatings = true;
+              const onlyOwnRatings = r.type === "childList" && [...r.addedNodes, ...r.removedNodes].every((n) => {
+                var _a3;
+                return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, ".fx-ratings-group,.fx-detail-injected-ratings"));
+              });
+              if (!onlyOwnRatings && !((_d2 = t.closest) == null ? void 0 : _d2.call(t, ".fx-ratings-group,.fx-detail-injected-ratings"))) needsRatings = true;
             }
             if (!needsPopover) {
               if (t === document.body || t.id === "videoOsdPage" || t.id === "app-user-menu" || ((_e2 = t.matches) == null ? void 0 : _e2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root")) || ((_f = t.closest) == null ? void 0 : _f.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.actionSheet,.sleekfin-menu-host"))) {
@@ -13514,7 +13556,7 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visibl
             syncPlaybackStats();
             schedulePopoverSync();
           }
-          if (needsRatings) syncHeroAndDetailRatings(window.ApiClient);
+          if (needsRatings) schedulePopoverSync();
           if (needsHeader) {
             hideLeavingSoonNav();
             hideSleekFinUserSettingsMenu();

@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.0';
+const VERSION = '0.6.1';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -11,6 +11,7 @@ const loadedImages = new Set();
 const sessionShuffles = new Map();
 const ratingsCache = new Map();
 const ratingsInflight = new Map();
+const ratingsCooldown = new Map();
 let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, ratingsSyncTimer = 0;
 const osdMuteState = { muted: false, savedVolume: 100 };
 let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
@@ -258,26 +259,51 @@ function lookupCachedRating(itemId, item = null) {
   return hit;
 }
 function fetchRatingsBatch(api, ids, sync = false) {
-  if (!api?.getCurrentUserId?.() || !Array.isArray(ids) || !ids.length) return Promise.resolve(new Map());
+  if (!api?.getCurrentUserId?.() || !Array.isArray(ids) || !ids.length) return null;
+  const now = Date.now();
   const needed = [];
+  const seen = new Set();
   for (const id of ids) {
     const norm = normalizeGuid(id);
-    if (!norm || norm.length !== 32) continue;
+    if (!norm || norm.length !== 32 || seen.has(norm)) continue;
+    seen.add(norm);
+    if (ratingsInflight.has(norm)) continue;
     const cached = ratingsCache.get(norm);
-    if (cached && (!cached.pending || (!sync && cached.source === 'rt'))) continue;
-    if (!ratingsInflight.has(norm)) needed.push(id);
+    if (cached && !cached.pending) continue;
+    const cool = ratingsCooldown.get(norm);
+    if (cool && (now < cool.until || cool.attempts >= 3)) continue;
+    needed.push(id);
   }
-  if (!needed.length) return Promise.resolve(new Map());
+  if (!needed.length) return null;
   const client = new JellyfinClient(api, () => !stopped);
-  const promise = client.ratings(needed, sync).then(map => {
+  for (const id of needed) {
+    const norm = normalizeGuid(id);
+    const prev = ratingsCooldown.get(norm);
+    ratingsCooldown.set(norm, { until: now + 3500, attempts: (prev?.attempts || 0) + 1 });
+    ratingsInflight.set(norm, true);
+  }
+  return client.ratings(needed, sync).then(map => {
     let anyPending = false;
+    let updated = 0;
+    const doneAt = Date.now();
     for (const id of needed) {
       const norm = normalizeGuid(id);
       ratingsInflight.delete(norm);
       const entry = map.get(id) || map.get(norm);
       if (entry) {
         ratingsCache.set(norm, entry);
-        if (entry.pending) anyPending = true;
+        updated++;
+        if (entry.pending) {
+          const prev = ratingsCooldown.get(norm);
+          const attempts = prev?.attempts || 1;
+          ratingsCooldown.set(norm, { until: doneAt + 2500, attempts });
+          if (attempts < 3) anyPending = true;
+        } else {
+          ratingsCooldown.delete(norm);
+        }
+      } else {
+        const prev = ratingsCooldown.get(norm);
+        ratingsCooldown.set(norm, { until: doneAt + 60000, attempts: Math.max(3, prev?.attempts || 1) });
       }
     }
     writeSessionRatings();
@@ -285,15 +311,18 @@ function fetchRatingsBatch(api, ids, sync = false) {
       clearTimeout(ratingsSyncTimer);
       ratingsSyncTimer = setTimeout(() => {
         if (!stopped) syncHeroAndDetailRatings(window.ApiClient || api);
-      }, 1800);
+      }, 2600);
     }
-    return map;
+    return updated > 0;
   }).catch(() => {
-    for (const id of needed) ratingsInflight.delete(normalizeGuid(id));
-    return new Map();
+    const failAt = Date.now();
+    for (const id of needed) {
+      const norm = normalizeGuid(id);
+      ratingsInflight.delete(norm);
+      ratingsCooldown.set(norm, { until: failAt + 60000, attempts: 3 });
+    }
+    return false;
   });
-  for (const id of needed) ratingsInflight.set(normalizeGuid(id), promise);
-  return promise;
 }
 function buildRatingsGroup(item, rtEntry, ratingsCfg, includePopcorn = false) {
   const cfg = ratingsCfg || DEFAULT_RATINGS;
@@ -440,9 +469,12 @@ function syncHeroAndDetailRatings(api = window.ApiClient) {
   });
 
   if (batchIds.length) {
-    fetchRatingsBatch(api, batchIds, false).then(() => {
-      if (!stopped) syncHeroAndDetailRatings(api);
-    });
+    const req = fetchRatingsBatch(api, batchIds, false);
+    if (req) {
+      req.then(updated => {
+        if (updated && !stopped) syncHeroAndDetailRatings(api);
+      });
+    }
   }
 
   // C. Update Movie / TV Show Detail Page (#itemDetailPage) — Tomatometer + Popcornmeter + Stars per plugin config
@@ -470,10 +502,13 @@ function syncHeroAndDetailRatings(api = window.ApiClient) {
           CommunityRating: item?.CommunityRating ?? (Number(scoreHost?.dataset?.fxOrigStar || 0) || null)
         };
         const rt = lookupCachedRating(hashId, mergedItem);
-        if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.source !== 'rt' && rt.pending !== false)) {
-          fetchRatingsBatch(api, [hashId], true).then(() => {
-            if (!stopped) syncHeroAndDetailRatings(api);
-          });
+        if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.pending)) {
+          const req = fetchRatingsBatch(api, [hashId], true);
+          if (req) {
+            req.then(updated => {
+              if (updated && !stopped) syncHeroAndDetailRatings(api);
+            });
+          }
         }
         const group = wantDetail ? buildRatingsGroup(mergedItem, rt, cfg, true) : null;
         detailPage.dataset.fxRatingsActive = 'true';
@@ -3286,9 +3321,12 @@ function syncPageHero(s) {
     }, 9000);
   }
   if (ratingsCfg.tomatometer) {
-    fetchRatingsBatch(s.api, featured.map(i => i.Id), false).then(() => {
-      if (!stopped && state === s) syncHeroAndDetailRatings(s.api);
-    });
+    const req = fetchRatingsBatch(s.api, featured.map(i => i.Id), false);
+    if (req) {
+      req.then(updated => {
+        if (updated && !stopped && state === s) syncHeroAndDetailRatings(s.api);
+      });
+    }
   }
 }
 function appendRow(row, s, isBoot = false, atIndex = -1) {
@@ -5157,7 +5195,8 @@ function start() {
         needsFilterImmediate = true;
       }
       if (!needsRatings && (t.id === 'itemDetailPage' || t.matches?.('.sleekfin-hero,.sleekfin-hero-slide,.sleekfin-details-score,.sleekfin-hero-score') || t.closest?.('.sleekfin-hero,#itemDetailPage'))) {
-        if (!t.closest?.('.fx-ratings-group,.fx-detail-injected-ratings')) needsRatings = true;
+        const onlyOwnRatings = r.type === 'childList' && [...r.addedNodes, ...r.removedNodes].every(n => n.nodeType === 1 && n.matches?.('.fx-ratings-group,.fx-detail-injected-ratings'));
+        if (!onlyOwnRatings && !t.closest?.('.fx-ratings-group,.fx-detail-injected-ratings')) needsRatings = true;
       }
       if (!needsPopover) {
         if (t === document.body || t.id === 'videoOsdPage' || t.id === 'app-user-menu' || t.matches?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root') || t.closest?.('.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.actionSheet,.sleekfin-menu-host')) {
@@ -5199,7 +5238,7 @@ function start() {
       syncPlaybackStats();
       schedulePopoverSync();
     }
-    if (needsRatings) syncHeroAndDetailRatings(window.ApiClient);
+    if (needsRatings) schedulePopoverSync();
     if (needsHeader) {
       hideLeavingSoonNav();
       hideSleekFinUserSettingsMenu();

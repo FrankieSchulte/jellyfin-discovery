@@ -1472,3 +1472,51 @@ test('v0.6.0 adds Movies/Shows hero banner, noisy ambient BG + tuner, RT Tomatom
   assert.equal(f.document.querySelector('.fx-ambient-bg'), null);
   assert.equal(f.document.querySelector('.fx-bg-tuner'), null);
 });
+
+test('v0.6.1 prevents microtask freeze when Ratings API is in-flight, pending, or returns errors', async () => {
+  const f = fixture();
+  let ratingsCalls = 0;
+  let resolvePending = null;
+  const origGetJSON = f.api.getJSON;
+  f.api.getJSON = async req => {
+    if (req.p === 'FazFortDiscovery/Ratings') {
+      ratingsCalls++;
+      return await new Promise(r => { resolvePending = r; });
+    }
+    return origGetJSON(req);
+  };
+  await f.settle();
+
+  // Mount a SleekFin hero slide whose rating fetch stays in-flight
+  const hero = f.document.createElement('div');
+  hero.className = 'sleekfin-hero';
+  const slide = f.document.createElement('section');
+  slide.className = 'sleekfin-hero-slide';
+  const link = f.document.createElement('a');
+  link.setAttribute('href', `#/details?id=${id(2)}`);
+  const score = f.document.createElement('span');
+  score.className = 'sleekfin-hero-score';
+  score.textContent = '8.1';
+  slide.append(link, score);
+  hero.append(slide);
+  f.document.getElementById('indexPage').prepend(hero);
+
+  // Repeated observer/rAF ticks while Ratings request is in-flight must NOT spin microtasks or fire duplicate requests
+  f.notify();
+  f.frames();
+  f.notify();
+  f.frames();
+  await f.settle();
+  assert.equal(ratingsCalls, 1, 'only 1 Ratings call fired while in-flight');
+
+  // Even when the response returns pending:true, cooldown prevents immediate microtask loop
+  resolvePending({ Ratings: { [id(2)]: { criticScore: 88, criticState: 'fresh', audienceScore: null, source: 'jellyfin', pending: true } } });
+  await f.settle();
+  f.notify();
+  f.frames();
+  await f.settle();
+  assert.equal(ratingsCalls, 1, 'pending:true respects cooldown instead of looping synchronously');
+  assert.ok(score.querySelector('.fx-rating-tomatometer'), 'fallback Tomatometer rendered immediately');
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
