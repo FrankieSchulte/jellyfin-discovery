@@ -6,6 +6,7 @@ public sealed class UserLink
     public int SeerrUserId { get; set; }
     public bool AllowRequests { get; set; }
 }
+public sealed record QualityProfile(int Id, string Name, int ServerId, string RootFolder, bool Is4k, bool IsDefault);
 public static class HubPolicy
 {
     public static UserLink? OwnMapping(IEnumerable<UserLink> links, Guid user) => user==Guid.Empty?null:links.SingleOrDefault(l=>l.JellyfinUserId==user&&l.SeerrUserId>0);

@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.4';
+const VERSION = '0.6.5';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -13,7 +13,7 @@ const sessionShuffles = new Map();
 const ratingsCache = new Map();
 const ratingsInflight = new Map();
 const ratingsCooldown = new Map();
-let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, ratingsSyncTimer = 0;
+let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, headerMenuOpeningTimer = 0, ratingsSyncTimer = 0;
 const osdMuteState = { muted: false, savedVolume: 100 };
 let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
 const searchInvListeners = new Set();
@@ -1072,9 +1072,24 @@ function updateHeaderPopupAnchor(anchorEl) {
 }
 function isSyncPlayOrCastTrigger(el) {
   if (!el) return false;
-  if (el.matches?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i]')) return true;
-  const label = `${el.getAttribute?.('title') || ''} ${el.getAttribute?.('aria-label') || ''} ${el.getAttribute?.('aria-controls') || ''} ${el.className || ''}`.toLowerCase();
+  if (el.matches?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i], [data-sleekfin-header-proxy-item*="sync" i], [data-sleekfin-header-proxy-item*="cast" i], [data-sleekfin-header-proxy-item*="remote" i]')) return true;
+  if (el.querySelector?.('.material-icons.groups, .material-icons.cast, .material-icons.cast_connected, svg[data-testid="GroupsIcon"], svg[data-testid="CastIcon"], svg[data-testid="CastConnectedIcon"]')) return true;
+  const label = `${el.getAttribute?.('title') || ''} ${el.getAttribute?.('aria-label') || ''} ${el.getAttribute?.('aria-controls') || ''} ${el.getAttribute?.('data-sleekfin-header-proxy-item') || ''} ${el.className || ''}`.toLowerCase();
   return /syncplay|sync[\s_-]*play|syncbutton|cast|play\s*on|remote[\s_-]*play/.test(label);
+}
+function markHeaderMenuOpening(active) {
+  clearTimeout(headerMenuOpeningTimer);
+  headerMenuOpeningTimer = 0;
+  if (!document.documentElement) return;
+  if (active) {
+    document.documentElement.setAttribute('data-fx-header-menu-opening', 'true');
+    headerMenuOpeningTimer = setTimeout(() => {
+      headerMenuOpeningTimer = 0;
+      document.documentElement?.removeAttribute?.('data-fx-header-menu-opening');
+    }, 800);
+  } else {
+    document.documentElement.removeAttribute('data-fx-header-menu-opening');
+  }
 }
 function onOsdAnchorPointer(event) {
   if (stopped) return;
@@ -1093,6 +1108,8 @@ function onOsdAnchorPointer(event) {
   // Detail page three-dots (...) button
   const detailMoreBtn = event.target?.closest?.('#itemDetailPage .btnMoreCommands, .itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], .itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage .sleekfin-details-action-overflow-trigger, .itemDetailPage .sleekfin-details-action-overflow-trigger, #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i], #itemDetailPage button:has(.more_vert)');
   if (detailMoreBtn && typeof detailMoreBtn.getBoundingClientRect === 'function') {
+    headerMenuAnchor = null;
+    markHeaderMenuOpening(false);
     const r = detailMoreBtn.getBoundingClientRect();
     if (r && (r.width > 0 || r.height > 0)) {
       detailMoreAnchor = {
@@ -1105,11 +1122,12 @@ function onOsdAnchorPointer(event) {
     }
   }
   // SyncPlay & Cast to Device header triggers (both during playback in .osdHeader/.videoOsd-appBar AND on regular pages)
-  const headerBtn = event.target?.closest?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button');
+  const headerBtn = event.target?.closest?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button, [data-sleekfin-header-proxy] button');
   const isBackBtn = Boolean(headerBtn?.matches?.('.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
   if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || (isVideoOsdOpen() && headerBtn.closest('.osdHeader, .videoOsd-appBar, .skinHeader')))) {
     updateHeaderPopupAnchor(headerBtn);
     headerMenuAnchor = { el: headerBtn, at: Date.now() };
+    markHeaderMenuOpening(true);
     if (isVideoOsdOpen()) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
     return;
   }
@@ -1128,6 +1146,7 @@ function onOsdAnchorPointer(event) {
     // Anchor Subtitles & Settings popups cleanly above the bottom-right control row before frame 0 paints
     document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'bottom');
     headerMenuAnchor = null;
+    markHeaderMenuOpening(false);
     const osd = document.getElementById('videoOsdPage');
     const gearBtn = osd?.querySelector?.('.btnVideoOsdSettings');
     const anchor = trigger.classList.contains('btnAudio') && gearBtn ? gearBtn : trigger;
@@ -1263,6 +1282,13 @@ function positionDetailMoreMenu(popup, anchor) {
   popup.dataset.fxMorePlace = place;
   popup.dataset.fxDetailMoreRows = String(rowCount);
   popup.dataset.fxDetailMoreSize = `${vw}x${vh}:${rawPw}x${rawPh}`;
+  // Store coordinates in CSS custom properties bound to stylesheet !important rules so SleekFin's ResizeObserver S(e)
+  // (`n.style.left = (he - ue.left) + "px"`) can NEVER overwrite & teleport the menu off-screen on wide/full windows.
+  popup.style.setProperty('--fx-more-left', `${leftPx}px`);
+  popup.style.setProperty('--fx-more-top', `${topPx}px`);
+  popup.style.setProperty('--fx-more-max-w', `${maxW}px`);
+  popup.style.setProperty('--fx-more-max-h', `${maxH}px`);
+  popup.style.setProperty('--fx-more-origin', `${originX}px ${originY}px`);
   popup.style.setProperty('position', 'fixed', 'important');
   popup.style.setProperty('left', `${leftPx}px`, 'important');
   popup.style.setProperty('top', `${topPx}px`, 'important');
@@ -1465,6 +1491,11 @@ function enhanceOsdSettingsMenu() {
     const detailPage = !osdOpen ? getVisibleDetailPage() : null;
     const looksLikeDetailMore = Boolean(freshDetailMore) || /edit\s+metadata|media\s+info|refresh\s+metadata|add\s+to\s+collection|add\s+to\s+playlist|copy\s+stream|delete\s+media|identify/.test(fullText);
     if (detailPage && looksLikeDetailMore) {
+      if (sleekPopup && sheet.dataset.fxDetailMore === 'true') {
+        delete sheet.dataset.fxDetailMore;
+        delete sheet.dataset.fxMorePlace;
+        ['--fx-more-left', '--fx-more-top', '--fx-more-max-w', '--fx-more-max-h', '--fx-more-origin'].forEach(p => sheet.style?.removeProperty?.(p));
+      }
       const moreAnchor = resolveLiveDetailMoreAnchor(detailPage);
       const targetPopup = sleekPopup || (!sheet.classList.contains('sleekfin-menu-host') ? sheet : null);
       if (targetPopup && moreAnchor) {
@@ -1626,6 +1657,9 @@ function anchorOpenPopovers() {
       return;
     }
     hasOpenPopover = true;
+    if (pop.id === 'app-sync-play-menu' || pop.id === 'app-remote-play-menu') {
+      return;
+    }
     if (pop.dataset.fxAnchoredOpen !== 'true') {
       pop.dataset.fxAnchoredOpen = 'true';
       pop.style?.setProperty?.('--fx-popover-scroll-y', `${scrollY}px`);
@@ -2676,10 +2710,25 @@ function syncEntryBadge(entry, item, s) {
 function renderCard(item, s, withSimilar = true, layout = 'landscape') {
   const card = element('a', 'fx-card'); card.href = itemHref(item, s.api) || '#';
   card.dataset.itemId = item.Id || '';
-  card.addEventListener('click', () => {
+  const isRequestHubItem = item.Type !== 'SeeMore' && Boolean(item.ProviderIds?.Jellyseerr) && ['movie', 'tv'].includes(item.SourceType);
+  card.addEventListener('click', event => {
     if (s.slots?.length) {
       s.lastFocus = { row: s.slots.findIndex(slot => slot.node.contains(card)), id: item.Id };
       saveFeed(s);
+    }
+    if (isRequestHubItem && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && (!event.button || event.button === 0) && typeof window.JellyfinRequestHub?.openDetails === 'function') {
+      event.preventDefault();
+      if (activeDialog) closeDialog();
+      window.JellyfinRequestHub.openDetails({
+        id: Number(item.ProviderIds.Jellyseerr),
+        type: item.SourceType,
+        title: item.Name || '',
+        overview: item.Overview || '',
+        poster: item.ProviderIds?.JellyseerrPoster || '',
+        releaseDate: item.PremiereDate || (item.ProductionYear ? String(item.ProductionYear) : ''),
+        status: Number(item.JellyseerrStatus || 0)
+      }, card);
+      return;
     }
     if (item.Type === 'SeeMore') {
       scrollToTop();
@@ -3372,11 +3421,23 @@ function syncPageHero(s) {
   const dots = [];
   let activeIdx = 0;
   let paused = false;
+  const reduceMotion = Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
 
-  const setActive = nextIdx => {
+  const resetAutoTimer = () => {
+    stopPageHeroTimer(s);
+    if (slides.length > 1 && !reduceMotion) {
+      s.heroTimer = setInterval(() => {
+        if (stopped || state !== s || paused || document.hidden || !s.heroEl?.isConnected) return;
+        setActive(activeIdx + 1, false);
+      }, 9000);
+    }
+  };
+
+  const setActive = (nextIdx, fromUser = false) => {
     activeIdx = ((nextIdx % slides.length) + slides.length) % slides.length;
     slides.forEach((sl, idx) => { sl.dataset.active = idx === activeIdx ? 'true' : 'false'; });
     dots.forEach((dt, idx) => { dt.setAttribute('aria-current', idx === activeIdx ? 'true' : 'false'); });
+    if (fromUser) resetAutoTimer();
   };
 
   featured.forEach((item, idx) => {
@@ -3501,7 +3562,7 @@ function syncPageHero(s) {
     dot.type = 'button';
     dot.setAttribute('aria-label', `Featured slide ${idx + 1}: ${item.Name || ''}`);
     dot.setAttribute('aria-current', idx === 0 ? 'true' : 'false');
-    dot.addEventListener('click', () => setActive(idx));
+    dot.addEventListener('click', () => setActive(idx, true));
     dotsWrap.append(dot);
     dots.push(dot);
   });
@@ -3510,13 +3571,13 @@ function syncPageHero(s) {
   prevBtn.type = 'button';
   prevBtn.setAttribute('aria-label', 'Previous featured title');
   prevBtn.innerHTML = SUBPAGE_BACK_SVG;
-  prevBtn.addEventListener('click', () => setActive(activeIdx - 1));
+  prevBtn.addEventListener('click', () => setActive(activeIdx - 1, true));
 
   const nextBtn = element('button', 'fx-page-hero-nav fx-page-hero-next');
   nextBtn.type = 'button';
   nextBtn.setAttribute('aria-label', 'Next featured title');
   nextBtn.innerHTML = HERO_NEXT_SVG;
-  nextBtn.addEventListener('click', () => setActive(activeIdx + 1));
+  nextBtn.addEventListener('click', () => setActive(activeIdx + 1, true));
 
   s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
   try {
@@ -3535,16 +3596,10 @@ function syncPageHero(s) {
   s.heroEl.addEventListener('touchend', e => {
     const endX = e.changedTouches?.[0]?.clientX || 0;
     const dx = swipeStartX - endX;
-    if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1));
+    if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1), true);
   }, { passive: true });
 
-  const reduceMotion = Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
-  if (slides.length > 1 && !reduceMotion) {
-    s.heroTimer = setInterval(() => {
-      if (stopped || state !== s || paused || document.hidden || !s.heroEl?.isConnected) return;
-      setActive(activeIdx + 1);
-    }, 9000);
-  }
+  resetAutoTimer();
   if (ratingsCfg.tomatometer) {
     const req = fetchRatingsBatch(s.api, featured.map(i => i.Id), false);
     if (req) {
@@ -5505,7 +5560,7 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(headerMenuOpeningTimer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
@@ -5515,6 +5570,7 @@ window.FazFortDiscovery = {
     document.documentElement?.removeAttribute?.('data-fx-popover-open');
     document.documentElement?.removeAttribute?.('data-fx-video-osd');
     document.documentElement?.removeAttribute?.('data-fx-osd-anchor');
+    document.documentElement?.removeAttribute?.('data-fx-header-menu-opening');
     document.documentElement?.removeAttribute?.('data-fx-livetv');
     document.documentElement?.removeAttribute?.('data-fx-search-page');
     document.documentElement?.removeAttribute?.('data-fx-has-subheader');

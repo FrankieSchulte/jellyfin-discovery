@@ -6,11 +6,13 @@ using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Jellyfin.RequestHub;
-public sealed class RequestBody {public string Type{get;set;}="";public int Id{get;set;}public int[] Seasons{get;set;}=[];}
+public sealed class RequestBody {public string Type{get;set;}="";public int Id{get;set;}public int[] Seasons{get;set;}=[];public int? ProfileId{get;set;}public int? ServerId{get;set;}public bool? Is4k{get;set;}}
 [ApiController,Route("RequestHub"),Authorize]
 public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibraryManager? library=null):ControllerBase
 {
     private static readonly object OwnedLock=new();
+    private static readonly object ProfilesLock=new();
+    private static readonly Dictionary<string,(DateTimeOffset CachedAt,QualityProfile[] Profiles)> CachedProfiles=[];
     private static DateTimeOffset OwnedCachedAt=DateTimeOffset.MinValue;
     private static HashSet<int> CachedMovies=[];
     private static HashSet<int> CachedSeries=[];
@@ -54,19 +56,96 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
         var items=root.GetProperty("results").EnumerateArray().Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries)).Select(i=>Projection.Item(i,fallbackType)).ToArray();
         return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});
     });
+    private async Task<QualityProfile[]> GetProfilesAsync(string type,CancellationToken token)
+    {
+        var key=type=="tv"?"tv":"movie";
+        var now=DateTimeOffset.UtcNow;
+        lock(ProfilesLock){if(CachedProfiles.TryGetValue(key,out var cached)&&now-cached.CachedAt<TimeSpan.FromMinutes(5))return cached.Profiles;}
+        var service=key=="tv"?"sonarr":"radarr";
+        try
+        {
+            using var listDoc=await gateway.SendAdmin($"service/{service}",token);
+            if(listDoc.RootElement.ValueKind!=JsonValueKind.Array)return [];
+            var servers=new List<(int Id,string RootFolder,bool Is4k,bool IsDefault,int ActiveProfileId)>();
+            foreach(var s in listDoc.RootElement.EnumerateArray())
+            {
+                if(!s.TryGetProperty("id",out var idProp)||!idProp.TryGetInt32(out var sid)||sid<0)continue;
+                var rootFolder=s.TryGetProperty("activeDirectory",out var dirProp)&&dirProp.ValueKind==JsonValueKind.String?(dirProp.GetString()??""):"";
+                var is4k=s.TryGetProperty("is4k",out var k4)&&k4.ValueKind==JsonValueKind.True;
+                var isDef=s.TryGetProperty("isDefault",out var def)&&def.ValueKind==JsonValueKind.True;
+                var activeProf=s.TryGetProperty("activeProfileId",out var ap)&&ap.TryGetInt32(out var apId)?apId:0;
+                servers.Add((sid,rootFolder,is4k,isDef,activeProf));
+            }
+            servers.Sort((a,b)=>{int d=(b.IsDefault?1:0).CompareTo(a.IsDefault?1:0);return d!=0?d:a.Id.CompareTo(b.Id);});
+            var all=new List<QualityProfile>();
+            foreach(var srv in servers)
+            {
+                using var detailDoc=await gateway.SendAdmin($"service/{service}/{srv.Id}",token);
+                all.AddRange(Projection.ParseProfiles(detailDoc.RootElement,srv.Id,srv.RootFolder,srv.Is4k,srv.IsDefault,srv.ActiveProfileId));
+            }
+            var result=all.ToArray();
+            lock(ProfilesLock){CachedProfiles[key]=(now,result);}
+            return result;
+        }
+        catch
+        {
+            return [];
+        }
+    }
+    private async Task<object?> FetchMovieRatingsAsync(UserLink link,int id,CancellationToken token)
+    {
+        try
+        {
+            using var doc=await gateway.Send(link,$"movie/{id}/ratings",null,token);
+            return Projection.MovieRatings(doc.RootElement);
+        }
+        catch
+        {
+            return null;
+        }
+    }
     [HttpGet("Details")]
     public Task<IActionResult> Details(string type,int id)=>Run(async link=>{
         if(type is not("movie" or "tv")||id<=0)return BadRequest();
-        using var response=await gateway.Send(link,$"{type}/{id}",null,HttpContext.RequestAborted);var r=response.RootElement;
+        var ct=HttpContext.RequestAborted;
+        var detailsTask=gateway.Send(link,$"{type}/{id}",null,ct);
+        var profilesTask=GetProfilesAsync(type,ct);
+        var ratingsTask=type=="movie"?FetchMovieRatingsAsync(link,id,ct):Task.FromResult<object?>(null);
+        await Task.WhenAll(detailsTask,profilesTask,ratingsTask);
+        using var response=await detailsTask;var r=response.RootElement;
         var seasons=r.TryGetProperty("seasons",out var ss)&&ss.ValueKind==JsonValueKind.Array?ss.EnumerateArray().Select(s=>s.GetProperty("seasonNumber").GetInt32()).ToArray():Array.Empty<int>();
-        return Ok(new{item=Projection.Item(r,type),seasons,canRequest=link.AllowRequests});
+        var profiles=await profilesTask;
+        var defaultProfile=profiles.FirstOrDefault(p=>p.IsDefault)??profiles.FirstOrDefault();
+        var ratings=type=="movie"?await ratingsTask:null;
+        return Ok(new{
+            item=Projection.Details(r,type),
+            seasons,
+            profiles=profiles.Select(p=>new{id=p.Id,name=p.Name,serverId=p.ServerId,is4k=p.Is4k,isDefault=p.IsDefault}).ToArray(),
+            defaultProfileId=defaultProfile?.Id,
+            ratings,
+            canRequest=link.AllowRequests
+        });
     });
     [HttpPost("Request"),RequestSizeLimit(8192)]
     public Task<IActionResult> RequestTitle([FromBody]RequestBody body)=>Run(async link=>{
         if(!link.AllowRequests)return Forbid();
         if(body.Seasons is null||!HubPolicy.RequestValid(body.Type,body.Id,body.Seasons))return BadRequest();
         if(!gateway.PermitWrite(link.JellyfinUserId))return StatusCode(429);
-        using var response=await gateway.Send(link,"request",new{mediaType=body.Type,mediaId=body.Id,seasons=body.Seasons,is4k=false},HttpContext.RequestAborted);
+        object payload;
+        if(body.ProfileId is > 0)
+        {
+            var profiles=await GetProfilesAsync(body.Type,HttpContext.RequestAborted);
+            var chosen=profiles.FirstOrDefault(p=>p.Id==body.ProfileId.Value&&(!body.ServerId.HasValue||p.ServerId==body.ServerId.Value))??profiles.FirstOrDefault(p=>p.Id==body.ProfileId.Value);
+            if(chosen is null)return BadRequest();
+            payload=string.IsNullOrWhiteSpace(chosen.RootFolder)
+                ?new{mediaType=body.Type,mediaId=body.Id,seasons=body.Seasons,is4k=chosen.Is4k,serverId=chosen.ServerId,profileId=chosen.Id}
+                :(object)new{mediaType=body.Type,mediaId=body.Id,seasons=body.Seasons,is4k=chosen.Is4k,serverId=chosen.ServerId,profileId=chosen.Id,rootFolder=chosen.RootFolder};
+        }
+        else
+        {
+            payload=new{mediaType=body.Type,mediaId=body.Id,seasons=body.Seasons,is4k=false};
+        }
+        using var response=await gateway.Send(link,"request",payload,HttpContext.RequestAborted);
         return Ok(new{message="Request submitted. Jellyseerr approval rules and quotas apply."});
     });
 }

@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.4 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.5 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2028,7 +2028,7 @@ html[data-fx-subpage="true"][data-fx-has-subheader="true"] :is(#moviesPage,#tvsh
   .fx-subpage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}
 }
 .fx-row-head button{padding:3px 11px;font-size:22px;border:0;background:transparent}
-.fx-track{display:flex;gap:14px;overflow-x:auto;padding:4px 3px 12px;scrollbar-width:thin;overflow-anchor:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.fx-track{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden!important;padding:4px 3px 14px;scrollbar-width:thin;overflow-anchor:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;overscroll-behavior-y:auto;touch-action:pan-x pan-y}
 .fx-card-entry{position:relative;flex:0 0 260px;width:260px;flex-basis:clamp(205px,23vw,310px);width:clamp(205px,23vw,310px);min-width:0}
 .fx-card{width:100%;display:block;text-decoration:none;color:inherit;min-width:0}
 .fx-card-more,.card:not(.sleekfin-details-episode) :is(button.cardOverlayButton[data-action="menu"],.cardOverlayContainer button[data-action="menu"],.cardFooter button[data-action="menu"]){display:none!important}
@@ -2260,7 +2260,7 @@ html[data-fx-popover-open="true"] body{
   overflow-y:auto!important;
   padding-right:0!important;
 }
-.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden){
+.MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden):not(#app-sync-play-menu):not(#app-remote-play-menu){
   position:absolute!important;
   top:var(--fx-popover-scroll-y,0px)!important;
   left:var(--fx-popover-scroll-x,0px)!important;
@@ -2268,6 +2268,12 @@ html[data-fx-popover-open="true"] body{
   bottom:auto!important;
   width:100%!important;
   height:100vh!important;
+  pointer-events:none!important;
+}
+#app-sync-play-menu:not([aria-hidden="true"]):not(.MuiModal-hidden),
+#app-remote-play-menu:not([aria-hidden="true"]):not(.MuiModal-hidden){
+  position:fixed!important;
+  inset:0!important;
   pointer-events:none!important;
 }
 .MuiPopover-root:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiBackdrop-root{
@@ -2353,8 +2359,11 @@ html:root .dialogContainer:has([data-fx-detail-more="true"]){
   display:block!important;
 }
 html:root .dialog.actionSheet:has([data-fx-detail-more="true"]){
-  position:static!important;
-  inset:auto!important;
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
   width:0!important;
   height:0!important;
   min-width:0!important;
@@ -2362,6 +2371,7 @@ html:root .dialog.actionSheet:has([data-fx-detail-more="true"]){
   padding:0!important;
   margin:0!important;
   overflow:visible!important;
+  pointer-events:none!important;
   contain:none!important;
   transform:none!important;
   filter:none!important;
@@ -2414,23 +2424,6 @@ html:root :is(.sleekfin-menu-popup[data-fx-osd-settings="true"],.sleekfin-menu-p
   transform-origin:bottom right!important;
   animation:fx-dropdown-enter-up .16s cubic-bezier(.22,1,.36,1) both!important;
 }
-html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup,.dialog.actionSheet:not(.sleekfin-menu-host)),
-html:root :is(#app-sync-play-menu,#app-remote-play-menu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
-html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-paper[data-fx-header-anchored="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
-  position:fixed!important;
-  top:var(--fx-header-popup-top,64px)!important;
-  right:var(--fx-header-popup-right,20px)!important;
-  left:auto!important;
-  bottom:auto!important;
-  max-height:min(68dvh,calc(100dvh - var(--fx-header-popup-top,64px) - 20px))!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
-  background-color:rgba(15,16,20,.97)!important;
-  backdrop-filter:blur(22px) saturate(140%)!important;
-  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
-  border:1px solid rgba(255,255,255,.11)!important;
-  transform-origin:top right!important;
-  animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
-}
 .MuiPopover-root[aria-hidden="true"] .MuiPaper-root,
 .MuiPopover-root.MuiModal-hidden .MuiPaper-root,
 .MuiPopover-root[aria-hidden="true"] .sleekfin-menu-popup,
@@ -2444,6 +2437,42 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   transform-origin:top left!important;
   transition:none!important;
   animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
+}
+html:root :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper.sleekfin-menu-host{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  width:0!important;
+  height:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  transition:none!important;
+  transform:none!important;
+  animation:none!important;
+}
+html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"])),
+html[data-fx-header-menu-opening="true"] :is(.dialog.actionSheet .sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]),.sleekfin-popup-layer .sleekfin-menu-popup:not([data-fx-detail-more="true"])),
+html:root :is(#app-sync-play-menu,#app-remote-play-menu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
+html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-paper[data-fx-header-anchored="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
+  position:fixed!important;
+  top:var(--fx-header-popup-top,64px)!important;
+  right:var(--fx-header-popup-right,20px)!important;
+  left:auto!important;
+  bottom:auto!important;
+  min-width:210px!important;
+  width:max-content!important;
+  max-width:min(320px,calc(100vw - 24px))!important;
+  max-height:min(68dvh,calc(100dvh - var(--fx-header-popup-top,64px) - 20px))!important;
+  margin:0!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.01)),rgba(15,16,20,.97)!important;
+  background-color:rgba(15,16,20,.97)!important;
+  backdrop-filter:blur(22px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  pointer-events:auto!important;
+  transition:none!important;
+  transform-origin:top right!important;
+  animation:fx-dropdown-enter .14s cubic-bezier(.22,1,.36,1) both!important;
 }
 #app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
 #app-user-menu .sleekfin-menu-popup,
@@ -4374,10 +4403,15 @@ button.fx-settings-menu-row .listItemBodyText{
   transform:translateY(-50%) scale(1);
 }
 
-/* Smooth Touch Scrolling on Native Scrollers */
+/* Smooth Touch Scrolling on Native Scrollers (Lock Horizontal Categories Against Vertical Scrolling) */
 .emby-scroller{
   -webkit-overflow-scrolling:touch;
   overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+}
+.emby-scroller:not(.scrollY):not(.smoothScrollY){
+  overflow-y:hidden!important;
+  touch-action:pan-x pan-y;
 }
 
 /* Lock Video Playback (#videoOsdPage) in Place Without Trapping Stacking Context, Guarantee Easy Back/OSD Taps, Fix Playback Info Overlay & Block Native iOS Fullscreen Entry */
@@ -5423,6 +5457,8 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   align-items:flex-start;
 }
 .fx-page-hero-logo{
+  position:relative;
+  z-index:1;
   display:block;
   max-width:min(420px,54vw);
   max-height:112px;
@@ -5430,19 +5466,23 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   height:auto;
   object-fit:contain;
   object-position:left bottom;
-  margin:0 0 14px;
-  filter:drop-shadow(0 4px 16px rgba(0,0,0,.85)) drop-shadow(0 10px 28px rgba(0,0,0,.65));
+  margin:0 0 18px;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.62));
 }
 .fx-page-hero-title{
-  margin:0 0 10px;
+  position:relative;
+  z-index:1;
+  margin:0 0 14px;
   font-size:clamp(30px,4vw,52px);
   line-height:1.06;
   font-weight:800;
   letter-spacing:-.025em;
   color:#fff;
-  text-shadow:0 2px 6px rgba(0,0,0,.95),0 6px 26px rgba(0,0,0,.85);
+  text-shadow:0 2px 6px rgba(0,0,0,.85),0 4px 14px rgba(0,0,0,.55);
 }
 .fx-page-hero-meta{
+  position:relative;
+  z-index:2;
   display:flex;
   flex-wrap:wrap;
   align-items:center;
@@ -5451,16 +5491,18 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   line-height:1.35;
   font-weight:600;
   color:rgba(255,255,255,.96);
-  text-shadow:0 1px 4px rgba(0,0,0,.96),0 3px 14px rgba(0,0,0,.88);
+  text-shadow:0 1px 3px rgba(0,0,0,.92),0 2px 10px rgba(0,0,0,.62);
 }
 .fx-page-hero-sep{
   color:rgba(255,255,255,.72);
   font-weight:700;
   user-select:none;
-  text-shadow:0 1px 4px rgba(0,0,0,.95);
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
 }
 .fx-page-hero-desc{
-  margin:12px 0 0;
+  position:relative;
+  z-index:3;
+  margin:14px 0 0;
   color:rgba(255,255,255,.94);
   font-size:15px;
   font-weight:500;
@@ -5469,9 +5511,11 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   -webkit-box-orient:vertical;
   -webkit-line-clamp:3;
   overflow:hidden;
-  text-shadow:0 1px 4px rgba(0,0,0,.96),0 3px 16px rgba(0,0,0,.88);
+  text-shadow:0 1px 3px rgba(0,0,0,.92),0 2px 10px rgba(0,0,0,.62);
 }
 .fx-page-hero-actions{
+  position:relative;
+  z-index:4;
   display:flex;
   flex-wrap:wrap;
   align-items:center;
@@ -5852,16 +5896,27 @@ html[data-fx-ambient-bg="true"].sleekfin-details-mounted #itemDetailPage[data-sl
   from{opacity:0;transform:translate3d(14px,var(--fx-more-dy,0px),0) scale(.76)}
   to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
+html:root .dialog.actionSheet.sleekfin-menu-host > .sleekfin-menu-popup[data-fx-detail-more="true"],
+html:root .sleekfin-popup-layer .sleekfin-menu-popup[data-fx-detail-more="true"],
+html:root .sleekfin-menu-popup[data-fx-detail-more="true"],
+html:root .dialog.actionSheet[data-fx-detail-more="true"]:not(.sleekfin-menu-host),
 html:root [data-fx-detail-more="true"]{
   position:fixed!important;
+  left:var(--fx-more-left,12px)!important;
+  top:var(--fx-more-top,12px)!important;
   right:auto!important;
   bottom:auto!important;
+  min-width:188px!important;
+  width:max-content!important;
+  max-width:var(--fx-more-max-w,calc(100vw - 24px))!important;
+  max-height:var(--fx-more-max-h,calc(100dvh - 24px))!important;
+  transform-origin:var(--fx-more-origin,center)!important;
   margin:0!important;
   z-index:1000005!important;
   visibility:visible!important;
   opacity:1!important;
   pointer-events:auto!important;
-  max-height:calc(100dvh - 24px)!important;
+  overflow-x:hidden!important;
   overflow-y:auto!important;
 }
 html:root [data-fx-detail-more="true"][data-fx-more-place="bottom"]{
@@ -8423,7 +8478,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.4";
+      const VERSION = "0.6.5";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -8436,7 +8491,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
       const ratingsCache = /* @__PURE__ */ new Map();
       const ratingsInflight = /* @__PURE__ */ new Map();
       const ratingsCooldown = /* @__PURE__ */ new Map();
-      let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, ratingsSyncTimer = 0;
+      let lastTriggerRect = null, detailMoreAnchor = null, headerMenuAnchor = null, headerMenuOpeningTimer = 0, ratingsSyncTimer = 0;
       const osdMuteState = { muted: false, savedVolume: 100 };
       let searchInvInflight = null, searchTrackInflight = null, savedWindowFetch = null;
       const searchInvListeners = /* @__PURE__ */ new Set();
@@ -9538,11 +9593,27 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         return true;
       }
       function isSyncPlayOrCastTrigger(el) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f;
         if (!el) return false;
-        if ((_a2 = el.matches) == null ? void 0 : _a2.call(el, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i]')) return true;
-        const label = `${((_b2 = el.getAttribute) == null ? void 0 : _b2.call(el, "title")) || ""} ${((_c2 = el.getAttribute) == null ? void 0 : _c2.call(el, "aria-label")) || ""} ${((_d2 = el.getAttribute) == null ? void 0 : _d2.call(el, "aria-controls")) || ""} ${el.className || ""}`.toLowerCase();
+        if ((_a2 = el.matches) == null ? void 0 : _a2.call(el, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], [aria-controls*="sync-play" i], [aria-controls*="remote-play" i], [aria-controls*="cast" i], [data-sleekfin-header-proxy-item*="sync" i], [data-sleekfin-header-proxy-item*="cast" i], [data-sleekfin-header-proxy-item*="remote" i]')) return true;
+        if ((_b2 = el.querySelector) == null ? void 0 : _b2.call(el, '.material-icons.groups, .material-icons.cast, .material-icons.cast_connected, svg[data-testid="GroupsIcon"], svg[data-testid="CastIcon"], svg[data-testid="CastConnectedIcon"]')) return true;
+        const label = `${((_c2 = el.getAttribute) == null ? void 0 : _c2.call(el, "title")) || ""} ${((_d2 = el.getAttribute) == null ? void 0 : _d2.call(el, "aria-label")) || ""} ${((_e2 = el.getAttribute) == null ? void 0 : _e2.call(el, "aria-controls")) || ""} ${((_f = el.getAttribute) == null ? void 0 : _f.call(el, "data-sleekfin-header-proxy-item")) || ""} ${el.className || ""}`.toLowerCase();
         return /syncplay|sync[\s_-]*play|syncbutton|cast|play\s*on|remote[\s_-]*play/.test(label);
+      }
+      function markHeaderMenuOpening(active) {
+        clearTimeout(headerMenuOpeningTimer);
+        headerMenuOpeningTimer = 0;
+        if (!document.documentElement) return;
+        if (active) {
+          document.documentElement.setAttribute("data-fx-header-menu-opening", "true");
+          headerMenuOpeningTimer = setTimeout(() => {
+            var _a2, _b2;
+            headerMenuOpeningTimer = 0;
+            (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-header-menu-opening");
+          }, 800);
+        } else {
+          document.documentElement.removeAttribute("data-fx-header-menu-opening");
+        }
       }
       function onOsdAnchorPointer(event) {
         var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
@@ -9566,6 +9637,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
         const detailMoreBtn = (_d2 = (_c2 = event.target) == null ? void 0 : _c2.closest) == null ? void 0 : _d2.call(_c2, '#itemDetailPage .btnMoreCommands, .itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], .itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage .sleekfin-details-action-overflow-trigger, .itemDetailPage .sleekfin-details-action-overflow-trigger, #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i], #itemDetailPage button:has(.more_vert)');
         if (detailMoreBtn && typeof detailMoreBtn.getBoundingClientRect === "function") {
+          headerMenuAnchor = null;
+          markHeaderMenuOpening(false);
           const r = detailMoreBtn.getBoundingClientRect();
           if (r && (r.width > 0 || r.height > 0)) {
             detailMoreAnchor = {
@@ -9582,11 +9655,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             };
           }
         }
-        const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button');
+        const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button, [data-sleekfin-header-proxy] button');
         const isBackBtn = Boolean((_g = headerBtn == null ? void 0 : headerBtn.matches) == null ? void 0 : _g.call(headerBtn, '.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
         if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || isVideoOsdOpen() && headerBtn.closest(".osdHeader, .videoOsd-appBar, .skinHeader"))) {
           updateHeaderPopupAnchor(headerBtn);
           headerMenuAnchor = { el: headerBtn, at: Date.now() };
+          markHeaderMenuOpening(true);
           if (isVideoOsdOpen()) (_i = (_h = document.documentElement) == null ? void 0 : _h.setAttribute) == null ? void 0 : _i.call(_h, "data-fx-osd-anchor", "top");
           return;
         }
@@ -9603,6 +9677,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (trigger) {
           (_o = (_n = document.documentElement) == null ? void 0 : _n.setAttribute) == null ? void 0 : _o.call(_n, "data-fx-osd-anchor", "bottom");
           headerMenuAnchor = null;
+          markHeaderMenuOpening(false);
           const osd = document.getElementById("videoOsdPage");
           const gearBtn = (_p = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _p.call(osd, ".btnVideoOsdSettings");
           const anchor = trigger.classList.contains("btnAudio") && gearBtn ? gearBtn : trigger;
@@ -9743,6 +9818,11 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         popup.dataset.fxMorePlace = place;
         popup.dataset.fxDetailMoreRows = String(rowCount);
         popup.dataset.fxDetailMoreSize = `${vw}x${vh}:${rawPw}x${rawPh}`;
+        popup.style.setProperty("--fx-more-left", `${leftPx}px`);
+        popup.style.setProperty("--fx-more-top", `${topPx}px`);
+        popup.style.setProperty("--fx-more-max-w", `${maxW}px`);
+        popup.style.setProperty("--fx-more-max-h", `${maxH}px`);
+        popup.style.setProperty("--fx-more-origin", `${originX}px ${originY}px`);
         popup.style.setProperty("position", "fixed", "important");
         popup.style.setProperty("left", `${leftPx}px`, "important");
         popup.style.setProperty("top", `${topPx}px`, "important");
@@ -9945,6 +10025,14 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           const detailPage = !osdOpen ? getVisibleDetailPage() : null;
           const looksLikeDetailMore = Boolean(freshDetailMore) || /edit\s+metadata|media\s+info|refresh\s+metadata|add\s+to\s+collection|add\s+to\s+playlist|copy\s+stream|delete\s+media|identify/.test(fullText);
           if (detailPage && looksLikeDetailMore) {
+            if (sleekPopup && sheet.dataset.fxDetailMore === "true") {
+              delete sheet.dataset.fxDetailMore;
+              delete sheet.dataset.fxMorePlace;
+              ["--fx-more-left", "--fx-more-top", "--fx-more-max-w", "--fx-more-max-h", "--fx-more-origin"].forEach((p) => {
+                var _a3, _b3;
+                return (_b3 = (_a3 = sheet.style) == null ? void 0 : _a3.removeProperty) == null ? void 0 : _b3.call(_a3, p);
+              });
+            }
             const moreAnchor = resolveLiveDetailMoreAnchor(detailPage);
             const targetPopup = sleekPopup || (!sheet.classList.contains("sleekfin-menu-host") ? sheet : null);
             if (targetPopup && moreAnchor) {
@@ -10120,6 +10208,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             return;
           }
           hasOpenPopover = true;
+          if (pop.id === "app-sync-play-menu" || pop.id === "app-remote-play-menu") {
+            return;
+          }
           if (pop.dataset.fxAnchoredOpen !== "true") {
             pop.dataset.fxAnchoredOpen = "true";
             (_b3 = (_a3 = pop.style) == null ? void 0 : _a3.setProperty) == null ? void 0 : _b3.call(_a3, "--fx-popover-scroll-y", `${scrollY}px`);
@@ -11274,15 +11365,30 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (badge.textContent !== text) badge.textContent = text;
       }
       function renderCard(item, s, withSimilar = true, layout = "landscape") {
-        var _a2, _b2;
+        var _a2, _b2, _c2;
         const card = element("a", "fx-card");
         card.href = itemHref(item, s.api) || "#";
         card.dataset.itemId = item.Id || "";
-        card.addEventListener("click", () => {
-          var _a3;
+        const isRequestHubItem = item.Type !== "SeeMore" && Boolean((_a2 = item.ProviderIds) == null ? void 0 : _a2.Jellyseerr) && ["movie", "tv"].includes(item.SourceType);
+        card.addEventListener("click", (event) => {
+          var _a3, _b3, _c3;
           if ((_a3 = s.slots) == null ? void 0 : _a3.length) {
             s.lastFocus = { row: s.slots.findIndex((slot) => slot.node.contains(card)), id: item.Id };
             saveFeed(s);
+          }
+          if (isRequestHubItem && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && (!event.button || event.button === 0) && typeof ((_b3 = window.JellyfinRequestHub) == null ? void 0 : _b3.openDetails) === "function") {
+            event.preventDefault();
+            if (activeDialog) closeDialog();
+            window.JellyfinRequestHub.openDetails({
+              id: Number(item.ProviderIds.Jellyseerr),
+              type: item.SourceType,
+              title: item.Name || "",
+              overview: item.Overview || "",
+              poster: ((_c3 = item.ProviderIds) == null ? void 0 : _c3.JellyseerrPoster) || "",
+              releaseDate: item.PremiereDate || (item.ProductionYear ? String(item.ProductionYear) : ""),
+              status: Number(item.JellyseerrStatus || 0)
+            }, card);
+            return;
           }
           if (item.Type === "SeeMore") {
             scrollToTop();
@@ -11357,7 +11463,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         } else {
           visual.append(placeholder);
         }
-        const percent = Math.max(0, Math.min(100, Number(((_a2 = item.UserData) == null ? void 0 : _a2.PlayedPercentage) || (item.RunTimeTicks ? 100 * (((_b2 = item.UserData) == null ? void 0 : _b2.PlaybackPositionTicks) || 0) / item.RunTimeTicks : 0))));
+        const percent = Math.max(0, Math.min(100, Number(((_b2 = item.UserData) == null ? void 0 : _b2.PlayedPercentage) || (item.RunTimeTicks ? 100 * (((_c2 = item.UserData) == null ? void 0 : _c2.PlaybackPositionTicks) || 0) / item.RunTimeTicks : 0))));
         if (percent > 0 && percent < 100) {
           const progress = element("div", "fx-progress");
           const fill = element("span");
@@ -12014,7 +12120,18 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         const dots = [];
         let activeIdx = 0;
         let paused = false;
-        const setActive = (nextIdx) => {
+        const reduceMotion = Boolean((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _j.matches);
+        const resetAutoTimer = () => {
+          stopPageHeroTimer(s);
+          if (slides.length > 1 && !reduceMotion) {
+            s.heroTimer = setInterval(() => {
+              var _a3;
+              if (stopped || state !== s || paused || document.hidden || !((_a3 = s.heroEl) == null ? void 0 : _a3.isConnected)) return;
+              setActive(activeIdx + 1, false);
+            }, 9e3);
+          }
+        };
+        const setActive = (nextIdx, fromUser = false) => {
           activeIdx = (nextIdx % slides.length + slides.length) % slides.length;
           slides.forEach((sl, idx) => {
             sl.dataset.active = idx === activeIdx ? "true" : "false";
@@ -12022,6 +12139,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           dots.forEach((dt, idx) => {
             dt.setAttribute("aria-current", idx === activeIdx ? "true" : "false");
           });
+          if (fromUser) resetAutoTimer();
         };
         featured.forEach((item, idx) => {
           var _a3, _b3, _c3, _d3, _e3, _f2, _g2, _h2, _i2;
@@ -12147,7 +12265,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           dot.type = "button";
           dot.setAttribute("aria-label", `Featured slide ${idx + 1}: ${item.Name || ""}`);
           dot.setAttribute("aria-current", idx === 0 ? "true" : "false");
-          dot.addEventListener("click", () => setActive(idx));
+          dot.addEventListener("click", () => setActive(idx, true));
           dotsWrap.append(dot);
           dots.push(dot);
         });
@@ -12155,12 +12273,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         prevBtn.type = "button";
         prevBtn.setAttribute("aria-label", "Previous featured title");
         prevBtn.innerHTML = SUBPAGE_BACK_SVG;
-        prevBtn.addEventListener("click", () => setActive(activeIdx - 1));
+        prevBtn.addEventListener("click", () => setActive(activeIdx - 1, true));
         const nextBtn = element("button", "fx-page-hero-nav fx-page-hero-next");
         nextBtn.type = "button";
         nextBtn.setAttribute("aria-label", "Next featured title");
         nextBtn.innerHTML = HERO_NEXT_SVG;
-        nextBtn.addEventListener("click", () => setActive(activeIdx + 1));
+        nextBtn.addEventListener("click", () => setActive(activeIdx + 1, true));
         s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
         try {
           if (window.CustomElements && typeof window.CustomElements.upgradeSubtree === "function") {
@@ -12186,16 +12304,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           var _a3, _b3;
           const endX = ((_b3 = (_a3 = e.changedTouches) == null ? void 0 : _a3[0]) == null ? void 0 : _b3.clientX) || 0;
           const dx = swipeStartX - endX;
-          if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1));
+          if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1), true);
         }, { passive: true });
-        const reduceMotion = Boolean((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _j.matches);
-        if (slides.length > 1 && !reduceMotion) {
-          s.heroTimer = setInterval(() => {
-            var _a3;
-            if (stopped || state !== s || paused || document.hidden || !((_a3 = s.heroEl) == null ? void 0 : _a3.isConnected)) return;
-            setActive(activeIdx + 1);
-          }, 9e3);
-        }
+        resetAutoTimer();
         if (ratingsCfg.tomatometer) {
           const req = fetchRatingsBatch(s.api, featured.map((i) => i.Id), false);
           if (req) {
@@ -14609,9 +14720,10 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O;
           stopped = true;
           clearTimeout(timer);
+          clearTimeout(headerMenuOpeningTimer);
           clearTimeout(ratingsSyncTimer);
           clearTimeout(searchUiState.remoteTimer);
           clearTimeout(searchUiState.inputTimer);
@@ -14649,14 +14761,15 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-popover-open");
           (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-video-osd");
           (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-osd-anchor");
-          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-livetv");
-          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-search-page");
-          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-has-subheader");
-          (_A = (_z = (_y = document.documentElement) == null ? void 0 : _y.style) == null ? void 0 : _z.removeProperty) == null ? void 0 : _A.call(_z, "--fx-osd-popup-bottom");
-          (_D = (_C = (_B = document.documentElement) == null ? void 0 : _B.style) == null ? void 0 : _C.removeProperty) == null ? void 0 : _D.call(_C, "--fx-osd-popup-right");
-          (_G = (_F = (_E = document.documentElement) == null ? void 0 : _E.style) == null ? void 0 : _F.removeProperty) == null ? void 0 : _G.call(_F, "--fx-header-popup-top");
-          (_J = (_I = (_H = document.documentElement) == null ? void 0 : _H.style) == null ? void 0 : _I.removeProperty) == null ? void 0 : _J.call(_I, "--fx-header-popup-right");
-          (_L = (_K = document.getElementById("searchPage")) == null ? void 0 : _K.removeAttribute) == null ? void 0 : _L.call(_K, "data-fx-search-active");
+          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-header-menu-opening");
+          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-livetv");
+          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-search-page");
+          (_z = (_y = document.documentElement) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-has-subheader");
+          (_C = (_B = (_A = document.documentElement) == null ? void 0 : _A.style) == null ? void 0 : _B.removeProperty) == null ? void 0 : _C.call(_B, "--fx-osd-popup-bottom");
+          (_F = (_E = (_D = document.documentElement) == null ? void 0 : _D.style) == null ? void 0 : _E.removeProperty) == null ? void 0 : _F.call(_E, "--fx-osd-popup-right");
+          (_I = (_H = (_G = document.documentElement) == null ? void 0 : _G.style) == null ? void 0 : _H.removeProperty) == null ? void 0 : _I.call(_H, "--fx-header-popup-top");
+          (_L = (_K = (_J = document.documentElement) == null ? void 0 : _J.style) == null ? void 0 : _K.removeProperty) == null ? void 0 : _L.call(_K, "--fx-header-popup-right");
+          (_N = (_M = document.getElementById("searchPage")) == null ? void 0 : _M.removeAttribute) == null ? void 0 : _N.call(_M, "data-fx-search-active");
           document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
           document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdAnchorPointer, true);
@@ -14687,7 +14800,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
           document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
-          (_M = document.getElementById("fx-discovery-style")) == null ? void 0 : _M.remove();
+          (_O = document.getElementById("fx-discovery-style")) == null ? void 0 : _O.remove();
           delete window.FazFortDiscovery;
         }
       };

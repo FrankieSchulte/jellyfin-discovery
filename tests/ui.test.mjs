@@ -1883,3 +1883,157 @@ test('v0.6.4 fixes OSD hide specificity & spacing, three-dots with cached hidden
 
   f.ctx.window.FazFortDiscovery.stop();
 });
+
+test('v0.6.5 polish: hero shadow z-layers, manual hero timer reset, stutter-free header popups, full-window three-dots CSS vars, horizontal row vertical-scroll lock, and in-place Discover card requests', async () => {
+  const f = fixture({
+    hash: '#/home',
+    config: {
+      schemaVersion: 1,
+      timeZone: 'America/Los_Angeles',
+      cardsPerShelf: 12,
+      batchSize: 4,
+      minimumItems: 2,
+      maxLiveRows: 24,
+      endless: true,
+      hideWatched: false,
+      pages: {
+        home: { anchors: ['DiscoverMovies'], families: ['theme'], rules: [] },
+        movies: { anchors: ['RecentlyAddedMovies'], families: ['theme'], rules: [] },
+        shows: { anchors: ['RecentlyAddedShows'], families: ['theme'], rules: [] }
+      }
+    }
+  });
+  const origGetJson = f.api.getJSON;
+  f.api.getJSON = async arg => {
+    if (arg?.p === 'RequestHub/Browse' && arg?.q?.kind === 'movies') {
+      return { results: [{ id: 550, type: 'movie', title: 'Fight Club', year: 1999, poster: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg', status: 0, releaseDate: '1999-10-15' }], pages: 1, canRequest: true };
+    }
+    return origGetJson(arg);
+  };
+  f.ctx.window.FazFortDiscovery.restart();
+  await f.settle();
+  const cssText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+  const Ev = f.document.defaultView.Event;
+
+  // 1. Hero banner logo shadow sits strictly behind metadata/description/actions via explicit z-index layers
+  assert.ok(cssText.includes('.fx-page-hero-logo{\n  position:relative;\n  z-index:1;') && cssText.includes('filter:drop-shadow(0 2px 8px rgba(0,0,0,.62))'), 'hero logo uses tightened shadow at z-index 1');
+  assert.ok(cssText.includes('.fx-page-hero-meta{\n  position:relative;\n  z-index:2;'), 'hero metadata paints above hero logo shadow');
+  assert.ok(cssText.includes('.fx-page-hero-desc{\n  position:relative;\n  z-index:3;'), 'hero description paints above metadata');
+  assert.ok(cssText.includes('.fx-page-hero-actions{\n  position:relative;\n  z-index:4;'), 'hero actions paint on top layer');
+
+  // 2. Horizontal categories cannot scroll vertically
+  assert.ok(cssText.includes('.fx-track{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden!important;') && cssText.includes('overscroll-behavior-y:auto'), '.fx-track locks vertical overflow');
+  assert.ok(cssText.includes('.emby-scroller:not(.scrollY):not(.smoothScrollY){\n  overflow-y:hidden!important;'), 'native horizontal .emby-scroller locks vertical overflow');
+
+  // 3. Hero banner manual slide switch resets the 9-second auto-advance interval
+  const nextBtn = f.document.querySelector('#indexPage .fx-page-hero-next');
+  const dots = [...f.document.querySelectorAll('#indexPage .fx-page-hero-dot')];
+  assert.ok(nextBtn && dots.length > 1, 'Home hero has multiple slides and next control');
+  const origSetInterval = f.ctx.setInterval;
+  const origClearInterval = f.ctx.clearInterval;
+  let intervalSets = 0;
+  let intervalClears = 0;
+  let nextTimerId = 9000;
+  f.ctx.setInterval = (fn, ms) => { if (ms === 9000) intervalSets++; return ++nextTimerId; };
+  f.ctx.clearInterval = () => { intervalClears++; };
+  nextBtn.click();
+  assert.equal(dots[1].getAttribute('aria-current'), 'true', 'clicking next advances slide');
+  assert.equal(intervalSets, 1, 'manual next click starts a fresh 9s auto-advance timer');
+  assert.ok(intervalClears >= 1, 'manual next click clears prior auto-advance timer');
+  dots[0].click();
+  assert.equal(dots[0].getAttribute('aria-current'), 'true', 'clicking dot selects slide 0');
+  assert.equal(intervalSets, 2, 'manual dot click resets 9s auto-advance timer again');
+  f.ctx.setInterval = origSetInterval;
+  f.ctx.clearInterval = origClearInterval;
+
+  // 4. SyncPlay / Cast header popup Frame-0 anchoring without scroll-offset jitter
+  assert.ok(cssText.includes('#app-sync-play-menu:not([aria-hidden="true"]):not(.MuiModal-hidden),\n#app-remote-play-menu:not([aria-hidden="true"]):not(.MuiModal-hidden){\n  position:fixed!important;'), 'SyncPlay and Cast MUI roots remain fixed viewport containers');
+  assert.ok(cssText.includes('html[data-fx-header-menu-opening="true"]'), 'CSS includes Frame-0 header menu opening anchor rule');
+  const castBtn = f.document.createElement('button');
+  castBtn.className = 'headerCastButton';
+  castBtn.setAttribute('aria-controls', 'app-remote-play-menu');
+  castBtn.getBoundingClientRect = () => ({ left: 1180, right: 1220, top: 16, bottom: 56, width: 40, height: 40 });
+  const headerBar = f.document.createElement('div');
+  headerBar.className = 'skinHeader';
+  const hdrRight = f.document.createElement('div');
+  hdrRight.className = 'headerRight';
+  hdrRight.append(castBtn);
+  headerBar.append(hdrRight);
+  f.document.body.append(headerBar);
+  castBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-header-menu-opening'), 'true', 'pointerdown on Cast sets Frame-0 opening attribute');
+  assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '64px', 'pointerdown computes exact header popup top before Frame 0');
+  const remoteMenu = f.document.createElement('div');
+  remoteMenu.id = 'app-remote-play-menu';
+  remoteMenu.className = 'MuiPopover-root';
+  const remotePaper = f.document.createElement('div');
+  remotePaper.className = 'MuiPopover-paper';
+  remoteMenu.append(remotePaper);
+  f.document.body.append(remoteMenu);
+  f.notify();
+  f.frames();
+  assert.equal(remoteMenu.dataset.fxAnchoredOpen, undefined, 'SyncPlay/Cast popovers are not shifted into scroll-offset absolute mode');
+  remoteMenu.remove();
+  headerBar.remove();
+
+  // 5. Full-window three-dots (...) menu uses CSS custom properties immune to SleekFin S(e) inline left overwrites
+  assert.ok(cssText.includes('left:var(--fx-more-left,12px)!important;') && cssText.includes('top:var(--fx-more-top,12px)!important;'), 'three-dots coordinates are locked via stylesheet !important CSS variables');
+  const detailPage = f.document.createElement('div');
+  detailPage.id = 'itemDetailPage';
+  detailPage.className = 'page';
+  const moreBtn = f.document.createElement('button');
+  moreBtn.className = 'btnMoreCommands';
+  // Simulate full-sized window (1280px wide in fixture) with button at far right edge
+  moreBtn.getBoundingClientRect = () => ({ left: 1200, right: 1244, top: 560, bottom: 604, width: 44, height: 44 });
+  detailPage.append(moreBtn);
+  f.document.body.append(detailPage);
+  moreBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.getAttribute('data-fx-header-menu-opening'), null, 'clicking three-dots clears any pending header-menu-opening flag');
+  const sheet = f.document.createElement('div');
+  sheet.className = 'dialog actionSheet';
+  sheet.dataset.fxDetailMore = 'true'; // simulate Frame-0 tag on host before SleekFin wraps it
+  const popup = f.document.createElement('div');
+  popup.className = 'sleekfin-menu-popup';
+  const editItem = f.document.createElement('button');
+  editItem.className = 'sleekfin-menu-item';
+  editItem.textContent = 'Edit metadata';
+  popup.append(editItem);
+  Object.defineProperties(popup, { offsetWidth: { value: 224 }, scrollHeight: { value: 360 }, offsetHeight: { value: 360 } });
+  sheet.classList.add('sleekfin-menu-host');
+  sheet.append(popup);
+  f.document.body.append(sheet);
+  f.notify();
+  f.frames();
+  assert.equal(sheet.dataset.fxDetailMore, undefined, 'stale Frame-0 data-fx-detail-more on host sheet is cleaned once .sleekfin-menu-popup mounts');
+  assert.equal(popup.dataset.fxDetailMore, 'true');
+  const varLeft = parseInt(popup.style.getPropertyValue('--fx-more-left'), 10);
+  const varTop = parseInt(popup.style.getPropertyValue('--fx-more-top'), 10);
+  assert.ok(varLeft >= 12 && varLeft <= 1280 - 224 - 12, 'full-window three-dots --fx-more-left stays cleanly on screen at right side');
+  assert.ok(varTop >= 12, 'full-window three-dots --fx-more-top stays cleanly inside viewport');
+  // Simulate SleekFin S(e) overwriting inline style.left with negative relative offset
+  popup.style.left = '-240px';
+  assert.equal(popup.style.getPropertyValue('--fx-more-left'), `${varLeft}px`, 'SleekFin S(e) inline left overwrite cannot touch --fx-more-left');
+  sheet.remove();
+  detailPage.remove();
+
+  // 6. Clicking a Discover Movies card on Home opens Request Hub dialog in place without navigating away
+  let openedInPlace = null;
+  f.ctx.window.JellyfinRequestHub = {
+    openDetails(item, trigger) {
+      openedInPlace = { item, trigger };
+      return true;
+    }
+  };
+  const discoverCard = [...f.document.querySelectorAll('.fx-card')].find(a => a.dataset.itemId === 'rh:movies:550');
+  assert.ok(discoverCard, 'Discover Movies card rendered on Home');
+  const clickEv = new Ev('click', { bubbles: true, cancelable: true });
+  discoverCard.dispatchEvent(clickEv);
+  assert.equal(clickEv.defaultPrevented, true, 'Discover card click prevents hash navigation when Request Hub openDetails is available');
+  assert.equal(f.location.hash, '#/home', 'clicking Discover card keeps user on Home page');
+  assert.deepEqual(openedInPlace?.item?.id, 550);
+  assert.equal(openedInPlace?.item?.type, 'movie');
+  assert.equal(openedInPlace?.trigger, discoverCard);
+  delete f.ctx.window.JellyfinRequestHub;
+
+  f.ctx.window.FazFortDiscovery.stop();
+});

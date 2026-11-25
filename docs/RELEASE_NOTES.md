@@ -1,14 +1,15 @@
-Jellyfin Discovery 0.6.4 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.6.5 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.6.4):
-- Playback OSD polish: fixed CSS specificity so Favorite (`.btnUserRating`), Rewind (`<<`), and Fast-Forward (`>>`) stay strictly hidden on the bottom playback bar (leaving Favorite, Audio, and AirPlay neatly under Settings), and balanced vertical spacing (`18px`) evenly between the scrubbing bar and bottom edge.
-- Three-dots (`...`) menu reliability across all window widths: resolves the visible `#itemDetailPage` (avoiding hidden cached SPA pages), neutralizes ancestor `.dialogContainer`/`.dialog.actionSheet` containing-block/clipping traps, and clamps viewport-space `top`/`left` placement strictly clear of the button and inside viewport margins.
-- Header & Back button alignment across all screen widths: locks `[data-sleekfin-header-toolbar]`, `[data-sleekfin-legacy-top]`, `.sleekfin-details-back`, `.fx-subpage-back-top`, and `.osdHeader` playback controls onto the exact same vertical centerline.
-- Collections -> Genres standardization & end-of-row gradient fix: unifies category titles, vertical spacing, and scroll arrows across Collections/Genres and dynamically disables the right-edge gradient mask whenever scrolled to the end of a finite row.
-- Hero Banner Content Controls (per-page for Home, Movies, and Shows in Settings -> Customize Home): pin specific movies/shows in custom order, switch between Automatic / Pinned First / Pinned Only, set a minimum Rotten Tomatoes % threshold (with quick `75%`–`95%` presets), filter by genre/year/star rating, and exclude already watched titles.
-- Direct Hero Playback: clicking Play on any Home, Movies, or Shows hero banner now triggers immediate playback via `emby-itemscontainer` `data-action="play"` and `playbackManager.play()`.
-- Standardized Typography: unified font family, sizes, weights, and letter-spacing across all equivalent UI elements (headings, cards, subtitles, pill buttons, menus, and descriptions).
-- Detail Page & More Like This ratings consistency: resolves the visible detail page reliably, stays resilient to Preact re-renders (fixing titles like *Only Yesterday* showing star scores on detail pages), and replaces star ratings on More Like This cards with the user's configured ratings preference (e.g. Rotten Tomatoes).
+Discovery (0.6.5):
+- Hero Banner shadow layering fix: tightened logo/title shadows and established explicit stacking layers so large logos (e.g. tall anime/movie wordmarks) never cast dark shadows over metadata or description text below them.
+- Hero Banner manual switch timer reset: switching hero slides manually via dots, prev/next arrows, or touch swipe now cleanly resets the 9-second auto-advance interval.
+- Stutter-free SyncPlay & Cast to Device popups: anchors header popovers on Frame 0 via `pointerdown` capture + `data-fx-header-menu-opening` and keeps `#app-sync-play-menu` / `#app-remote-play-menu` in fixed viewport coordinates without MUI scroll-offset jitter or double-entry animations.
+- Full-window three-dots (`...`) menu visibility fix: binds menu coordinates (`--fx-more-left`, `--fx-more-top`, `--fx-more-max-w`, `--fx-more-max-h`) through stylesheet `!important` CSS variables so SleekFin's ResizeObserver `S(e)` relative-offset writes (`left: -240px`) can never teleport the popup off-screen on wide/full-sized windows.
+- Horizontal category scroll lock: enforces `overflow-y: hidden !important` and `overscroll-behavior-y: auto` across `.fx-track`, `.rh-track`, and horizontal `.emby-scroller` rows so vertical page scrolling can never accidentally scroll a category vertically.
+- In-place Discover card requests: clicking any movie or show under Discover Movies or Discover Shows on Home, Movies, or Shows opens the Request Hub pop-up directly in place without navigating away to the Discover page.
 
-Request Hub (0.6.4):
-- Version parity release alongside Jellyfin Discovery 0.6.4.
+Request Hub (0.6.5):
+- Standalone `window.JellyfinRequestHub.openDetails(item, triggerEl)` dialog mounted on `document.body` so request pop-ups open smoothly from any page with origin-morph animation.
+- Movie Request pop-up enhancements: adds Radarr Quality Profile selection (cached from Jellyseerr `service/radarr`) plus rich details including Rotten Tomatoes Tomatometer & Popcornmeter scores, runtime, certification, genres, tagline, director, and cast.
+- TV Show Request pop-up enhancements: adds Sonarr Quality Profile selection (cached from Jellyseerr `service/sonarr`) plus rich details (season count, networks, status, certification, genres, cast), intentionally omitting Rotten Tomatoes scores for multi-season series.
+- Server-side profile validation: `POST RequestHub/Request` validates any requested `profileId`/`serverId` against configured Radarr/Sonarr servers and attaches the authoritative `serverId`, `profileId`, `rootFolder`, and `is4k` server-side.

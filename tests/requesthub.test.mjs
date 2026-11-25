@@ -146,3 +146,105 @@ test('mobile viewport keeps Discover out of bottom header proxy, wires Discover 
  assert.equal(overflowDiscover.dataset.sleekfinCurrent,'true');
  f.stop();
 });
+
+test('in-place openDetails works from Home without navigating, shows quality profile + movie RT ratings + extra details, and omits RT scores on TV shows',async()=>{
+ const {document,window}=parseHTML('<html><head></head><body><header><div class="headerTabs"></div></header><div id="indexPage"><div id="native">Native Home</div></div></body></html>');
+ window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollBy=function(){};
+ const writes=[],reads=[];
+ const location={hash:'#/home'};
+ const movieProfiles=[
+  {id:12,name:'1080p Efficient',serverId:0,is4k:false,isDefault:false},
+  {id:15,name:'1080p Quality',serverId:0,is4k:false,isDefault:true},
+  {id:14,name:'2160p Remux',serverId:0,is4k:true,isDefault:false}
+ ];
+ const tvProfiles=[
+  {id:12,name:'1080p Efficient',serverId:0,is4k:false,isDefault:true},
+  {id:13,name:'1080p Quality',serverId:0,is4k:false,isDefault:false}
+ ];
+ const api={
+  getCurrentUserId:()=>'user-one',
+  serverId:()=>'server',
+  getUrl:(path,query)=>({path,query}),
+  getJSON:async({path,query})=>{
+   reads.push({path,query});
+   if(path.endsWith('Status'))return {enabled:true,canRequest:true};
+   if(path.endsWith('Details')&&query.type==='movie'){
+    return {
+     item:{id:550,type:'movie',title:'Fight Club',tagline:'Mischief. Mayhem. Soap.',overview:'An insomniac office worker...',poster:'https://image.tmdb.org/t/p/w500/fc.jpg',releaseDate:'1999-10-15',status:0,runtime:139,genres:['Drama','Thriller'],voteAverage:8.4,certification:'R',director:'David Fincher',cast:['Brad Pitt','Edward Norton']},
+     seasons:[],
+     profiles:movieProfiles,
+     defaultProfileId:15,
+     ratings:{criticsScore:86,criticsRating:'Certified Fresh',audienceScore:96,audienceRating:'Upright'},
+     canRequest:true
+    };
+   }
+   if(path.endsWith('Details')&&query.type==='tv'){
+    return {
+     item:{id:42,type:'tv',title:'Severance',overview:'Mark leads a team...',poster:'https://image.tmdb.org/t/p/w500/sev.jpg',releaseDate:'2022-02-18',status:0,genres:['Drama','Sci-Fi'],voteAverage:8.7,certification:'TV-MA',networks:['Apple TV+'],statusText:'Returning Series',numberOfSeasons:2,cast:['Adam Scott','Britt Lower']},
+     seasons:[1,2],
+     profiles:tvProfiles,
+     defaultProfileId:12,
+     ratings:{criticsScore:97,criticsRating:'Certified Fresh',audienceScore:90},
+     canRequest:true
+    };
+   }
+   return {results:[],pages:1,canRequest:true};
+  },
+  ajax:async options=>{writes.push(JSON.parse(options.data));return {message:'Submitted for approval'};}
+ };
+ const win={ApiClient:api,innerWidth:1280,innerHeight:800,matchMedia:()=>({matches:false}),addEventListener(){},removeEventListener(){}};
+ const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
+ vm.runInContext(source,ctx);
+ const settle=async()=>{for(let n=0;n<100;n++)await Promise.resolve();};
+ await settle();
+
+ // Horizontal Discover track locks vertical overflow
+ const cssText=document.querySelector('head style')?.textContent||'';
+ assert.ok(cssText.includes('overflow-y:hidden!important')&&cssText.includes('overscroll-behavior-y:auto'),'.rh-track locks vertical scroll');
+
+ // Open Movie request dialog directly on #/home without navigating to Discover
+ assert.equal(document.querySelector('.rh-root'),null);
+ const openedMovie=win.JellyfinRequestHub.openDetails({id:550,type:'movie',title:'Fight Club'});
+ assert.equal(openedMovie,true);
+ await settle();
+ assert.equal(location.hash,'#/home','hash stays on Home');
+ assert.equal(document.querySelector('.rh-root'),null,'Discover page is NOT mounted');
+ let dialog=document.querySelector('.rh-dialog');
+ assert.ok(dialog,'Movie request dialog mounts directly on body');
+ assert.ok(dialog.querySelector('[data-rh-ratings="true"]'),'Movie dialog renders Rotten Tomatoes ratings row');
+ assert.ok(dialog.textContent.includes('86%')&&dialog.textContent.includes('96%'),'Movie dialog shows Tomatometer and Popcornmeter');
+ assert.ok(dialog.textContent.includes('2h 19m')&&dialog.textContent.includes('David Fincher')&&dialog.textContent.includes('Mischief. Mayhem. Soap.')&&dialog.textContent.includes('Drama'),'Movie dialog shows extra details');
+ let select=dialog.querySelector('select.rh-select');
+ assert.ok(select,'Movie dialog renders quality profile selector');
+ const selectOption=(sel,val)=>{for(const opt of sel.querySelectorAll('option')){opt.selected=opt.value===val;opt.toggleAttribute('selected',opt.value===val);}sel.dispatchEvent(new window.Event('change',{bubbles:true}));};
+ assert.equal(select.value,'1','Movie quality profile defaults to active Radarr profile index');
+ assert.equal(select.querySelectorAll('option')[Number(select.value)].textContent,'1080p Quality','Movie quality profile defaults to active Radarr profile');
+ // Switch to 2160p Remux (index 2) and submit
+ selectOption(select,'2');
+ [...dialog.querySelectorAll('button')].find(b=>b.textContent==='Confirm request').click();
+ await settle();
+ assert.deepEqual(writes,[{type:'movie',id:550,seasons:[],profileId:14,serverId:0,is4k:true}]);
+
+ // Open TV Show request dialog directly on #/home -> has Quality Profile, NO Rotten Tomatoes score!
+ win.JellyfinRequestHub.openDetails({id:42,type:'tv',title:'Severance'});
+ await settle();
+ dialog=document.querySelector('.rh-dialog');
+ assert.ok(dialog,'TV request dialog opens in place');
+ assert.equal(dialog.querySelector('[data-rh-ratings="true"]'),null,'TV dialog strictly omits Rotten Tomatoes ratings');
+ assert.equal(dialog.textContent.includes('Tomatometer'),false,'TV dialog does not mention Tomatometer');
+ assert.ok(dialog.textContent.includes('Apple TV+')&&dialog.textContent.includes('2 Seasons')&&dialog.textContent.includes('Returning Series'),'TV dialog shows show details');
+ select=dialog.querySelector('select.rh-select');
+ assert.ok(select,'TV dialog renders Sonarr quality profile selector');
+ assert.equal(select.value,'0','TV quality profile defaults to active Sonarr profile index');
+ assert.equal(select.querySelectorAll('option')[Number(select.value)].textContent,'1080p Efficient','TV quality profile defaults to active Sonarr profile');
+ selectOption(select,'1');
+ const seasonBox=dialog.querySelector('input[type="checkbox"]');
+ seasonBox.checked=true;
+ seasonBox.dispatchEvent(new window.Event('change',{bubbles:true}));
+ [...dialog.querySelectorAll('button')].find(b=>b.textContent==='Confirm request').click();
+ await settle();
+ assert.deepEqual(writes[1],{type:'tv',id:42,seasons:[1],profileId:13,serverId:0,is4k:false});
+
+ win.JellyfinRequestHub.stop();
+ assert.equal(document.querySelector('.rh-overlay'),null,'stop() cleans up standalone overlays');
+});
