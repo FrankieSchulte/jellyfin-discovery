@@ -20,7 +20,7 @@ function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
     if(p==='FazFortDiscovery/Tracking')return {Ready:true,Records:Object.fromEntries(fixtureItems.map(i=>[i.Id,{AddedAt:new Date().toISOString()}]))};
     if(p==='FazFortDiscovery/Ratings'){
       const ids=String(q?.Ids||'').split(',').filter(Boolean);
-      return {Ratings:Object.fromEntries(ids.map((itemId,idx)=>[itemId.replace(/-/g,'').toLowerCase(),{criticScore:idx%2===0?94:42,criticState:idx%2===0?'certified':'rotten',audienceScore:idx%2===0?91:48,audienceState:idx%2===0?'hot':'spilled',source:'rt',pending:false}]))};
+      return {Ratings:Object.fromEntries(ids.map((itemId)=>{const norm=itemId.replace(/-/g,'').toLowerCase();const even=parseInt(norm.slice(-4),16)%2===0;return [norm,{criticScore:even?94:42,criticState:even?'certified':'rotten',audienceScore:even?91:48,audienceState:even?'hot':'spilled',source:'rt',pending:false}];}))};
     }
     if(p.endsWith('/Views'))return {Items:[{Id:'m',Name:'Movies',CollectionType:'movies'},{Id:'t',Name:'Shows',CollectionType:'tvshows'}]};
     return {Items:fixtureItems.slice(0,3)};
@@ -1552,8 +1552,8 @@ test('v0.6.2 fixes transparent hero transitions, borderless hero title, unified 
 
   // 3. Playback top-left Back button CSS matches backpage arrow style & top-left position + bottom bar symmetric centering
   assert.ok(styleText.includes('.osdHeader .videoOsd-appBar > button:first-child'));
-  assert.ok(styleText.includes('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;'));
-  assert.ok(styleText.includes('margin:0 0 16px 0!important;'));
+  assert.ok(styleText.includes('padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;'));
+  assert.ok(styleText.includes('margin:0 0 8px 0!important;'));
   assert.ok(styleText.includes('#videoOsdPage .btnPause .material-icons{'));
 
   // 4. Info modal keeps .fx-modal-origin-anim after animationend (zero flash/reappear) and releases only on closing
@@ -1748,9 +1748,138 @@ test('v0.6.3 unifies cached Home hero without Rated pill, moves AirPlay+Audio un
   f.frames();
   assert.equal(morePopup.dataset.fxDetailMore, 'true');
   assert.equal(morePopup.dataset.fxMorePlace, 'top');
-  assert.equal(morePopup.style.getPropertyValue('top'), 'auto', 'top-placed three-dots menu anchors from bottom up so it can never grow over the button');
-  assert.ok(parseInt(morePopup.style.getPropertyValue('bottom'), 10) >= 88, 'anchored strictly >=12px above button top');
+  assert.equal(morePopup.style.getPropertyValue('bottom'), 'auto', 'top-placed three-dots menu uses clamped viewport top coordinates so it never clips off-screen');
+  const topVal = parseInt(morePopup.style.getPropertyValue('top'), 10);
+  assert.ok(topVal >= 12 && topVal + 260 <= 640 - 12, 'strictly inside viewport and >=12px above button top');
   moreSheet.remove();
   detailPage.remove();
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.4 fixes OSD hide specificity & spacing, three-dots with cached hidden detailPage, header/back alignment, Genres end-fade, hero controls & direct playback, typography, and detail + More Like This RT ratings', async () => {
+  const f = fixture();
+  await f.settle();
+  const Ev = f.ctx.document.defaultView.Event;
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. Playback OSD hide specificity (Favorite/Rewind/FastForward) & balanced 18px bottom spacing
+  assert.ok(styleText.includes(':not(.btnRewind):not(.btnFastForward):not(.btnUserRating):not(.btnAudio):not(.btnAirPlay)'), 'base OSD button flex rule excludes hidden buttons');
+  assert.ok(styleText.includes('#videoOsdPage .videoOsdBottom [is="emby-ratingbutton"]'), 'emby-ratingbutton favorite hidden on playback bar');
+  assert.ok(styleText.includes('padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;'), 'balanced 18px bottom OSD padding');
+  assert.ok(styleText.includes('html.sleekfin-header-mounted [data-sleekfin-header-toolbar],\nhtml.sleekfin-header-mounted [data-sleekfin-legacy-top]'), 'header bar vertical alignment locked across widths');
+  assert.ok(styleText.includes('/* 16. Standardized Global Typography System Across Equivalent Elements'), 'standardized typography system present');
+
+  // 2. Hero Play button uses emby-itemscontainer data-action="play" and launches direct playback via playbackManager
+  const heroSlides = f.document.querySelector('#indexPage .fx-page-hero-slides');
+  assert.equal(heroSlides.getAttribute('is'), 'emby-itemscontainer');
+  const playBtn = f.document.querySelector('#indexPage .fx-page-hero-btn-primary');
+  assert.equal(playBtn.getAttribute('data-action'), 'play');
+  let playedPayload = null;
+  f.ctx.window.playbackManager = { play: opts => { playedPayload = opts; }, currentItem: () => null };
+  playBtn.click();
+  assert.ok(playedPayload && Array.isArray(playedPayload.ids) && playedPayload.ids.length === 1, 'clicking Hero Play launches direct playback');
+  delete f.ctx.window.playbackManager;
+
+  // 3. Cached hidden #itemDetailPage does NOT block visible #itemDetailPage ratings, More Like This RT ratings, or three-dots placement
+  const hiddenDetail = f.document.createElement('div');
+  hiddenDetail.id = 'itemDetailPage';
+  hiddenDetail.className = 'page hide';
+  const visibleDetail = f.document.createElement('div');
+  visibleDetail.id = 'itemDetailPage';
+  visibleDetail.className = 'page';
+  const score = f.document.createElement('span');
+  score.className = 'sleekfin-details-score';
+  score.textContent = '7.4';
+  const moreBtn = f.document.createElement('button');
+  moreBtn.className = 'btnMoreCommands';
+  moreBtn.getBoundingClientRect = () => ({ left: 48, right: 92, top: 640, bottom: 684, width: 44, height: 44 });
+  const simSection = f.document.createElement('div');
+  simSection.id = 'similarCollapsible';
+  const simCard = f.document.createElement('div');
+  simCard.className = 'card';
+  simCard.setAttribute('data-id', id(3));
+  const simMeta = f.document.createElement('div');
+  simMeta.className = 'sleekfin-details-similar-meta sleekfin-meta';
+  const simStar = f.document.createElement('span');
+  simStar.className = 'sleekfin-meta-item';
+  simStar.setAttribute('data-sleekfin-accent', 'true');
+  simStar.textContent = '7.9';
+  simMeta.append(simStar);
+  simCard.append(simMeta);
+  simSection.append(simCard);
+  visibleDetail.append(score, moreBtn, simSection);
+  f.document.body.append(hiddenDetail, visibleDetail);
+
+  f.location.hash = `#/details?id=${id(2)}`;
+  f.notify();
+  f.frames();
+  await f.settle();
+  assert.equal(score.dataset.fxRatingsMounted, 'true', 'visible detailPage mounts RT ratings even when a hidden cached #itemDetailPage precedes it');
+  assert.ok(score.querySelector('.fx-rating-tomatometer'), 'detail page renders Tomatometer');
+  assert.equal(simStar.dataset.fxRatingsMounted, 'true', 'More Like This card replaces star rating with configured RT rating');
+  assert.ok(simStar.querySelector('.fx-rating-tomatometer'), 'More Like This card displays Tomatometer');
+
+  // Half-window tall three-dots menu near left edge stays strictly >=12px inside viewport (never clipped at top!)
+  moreBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  const moreSheet = f.document.createElement('div');
+  moreSheet.className = 'dialog actionSheet sleekfin-menu-host';
+  const morePopup = f.document.createElement('div');
+  morePopup.className = 'sleekfin-menu-popup';
+  for (let k = 0; k < 14; k++) {
+    const it = f.document.createElement('button');
+    it.className = 'sleekfin-menu-item';
+    it.textContent = k === 0 ? 'Edit metadata' : `Menu Item ${k}`;
+    morePopup.append(it);
+  }
+  Object.defineProperties(morePopup, { offsetWidth: { value: 230 }, scrollHeight: { value: 560 }, offsetHeight: { value: 560 } });
+  moreSheet.append(morePopup);
+  f.document.body.append(moreSheet);
+  f.notify();
+  f.frames();
+  assert.equal(morePopup.dataset.fxDetailMore, 'true');
+  const clampedTop = parseInt(morePopup.style.getPropertyValue('top'), 10);
+  const clampedLeft = parseInt(morePopup.style.getPropertyValue('left'), 10);
+  assert.ok(clampedTop >= 12, 'half-window three-dots menu top never goes negative/clipped');
+  assert.ok(clampedLeft >= 12, 'half-window three-dots menu left stays cleanly inside viewport');
+  moreSheet.remove();
+  hiddenDetail.remove();
+  visibleDetail.remove();
+
+  // 4. Native .emby-scroller dynamically sets data-fx-scroll-end="true" at the end of a category (removing right-edge gradient)
+  const scroller = f.document.createElement('div');
+  scroller.className = 'emby-scroller';
+  Object.defineProperties(scroller, { scrollWidth: { value: 1000 }, clientWidth: { value: 500 }, scrollLeft: { value: 500, writable: true } });
+  f.document.body.append(scroller);
+  f.notify();
+  f.frames();
+  assert.equal(scroller.dataset.fxScrollStart, 'false');
+  assert.equal(scroller.dataset.fxScrollEnd, 'true', 'right-edge gradient disabled when scrolled to end of finite category');
+  scroller.remove();
+
+  // 5. Hero banner controls work in Visual Editor & filter Home hero (excludeWatched + minCriticScore + pinnedIds)
+  const customCfg = JSON.parse(f.storage.get('fazfort-discovery:config:v1:s:u') || 'null') || null;
+  const fHero = fixture({
+    config: {
+      ...(customCfg || {}),
+      schemaVersion: 1,
+      timeZone: 'America/Los_Angeles',
+      cardsPerShelf: 12,
+      batchSize: 4,
+      minimumItems: 2,
+      maxLiveRows: 24,
+      endless: true,
+      hideWatched: false,
+      pages: {
+        home: { anchors: ['ContinueWatchingNextUp'], families: ['theme'], rules: [], hero: { mode: 'pinned-only', maxSlides: 3, excludeWatched: true, pinnedIds: [id(5), id(6)] } },
+        movies: { anchors: ['RecentlyAddedMovies'], families: ['theme'], rules: [] },
+        shows: { anchors: ['RecentlyAddedShows'], families: ['theme'], rules: [] }
+      }
+    }
+  });
+  await fHero.settle();
+  const pinnedSlides = [...fHero.document.querySelectorAll('#indexPage .fx-page-hero-slide')].map(s => s.dataset.itemId);
+  assert.deepEqual(pinnedSlides, [id(5), id(6)], 'Hero banner honors pinned-only selection in exact configured order');
+  fHero.ctx.window.FazFortDiscovery.stop();
+
   f.ctx.window.FazFortDiscovery.stop();
 });

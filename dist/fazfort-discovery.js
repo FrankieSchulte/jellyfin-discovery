@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.3 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.4 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -2342,6 +2342,33 @@ html:root .dialogContainer:has(.sleekfin-menu-host),
 html:root .dialogContainer:has([data-fx-detail-more="true"]){
   contain:none!important;
   overflow:visible!important;
+  transform:none!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  will-change:auto!important;
+  perspective:none!important;
+}
+html:root .dialogContainer:has([data-fx-detail-more="true"]){
+  display:block!important;
+}
+html:root .dialog.actionSheet:has([data-fx-detail-more="true"]){
+  position:static!important;
+  inset:auto!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  contain:none!important;
+  transform:none!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  will-change:auto!important;
+  perspective:none!important;
 }
 /* Single mildly-transparent glassy dark rectangle matching Downloads dropdown across every menu */
 .MuiPopover-root > .MuiPopover-paper:not(.sleekfin-menu-host),
@@ -2887,18 +2914,23 @@ html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .
   color:#fff!important;
 }
 
-/* Unify Category Headings Across Home, Movies, Shows, Live TV, Collections (including Genres) & Search (Single Red Bar Only) */
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+/* Unify Category Headings, Spacing & Scroll Arrows Across Home, Movies, Shows, Live TV, Collections (including Genres), Library Pages & Search (Single Red Bar Only) */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle),
+main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:24px!important;
   line-height:32px!important;
   font-weight:600!important;
+  letter-spacing:-.015em!important;
   border-left:3px solid var(--sleekfin-accent,#e50914)!important;
   padding-left:10px!important;
   margin:0 auto 0 0!important;
   color:#fff!important;
   opacity:1!important;
+  text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before,
+main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
   display:none!important;
   content:none!important;
 }
@@ -2912,22 +2944,75 @@ html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .
   display:none!important;
   content:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .sectionTitleTextButton{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton,
+main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
   padding:0!important;
   margin:0 auto 0 0!important;
   background:transparent!important;
   color:#fff!important;
   opacity:1!important;
   text-decoration:none!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .sectionTitleTextButton > .material-icons{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton:hover,
+main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton:hover{
+  opacity:.86!important;
+  text-decoration:none!important;
+}
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton > .material-icons,
+main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton > .material-icons{
   color:rgba(255,255,255,.75)!important;
   opacity:1!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitleContainer,.sectionTitleContainer-cards),
+main :not(#itemDetailPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   margin-bottom:14px!important;
   display:flex!important;
   align-items:center!important;
+  gap:10px!important;
+}
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,.libraryPage,.genresTab) .verticalSection{
+  margin-top:0!important;
+  margin-bottom:24px!important;
+}
+/* Standardize native .emby-scrollbuttons arrows across Collections -> Genres & all library rows to match Discovery shelves */
+.emby-scrollbuttons{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  padding:0!important;
+  margin:0 0 0 auto!important;
+}
+.emby-scrollbuttons .emby-scrollbuttons-button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:rgba(255,255,255,.86)!important;
+  box-shadow:none!important;
+  transition:background-color .16s ease,color .16s ease,opacity .16s ease!important;
+}
+.emby-scrollbuttons .emby-scrollbuttons-button:hover:not(:disabled){
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+}
+.emby-scrollbuttons .emby-scrollbuttons-button:disabled{
+  opacity:.24!important;
+  pointer-events:none!important;
+}
+.emby-scrollbuttons .emby-scrollbuttons-button .material-icons{
+  font-size:22px!important;
+  line-height:1!important;
 }
 
 /* Season X Selector on Show Detail Pages: Borderless Title + Unified Caret + SleekFin Dropdown */
@@ -5181,9 +5266,23 @@ button.fx-livetv-tab.is-active{
   opacity:.24!important;
   pointer-events:none;
 }
-html body :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#liveTvSuggestedPage,#liveTvPage,#searchPage) .emby-scroller{
-  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - clamp(20px,3vw,54px)),transparent 100%);
-  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - clamp(20px,3vw,54px)),transparent 100%);
+html body :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .emby-scroller,
+html body main .verticalSection .emby-scroller{
+  --fx-native-fade:clamp(20px,3vw,54px);
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-native-fade)),transparent 100%);
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-native-fade)),transparent 100%);
+}
+html body .emby-scroller[data-fx-scroll-start="false"][data-fx-scroll-end="false"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-native-fade,36px),#000 calc(100% - var(--fx-native-fade,36px)),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-native-fade,36px),#000 calc(100% - var(--fx-native-fade,36px)),transparent 100%);
+}
+html body .emby-scroller[data-fx-scroll-start="false"][data-fx-scroll-end="true"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-native-fade,36px),#000 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-native-fade,36px),#000 100%);
+}
+html body .emby-scroller[data-fx-scroll-start="true"][data-fx-scroll-end="true"]{
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
 }
 @media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
   .fx-track-wrap{
@@ -5379,7 +5478,7 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   gap:12px;
   margin-top:20px;
 }
-.fx-discovery .fx-page-hero-btn{
+.fx-discovery :is(a,button).fx-page-hero-btn{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -5388,31 +5487,33 @@ html[data-fx-page-hero="true"] :is(#indexPage,#moviesPage,#tvshowsPage,#tvRecomm
   min-height:44px!important;
   padding:0 22px!important;
   border-radius:999px!important;
-  font-size:14.5px!important;
+  font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:14px!important;
   font-weight:600!important;
+  letter-spacing:-.005em!important;
   text-decoration:none!important;
   cursor:pointer!important;
   box-sizing:border-box!important;
   transition:background-color .16s ease,border-color .16s ease,transform .16s ease,color .16s ease!important;
 }
-.fx-discovery .fx-page-hero-btn-primary{
+.fx-discovery :is(a,button).fx-page-hero-btn-primary{
   background:var(--sleekfin-accent,#e50914)!important;
   border:1px solid rgba(255,255,255,.16)!important;
   color:#fff!important;
   box-shadow:0 10px 26px -6px rgba(229,9,20,.55)!important;
 }
-.fx-discovery .fx-page-hero-btn-primary:hover{
+.fx-discovery :is(a,button).fx-page-hero-btn-primary:hover{
   background:#f6121d!important;
   transform:translateY(-1px)!important;
 }
-.fx-discovery .fx-page-hero-btn-secondary{
+.fx-discovery :is(a,button).fx-page-hero-btn-secondary{
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)),rgba(20,21,25,.66)!important;
   backdrop-filter:blur(16px) saturate(140%)!important;
   -webkit-backdrop-filter:blur(16px) saturate(140%)!important;
   border:1px solid rgba(255,255,255,.18)!important;
   color:#fff!important;
 }
-.fx-discovery .fx-page-hero-btn-secondary:hover{
+.fx-discovery :is(a,button).fx-page-hero-btn-secondary:hover{
   background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08)),rgba(30,32,38,.78)!important;
   border-color:rgba(255,255,255,.3)!important;
   transform:translateY(-1px)!important;
@@ -5700,17 +5801,32 @@ html[data-fx-ambient-bg="true"].sleekfin-details-mounted #itemDetailPage[data-sl
   display:none!important;
 }
 .sleekfin-hero-score[data-fx-ratings-mounted="true"],
+.starRatingContainer[data-fx-ratings-mounted="true"],
+.sleekfin-details-similar-meta [data-fx-ratings-mounted="true"],
 .sleekfin-details-score[data-fx-ratings-mounted="true"]{
   font-size:0!important;
   line-height:0!important;
   gap:0!important;
 }
 .sleekfin-hero-score[data-fx-ratings-mounted="true"] > .fx-ratings-group,
+.starRatingContainer[data-fx-ratings-mounted="true"] > .fx-ratings-group,
 .sleekfin-details-score[data-fx-ratings-mounted="true"] > .fx-ratings-group{
   font-size:14px!important;
   line-height:1.35!important;
 }
+.sleekfin-details-similar-meta [data-fx-ratings-mounted="true"] > .fx-ratings-group,
+.sleekfin-details-similar-meta .fx-similar-injected-ratings > .fx-ratings-group{
+  font-size:12px!important;
+  line-height:1.25!important;
+  gap:6px!important;
+}
+.sleekfin-details-similar-meta .fx-rating-icon{
+  width:13px!important;
+  height:13px!important;
+}
 .sleekfin-hero-score[data-fx-ratings-mounted="true"] > :not(.fx-ratings-group),
+.starRatingContainer[data-fx-ratings-mounted="true"] > :not(.fx-ratings-group),
+.sleekfin-details-similar-meta [data-fx-ratings-mounted="true"] > :not(.fx-ratings-group),
 .sleekfin-details-score[data-fx-ratings-mounted="true"] > :not(.fx-ratings-group){
   display:none!important;
 }
@@ -5738,6 +5854,9 @@ html[data-fx-ambient-bg="true"].sleekfin-details-mounted #itemDetailPage[data-sl
 }
 html:root [data-fx-detail-more="true"]{
   position:fixed!important;
+  right:auto!important;
+  bottom:auto!important;
+  margin:0!important;
   z-index:1000005!important;
   visibility:visible!important;
   opacity:1!important;
@@ -5763,10 +5882,10 @@ html[data-fx-video-osd="true"] .skinHeader{
   background:linear-gradient(180deg,rgba(7,8,10,.82) 0%,rgba(7,8,10,.36) 62%,transparent 100%)!important;
   box-shadow:none!important;
 }
-html[data-fx-video-osd="true"] .skinHeader .videoOsd-appBar,
-html[data-fx-video-osd="true"] .skinHeader .headerTop{
+html[data-fx-video-osd="true"] :is(.skinHeader,.osdHeader) .videoOsd-appBar,
+html[data-fx-video-osd="true"] :is(.skinHeader,.osdHeader) .headerTop{
   position:fixed!important;
-  top:var(--sleekfin-header-bar-top,20px)!important;
+  top:var(--sleekfin-header-bar-top,16px)!important;
   left:0!important;
   right:0!important;
   height:40px!important;
@@ -5799,7 +5918,7 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight{
 html[data-fx-video-osd="true"] .skinHeader .headerBackButton,
 html[data-fx-video-osd="true"] :is(.osdHeader .videoOsd-appBar > button:first-child,.osdHeader .videoOsd-appBar button[aria-label="Back" i],.osdHeader .MuiToolbar-root button[aria-label="Back" i],.osdHeader .MuiIconButton-root:has(svg[data-testid="ArrowBackIcon"])){
   position:fixed!important;
-  top:var(--sleekfin-header-bar-top,20px)!important;
+  top:var(--sleekfin-header-bar-top,16px)!important;
   left:var(--sleekfin-page-gutter,clamp(16px,4vw,80px))!important;
   z-index:1105!important;
   display:inline-flex!important;
@@ -5904,8 +6023,8 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
 }
 #videoOsdPage .videoOsdBottom{
   background:linear-gradient(180deg,transparent 0%,rgba(7,8,10,.56) 36%,rgba(7,8,10,.92) 100%)!important;
-  padding-top:30px!important;
-  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
+  padding-top:28px!important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;
 }
 #videoOsdPage .osdControls{
   padding:0 clamp(14px,2.4vw,28px)!important;
@@ -5913,8 +6032,17 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
 }
 #videoOsdPage .osdControls > .flex.align-items-center,
 #videoOsdPage .osdControls > div:has(.osdPositionSliderContainer){
-  margin:0 0 16px 0!important;
+  margin:0 0 8px 0!important;
   padding:0!important;
+  min-height:24px!important;
+  align-items:center!important;
+}
+#videoOsdPage .osdPositionSliderContainer{
+  height:24px!important;
+  min-height:24px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
   align-items:center!important;
 }
 #videoOsdPage .videoOsdBottom .buttons{
@@ -5932,7 +6060,7 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
   margin:0!important;
   padding:0!important;
 }
-#videoOsdPage .videoOsdBottom .paper-icon-button-light:not(.hide):not([hidden]){
+#videoOsdPage .videoOsdBottom .paper-icon-button-light:not(.hide):not([hidden]):not(.btnRecord):not(.btnPreviousTrack):not(.btnNextTrack):not(.btnPreviousChapter):not(.btnNextChapter):not(.btnRewind):not(.btnFastForward):not(.btnUserRating):not(.btnAudio):not(.btnAirPlay){
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -5957,7 +6085,9 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
   padding:0!important;
   vertical-align:middle!important;
 }
-/* Keep hidden/removed bottom OSD buttons strictly hidden AFTER base button layout rules */
+/* Keep hidden/removed bottom OSD buttons strictly hidden AFTER base button layout rules with superior specificity */
+#videoOsdPage .videoOsdBottom :is(button,a,.paper-icon-button-light,[is="emby-ratingbutton"]):is(.hide,[hidden],.btnRecord,.btnPreviousTrack,.btnNextTrack,.btnPreviousChapter,.btnNextChapter,.btnRewind,.btnFastForward,.btnUserRating,.btnAudio,.btnAirPlay),
+#videoOsdPage .videoOsdBottom [is="emby-ratingbutton"],
 #videoOsdPage .videoOsdBottom :is(.hide,[hidden],.btnRecord,.btnPreviousTrack,.btnNextTrack,.btnPreviousChapter,.btnNextChapter,.btnRewind,.btnFastForward,.btnUserRating,.btnAudio,.btnAirPlay){
   display:none!important;
 }
@@ -6214,6 +6344,226 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   pointer-events:none!important;
 }
 
+/* 14. Consistent Top Header & Back Button Vertical Alignment Across All Screen Widths */
+html.sleekfin-header-mounted [data-sleekfin-header]{
+  top:0!important;
+}
+html.sleekfin-header-mounted [data-sleekfin-header-toolbar],
+html.sleekfin-header-mounted [data-sleekfin-legacy-top]{
+  height:var(--sleekfin-header-height,72px)!important;
+  min-height:var(--sleekfin-header-height,72px)!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  margin-top:0!important;
+  align-items:center!important;
+}
+html.sleekfin-details-mounted [data-sleekfin-header] .sleekfin-details-back{
+  top:var(--sleekfin-header-bar-top,16px)!important;
+  height:var(--sleekfin-details-back-size,calc(var(--sleekfin-header-item-height,32px) + var(--sleekfin-header-bar-padding,4px) * 2))!important;
+  width:var(--sleekfin-details-back-size,calc(var(--sleekfin-header-item-height,32px) + var(--sleekfin-header-bar-padding,4px) * 2))!important;
+}
+@media(min-width:900px){
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-header-proxy],
+  html.sleekfin-header-mounted [data-sleekfin-header] [data-sleekfin-legacy-cluster],
+  html.sleekfin-header-mounted [data-sleekfin-header-toolbar]::after{
+    top:var(--sleekfin-header-bar-top,16px)!important;
+  }
+  .fx-subpage-back-top{
+    top:var(--sleekfin-header-bar-top,16px)!important;
+    height:var(--sleekfin-details-back-size,calc(var(--sleekfin-header-item-height,32px) + var(--sleekfin-header-bar-padding,4px) * 2))!important;
+    width:var(--sleekfin-details-back-size,calc(var(--sleekfin-header-item-height,32px) + var(--sleekfin-header-bar-padding,4px) * 2))!important;
+  }
+}
+
+/* 15. Hero Banner Editor Controls & Searchable Pinned Titles Picker */
+.fx-hero-editor-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:4px;
+}
+.fx-hero-editor-head h3{
+  margin:0;
+}
+.fx-editor-count-pill{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.86);
+  font-size:12px;
+  font-weight:600;
+}
+.fx-hero-picker{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.fx-hero-picker-title{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:600;
+  color:#fff;
+}
+.fx-hero-pinned-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:12px;
+}
+.fx-hero-pinned-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.fx-hero-pinned-actions{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex-shrink:0;
+}
+.fx-hero-search-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.fx-hero-search-input{
+  width:100%;
+  box-sizing:border-box;
+  padding:9px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  color:#fff;
+  font:500 14px/1.3 var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif);
+}
+.fx-hero-search-results{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:260px;
+  overflow-y:auto;
+}
+.fx-hero-search-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:7px 10px;
+  border-radius:8px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.fx-hero-search-label{
+  font-size:13.5px;
+  font-weight:500;
+  color:rgba(255,255,255,.9);
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* 16. Standardized Global Typography System Across Equivalent Elements (Font Family, Size & Weight Parity) */
+:root{
+  --fx-font-family:var(--sleekfin-font-family,Inter,"Noto Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif);
+}
+html,body,
+button:not(.material-icons):not(.material-icons-outlined):not(.material-icons-round):not(.material-symbols-outlined):not(.material-symbols-rounded),
+input,select,textarea,
+.fx-discovery,.fx-dialog,.rh-root{
+  font-family:var(--fx-font-family)!important;
+}
+code,pre,.fx-dialog textarea{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace!important;
+}
+/* Category & section headings */
+.fx-row-head h2,
+.sleekfin-section-title,
+.rh-row-head h2{
+  font-family:var(--fx-font-family)!important;
+  font-size:24px!important;
+  line-height:32px!important;
+  font-weight:600!important;
+  letter-spacing:-.015em!important;
+}
+/* Page & subpage main titles */
+.fx-subpage-title,
+.fx-search-library-title,
+.fx-livetv-title,
+.rh-title{
+  font-family:var(--fx-font-family)!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+}
+/* Card primary titles */
+.fx-name,
+.card .cardText-first,
+.card .cardText-first a,
+.rh-card-title,
+html.sleekfin-details-mounted #similarCollapsible .cardText,
+html.sleekfin-details-mounted #similarCollapsible .cardText a{
+  font-family:var(--fx-font-family)!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+  font-weight:500!important;
+  letter-spacing:-.005em!important;
+}
+/* Card subtitles & secondary metadata */
+.card .cardText-secondary,
+.rh-card-sub,
+.sleekfin-details-similar-meta{
+  font-family:var(--fx-font-family)!important;
+  font-size:12.5px!important;
+  line-height:1.35!important;
+  font-weight:400!important;
+}
+/* Pill action buttons (Hero Play/More Info, Detail Resume/Play/Download/Favorites, Discover & Dialog Pills) */
+.fx-discovery :is(a,button).fx-page-hero-btn,
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control,
+.rh-root :is(button,a).rh-btn{
+  font-family:var(--fx-font-family)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  letter-spacing:-.005em!important;
+}
+/* Menu & dropdown items */
+html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-dropdown-option),
+.dialog.actionSheet .actionSheetItemText,
+.MuiMenuItem-root,
+.fx-dl-menu-item{
+  font-family:var(--fx-font-family)!important;
+  font-size:13.5px!important;
+  font-weight:500!important;
+  letter-spacing:-.005em!important;
+}
+/* Descriptions */
+.sleekfin-details-overview,
+.detailSectionContent .overview,
+.rh-detail-overview{
+  font-family:var(--fx-font-family)!important;
+  font-size:15px!important;
+  line-height:1.5!important;
+  font-weight:400!important;
+}
+@media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
+  .fx-row-head h2,
+  .sleekfin-section-title,
+  .rh-row-head h2{
+    font-size:18.5px!important;
+    line-height:25px!important;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){
   .fx-card-visual.is-loading::after,
   .fx-skeleton-box::after,
@@ -6290,6 +6640,123 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         stars: typeof r.stars === "boolean" ? r.stars : DEFAULT_RATINGS.stars
       };
     }
+    const DEFAULT_HERO = {
+      mode: "auto",
+      maxSlides: 8,
+      excludeWatched: false,
+      minCriticScore: null,
+      minStarRating: null,
+      genresAny: [],
+      tagsAny: [],
+      years: null,
+      pinnedIds: []
+    };
+    function resolveHeroConfig(profile) {
+      const h = profile == null ? void 0 : profile.hero;
+      if (!h || typeof h !== "object") return { ...DEFAULT_HERO, genresAny: [], tagsAny: [], pinnedIds: [] };
+      const mode = ["auto", "pinned-first", "pinned-only"].includes(h.mode) ? h.mode : DEFAULT_HERO.mode;
+      const maxSlides = Number.isInteger(h.maxSlides) && h.maxSlides >= 1 && h.maxSlides <= 15 ? h.maxSlides : DEFAULT_HERO.maxSlides;
+      const minCriticScore = h.minCriticScore != null && Number.isFinite(Number(h.minCriticScore)) && Number(h.minCriticScore) >= 0 && Number(h.minCriticScore) <= 100 ? Math.round(Number(h.minCriticScore)) : null;
+      const minStarRating = h.minStarRating != null && Number.isFinite(Number(h.minStarRating)) && Number(h.minStarRating) >= 0 && Number(h.minStarRating) <= 10 ? Number(h.minStarRating) : null;
+      const genresAny = Array.isArray(h.genresAny) ? h.genresAny.map((v) => String(v || "").trim()).filter(Boolean) : [];
+      const tagsAny = Array.isArray(h.tagsAny) ? h.tagsAny.map((v) => String(v || "").trim()).filter(Boolean) : [];
+      const years = Array.isArray(h.years) && h.years.length === 2 && Number.isInteger(h.years[0]) && Number.isInteger(h.years[1]) && h.years[0] <= h.years[1] ? [h.years[0], h.years[1]] : null;
+      const pinnedIds = Array.isArray(h.pinnedIds) ? [...new Set(h.pinnedIds.map((v) => String(v || "").trim()).filter(Boolean))] : [];
+      return {
+        mode,
+        maxSlides,
+        excludeWatched: Boolean(h.excludeWatched),
+        minCriticScore,
+        minStarRating,
+        genresAny,
+        tagsAny,
+        years,
+        pinnedIds
+      };
+    }
+    function selectHeroItems(items, heroConfig, page, seed, { getCriticScore = null, excludeItem = null } = {}) {
+      const cfg = resolveHeroConfig({ hero: heroConfig });
+      const isHome = page === "home";
+      const wantTypes = isHome ? ["Movie", "Series"] : [page === "movies" ? "Movie" : "Series"];
+      const count = cfg.maxSlides;
+      const normId = (id) => String(id || "").replace(/-/g, "").toLowerCase();
+      const basePool = (items || []).filter((i) => {
+        var _a, _b, _c;
+        return i && wantTypes.includes(i.Type) && (!excludeItem || !excludeItem(i)) && (((_a = i.BackdropImageTags) == null ? void 0 : _a.length) || ((_b = i.ImageTags) == null ? void 0 : _b.Thumb) || ((_c = i.ImageTags) == null ? void 0 : _c.Primary));
+      });
+      if (!basePool.length) return [];
+      const byNorm = new Map(basePool.map((i) => [normId(i.Id), i]));
+      const criticOf = (item) => {
+        if (typeof getCriticScore === "function") {
+          const ext = getCriticScore(item);
+          if (ext != null && Number.isFinite(Number(ext))) return Number(ext);
+        }
+        return item.CriticRating != null && Number.isFinite(Number(item.CriticRating)) && Number(item.CriticRating) > 0 ? Number(item.CriticRating) : null;
+      };
+      const passesWatched = (item) => {
+        var _a;
+        return !cfg.excludeWatched || !((_a = item.UserData) == null ? void 0 : _a.Played);
+      };
+      const passesFilters = (item) => {
+        if (!passesWatched(item)) return false;
+        if (cfg.minCriticScore != null) {
+          const c = criticOf(item);
+          if (c == null || c < cfg.minCriticScore) return false;
+        }
+        if (cfg.minStarRating != null) {
+          if (item.CommunityRating == null || Number(item.CommunityRating) < cfg.minStarRating) return false;
+        }
+        if (cfg.genresAny.length && !intersects(cfg.genresAny, item.Genres)) return false;
+        if (cfg.tagsAny.length && !intersects(cfg.tagsAny, item.Tags)) return false;
+        if (cfg.years && (!item.ProductionYear || item.ProductionYear < cfg.years[0] || item.ProductionYear > cfg.years[1])) return false;
+        return true;
+      };
+      const pinned = [];
+      const pinnedSeen = /* @__PURE__ */ new Set();
+      if (cfg.mode !== "auto" && cfg.pinnedIds.length) {
+        for (const pid of cfg.pinnedIds) {
+          const k = normId(pid);
+          const hit = byNorm.get(k);
+          if (hit && !pinnedSeen.has(k) && passesWatched(hit)) {
+            pinnedSeen.add(k);
+            pinned.push(hit);
+          }
+        }
+      }
+      if (cfg.mode === "pinned-only") return pinned.slice(0, count);
+      const filtered = basePool.filter((i) => !pinnedSeen.has(normId(i.Id)) && passesFilters(i));
+      const withBackdrop = filtered.filter((i) => {
+        var _a;
+        return (_a = i.BackdropImageTags) == null ? void 0 : _a.length;
+      });
+      const candidates = withBackdrop.length >= Math.min(4, count) ? withBackdrop : filtered;
+      const scoreItem = (item) => {
+        var _a;
+        const rating = Number(item.CommunityRating || 0);
+        const critic = (criticOf(item) || 0) / 10;
+        const hasLogo = ((_a = item.ImageTags) == null ? void 0 : _a.Logo) ? 1.2 : 0;
+        const hasOverview = item.Overview ? 0.6 : 0;
+        const jitter = hash(`${seed}:hero:${item.Id}`) % 1e3 / 350;
+        return { item, score: Math.max(rating, critic) + hasLogo + hasOverview + jitter };
+      };
+      const scored = candidates.map(scoreItem).sort((a, b) => b.score - a.score);
+      const needed = Math.max(0, count - pinned.length);
+      let autoList = [];
+      if (needed > 0) {
+        if (isHome) {
+          const movies = scored.filter((x) => x.item.Type === "Movie").map((x) => x.item);
+          const shows = scored.filter((x) => x.item.Type === "Series").map((x) => x.item);
+          let mi = 0, si = 0;
+          while (autoList.length < needed && (mi < movies.length || si < shows.length)) {
+            if (mi < movies.length && (autoList.length % 2 === 0 || si >= shows.length)) autoList.push(movies[mi++]);
+            else if (si < shows.length) autoList.push(shows[si++]);
+          }
+        } else {
+          autoList = scored.slice(0, needed).map((x) => x.item);
+        }
+      }
+      return [...pinned, ...autoList].slice(0, count);
+    }
     const DEFAULT_FILTERS = { query: "", genre: "", tag: "", watched: "all", maxMinutes: "", minRating: "", decade: "", type: "", sort: "recommended" };
     function filtersActive(filters) {
       return Object.keys(DEFAULT_FILTERS).some((k) => {
@@ -6362,6 +6829,19 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         if (!Array.isArray(profile.families) || profile.families.some((f) => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
         if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 250 || profile.opening.some((t) => typeof t !== "string" || !(t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
         if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 500 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
+        if (profile.hero != null) {
+          const h = profile.hero;
+          if (typeof h !== "object" || Array.isArray(h)) throw Error(`${page}: hero must be an object.`);
+          if (h.mode != null && !["auto", "pinned-first", "pinned-only"].includes(h.mode)) throw Error(`${page}: hero.mode must be auto, pinned-first or pinned-only.`);
+          if (h.maxSlides != null && (!Number.isInteger(h.maxSlides) || h.maxSlides < 1 || h.maxSlides > 15)) throw Error(`${page}: hero.maxSlides must be 1\u201315.`);
+          if (h.excludeWatched != null && typeof h.excludeWatched !== "boolean") throw Error(`${page}: hero.excludeWatched must be true or false.`);
+          if (h.minCriticScore != null && (!Number.isFinite(h.minCriticScore) || h.minCriticScore < 0 || h.minCriticScore > 100)) throw Error(`${page}: hero.minCriticScore must be 0\u2013100.`);
+          if (h.minStarRating != null && (!Number.isFinite(h.minStarRating) || h.minStarRating < 0 || h.minStarRating > 10)) throw Error(`${page}: hero.minStarRating must be 0\u201310.`);
+          for (const field of ["genresAny", "tagsAny", "pinnedIds"]) {
+            if (h[field] != null && (!Array.isArray(h[field]) || h[field].length > 100 || h[field].some((v) => typeof v !== "string" || !v.trim()))) throw Error(`${page}: hero.${field} must be a string array.`);
+          }
+          if (h.years != null && (!Array.isArray(h.years) || h.years.length !== 2 || h.years.some((y) => !Number.isInteger(y)) || h.years[0] > h.years[1])) throw Error(`${page}: hero.years must be [first, last].`);
+        }
         const keys = /* @__PURE__ */ new Set();
         for (const r of profile.rules) {
           if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
@@ -7043,7 +7523,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
       }
     }
     function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button, supplied }) {
-      let draft = cloneJson(initial), page = selectedPage || "home", editing = null, explorerKind = "director", explorerQuery = "", libraryQuery = "";
+      let draft = cloneJson(initial), page = selectedPage || "home", editing = null, explorerKind = "director", explorerQuery = "", libraryQuery = "", heroQuery = "";
       const anchors = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
       const families = { theme: "Rotating theme", genre: "Rotating genre", director: "Directed by\u2026", actor: "Starring\u2026", decade: "Best of a decade", studio: "Studio / network", rating: "Highly rated", rewatch: "Worth another watch", runtime: "Short movies" };
       const emit = () => changed(cloneJson(draft));
@@ -7285,7 +7765,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         (_a = host.querySelector('[aria-label="Category title"]')) == null ? void 0 : _a.focus();
       }
       function draw() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         host.replaceChildren();
         const tabs = element("div", "fx-editor-tabs");
         for (const name of ["home", "movies", "shows"]) {
@@ -7344,6 +7824,190 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         field(rToggles, "Star Rating (Community)", curRatings.stars, (v) => setRatings({ ...getRatings(), stars: v }), null, "checkbox");
         ratingsSec.append(rPresetRow, rToggles);
         host.append(ratingsSec);
+        const heroSec = element("section", "fx-editor-section fx-hero-editor-section");
+        const pageTitleLabel = page === "home" ? "Home" : page === "movies" ? "Movies" : "Shows";
+        const getHero = () => resolveHeroConfig(profile);
+        const saveHero = (next2, redraw = true) => {
+          const clean = resolveHeroConfig({ hero: next2 });
+          const isDefault = clean.mode === "auto" && clean.maxSlides === 8 && !clean.excludeWatched && clean.minCriticScore == null && clean.minStarRating == null && !clean.genresAny.length && !clean.tagsAny.length && !clean.years && !clean.pinnedIds.length;
+          if (isDefault) delete profile.hero;
+          else profile.hero = clean;
+          emit();
+          if (redraw) draw();
+        };
+        const curHero = getHero();
+        const heroItems = pageItems();
+        const heroCriticOf = (item) => {
+          if (typeof lookupCachedRating === "function") {
+            const rt = lookupCachedRating(item.Id, item);
+            if ((rt == null ? void 0 : rt.criticScore) != null && Number.isFinite(Number(rt.criticScore))) return Number(rt.criticScore);
+          }
+          return item.CriticRating != null && Number.isFinite(Number(item.CriticRating)) && Number(item.CriticRating) > 0 ? Math.round(Number(item.CriticRating)) : null;
+        };
+        const heroMatchCount = heroItems.length ? selectHeroItems(heroItems, { ...curHero, maxSlides: Math.max(curHero.maxSlides, 15) }, page, "preview", { getCriticScore: heroCriticOf }).length : null;
+        const heroHead = element("div", "fx-hero-editor-head");
+        heroHead.append(element("h3", "", `Hero banner content (${pageTitleLabel})`));
+        if (heroMatchCount !== null) {
+          heroHead.append(element("span", "fx-editor-count-pill", `${heroMatchCount} matching title${heroMatchCount === 1 ? "" : "s"}`));
+        }
+        heroSec.append(
+          heroHead,
+          element("p", "fx-editor-help", `Control which titles appear in the ${pageTitleLabel} hero banner. Pin specific titles, require a minimum Rotten Tomatoes score (e.g. 90%+), filter by genre or year, and exclude watched titles.`)
+        );
+        const hFields = element("div", "fx-editor-fields");
+        field(hFields, "Hero selection mode", curHero.mode, (v) => saveHero({ ...getHero(), mode: v }), [
+          ["auto", "Automatic (use filters below)"],
+          ["pinned-first", "Selected titles first, then filtered"],
+          ["pinned-only", "Only selected titles"]
+        ]);
+        field(hFields, "Max hero slides", curHero.maxSlides, (v) => {
+          const n = Math.max(1, Math.min(15, Math.round(Number(v) || 8)));
+          saveHero({ ...getHero(), maxSlides: n }, false);
+        }, null, "number");
+        field(hFields, "Don\u2019t show already watched", curHero.excludeWatched, (v) => saveHero({ ...getHero(), excludeWatched: v }), null, "checkbox");
+        const rtInput = field(hFields, "Min Rotten Tomatoes %", (_a = curHero.minCriticScore) != null ? _a : "", (v) => {
+          const trimmed = String(v != null ? v : "").trim();
+          const n = trimmed === "" ? null : Math.max(0, Math.min(100, Math.round(Number(trimmed))));
+          saveHero({ ...getHero(), minCriticScore: Number.isFinite(n) ? n : null });
+        }, null, "number");
+        rtInput.min = "0";
+        rtInput.max = "100";
+        rtInput.placeholder = "e.g. 90";
+        const starInput = field(hFields, "Min Star Rating (0\u201310)", (_b = curHero.minStarRating) != null ? _b : "", (v) => {
+          const trimmed = String(v != null ? v : "").trim();
+          const n = trimmed === "" ? null : Math.max(0, Math.min(10, Number(trimmed)));
+          saveHero({ ...getHero(), minStarRating: Number.isFinite(n) ? n : null });
+        }, null, "number");
+        starInput.step = "0.1";
+        starInput.min = "0";
+        starInput.max = "10";
+        starInput.placeholder = "Optional";
+        const genreInput = field(hFields, "Hero genres (comma-separated)", curHero.genresAny.join(", "), (v) => {
+          const list = String(v || "").split(",").map((s) => s.trim()).filter(Boolean);
+          saveHero({ ...getHero(), genresAny: list });
+        });
+        genreInput.placeholder = "e.g. Sci-Fi, Drama";
+        const yearMinInput = field(hFields, "From year", curHero.years ? curHero.years[0] : "", (v) => {
+          const h = getHero();
+          const a = String(v != null ? v : "").trim() === "" ? null : Math.round(Number(v));
+          const b = h.years ? h.years[1] : null;
+          const years = a && b ? [Math.min(a, b), Math.max(a, b)] : a ? [a, (/* @__PURE__ */ new Date()).getFullYear() + 1] : b ? [1900, b] : null;
+          saveHero({ ...h, years });
+        }, null, "number");
+        yearMinInput.placeholder = "e.g. 1990";
+        const yearMaxInput = field(hFields, "To year", curHero.years ? curHero.years[1] : "", (v) => {
+          const h = getHero();
+          const b = String(v != null ? v : "").trim() === "" ? null : Math.round(Number(v));
+          const a = h.years ? h.years[0] : null;
+          const years = a && b ? [Math.min(a, b), Math.max(a, b)] : b ? [1900, b] : a ? [a, (/* @__PURE__ */ new Date()).getFullYear() + 1] : null;
+          saveHero({ ...h, years });
+        }, null, "number");
+        yearMaxInput.placeholder = "e.g. 2026";
+        const rtQuickRow = element("div", "fx-editor-presets");
+        for (const [lbl, val] of [["Any RT %", null], ["75%+ RT", 75], ["85%+ RT", 85], ["90%+ RT", 90], ["95%+ RT", 95]]) {
+          const active = curHero.minCriticScore === val;
+          const b = button(lbl, () => saveHero({ ...getHero(), minCriticScore: val }));
+          if (active) b.className = "fx-subtab-btn is-active";
+          b.setAttribute("aria-pressed", String(active));
+          rtQuickRow.append(b);
+        }
+        const resetHeroBtn = button("Reset hero controls", () => {
+          delete profile.hero;
+          emit();
+          draw();
+        });
+        rtQuickRow.append(resetHeroBtn);
+        const pinWrap = element("div", "fx-hero-picker");
+        pinWrap.append(element("h4", "fx-hero-picker-title", "Specific titles for this hero banner"));
+        const byIdMap = new Map(heroItems.map((i) => [i.Id, i]));
+        const pinnedList = element("div", "fx-hero-pinned-list");
+        if (curHero.pinnedIds.length) {
+          curHero.pinnedIds.forEach((pid, idx) => {
+            const it = byIdMap.get(pid);
+            const row = element("div", "fx-editor-row fx-hero-pinned-row");
+            const label = it ? `${it.Name}${it.ProductionYear ? ` (${it.ProductionYear})` : ""}` : `Saved title (${pid.slice(0, 8)}\u2026)`;
+            const cScore = it ? heroCriticOf(it) : null;
+            const metaTxt = cScore != null ? ` \xB7 RT ${cScore}%` : "";
+            row.append(element("strong", "", label + metaTxt));
+            const actions = element("div", "fx-hero-pinned-actions");
+            const up = button("\u2191", () => {
+              const next2 = [...getHero().pinnedIds];
+              [next2[idx - 1], next2[idx]] = [next2[idx], next2[idx - 1]];
+              saveHero({ ...getHero(), pinnedIds: next2 });
+            });
+            up.disabled = idx === 0;
+            up.setAttribute("aria-label", `Move ${label} up`);
+            const down = button("\u2193", () => {
+              const next2 = [...getHero().pinnedIds];
+              [next2[idx], next2[idx + 1]] = [next2[idx + 1], next2[idx]];
+              saveHero({ ...getHero(), pinnedIds: next2 });
+            });
+            down.disabled = idx === curHero.pinnedIds.length - 1;
+            down.setAttribute("aria-label", `Move ${label} down`);
+            const rem = button("Remove", () => {
+              const next2 = getHero().pinnedIds.filter((x) => x !== pid);
+              const nextMode = next2.length ? getHero().mode : "auto";
+              saveHero({ ...getHero(), pinnedIds: next2, mode: nextMode });
+            });
+            actions.append(up, down, rem);
+            row.append(actions);
+            pinnedList.append(row);
+          });
+        } else {
+          pinnedList.append(element("p", "fx-editor-help", "No specific titles selected yet. Search below to pin movies or shows to this hero banner."));
+        }
+        const heroSearchWrap = element("div", "fx-hero-search-wrap");
+        const heroSearchInput = element("input", "fx-hero-search-input");
+        heroSearchInput.type = "search";
+        heroSearchInput.value = heroQuery;
+        heroSearchInput.placeholder = `Search ${pageTitleLabel.toLowerCase()} titles to pin\u2026`;
+        heroSearchInput.setAttribute("aria-label", `Search ${pageTitleLabel} titles for hero banner`);
+        const resultsBox = element("div", "fx-hero-search-results");
+        const renderHeroSearchResults = () => {
+          var _a2;
+          resultsBox.replaceChildren();
+          const q = heroQuery.trim().toLowerCase();
+          if (!heroItems.length) {
+            resultsBox.append(element("p", "fx-editor-help", "Library items are still loading\u2026"));
+            return;
+          }
+          const pinnedSet = new Set(getHero().pinnedIds);
+          const filtered = heroItems.filter((it) => !pinnedSet.has(it.Id) && (!q || String(it.Name || "").toLowerCase().includes(q) || String(it.ProductionYear || "").includes(q))).sort((a, b) => {
+            var _a3, _b2;
+            if (q) {
+              const as = String(a.Name || "").toLowerCase().startsWith(q) ? 1 : 0;
+              const bs = String(b.Name || "").toLowerCase().startsWith(q) ? 1 : 0;
+              if (as !== bs) return bs - as;
+            }
+            return ((_a3 = heroCriticOf(b)) != null ? _a3 : -1) - ((_b2 = heroCriticOf(a)) != null ? _b2 : -1) || Number(b.CommunityRating || 0) - Number(a.CommunityRating || 0) || String(a.Name || "").localeCompare(String(b.Name || ""));
+          }).slice(0, q ? 12 : 6);
+          if (!filtered.length) {
+            resultsBox.append(element("p", "fx-editor-help", q ? `No matching titles found for \u201C${heroQuery.trim()}\u201D.` : "All available titles are already selected."));
+            return;
+          }
+          for (const it of filtered) {
+            const row = element("div", "fx-hero-search-item");
+            const cScore = heroCriticOf(it);
+            const info = element("span", "fx-hero-search-label", `${it.Name}${it.ProductionYear ? ` (${it.ProductionYear})` : ""}${cScore != null ? ` \xB7 RT ${cScore}%` : ""}${((_a2 = it.UserData) == null ? void 0 : _a2.Played) ? " \xB7 Watched" : ""}`);
+            const addBtn = button("+ Add", () => {
+              const h = getHero();
+              const nextPinned = [...h.pinnedIds, it.Id];
+              const nextMode = h.mode === "auto" ? "pinned-first" : h.mode;
+              saveHero({ ...h, pinnedIds: nextPinned, mode: nextMode });
+            });
+            row.append(info, addBtn);
+            resultsBox.append(row);
+          }
+        };
+        heroSearchInput.addEventListener("input", () => {
+          heroQuery = heroSearchInput.value;
+          renderHeroSearchResults();
+        });
+        renderHeroSearchResults();
+        heroSearchWrap.append(heroSearchInput, resultsBox);
+        pinWrap.append(pinnedList, heroSearchWrap);
+        heroSec.append(hFields, rtQuickRow, pinWrap);
+        host.append(heroSec);
         const openingSec = element("section", "fx-editor-section");
         openingSec.append(
           element("h3", "", "Opening rows & shelf order"),
@@ -7427,7 +8091,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         });
         openingSec.append(rows);
         const addRow = element("div", "fx-editor-fields fx-add-opening-bar");
-        let next = ((_a = options()[0]) == null ? void 0 : _a[0]) || "family:theme";
+        let next = ((_c = options()[0]) == null ? void 0 : _c[0]) || "family:theme";
         field(addRow, "Add opening row", next, (v) => next = v, options());
         addRow.append(button("Add row", () => {
           if (next.startsWith("family:")) profile.families = [.../* @__PURE__ */ new Set([...profile.families, next.slice(7)])];
@@ -7676,11 +8340,11 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           field(grid, "Minimum community rating", activeRule.MinRating, (v) => activeRule.MinRating = v === "" ? null : Number(v), null, "number");
           field(grid, "Under minutes", activeRule.MaxMinutes, (v) => activeRule.MaxMinutes = v === "" ? null : Number(v), null, "number");
           field(grid, "Scheduled months", (activeRule.Months || []).join(", "), (v) => activeRule.Months = v.split(",").map((x) => x.trim()).filter(Boolean).map(Number));
-          field(grid, "From year", (_b = activeRule.Years) == null ? void 0 : _b[0], (v) => {
+          field(grid, "From year", (_d = activeRule.Years) == null ? void 0 : _d[0], (v) => {
             var _a2, _b2, _c2;
             activeRule.Years = v === "" && !((_a2 = activeRule.Years) == null ? void 0 : _a2[1]) ? null : [v === "" ? 0 : Number(v), (_c2 = (_b2 = activeRule.Years) == null ? void 0 : _b2[1]) != null ? _c2 : 9999];
           }, null, "number");
-          field(grid, "Through year", (_c = activeRule.Years) == null ? void 0 : _c[1], (v) => {
+          field(grid, "Through year", (_e = activeRule.Years) == null ? void 0 : _e[1], (v) => {
             var _a2, _b2, _c2;
             activeRule.Years = v === "" && !((_a2 = activeRule.Years) == null ? void 0 : _a2[0]) ? null : [(_c2 = (_b2 = activeRule.Years) == null ? void 0 : _b2[0]) != null ? _c2 : 0, v === "" ? 9999 : Number(v)];
           }, null, "number");
@@ -7759,7 +8423,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.3";
+      const VERSION = "0.6.4";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -7852,7 +8516,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         }
         return resolveRatingsConfig(DEFAULT_CONFIG2);
       }
-      function lookupCachedRating(itemId, item = null) {
+      function lookupCachedRating2(itemId, item = null) {
         const norm = normalizeGuid(itemId || (item == null ? void 0 : item.Id));
         const hit = norm && ratingsCache.get(norm) || itemId && ratingsCache.get(itemId) || null;
         if (hit && (hit.criticScore != null || hit.audienceScore != null)) return hit;
@@ -8015,6 +8679,48 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         }
         return null;
       }
+      function getVisibleDetailPage() {
+        const candidates = document.querySelectorAll("#itemDetailPage, .itemDetailPage");
+        for (const el of candidates) {
+          if (visible(el)) return el;
+        }
+        return null;
+      }
+      function findPlaybackManager() {
+        var _a2;
+        try {
+          if (window.playbackManager && typeof window.playbackManager.play === "function") return window.playbackManager;
+          const wreq = window._fxWebpackReq;
+          if (wreq == null ? void 0 : wreq.c) {
+            for (const mid of Object.keys(wreq.c)) {
+              const exp = (_a2 = wreq.c[mid]) == null ? void 0 : _a2.exports;
+              if (!exp || typeof exp !== "object") continue;
+              const direct = exp.playbackManager || exp.default || exp.A || exp.Ay;
+              if (direct && typeof direct.play === "function" && (typeof direct.currentItem === "function" || typeof direct.stop === "function" || typeof direct.playNext === "function")) {
+                return direct;
+              }
+              for (const k of Object.keys(exp)) {
+                const v = exp[k];
+                if (v && typeof v === "object" && typeof v.play === "function" && (typeof v.currentItem === "function" || typeof v.stop === "function")) {
+                  return v;
+                }
+              }
+            }
+          }
+        } catch {
+        }
+        return null;
+      }
+      function resolveDetailPageItemId(detailPage) {
+        var _a2, _b2;
+        const hashQs = String(location.hash || "").split("?")[1] || "";
+        const searchQs = String(location.search || "").replace(/^\?/, "");
+        const fromUrl = new URLSearchParams(hashQs).get("id") || new URLSearchParams(searchQs).get("id") || "";
+        if (fromUrl && /^[a-f0-9-]{32,36}$/i.test(fromUrl)) return fromUrl;
+        const fromAttr = ((_a2 = detailPage == null ? void 0 : detailPage.getAttribute) == null ? void 0 : _a2.call(detailPage, "data-sleekfin-item-id")) || ((_b2 = detailPage == null ? void 0 : detailPage.getAttribute) == null ? void 0 : _b2.call(detailPage, "data-id")) || "";
+        if (fromAttr && /^[a-f0-9-]{32,36}$/i.test(fromAttr)) return fromAttr;
+        return "";
+      }
       let detailItemCache = { id: "", item: null, pending: false };
       function syncHeroAndDetailRatings(api = window.ApiClient) {
         var _a2, _b2, _c2, _d2, _e2, _f;
@@ -8028,7 +8734,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           const itemId = slot.dataset.itemId;
           if (!itemId) return;
           const item = findInventoryItemById(itemId) || { Id: itemId, CommunityRating: Number(slot.dataset.star || 0), CriticRating: Number(slot.dataset.critic || 0) || null };
-          const rt = lookupCachedRating(itemId, item);
+          const rt = lookupCachedRating2(itemId, item);
           if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(itemId);
           const group = wantHero ? buildRatingsGroup(item, rt, cfg, false) : null;
           const sig = group ? group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars : "none";
@@ -8052,7 +8758,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
             if (m) scoreEl.dataset.fxOrigStar = m[0];
           }
           const mergedItem = { ...item, Id: itemId, CommunityRating: (_b3 = item.CommunityRating) != null ? _b3 : Number(((_a3 = scoreEl == null ? void 0 : scoreEl.dataset) == null ? void 0 : _a3.fxOrigStar) || 0) || null };
-          const rt = lookupCachedRating(itemId, mergedItem);
+          const rt = lookupCachedRating2(itemId, mergedItem);
           if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(itemId);
           const group = wantHero ? buildRatingsGroup(mergedItem, rt, cfg, false) : null;
           if (scoreEl) {
@@ -8065,7 +8771,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
               const nextSep = scoreEl.nextElementSibling;
               if ((_d3 = nextSep == null ? void 0 : nextSep.classList) == null ? void 0 : _d3.contains("sleekfin-meta-separator")) nextSep.removeAttribute("data-fx-rating-hidden");
               const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
-              if (scoreEl.dataset.fxSig !== sig) {
+              if (scoreEl.dataset.fxSig !== sig || !scoreEl.querySelector(".fx-ratings-group")) {
                 scoreEl.dataset.fxSig = sig;
                 scoreEl.dataset.fxRatingsMounted = "true";
                 (_e3 = scoreEl.querySelector(".fx-ratings-group")) == null ? void 0 : _e3.remove();
@@ -8074,31 +8780,25 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
             }
           }
         });
-        if (batchIds.length) {
-          const req = fetchRatingsBatch(api, batchIds, false);
-          if (req) {
-            req.then((updated) => {
-              if (updated && !stopped) syncHeroAndDetailRatings(api);
-            });
-          }
-        }
-        const detailPage = document.getElementById("itemDetailPage");
-        if (detailPage && visible(detailPage)) {
-          const hashId = new URLSearchParams(String(location.hash || "").split("?")[1] || "").get("id") || "";
-          if (hashId && /^[a-f0-9-]{32,36}$/i.test(hashId)) {
+        const detailPage = getVisibleDetailPage();
+        if (detailPage) {
+          const hashId = resolveDetailPageItemId(detailPage);
+          if (hashId) {
             const scoreHost = detailPage.querySelector(".sleekfin-details-score") || detailPage.querySelector(".starRatingContainer");
             if (scoreHost && !scoreHost.dataset.fxOrigStar) {
               const m = (scoreHost.textContent || "").match(/\d+(?:\.\d+)?/);
               if (m) scoreHost.dataset.fxOrigStar = m[0];
             }
-            let item = findInventoryItemById(hashId) || (detailItemCache.id === hashId ? detailItemCache.item : null);
-            if (!item && !detailItemCache.pending && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
+            const normHash = normalizeGuid(hashId);
+            let item = findInventoryItemById(hashId) || (normalizeGuid(detailItemCache.id) === normHash ? detailItemCache.item : null);
+            if (!item && (normalizeGuid(detailItemCache.id) !== normHash || !detailItemCache.pending) && typeof api.getJSON === "function" && typeof api.getUrl === "function") {
               detailItemCache = { id: hashId, item: null, pending: true };
               api.getJSON(api.getUrl(`Users/${encodeURIComponent(api.getCurrentUserId())}/Items/${encodeURIComponent(hashId)}`)).then((fetched) => {
+                if (normalizeGuid(detailItemCache.id) !== normHash) return;
                 detailItemCache = { id: hashId, item: fetched || null, pending: false };
                 if (!stopped) syncHeroAndDetailRatings(api);
               }).catch(() => {
-                detailItemCache = { id: hashId, item: null, pending: false };
+                if (normalizeGuid(detailItemCache.id) === normHash) detailItemCache = { id: hashId, item: null, pending: false };
               });
             }
             if (!item || item.Type === "Movie" || item.Type === "Series") {
@@ -8107,7 +8807,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
                 Id: hashId,
                 CommunityRating: (_c2 = item == null ? void 0 : item.CommunityRating) != null ? _c2 : Number(((_b2 = scoreHost == null ? void 0 : scoreHost.dataset) == null ? void 0 : _b2.fxOrigStar) || 0) || null
               };
-              const rt = lookupCachedRating(hashId, mergedItem);
+              const rt = lookupCachedRating2(hashId, mergedItem);
               if ((cfg.tomatometer || cfg.popcornmeter) && (!rt || rt.pending)) {
                 const req = fetchRatingsBatch(api, [hashId], true);
                 if (req) {
@@ -8128,7 +8828,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
                   const sep = scoreHost.nextElementSibling;
                   if ((_e2 = sep == null ? void 0 : sep.classList) == null ? void 0 : _e2.contains("sleekfin-meta-separator")) sep.removeAttribute("data-fx-rating-hidden");
                   const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.popcornmeter + "|" + cfg.stars;
-                  if (scoreHost.dataset.fxSig !== sig) {
+                  if (scoreHost.dataset.fxSig !== sig || !scoreHost.querySelector(".fx-ratings-group")) {
                     scoreHost.dataset.fxSig = sig;
                     scoreHost.dataset.fxRatingsMounted = "true";
                     (_f = scoreHost.querySelector(".fx-ratings-group")) == null ? void 0 : _f.remove();
@@ -8144,13 +8844,72 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
                     wrap = element("span", "fx-detail-injected-ratings");
                     facts.prepend(wrap);
                   }
-                  if (wrap.dataset.fxSig !== sig) {
+                  if (wrap.dataset.fxSig !== sig || !wrap.querySelector(".fx-ratings-group")) {
                     wrap.dataset.fxSig = sig;
                     wrap.replaceChildren(group);
                   }
                 }
               }
             }
+          }
+          detailPage.querySelectorAll("#similarCollapsible .card[data-id]").forEach((card) => {
+            var _a3, _b3, _c3, _d3, _e3;
+            const simId = card.dataset.id;
+            if (!simId || !/^[a-f0-9-]{32,36}$/i.test(simId)) return;
+            const meta = card.querySelector(".sleekfin-details-similar-meta");
+            if (!meta) return;
+            const simItem = findInventoryItemById(simId) || {};
+            const starSlot = meta.querySelector('[data-sleekfin-accent="true"], .sleekfin-meta-accent, .sleekfin-meta-item:has(.sleekfin-icon), .sleekfin-meta-item:has(svg)') || [...meta.children].find((ch) => !ch.classList.contains("sleekfin-meta-separator") && (ch.querySelector("svg, .sleekfin-icon, .material-icons") || /^\s*\d\.\d\s*$/.test(ch.textContent || "")));
+            if (starSlot && !starSlot.dataset.fxOrigStar) {
+              const m = (starSlot.textContent || "").match(/\d+(?:\.\d+)?/);
+              if (m) starSlot.dataset.fxOrigStar = m[0];
+            }
+            const mergedSim = {
+              ...simItem,
+              Id: simId,
+              CommunityRating: (_b3 = simItem.CommunityRating) != null ? _b3 : Number(((_a3 = starSlot == null ? void 0 : starSlot.dataset) == null ? void 0 : _a3.fxOrigStar) || 0) || null
+            };
+            const rt = lookupCachedRating2(simId, mergedSim);
+            if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(simId);
+            const group = wantHero ? buildRatingsGroup(mergedSim, rt, cfg, false) : null;
+            if (starSlot) {
+              const nextSep = ((_d3 = (_c3 = starSlot.nextElementSibling) == null ? void 0 : _c3.classList) == null ? void 0 : _d3.contains("sleekfin-meta-separator")) ? starSlot.nextElementSibling : null;
+              if (!wantHero || !group) {
+                starSlot.setAttribute("data-fx-rating-hidden", "true");
+                if (nextSep) nextSep.setAttribute("data-fx-rating-hidden", "true");
+              } else {
+                starSlot.removeAttribute("data-fx-rating-hidden");
+                if (nextSep) nextSep.removeAttribute("data-fx-rating-hidden");
+                const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
+                if (starSlot.dataset.fxSig !== sig || !starSlot.querySelector(".fx-ratings-group")) {
+                  starSlot.dataset.fxSig = sig;
+                  starSlot.dataset.fxRatingsMounted = "true";
+                  (_e3 = starSlot.querySelector(".fx-ratings-group")) == null ? void 0 : _e3.remove();
+                  starSlot.append(group);
+                }
+              }
+            } else if (group) {
+              let wrap = meta.querySelector(".fx-similar-injected-ratings");
+              const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
+              if (!wrap) {
+                wrap = element("span", "fx-similar-injected-ratings");
+                const sep = element("span", "sleekfin-meta-separator", "\xB7");
+                sep.dataset.fxSimilarSep = "true";
+                meta.prepend(wrap, sep);
+              }
+              if (wrap.dataset.fxSig !== sig || !wrap.querySelector(".fx-ratings-group")) {
+                wrap.dataset.fxSig = sig;
+                wrap.replaceChildren(group);
+              }
+            }
+          });
+        }
+        if (batchIds.length) {
+          const req = fetchRatingsBatch(api, batchIds, false);
+          if (req) {
+            req.then((updated) => {
+              if (updated && !stopped) syncHeroAndDetailRatings(api);
+            });
           }
         }
       }
@@ -8805,11 +9564,12 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
             };
           }
         }
-        const detailMoreBtn = (_d2 = (_c2 = event.target) == null ? void 0 : _c2.closest) == null ? void 0 : _d2.call(_c2, '#itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i], #itemDetailPage button:has(.more_vert)');
+        const detailMoreBtn = (_d2 = (_c2 = event.target) == null ? void 0 : _c2.closest) == null ? void 0 : _d2.call(_c2, '#itemDetailPage .btnMoreCommands, .itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], .itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage .sleekfin-details-action-overflow-trigger, .itemDetailPage .sleekfin-details-action-overflow-trigger, #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i], #itemDetailPage button:has(.more_vert)');
         if (detailMoreBtn && typeof detailMoreBtn.getBoundingClientRect === "function") {
           const r = detailMoreBtn.getBoundingClientRect();
           if (r && (r.width > 0 || r.height > 0)) {
             detailMoreAnchor = {
+              el: detailMoreBtn,
               left: r.left,
               top: r.top,
               right: r.right,
@@ -8873,6 +9633,46 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           animateModalFromOrigin(dlg);
         });
       }
+      function resolveLiveDetailMoreAnchor(detailPage) {
+        var _a2;
+        const fromStored = detailMoreAnchor && Date.now() - detailMoreAnchor.at < 2500 ? detailMoreAnchor : null;
+        if (((_a2 = fromStored == null ? void 0 : fromStored.el) == null ? void 0 : _a2.isConnected) && typeof fromStored.el.getBoundingClientRect === "function") {
+          const r = fromStored.el.getBoundingClientRect();
+          if (r && (r.width > 0 || r.height > 0)) {
+            return {
+              el: fromStored.el,
+              left: r.left,
+              top: r.top,
+              right: r.right,
+              bottom: r.bottom,
+              width: r.width,
+              height: r.height,
+              cx: r.left + r.width / 2,
+              cy: r.top + r.height / 2
+            };
+          }
+        }
+        if (fromStored && Number.isFinite(fromStored.left)) return fromStored;
+        if (!detailPage) return null;
+        const fallbackBtn = detailPage.querySelector('.btnMoreCommands:not(.hide), [data-sleekfin-action-id="more"] button, [data-sleekfin-action-id="more"], .sleekfin-details-action-overflow-trigger:not([hidden]), button[title="More" i]:not(.hide), button:has(.more_vert):not(.hide)');
+        if (fallbackBtn && typeof fallbackBtn.getBoundingClientRect === "function") {
+          const r = fallbackBtn.getBoundingClientRect();
+          if (r && (r.width > 0 || r.height > 0)) {
+            return {
+              el: fallbackBtn,
+              left: r.left,
+              top: r.top,
+              right: r.right,
+              bottom: r.bottom,
+              width: r.width,
+              height: r.height,
+              cx: r.left + r.width / 2,
+              cy: r.top + r.height / 2
+            };
+          }
+        }
+        return null;
+      }
       function positionDetailMoreMenu(popup, anchor) {
         var _a2, _b2, _c2, _d2;
         if (!popup || !anchor) return;
@@ -8883,92 +9683,145 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         const rowCount = ((_d2 = (_c2 = popup.querySelectorAll) == null ? void 0 : _c2.call(popup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _d2.length) || 0;
         const measured = typeof popup.getBoundingClientRect === "function" ? popup.getBoundingClientRect() : null;
         const rawPw = Math.round(popup.offsetWidth || (measured == null ? void 0 : measured.width) || 228);
-        const pw = Math.max(180, Math.min(vw - margin * 2, rawPw > 40 ? rawPw : 228));
-        const rawPh = Math.round(popup.scrollHeight || popup.offsetHeight || (measured == null ? void 0 : measured.height) || (rowCount ? rowCount * 40 + 16 : 260));
-        const ph = Math.max(80, Math.min(vh - margin * 2, rawPh > 40 ? rawPh : 260));
+        const pw = Math.max(188, Math.min(vw - margin * 2, rawPw > 60 ? rawPw : 228));
+        const rawPh = Math.round(popup.scrollHeight || popup.offsetHeight || (measured == null ? void 0 : measured.height) || (rowCount ? rowCount * 38 + 16 : 280));
+        const ph = Math.max(80, Math.min(vh - margin * 2, rawPh > 60 ? rawPh : 280));
         const spaceBelow = vh - anchor.bottom - gap - margin;
         const spaceAbove = anchor.top - gap - margin;
         const spaceRight = vw - anchor.right - gap - margin;
         const spaceLeft = anchor.left - gap - margin;
         let place = "bottom";
-        let leftPx = null, rightPx = null, topPx = null, bottomPx = null;
+        let leftPx = margin;
+        let topPx = margin;
         let maxW = vw - margin * 2;
         let maxH = vh - margin * 2;
-        let boxLeft = margin, boxTop = margin;
         if (spaceBelow >= ph) {
           place = "bottom";
           topPx = Math.round(anchor.bottom + gap);
-          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
           maxH = Math.max(120, Math.floor(vh - topPx - margin));
-          boxLeft = leftPx;
-          boxTop = topPx;
+          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
         } else if (spaceAbove >= ph) {
           place = "top";
-          bottomPx = Math.round(vh - anchor.top + gap);
-          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
           maxH = Math.max(120, Math.floor(anchor.top - gap - margin));
-          boxLeft = leftPx;
-          boxTop = Math.max(margin, Math.round(anchor.top - gap - Math.min(ph, maxH)));
-        } else if (Math.max(spaceLeft, spaceRight) >= Math.min(pw, 168)) {
-          place = spaceRight > spaceLeft ? "right" : "left";
-          topPx = Math.max(margin, Math.min(vh - ph - margin, Math.round(anchor.cy - ph / 2)));
+          const effH2 = Math.min(ph, maxH);
+          topPx = Math.max(margin, Math.round(anchor.top - gap - effH2));
+          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+        } else if (Math.max(spaceLeft, spaceRight) >= Math.min(pw, 180)) {
+          place = spaceRight >= spaceLeft ? "right" : "left";
           maxH = Math.max(120, Math.floor(vh - margin * 2));
+          const effH2 = Math.min(ph, maxH);
+          topPx = Math.max(margin, Math.min(vh - effH2 - margin, Math.round(anchor.cy - effH2 / 2)));
           if (place === "right") {
             leftPx = Math.round(anchor.right + gap);
-            maxW = Math.max(160, Math.floor(vw - leftPx - margin));
-            boxLeft = leftPx;
+            maxW = Math.max(168, Math.floor(vw - leftPx - margin));
           } else {
-            rightPx = Math.round(vw - anchor.left + gap);
-            maxW = Math.max(160, Math.floor(anchor.left - gap - margin));
-            boxLeft = Math.max(margin, Math.round(anchor.left - gap - Math.min(pw, maxW)));
+            maxW = Math.max(168, Math.floor(anchor.left - gap - margin));
+            const effW2 = Math.min(pw, maxW);
+            leftPx = Math.max(margin, Math.round(anchor.left - gap - effW2));
           }
-          boxTop = topPx;
-        } else if (spaceBelow >= spaceAbove) {
+        } else if (spaceAbove >= spaceBelow) {
+          place = "top";
+          maxH = Math.max(110, Math.floor(anchor.top - gap - margin));
+          const effH2 = Math.min(ph, maxH);
+          topPx = Math.max(margin, Math.round(anchor.top - gap - effH2));
+          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+        } else {
           place = "bottom";
           topPx = Math.round(anchor.bottom + gap);
-          leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
           maxH = Math.max(110, Math.floor(vh - topPx - margin));
-          boxLeft = leftPx;
-          boxTop = topPx;
-        } else {
-          place = "top";
-          bottomPx = Math.round(vh - anchor.top + gap);
           leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
-          maxH = Math.max(110, Math.floor(anchor.top - gap - margin));
-          boxLeft = leftPx;
-          boxTop = Math.max(margin, Math.round(anchor.top - gap - Math.min(ph, maxH)));
         }
         const effW = Math.min(pw, maxW);
         const effH = Math.min(ph, maxH);
-        const originX = Math.max(0, Math.min(effW, Math.round(anchor.cx - boxLeft)));
-        const originY = Math.max(0, Math.min(effH, Math.round(anchor.cy - boxTop)));
-        const dx = Math.max(-44, Math.min(44, Math.round(anchor.cx - (boxLeft + effW / 2))));
-        const dy = Math.max(-44, Math.min(44, Math.round(anchor.cy - (boxTop + effH / 2))));
+        leftPx = Math.max(margin, Math.min(vw - effW - margin, leftPx));
+        topPx = Math.max(margin, Math.min(vh - effH - margin, topPx));
+        const originX = Math.max(0, Math.min(effW, Math.round(anchor.cx - leftPx)));
+        const originY = Math.max(0, Math.min(effH, Math.round(anchor.cy - topPx)));
+        const dx = Math.max(-44, Math.min(44, Math.round(anchor.cx - (leftPx + effW / 2))));
+        const dy = Math.max(-44, Math.min(44, Math.round(anchor.cy - (topPx + effH / 2))));
         popup.dataset.fxDetailMore = "true";
         popup.dataset.fxMorePlace = place;
         popup.dataset.fxDetailMoreRows = String(rowCount);
+        popup.dataset.fxDetailMoreSize = `${vw}x${vh}:${rawPw}x${rawPh}`;
         popup.style.setProperty("position", "fixed", "important");
-        popup.style.setProperty("left", leftPx !== null ? `${leftPx}px` : "auto", "important");
-        popup.style.setProperty("right", rightPx !== null ? `${rightPx}px` : "auto", "important");
-        popup.style.setProperty("top", topPx !== null ? `${topPx}px` : "auto", "important");
-        popup.style.setProperty("bottom", bottomPx !== null ? `${bottomPx}px` : "auto", "important");
+        popup.style.setProperty("left", `${leftPx}px`, "important");
+        popup.style.setProperty("top", `${topPx}px`, "important");
+        popup.style.setProperty("right", "auto", "important");
+        popup.style.setProperty("bottom", "auto", "important");
+        popup.style.setProperty("margin", "0", "important");
         popup.style.setProperty("max-width", `${maxW}px`, "important");
         popup.style.setProperty("max-height", `${maxH}px`, "important");
         popup.style.setProperty("transform-origin", `${originX}px ${originY}px`, "important");
         popup.style.setProperty("--fx-more-dx", `${dx}px`);
         popup.style.setProperty("--fx-more-dy", `${dy}px`);
-        if (!popup._fxMoreReflowQueued && (rowCount === 0 || rawPh <= 40)) {
-          popup._fxMoreReflowQueued = true;
+        if (!popup._fxMoreReflowDone) {
+          popup._fxMoreReflowDone = true;
           if (typeof requestAnimationFrame === "function") {
             requestAnimationFrame(() => {
-              var _a3;
-              popup._fxMoreReflowQueued = false;
-              if (!stopped && popup.isConnected && !((_a3 = popup.closest) == null ? void 0 : _a3.call(popup, ".sleekfin-menu-closing"))) {
-                positionDetailMoreMenu(popup, anchor);
+              var _a3, _b3, _c3;
+              if (stopped || !popup.isConnected || ((_a3 = popup.closest) == null ? void 0 : _a3.call(popup, ".sleekfin-menu-closing"))) return;
+              const freshAnchor = resolveLiveDetailMoreAnchor(getVisibleDetailPage()) || anchor;
+              const nextRows = ((_c3 = (_b3 = popup.querySelectorAll) == null ? void 0 : _b3.call(popup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _c3.length) || 0;
+              const nextH = Math.round(popup.scrollHeight || popup.offsetHeight || 0);
+              if (nextRows !== rowCount || Math.abs(nextH - rawPh) > 12) {
+                positionDetailMoreMenu(popup, freshAnchor);
               }
             });
           }
         }
+      }
+      function updateNativeScrollerEdges(scroller) {
+        var _a2, _b2, _c2, _d2;
+        if (!scroller || !scroller.isConnected) return;
+        const section = ((_a2 = scroller.closest) == null ? void 0 : _a2.call(scroller, ".verticalSection, .detailVerticalSection, .emby-scroller-container")) || scroller.parentElement;
+        const leftBtn = (_b2 = section == null ? void 0 : section.querySelector) == null ? void 0 : _b2.call(section, '.emby-scrollbuttons-button[data-direction="left"], .emby-scrollbuttons .emby-scrollbuttons-button:first-child');
+        const rightBtn = (_c2 = section == null ? void 0 : section.querySelector) == null ? void 0 : _c2.call(section, '.emby-scrollbuttons-button[data-direction="right"], .emby-scrollbuttons .emby-scrollbuttons-button:last-child');
+        let atStart = true;
+        let atEnd = true;
+        const maxNative = Math.max(0, (scroller.scrollWidth || 0) - (scroller.clientWidth || 0));
+        if (maxNative > 4) {
+          atStart = (scroller.scrollLeft || 0) <= 2;
+          atEnd = (scroller.scrollLeft || 0) >= maxNative - 2;
+        } else {
+          const slider = (_d2 = scroller.querySelector) == null ? void 0 : _d2.call(scroller, ".itemsContainer, .scrollSlider");
+          const sr = typeof scroller.getBoundingClientRect === "function" ? scroller.getBoundingClientRect() : null;
+          const cr = slider && typeof slider.getBoundingClientRect === "function" ? slider.getBoundingClientRect() : null;
+          if (sr && cr && sr.width > 0 && cr.width > 0) {
+            atStart = cr.left >= sr.left - 3;
+            atEnd = cr.right <= sr.right + 3;
+          }
+          if (leftBtn && rightBtn && leftBtn !== rightBtn) {
+            if (leftBtn.disabled) atStart = true;
+            else if (leftBtn.disabled === false) atStart = false;
+            if (rightBtn.disabled) atEnd = true;
+            else if (rightBtn.disabled === false) atEnd = false;
+          }
+        }
+        scroller.dataset.fxScrollStart = atStart ? "true" : "false";
+        scroller.dataset.fxScrollEnd = atEnd ? "true" : "false";
+      }
+      function syncNativeScrollers() {
+        if (stopped) return;
+        document.querySelectorAll(".emby-scroller").forEach((scroller) => {
+          var _a2, _b2;
+          if (!scroller._fxScrollEdgesBound) {
+            scroller._fxScrollEdgesBound = true;
+            const refresh = () => updateNativeScrollerEdges(scroller);
+            scroller.addEventListener("scroll", refresh, { passive: true });
+            scroller.addEventListener("transitionend", refresh, { passive: true });
+            const section = ((_a2 = scroller.closest) == null ? void 0 : _a2.call(scroller, ".verticalSection, .detailVerticalSection, .emby-scroller-container")) || scroller.parentElement;
+            const btns = (_b2 = section == null ? void 0 : section.querySelector) == null ? void 0 : _b2.call(section, ".emby-scrollbuttons");
+            if (btns && !btns._fxScrollBtnsBound) {
+              btns._fxScrollBtnsBound = true;
+              btns.addEventListener("click", () => {
+                setTimeout(refresh, 60);
+                setTimeout(refresh, 260);
+                setTimeout(refresh, 460);
+              }, { passive: true });
+            }
+          }
+          updateNativeScrollerEdges(scroller);
+        });
       }
       function syncPlaybackStats() {
         if (stopped) return;
@@ -9017,7 +9870,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         });
       }
       function enhanceOsdSettingsMenu() {
-        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
         const osdOpen = isVideoOsdOpen();
         const osd = document.getElementById("videoOsdPage");
         if (osdOpen && osd) {
@@ -9089,11 +9942,19 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
             if (sleekPopup) sleekPopup.dataset.fxHeaderAnchored = "true";
             continue;
           }
-          if (!osdOpen && freshDetailMore && document.getElementById("itemDetailPage") && visible(document.getElementById("itemDetailPage"))) {
+          const detailPage = !osdOpen ? getVisibleDetailPage() : null;
+          const looksLikeDetailMore = Boolean(freshDetailMore) || /edit\s+metadata|media\s+info|refresh\s+metadata|add\s+to\s+collection|add\s+to\s+playlist|copy\s+stream|delete\s+media|identify/.test(fullText);
+          if (detailPage && looksLikeDetailMore) {
+            const moreAnchor = resolveLiveDetailMoreAnchor(detailPage);
             const targetPopup = sleekPopup || (!sheet.classList.contains("sleekfin-menu-host") ? sheet : null);
-            const curRowCount = ((_j = (_i = targetPopup == null ? void 0 : targetPopup.querySelectorAll) == null ? void 0 : _i.call(targetPopup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _j.length) || 0;
-            if (targetPopup && (targetPopup.dataset.fxDetailMore !== "true" || Number(targetPopup.dataset.fxDetailMoreRows || -1) !== curRowCount)) {
-              positionDetailMoreMenu(targetPopup, freshDetailMore);
+            if (targetPopup && moreAnchor) {
+              const curRowCount = ((_j = (_i = targetPopup.querySelectorAll) == null ? void 0 : _i.call(targetPopup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _j.length) || 0;
+              const curVw = window.innerWidth || ((_k = document.documentElement) == null ? void 0 : _k.clientWidth) || 1280;
+              const curVh = window.innerHeight || ((_l = document.documentElement) == null ? void 0 : _l.clientHeight) || 720;
+              const curSize = `${curVw}x${curVh}:${Math.round(targetPopup.offsetWidth || 0)}x${Math.round(targetPopup.scrollHeight || targetPopup.offsetHeight || 0)}`;
+              if (targetPopup.dataset.fxDetailMore !== "true" || Number(targetPopup.dataset.fxDetailMoreRows || -1) !== curRowCount || targetPopup.dataset.fxDetailMoreSize !== curSize) {
+                positionDetailMoreMenu(targetPopup, moreAnchor);
+              }
             }
             continue;
           }
@@ -9101,7 +9962,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           const labels = inspectItems.map((i) => (i.textContent || "").trim().toLowerCase());
           const ids = rawItems.map((i) => (i.getAttribute("data-id") || "").toLowerCase());
           const looksLikeSettings = ids.some((id) => ["quality", "playbackrate", "aspectratio", "stats", "subtitleoffset", "repeatmode", "videostretch"].includes(id)) || labels.some((l) => /quality|playback\s*speed|aspect\s*ratio|playback\s*data|stats\s*for\s*nerds|subtitle\s*offset/i.test(l));
-          if (!hasActiveHeaderPopover) (_l = (_k = document.documentElement) == null ? void 0 : _k.setAttribute) == null ? void 0 : _l.call(_k, "data-fx-osd-anchor", "bottom");
+          if (!hasActiveHeaderPopover) (_n = (_m = document.documentElement) == null ? void 0 : _m.setAttribute) == null ? void 0 : _n.call(_m, "data-fx-osd-anchor", "bottom");
           sheet.dataset.fxOsdPopup = "true";
           if (sleekPopup) sleekPopup.dataset.fxOsdPopup = "true";
           if (!looksLikeSettings) continue;
@@ -9222,12 +10083,19 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           if (freshHeaderAnchor || isHeaderMenuText(txt)) {
             const trig = resolveHeaderTrigger("", txt);
             if (trig) updateHeaderPopupAnchor(trig);
-            if (osdOpen) (_n = (_m = document.documentElement) == null ? void 0 : _m.setAttribute) == null ? void 0 : _n.call(_m, "data-fx-osd-anchor", "top");
+            if (osdOpen) (_p = (_o = document.documentElement) == null ? void 0 : _o.setAttribute) == null ? void 0 : _p.call(_o, "data-fx-osd-anchor", "top");
             popup.dataset.fxHeaderAnchored = "true";
-          } else if (!osdOpen && freshDetailMore && document.getElementById("itemDetailPage") && visible(document.getElementById("itemDetailPage"))) {
-            const curRowCount = ((_p = (_o = popup.querySelectorAll) == null ? void 0 : _o.call(popup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _p.length) || 0;
-            if (popup.dataset.fxDetailMore !== "true" || Number(popup.dataset.fxDetailMoreRows || -1) !== curRowCount) {
-              positionDetailMoreMenu(popup, freshDetailMore);
+          } else if (!osdOpen) {
+            const detailPage = getVisibleDetailPage();
+            const looksLikeDetailMore = Boolean(freshDetailMore) || /edit\s+metadata|media\s+info|refresh\s+metadata|add\s+to\s+collection|add\s+to\s+playlist|copy\s+stream|delete\s+media|identify/.test(txt);
+            if (detailPage && looksLikeDetailMore) {
+              const moreAnchor = resolveLiveDetailMoreAnchor(detailPage);
+              if (moreAnchor) {
+                const curRowCount = ((_r = (_q = popup.querySelectorAll) == null ? void 0 : _q.call(popup, ".sleekfin-menu-item, .actionSheetMenuItem")) == null ? void 0 : _r.length) || 0;
+                if (popup.dataset.fxDetailMore !== "true" || Number(popup.dataset.fxDetailMoreRows || -1) !== curRowCount) {
+                  positionDetailMoreMenu(popup, moreAnchor);
+                }
+              }
             }
           }
         }
@@ -9240,6 +10108,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         syncOriginModals();
         syncPlaybackStats();
         syncLoadingShimmers();
+        syncNativeScrollers();
         const scrollY = Math.round((_d2 = (_c2 = (_a2 = window.scrollY) != null ? _a2 : window.pageYOffset) != null ? _c2 : (_b2 = document.documentElement) == null ? void 0 : _b2.scrollTop) != null ? _d2 : 0);
         const scrollX = Math.round((_h = (_g = (_e2 = window.scrollX) != null ? _e2 : window.pageXOffset) != null ? _g : (_f = document.documentElement) == null ? void 0 : _f.scrollLeft) != null ? _h : 0);
         let hasOpenPopover = false;
@@ -10991,6 +11860,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           Id: item.Id,
           Name: item.Name,
           Type: item.Type,
+          MediaType: item.MediaType || "Video",
           ProductionYear: item.ProductionYear || null,
           RunTimeTicks: item.RunTimeTicks || null,
           SeasonCount: seasonCount || null,
@@ -10998,6 +11868,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           Overview: item.Overview || "",
           CommunityRating: item.CommunityRating || null,
           CriticRating: item.CriticRating || null,
+          UserData: item.UserData ? { Played: !!item.UserData.Played, PlaybackPositionTicks: item.UserData.PlaybackPositionTicks || 0 } : {},
           BackdropImageTags: Array.isArray(item.BackdropImageTags) ? item.BackdropImageTags.slice(0, 1) : [],
           ImageTags: item.ImageTags ? {
             ...item.ImageTags.Logo ? { Logo: item.ImageTags.Logo } : {},
@@ -11006,17 +11877,27 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           } : {}
         };
       }
+      function heroConfigSignature(s) {
+        var _a2, _b2, _c2;
+        try {
+          return JSON.stringify(resolveHeroConfig(s.profile || ((_c2 = (_a2 = s.config) == null ? void 0 : _a2.pages) == null ? void 0 : _c2[((_b2 = s.route) == null ? void 0 : _b2.page) || "home"])));
+        } catch {
+          return "default";
+        }
+      }
       function readHeroCache(s) {
         var _a2, _b2;
         const k = heroCacheKey(s.scope, ((_a2 = s.route) == null ? void 0 : _a2.page) || "home");
         const today = dayInZone(s.now, ((_b2 = s.config) == null ? void 0 : _b2.timeZone) || (DEFAULT_CONFIG2 == null ? void 0 : DEFAULT_CONFIG2.timeZone) || "America/Los_Angeles");
+        const cfgSig = heroConfigSignature(s);
         const mem = heroMemoryCache.get(k);
-        if (mem && mem.day === today && Array.isArray(mem.items) && mem.items.length) return mem.items;
+        if (mem && mem.day === today && (!mem.heroCfgSig || mem.heroCfgSig === cfgSig) && Array.isArray(mem.items) && mem.items.length) return mem.items;
         try {
           const raw = localStorage.getItem(k);
           if (!raw) return null;
           const parsed = JSON.parse(raw);
           if (!parsed || parsed.day !== today || !Array.isArray(parsed.items) || !parsed.items.length) return null;
+          if (parsed.heroCfgSig && parsed.heroCfgSig !== cfgSig) return null;
           if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1e3) return null;
           heroMemoryCache.set(k, parsed);
           return parsed.items;
@@ -11033,50 +11914,26 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           var _a3;
           return compactHeroItem(it, (_a3 = s.inventory) == null ? void 0 : _a3.seasons);
         });
-        const payload = { version: VERSION, day: today, at: Date.now(), items: compact };
+        const payload = { version: VERSION, day: today, at: Date.now(), heroCfgSig: heroConfigSignature(s), items: compact };
         heroMemoryCache.set(k, payload);
         try {
           localStorage.setItem(k, JSON.stringify(payload));
         } catch {
         }
       }
-      function pickPageHeroItems(s, count = 8) {
-        var _a2, _b2;
-        const isHome = s.route.page === "home";
-        const wantTypes = isHome ? ["Movie", "Series"] : [s.route.page === "movies" ? "Movie" : "Series"];
-        const pool = (((_a2 = s.inventory) == null ? void 0 : _a2.items) || []).filter((i) => {
-          var _a3, _b3, _c2;
-          return i && wantTypes.includes(i.Type) && !isLeavingSoonItem(i) && (((_a3 = i.BackdropImageTags) == null ? void 0 : _a3.length) || ((_b3 = i.ImageTags) == null ? void 0 : _b3.Thumb) || ((_c2 = i.ImageTags) == null ? void 0 : _c2.Primary));
-        });
-        if (!pool.length) return [];
-        const withBackdrop = pool.filter((i) => {
-          var _a3;
-          return (_a3 = i.BackdropImageTags) == null ? void 0 : _a3.length;
-        });
-        const candidates = withBackdrop.length >= Math.min(4, count) ? withBackdrop : pool;
-        const seed = `${s.scope}:${dayInZone(s.now, ((_b2 = s.config) == null ? void 0 : _b2.timeZone) || "America/Los_Angeles")}:${s.route.page}:${s.shuffle}`;
-        const scoreItem = (item) => {
-          var _a3;
-          const rating = Number(item.CommunityRating || 0);
-          const critic = Number(item.CriticRating || 0) / 10;
-          const hasLogo = ((_a3 = item.ImageTags) == null ? void 0 : _a3.Logo) ? 1.2 : 0;
-          const hasOverview = item.Overview ? 0.6 : 0;
-          const jitter = hash(`${seed}:hero:${item.Id}`) % 1e3 / 350;
-          return { item, score: Math.max(rating, critic) + hasLogo + hasOverview + jitter };
+      function pickPageHeroItems(s) {
+        var _a2, _b2, _c2, _d2;
+        const heroCfg = resolveHeroConfig(s.profile || ((_b2 = (_a2 = s.config) == null ? void 0 : _a2.pages) == null ? void 0 : _b2[s.route.page]));
+        const seed = `${s.scope}:${dayInZone(s.now, ((_c2 = s.config) == null ? void 0 : _c2.timeZone) || "America/Los_Angeles")}:${s.route.page}:${s.shuffle}`;
+        const getCriticScore = (item) => {
+          const rt = lookupCachedRating2(item.Id, item);
+          if ((rt == null ? void 0 : rt.criticScore) != null && Number.isFinite(Number(rt.criticScore))) return Number(rt.criticScore);
+          return item.CriticRating != null && Number.isFinite(Number(item.CriticRating)) && Number(item.CriticRating) > 0 ? Number(item.CriticRating) : null;
         };
-        const scored = candidates.map(scoreItem).sort((a, b) => b.score - a.score);
-        if (isHome) {
-          const movies = scored.filter((x) => x.item.Type === "Movie").map((x) => x.item);
-          const shows = scored.filter((x) => x.item.Type === "Series").map((x) => x.item);
-          const mixed = [];
-          let mi = 0, si = 0;
-          while (mixed.length < count && (mi < movies.length || si < shows.length)) {
-            if (mi < movies.length && (mixed.length % 2 === 0 || si >= shows.length)) mixed.push(movies[mi++]);
-            else if (si < shows.length) mixed.push(shows[si++]);
-          }
-          return mixed;
-        }
-        return scored.slice(0, count).map((x) => x.item);
+        return selectHeroItems(((_d2 = s.inventory) == null ? void 0 : _d2.items) || [], heroCfg, s.route.page, seed, {
+          getCriticScore,
+          excludeItem: isLeavingSoonItem
+        });
       }
       function stopPageHeroTimer(s) {
         if (s == null ? void 0 : s.heroTimer) {
@@ -11085,7 +11942,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         }
       }
       function syncPageHero(s) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j;
         if (!s || !s.root) return;
         const wantHero = shouldShowPageHero(s);
         setRootAttr("data-fx-page-hero", wantHero);
@@ -11102,10 +11959,25 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           s.heroEl.setAttribute("aria-label", s.route.page === "home" ? "Featured Titles" : s.route.page === "movies" ? "Featured Movies" : "Featured TV Shows");
           s.root.prepend(s.heroEl);
         }
+        const heroCfg = resolveHeroConfig(s.profile || ((_b2 = (_a2 = s.config) == null ? void 0 : _a2.pages) == null ? void 0 : _b2[s.route.page]));
         let featured = [];
-        if ((_b2 = (_a2 = s.inventory) == null ? void 0 : _a2.items) == null ? void 0 : _b2.length) {
-          featured = pickPageHeroItems(s, 8);
+        if ((_d2 = (_c2 = s.inventory) == null ? void 0 : _c2.items) == null ? void 0 : _d2.length) {
+          featured = pickPageHeroItems(s);
           if (featured.length) writeHeroCache(s, featured);
+          if (heroCfg.minCriticScore != null && !s._fxHeroRtChecked && ((_f = (_e2 = s.api) == null ? void 0 : _e2.getCurrentUserId) == null ? void 0 : _f.call(_e2))) {
+            const wantTypes = s.route.page === "home" ? ["Movie", "Series"] : [s.route.page === "movies" ? "Movie" : "Series"];
+            const missingRt = s.inventory.items.filter((i) => {
+              var _a3;
+              return i && wantTypes.includes(i.Type) && !isLeavingSoonItem(i) && (!heroCfg.excludeWatched || !((_a3 = i.UserData) == null ? void 0 : _a3.Played)) && !(Number(i.CriticRating) > 0) && !lookupCachedRating2(i.Id, i);
+            }).sort((a, b) => Number(b.CommunityRating || 0) - Number(a.CommunityRating || 0)).slice(0, 30).map((i) => i.Id);
+            if (missingRt.length) {
+              s._fxHeroRtChecked = true;
+              const req = fetchRatingsBatch(s.api, missingRt, false);
+              if (req) req.then((updated) => {
+                if (updated && !stopped && state === s) syncPageHero(s);
+              });
+            }
+          }
         } else {
           featured = readHeroCache(s) || [];
           if (!featured.length) return;
@@ -11116,7 +11988,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           setRootAttr("data-fx-page-hero", false);
           return;
         }
-        const sig = featured.map((i) => i.Id).join(",");
+        const sig = `${heroConfigSignature(s)}|${featured.map((i) => i.Id).join(",")}`;
         if (s.heroEl.dataset.heroSig === sig) {
           syncHeroAndDetailRatings(s.api);
           return;
@@ -11124,10 +11996,20 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         s.heroEl.dataset.heroSig = sig;
         s.heroEl.classList.remove("is-loading");
         stopPageHeroTimer(s);
-        const slidesWrap = element("div", "fx-page-hero-slides");
+        let slidesWrap;
+        try {
+          slidesWrap = document.createElement("div", { is: "emby-itemscontainer" });
+        } catch {
+          slidesWrap = document.createElement("div");
+        }
+        slidesWrap.setAttribute("is", "emby-itemscontainer");
+        slidesWrap.className = "fx-page-hero-slides itemsContainer";
+        slidesWrap.setAttribute("data-contextmenu", "false");
+        slidesWrap.setAttribute("data-multiselect", "false");
         const dotsWrap = element("div", "fx-page-hero-dots");
         const ratingsCfg = getActiveRatingsConfig(s.api);
         const compact = isCompactTouchViewport();
+        const serverId = ((_h = (_g = s.api) == null ? void 0 : _g.serverId) == null ? void 0 : _h.call(_g)) || "";
         const slides = [];
         const dots = [];
         let activeIdx = 0;
@@ -11142,14 +12024,14 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           });
         };
         featured.forEach((item, idx) => {
-          var _a3, _b3, _c3, _d3, _e2, _f, _g, _h, _i;
+          var _a3, _b3, _c3, _d3, _e3, _f2, _g2, _h2, _i2;
           const slide = element("article", "fx-page-hero-slide");
           slide.dataset.active = idx === 0 ? "true" : "false";
           slide.dataset.itemId = item.Id;
           const bgWrap = element("div", "fx-page-hero-backdrop-wrap");
           const bgTag = ((_a3 = item.BackdropImageTags) == null ? void 0 : _a3[0]) || ((_b3 = item.ImageTags) == null ? void 0 : _b3.Thumb) || ((_c3 = item.ImageTags) == null ? void 0 : _c3.Primary);
-          const bgType = ((_d3 = item.BackdropImageTags) == null ? void 0 : _d3[0]) ? "Backdrop" : ((_e2 = item.ImageTags) == null ? void 0 : _e2.Thumb) ? "Thumb" : "Primary";
-          if (bgTag && typeof ((_f = s.api) == null ? void 0 : _f.getImageUrl) === "function") {
+          const bgType = ((_d3 = item.BackdropImageTags) == null ? void 0 : _d3[0]) ? "Backdrop" : ((_e3 = item.ImageTags) == null ? void 0 : _e3.Thumb) ? "Thumb" : "Primary";
+          if (bgTag && typeof ((_f2 = s.api) == null ? void 0 : _f2.getImageUrl) === "function") {
             const img = element("img", "fx-page-hero-backdrop");
             img.alt = "";
             img.loading = idx <= 1 ? "eager" : "lazy";
@@ -11173,7 +12055,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           const content = element("div", "fx-page-hero-content");
           const stack = element("div", "fx-page-hero-stack");
           const titleNode = element("h1", "fx-page-hero-title", item.Name || "Untitled");
-          if (((_g = item.ImageTags) == null ? void 0 : _g.Logo) && typeof ((_h = s.api) == null ? void 0 : _h.getImageUrl) === "function") {
+          if (((_g2 = item.ImageTags) == null ? void 0 : _g2.Logo) && typeof ((_h2 = s.api) == null ? void 0 : _h2.getImageUrl) === "function") {
             const logo = element("img", "fx-page-hero-logo");
             logo.alt = item.Name || "";
             logo.loading = idx <= 1 ? "eager" : "lazy";
@@ -11199,7 +12081,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           ratingSlot.dataset.itemId = item.Id;
           if (item.CommunityRating) ratingSlot.dataset.star = String(item.CommunityRating);
           if (item.CriticRating) ratingSlot.dataset.critic = String(item.CriticRating);
-          const rt = lookupCachedRating(item.Id, item);
+          const rt = lookupCachedRating2(item.Id, item);
           const group = ratingsCfg.tomatometer || ratingsCfg.stars ? buildRatingsGroup(item, rt, ratingsCfg, false) : null;
           if (group) {
             ratingSlot.append(group);
@@ -11209,7 +12091,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           }
           const metaParts = [];
           if (item.ProductionYear) metaParts.push(element("span", "", String(item.ProductionYear)));
-          const runtimeTxt = formatHeroRuntime(item, (_i = s.inventory) == null ? void 0 : _i.seasons);
+          const runtimeTxt = formatHeroRuntime(item, (_i2 = s.inventory) == null ? void 0 : _i2.seasons);
           if (runtimeTxt) metaParts.push(element("span", "", runtimeTxt));
           (item.Genres || []).slice(0, 2).forEach((g) => metaParts.push(element("span", "", g)));
           meta.append(ratingSlot);
@@ -11226,25 +12108,30 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           }
           const actions = element("div", "fx-page-hero-actions");
           const detailsHref = itemHref(item, s.api) || "#";
-          const playBtn = element("a", "fx-page-hero-btn fx-page-hero-btn-primary");
-          playBtn.href = detailsHref;
+          const playBtn = element("button", "fx-page-hero-btn fx-page-hero-btn-primary itemAction");
+          playBtn.type = "button";
+          playBtn.setAttribute("data-action", "play");
+          playBtn.setAttribute("data-id", item.Id);
+          playBtn.setAttribute("data-type", item.Type || "Movie");
+          playBtn.setAttribute("data-mediatype", item.MediaType || "Video");
+          playBtn.setAttribute("data-isfolder", String(item.Type === "Series"));
+          if (serverId) playBtn.setAttribute("data-serverid", serverId);
           playBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><polygon points="6,4 20,12 6,20"></polygon></svg><span>Play</span>';
           playBtn.addEventListener("click", (ev) => {
-            var _a4, _b4, _c4, _d4;
-            try {
-              const wreq = window._fxWebpackReq;
-              if (wreq == null ? void 0 : wreq.c) {
-                for (const mid of Object.keys(wreq.c)) {
-                  const exp = (_a4 = wreq.c[mid]) == null ? void 0 : _a4.exports;
-                  const pm = (exp == null ? void 0 : exp.playbackManager) || (typeof ((_b4 = exp == null ? void 0 : exp.default) == null ? void 0 : _b4.play) === "function" ? exp.default : null);
-                  if (pm && typeof pm.play === "function") {
-                    ev.preventDefault();
-                    pm.play({ ids: [item.Id], serverId: (_d4 = (_c4 = s.api).serverId) == null ? void 0 : _d4.call(_c4) });
-                    return;
-                  }
-                }
+            const pm = findPlaybackManager();
+            if (pm) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              try {
+                pm.play({ ids: [item.Id], serverId });
+                return;
+              } catch {
               }
-            } catch {
+            }
+            if (slidesWrap._fxUpgradedItemsContainer) return;
+            if (detailsHref && detailsHref !== "#") {
+              ev.preventDefault();
+              location.hash = detailsHref.replace(/^#?/, "#");
             }
           });
           const infoBtn = element("a", "fx-page-hero-btn fx-page-hero-btn-secondary");
@@ -11275,6 +12162,15 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
         nextBtn.innerHTML = HERO_NEXT_SVG;
         nextBtn.addEventListener("click", () => setActive(activeIdx + 1));
         s.heroEl.replaceChildren(slidesWrap, prevBtn, nextBtn, dotsWrap);
+        try {
+          if (window.CustomElements && typeof window.CustomElements.upgradeSubtree === "function") {
+            window.CustomElements.upgradeSubtree(s.heroEl);
+            slidesWrap._fxUpgradedItemsContainer = true;
+          } else if (typeof slidesWrap.refreshItems === "function") {
+            slidesWrap._fxUpgradedItemsContainer = true;
+          }
+        } catch {
+        }
         s.heroEl.addEventListener("mouseenter", () => {
           paused = true;
         });
@@ -11292,7 +12188,7 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
           const dx = swipeStartX - endX;
           if (Math.abs(dx) > 48 && slides.length > 1) setActive(activeIdx + (dx > 0 ? 1 : -1));
         }, { passive: true });
-        const reduceMotion = Boolean((_d2 = (_c2 = window.matchMedia) == null ? void 0 : _c2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _d2.matches);
+        const reduceMotion = Boolean((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _j.matches);
         if (slides.length > 1 && !reduceMotion) {
           s.heroTimer = setInterval(() => {
             var _a3;

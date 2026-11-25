@@ -1,6 +1,6 @@
 // Visual editing works on a cloned configuration. Nothing persists until Apply.
 export function createVisualEditor(host, initial, selectedPage, inventory, changed, {element,button,supplied}) {
-  let draft=cloneJson(initial), page=selectedPage||'home', editing=null, explorerKind='director', explorerQuery='', libraryQuery='';
+  let draft=cloneJson(initial), page=selectedPage||'home', editing=null, explorerKind='director', explorerQuery='', libraryQuery='', heroQuery='';
   const anchors={ContinueWatchingNextUp:'Continue Watching / Next Up',RecentlyAddedMovies:'Recently Added in Movies',RecentlyAddedShows:'Recently Added in Shows',DiscoverMovies:'Discover Movies',DiscoverTV:'Discover TV Shows',MyJellyseerrRequests:'My Requests',MyMedia:'My Media'};
   const families={theme:'Rotating theme',genre:'Rotating genre',director:'Directed by…',actor:'Starring…',decade:'Best of a decade',studio:'Studio / network',rating:'Highly rated',rewatch:'Worth another watch',runtime:'Short movies'};
   const emit=()=>changed(cloneJson(draft));
@@ -220,6 +220,185 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
     field(rToggles,'Star Rating (Community)',curRatings.stars,v=>setRatings({...getRatings(),stars:v}),null,'checkbox');
     ratingsSec.append(rPresetRow,rToggles);
     host.append(ratingsSec);
+
+    // 1c. Hero banner content controls (per-page: Home, Movies, Shows)
+    const heroSec=element('section','fx-editor-section fx-hero-editor-section');
+    const pageTitleLabel=page==='home'?'Home':page==='movies'?'Movies':'Shows';
+    const getHero=()=>resolveHeroConfig(profile);
+    const saveHero=(next,redraw=true)=>{
+      const clean=resolveHeroConfig({hero:next});
+      const isDefault=clean.mode==='auto'&&clean.maxSlides===8&&!clean.excludeWatched&&clean.minCriticScore==null&&clean.minStarRating==null&&!clean.genresAny.length&&!clean.tagsAny.length&&!clean.years&&!clean.pinnedIds.length;
+      if(isDefault)delete profile.hero;
+      else profile.hero=clean;
+      emit();
+      if(redraw)draw();
+    };
+    const curHero=getHero();
+    const heroItems=pageItems();
+    const heroCriticOf=item=>{
+      if(typeof lookupCachedRating==='function'){
+        const rt=lookupCachedRating(item.Id,item);
+        if(rt?.criticScore!=null&&Number.isFinite(Number(rt.criticScore)))return Number(rt.criticScore);
+      }
+      return item.CriticRating!=null&&Number.isFinite(Number(item.CriticRating))&&Number(item.CriticRating)>0?Math.round(Number(item.CriticRating)):null;
+    };
+    const heroMatchCount=heroItems.length?selectHeroItems(heroItems,{...curHero,maxSlides:Math.max(curHero.maxSlides,15)},page,'preview',{getCriticScore:heroCriticOf}).length:null;
+    const heroHead=element('div','fx-hero-editor-head');
+    heroHead.append(element('h3','',`Hero banner content (${pageTitleLabel})`));
+    if(heroMatchCount!==null){
+      heroHead.append(element('span','fx-editor-count-pill',`${heroMatchCount} matching title${heroMatchCount===1?'':'s'}`));
+    }
+    heroSec.append(
+      heroHead,
+      element('p','fx-editor-help',`Control which titles appear in the ${pageTitleLabel} hero banner. Pin specific titles, require a minimum Rotten Tomatoes score (e.g. 90%+), filter by genre or year, and exclude watched titles.`)
+    );
+
+    const hFields=element('div','fx-editor-fields');
+    field(hFields,'Hero selection mode',curHero.mode,v=>saveHero({...getHero(),mode:v}),[
+      ['auto','Automatic (use filters below)'],
+      ['pinned-first','Selected titles first, then filtered'],
+      ['pinned-only','Only selected titles']
+    ]);
+    field(hFields,'Max hero slides',curHero.maxSlides,v=>{
+      const n=Math.max(1,Math.min(15,Math.round(Number(v)||8)));
+      saveHero({...getHero(),maxSlides:n},false);
+    },null,'number');
+    field(hFields,'Don’t show already watched',curHero.excludeWatched,v=>saveHero({...getHero(),excludeWatched:v}),null,'checkbox');
+    const rtInput=field(hFields,'Min Rotten Tomatoes %',curHero.minCriticScore??'',v=>{
+      const trimmed=String(v??'').trim();
+      const n=trimmed===''?null:Math.max(0,Math.min(100,Math.round(Number(trimmed))));
+      saveHero({...getHero(),minCriticScore:Number.isFinite(n)?n:null});
+    },null,'number');
+    rtInput.min='0';rtInput.max='100';rtInput.placeholder='e.g. 90';
+    const starInput=field(hFields,'Min Star Rating (0–10)',curHero.minStarRating??'',v=>{
+      const trimmed=String(v??'').trim();
+      const n=trimmed===''?null:Math.max(0,Math.min(10,Number(trimmed)));
+      saveHero({...getHero(),minStarRating:Number.isFinite(n)?n:null});
+    },null,'number');
+    starInput.step='0.1';starInput.min='0';starInput.max='10';starInput.placeholder='Optional';
+    const genreInput=field(hFields,'Hero genres (comma-separated)',curHero.genresAny.join(', '),v=>{
+      const list=String(v||'').split(',').map(s=>s.trim()).filter(Boolean);
+      saveHero({...getHero(),genresAny:list});
+    });
+    genreInput.placeholder='e.g. Sci-Fi, Drama';
+    const yearMinInput=field(hFields,'From year',curHero.years?curHero.years[0]:'',v=>{
+      const h=getHero();
+      const a=String(v??'').trim()===''?null:Math.round(Number(v));
+      const b=h.years?h.years[1]:null;
+      const years=a&&b?[Math.min(a,b),Math.max(a,b)]:a?[a,new Date().getFullYear()+1]:b?[1900,b]:null;
+      saveHero({...h,years});
+    },null,'number');
+    yearMinInput.placeholder='e.g. 1990';
+    const yearMaxInput=field(hFields,'To year',curHero.years?curHero.years[1]:'',v=>{
+      const h=getHero();
+      const b=String(v??'').trim()===''?null:Math.round(Number(v));
+      const a=h.years?h.years[0]:null;
+      const years=a&&b?[Math.min(a,b),Math.max(a,b)]:b?[1900,b]:a?[a,new Date().getFullYear()+1]:null;
+      saveHero({...h,years});
+    },null,'number');
+    yearMaxInput.placeholder='e.g. 2026';
+
+    const rtQuickRow=element('div','fx-editor-presets');
+    for(const [lbl,val] of [['Any RT %',null],['75%+ RT',75],['85%+ RT',85],['90%+ RT',90],['95%+ RT',95]]){
+      const active=curHero.minCriticScore===val;
+      const b=button(lbl,()=>saveHero({...getHero(),minCriticScore:val}));
+      if(active)b.className='fx-subtab-btn is-active';
+      b.setAttribute('aria-pressed',String(active));
+      rtQuickRow.append(b);
+    }
+    const resetHeroBtn=button('Reset hero controls',()=>{delete profile.hero;emit();draw();});
+    rtQuickRow.append(resetHeroBtn);
+
+    // Pinned / specific title picker
+    const pinWrap=element('div','fx-hero-picker');
+    pinWrap.append(element('h4','fx-hero-picker-title','Specific titles for this hero banner'));
+    const byIdMap=new Map(heroItems.map(i=>[i.Id,i]));
+    const pinnedList=element('div','fx-hero-pinned-list');
+    if(curHero.pinnedIds.length){
+      curHero.pinnedIds.forEach((pid,idx)=>{
+        const it=byIdMap.get(pid);
+        const row=element('div','fx-editor-row fx-hero-pinned-row');
+        const label=it?`${it.Name}${it.ProductionYear?` (${it.ProductionYear})`:''}`:`Saved title (${pid.slice(0,8)}…)`;
+        const cScore=it?heroCriticOf(it):null;
+        const metaTxt=cScore!=null?` · RT ${cScore}%`:'';
+        row.append(element('strong','',label+metaTxt));
+        const actions=element('div','fx-hero-pinned-actions');
+        const up=button('↑',()=>{
+          const next=[...getHero().pinnedIds];
+          [next[idx-1],next[idx]]=[next[idx],next[idx-1]];
+          saveHero({...getHero(),pinnedIds:next});
+        });
+        up.disabled=idx===0;up.setAttribute('aria-label',`Move ${label} up`);
+        const down=button('↓',()=>{
+          const next=[...getHero().pinnedIds];
+          [next[idx],next[idx+1]]=[next[idx+1],next[idx]];
+          saveHero({...getHero(),pinnedIds:next});
+        });
+        down.disabled=idx===curHero.pinnedIds.length-1;down.setAttribute('aria-label',`Move ${label} down`);
+        const rem=button('Remove',()=>{
+          const next=getHero().pinnedIds.filter(x=>x!==pid);
+          const nextMode=next.length?getHero().mode:'auto';
+          saveHero({...getHero(),pinnedIds:next,mode:nextMode});
+        });
+        actions.append(up,down,rem);
+        row.append(actions);
+        pinnedList.append(row);
+      });
+    } else {
+      pinnedList.append(element('p','fx-editor-help','No specific titles selected yet. Search below to pin movies or shows to this hero banner.'));
+    }
+
+    const heroSearchWrap=element('div','fx-hero-search-wrap');
+    const heroSearchInput=element('input','fx-hero-search-input');
+    heroSearchInput.type='search';
+    heroSearchInput.value=heroQuery;
+    heroSearchInput.placeholder=`Search ${pageTitleLabel.toLowerCase()} titles to pin…`;
+    heroSearchInput.setAttribute('aria-label',`Search ${pageTitleLabel} titles for hero banner`);
+    const resultsBox=element('div','fx-hero-search-results');
+    const renderHeroSearchResults=()=>{
+      resultsBox.replaceChildren();
+      const q=heroQuery.trim().toLowerCase();
+      if(!heroItems.length){
+        resultsBox.append(element('p','fx-editor-help','Library items are still loading…'));
+        return;
+      }
+      const pinnedSet=new Set(getHero().pinnedIds);
+      const filtered=heroItems
+        .filter(it=>!pinnedSet.has(it.Id)&&(!q||String(it.Name||'').toLowerCase().includes(q)||String(it.ProductionYear||'').includes(q)))
+        .sort((a,b)=>{
+          if(q){
+            const as=String(a.Name||'').toLowerCase().startsWith(q)?1:0;
+            const bs=String(b.Name||'').toLowerCase().startsWith(q)?1:0;
+            if(as!==bs)return bs-as;
+          }
+          return (heroCriticOf(b)??-1)-(heroCriticOf(a)??-1)||(Number(b.CommunityRating||0)-Number(a.CommunityRating||0))||String(a.Name||'').localeCompare(String(b.Name||''));
+        })
+        .slice(0,q?12:6);
+      if(!filtered.length){
+        resultsBox.append(element('p','fx-editor-help',q?`No matching titles found for “${heroQuery.trim()}”.`:'All available titles are already selected.'));
+        return;
+      }
+      for(const it of filtered){
+        const row=element('div','fx-hero-search-item');
+        const cScore=heroCriticOf(it);
+        const info=element('span','fx-hero-search-label',`${it.Name}${it.ProductionYear?` (${it.ProductionYear})`:''}${cScore!=null?` · RT ${cScore}%`:''}${it.UserData?.Played?' · Watched':''}`);
+        const addBtn=button('+ Add',()=>{
+          const h=getHero();
+          const nextPinned=[...h.pinnedIds,it.Id];
+          const nextMode=h.mode==='auto'?'pinned-first':h.mode;
+          saveHero({...h,pinnedIds:nextPinned,mode:nextMode});
+        });
+        row.append(info,addBtn);
+        resultsBox.append(row);
+      }
+    };
+    heroSearchInput.addEventListener('input',()=>{heroQuery=heroSearchInput.value;renderHeroSearchResults();});
+    renderHeroSearchResults();
+    heroSearchWrap.append(heroSearchInput,resultsBox);
+    pinWrap.append(pinnedList,heroSearchWrap);
+
+    heroSec.append(hFields,rtQuickRow,pinWrap);
+    host.append(heroSec);
 
     // 2. Opening rows & organization
     const openingSec=element('section','fx-editor-section');

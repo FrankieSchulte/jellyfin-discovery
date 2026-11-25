@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, validateConfig } from '../src/engine.js';
+import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, resolveHeroConfig, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, selectHeroItems, validateConfig } from '../src/engine.js';
 const config = JSON.parse(await readFile(new URL('../config/default.json', import.meta.url)));
 const now = new Date('2026-11-04T12:00:00Z');
 const items = Array.from({length: 48}, (_, n) => ({ Id: n.toString(16).padStart(32,'0'), Name: 'Item '+n, Type: n % 3 ? 'Movie' : 'Series', Genres: ['Action', 'Comedy'], Tags: ['space', 'superhero'], CommunityRating: n % 2 ? 8 : 6, RunTimeTicks: 90*600000000, ProductionYear: 2000 + n % 20, People: [{ Name: 'Director '+(n % 4), Type: 'Director' }, { Name: 'Actor '+(n % 3), Type: 'Actor' }], Studios:[{Name:'Studio'}], UserData:{ Played: n % 5 === 0 } }));
@@ -146,4 +146,27 @@ test('ratings preference validates allowed combinations and rejects malformed va
   assert.throws(() => validateConfig(c), /ratings/);
   c.ratings = { unknown: true };
   assert.throws(() => validateConfig(c), /ratings/);
+});
+test('hero banner controls validate config and filter by RT %, excludeWatched, genres, years, and pinned titles', () => {
+  assert.equal(resolveHeroConfig({}).mode, 'auto');
+  const c = structuredClone(config);
+  c.pages.movies.hero = { mode: 'pinned-first', maxSlides: 6, excludeWatched: true, minCriticScore: 90, genresAny: ['Drama'], years: [1990, 2025], pinnedIds: ['m1'] };
+  assert.doesNotThrow(() => validateConfig(c));
+  const bad = structuredClone(config);
+  bad.pages.home.hero = { minCriticScore: 150 };
+  assert.throws(() => validateConfig(bad), /minCriticScore/);
+  const pool = [
+    { Id: 'm1', Name: 'Only Yesterday', Type: 'Movie', ProductionYear: 1991, Genres: ['Drama'], CriticRating: 100, CommunityRating: 7.4, BackdropImageTags: ['b'], UserData: { Played: false } },
+    { Id: 'm2', Name: 'Watched Masterpiece', Type: 'Movie', ProductionYear: 2020, Genres: ['Drama'], CriticRating: 98, CommunityRating: 8.5, BackdropImageTags: ['b'], UserData: { Played: true } },
+    { Id: 'm3', Name: 'Low RT Flick', Type: 'Movie', ProductionYear: 2022, Genres: ['Drama'], CriticRating: 65, CommunityRating: 7.0, BackdropImageTags: ['b'], UserData: { Played: false } },
+    { Id: 'm4', Name: 'High RT Drama', Type: 'Movie', ProductionYear: 2019, Genres: ['Drama'], CriticRating: 94, CommunityRating: 8.2, BackdropImageTags: ['b'], UserData: { Played: false } },
+    { Id: 'm5', Name: 'High RT Comedy', Type: 'Movie', ProductionYear: 2019, Genres: ['Comedy'], CriticRating: 96, CommunityRating: 8.0, BackdropImageTags: ['b'], UserData: { Played: false } }
+  ];
+  const filtered = selectHeroItems(pool, { mode: 'auto', minCriticScore: 90, excludeWatched: true, genresAny: ['Drama'] }, 'movies', 'seed');
+  assert.deepEqual(filtered.map(i => i.Id).sort(), ['m1', 'm4']);
+  const pinnedOnly = selectHeroItems(pool, { mode: 'pinned-only', pinnedIds: ['m3', 'm1'], excludeWatched: true }, 'movies', 'seed');
+  assert.deepEqual(pinnedOnly.map(i => i.Id), ['m3', 'm1']);
+  const pinnedFirst = selectHeroItems(pool, { mode: 'pinned-first', pinnedIds: ['m5'], minCriticScore: 90, excludeWatched: true, genresAny: ['Drama'] }, 'movies', 'seed');
+  assert.equal(pinnedFirst[0].Id, 'm5');
+  assert.equal(pinnedFirst.some(i => i.Id === 'm2'), false);
 });

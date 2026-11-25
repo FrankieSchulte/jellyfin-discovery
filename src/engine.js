@@ -62,6 +62,115 @@ export function resolveRatingsConfig(config) {
     stars: typeof r.stars === 'boolean' ? r.stars : DEFAULT_RATINGS.stars
   };
 }
+export const DEFAULT_HERO = {
+  mode: 'auto',
+  maxSlides: 8,
+  excludeWatched: false,
+  minCriticScore: null,
+  minStarRating: null,
+  genresAny: [],
+  tagsAny: [],
+  years: null,
+  pinnedIds: []
+};
+export function resolveHeroConfig(profile) {
+  const h = profile?.hero;
+  if (!h || typeof h !== 'object') return { ...DEFAULT_HERO, genresAny: [], tagsAny: [], pinnedIds: [] };
+  const mode = ['auto', 'pinned-first', 'pinned-only'].includes(h.mode) ? h.mode : DEFAULT_HERO.mode;
+  const maxSlides = Number.isInteger(h.maxSlides) && h.maxSlides >= 1 && h.maxSlides <= 15 ? h.maxSlides : DEFAULT_HERO.maxSlides;
+  const minCriticScore = h.minCriticScore != null && Number.isFinite(Number(h.minCriticScore)) && Number(h.minCriticScore) >= 0 && Number(h.minCriticScore) <= 100 ? Math.round(Number(h.minCriticScore)) : null;
+  const minStarRating = h.minStarRating != null && Number.isFinite(Number(h.minStarRating)) && Number(h.minStarRating) >= 0 && Number(h.minStarRating) <= 10 ? Number(h.minStarRating) : null;
+  const genresAny = Array.isArray(h.genresAny) ? h.genresAny.map(v => String(v || '').trim()).filter(Boolean) : [];
+  const tagsAny = Array.isArray(h.tagsAny) ? h.tagsAny.map(v => String(v || '').trim()).filter(Boolean) : [];
+  const years = Array.isArray(h.years) && h.years.length === 2 && Number.isInteger(h.years[0]) && Number.isInteger(h.years[1]) && h.years[0] <= h.years[1] ? [h.years[0], h.years[1]] : null;
+  const pinnedIds = Array.isArray(h.pinnedIds) ? [...new Set(h.pinnedIds.map(v => String(v || '').trim()).filter(Boolean))] : [];
+  return {
+    mode,
+    maxSlides,
+    excludeWatched: Boolean(h.excludeWatched),
+    minCriticScore,
+    minStarRating,
+    genresAny,
+    tagsAny,
+    years,
+    pinnedIds
+  };
+}
+export function selectHeroItems(items, heroConfig, page, seed, { getCriticScore = null, excludeItem = null } = {}) {
+  const cfg = resolveHeroConfig({ hero: heroConfig });
+  const isHome = page === 'home';
+  const wantTypes = isHome ? ['Movie', 'Series'] : [page === 'movies' ? 'Movie' : 'Series'];
+  const count = cfg.maxSlides;
+  const normId = id => String(id || '').replace(/-/g, '').toLowerCase();
+  const basePool = (items || []).filter(i => i && wantTypes.includes(i.Type) && (!excludeItem || !excludeItem(i)) && (i.BackdropImageTags?.length || i.ImageTags?.Thumb || i.ImageTags?.Primary));
+  if (!basePool.length) return [];
+  const byNorm = new Map(basePool.map(i => [normId(i.Id), i]));
+  const criticOf = item => {
+    if (typeof getCriticScore === 'function') {
+      const ext = getCriticScore(item);
+      if (ext != null && Number.isFinite(Number(ext))) return Number(ext);
+    }
+    return item.CriticRating != null && Number.isFinite(Number(item.CriticRating)) && Number(item.CriticRating) > 0 ? Number(item.CriticRating) : null;
+  };
+  const passesWatched = item => !cfg.excludeWatched || !item.UserData?.Played;
+  const passesFilters = item => {
+    if (!passesWatched(item)) return false;
+    if (cfg.minCriticScore != null) {
+      const c = criticOf(item);
+      if (c == null || c < cfg.minCriticScore) return false;
+    }
+    if (cfg.minStarRating != null) {
+      if (item.CommunityRating == null || Number(item.CommunityRating) < cfg.minStarRating) return false;
+    }
+    if (cfg.genresAny.length && !intersects(cfg.genresAny, item.Genres)) return false;
+    if (cfg.tagsAny.length && !intersects(cfg.tagsAny, item.Tags)) return false;
+    if (cfg.years && (!item.ProductionYear || item.ProductionYear < cfg.years[0] || item.ProductionYear > cfg.years[1])) return false;
+    return true;
+  };
+
+  const pinned = [];
+  const pinnedSeen = new Set();
+  if (cfg.mode !== 'auto' && cfg.pinnedIds.length) {
+    for (const pid of cfg.pinnedIds) {
+      const k = normId(pid);
+      const hit = byNorm.get(k);
+      if (hit && !pinnedSeen.has(k) && passesWatched(hit)) {
+        pinnedSeen.add(k);
+        pinned.push(hit);
+      }
+    }
+  }
+  if (cfg.mode === 'pinned-only') return pinned.slice(0, count);
+
+  const filtered = basePool.filter(i => !pinnedSeen.has(normId(i.Id)) && passesFilters(i));
+  const withBackdrop = filtered.filter(i => i.BackdropImageTags?.length);
+  const candidates = withBackdrop.length >= Math.min(4, count) ? withBackdrop : filtered;
+  const scoreItem = item => {
+    const rating = Number(item.CommunityRating || 0);
+    const critic = (criticOf(item) || 0) / 10;
+    const hasLogo = item.ImageTags?.Logo ? 1.2 : 0;
+    const hasOverview = item.Overview ? 0.6 : 0;
+    const jitter = (hash(`${seed}:hero:${item.Id}`) % 1000) / 350;
+    return { item, score: Math.max(rating, critic) + hasLogo + hasOverview + jitter };
+  };
+  const scored = candidates.map(scoreItem).sort((a, b) => b.score - a.score);
+  const needed = Math.max(0, count - pinned.length);
+  let autoList = [];
+  if (needed > 0) {
+    if (isHome) {
+      const movies = scored.filter(x => x.item.Type === 'Movie').map(x => x.item);
+      const shows = scored.filter(x => x.item.Type === 'Series').map(x => x.item);
+      let mi = 0, si = 0;
+      while (autoList.length < needed && (mi < movies.length || si < shows.length)) {
+        if (mi < movies.length && (autoList.length % 2 === 0 || si >= shows.length)) autoList.push(movies[mi++]);
+        else if (si < shows.length) autoList.push(shows[si++]);
+      }
+    } else {
+      autoList = scored.slice(0, needed).map(x => x.item);
+    }
+  }
+  return [...pinned, ...autoList].slice(0, count);
+}
 export const DEFAULT_FILTERS = { query: '', genre: '', tag: '', watched: 'all', maxMinutes: '', minRating: '', decade: '', type: '', sort: 'recommended' };
 export function filtersActive(filters) {
   return Object.keys(DEFAULT_FILTERS).some(k => k !== 'sort' && String(filters[k] ?? '') !== String(DEFAULT_FILTERS[k]));
@@ -140,6 +249,19 @@ export function validateConfig(config) {
     if (!Array.isArray(profile.families) || profile.families.some(f => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
     if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>250||profile.opening.some(t=>typeof t!=='string'||!(t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
     if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>500||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
+    if (profile.hero != null) {
+      const h = profile.hero;
+      if (typeof h !== 'object' || Array.isArray(h)) throw Error(`${page}: hero must be an object.`);
+      if (h.mode != null && !['auto', 'pinned-first', 'pinned-only'].includes(h.mode)) throw Error(`${page}: hero.mode must be auto, pinned-first or pinned-only.`);
+      if (h.maxSlides != null && (!Number.isInteger(h.maxSlides) || h.maxSlides < 1 || h.maxSlides > 15)) throw Error(`${page}: hero.maxSlides must be 1–15.`);
+      if (h.excludeWatched != null && typeof h.excludeWatched !== 'boolean') throw Error(`${page}: hero.excludeWatched must be true or false.`);
+      if (h.minCriticScore != null && (!Number.isFinite(h.minCriticScore) || h.minCriticScore < 0 || h.minCriticScore > 100)) throw Error(`${page}: hero.minCriticScore must be 0–100.`);
+      if (h.minStarRating != null && (!Number.isFinite(h.minStarRating) || h.minStarRating < 0 || h.minStarRating > 10)) throw Error(`${page}: hero.minStarRating must be 0–10.`);
+      for (const field of ['genresAny', 'tagsAny', 'pinnedIds']) {
+        if (h[field] != null && (!Array.isArray(h[field]) || h[field].length > 100 || h[field].some(v => typeof v !== 'string' || !v.trim()))) throw Error(`${page}: hero.${field} must be a string array.`);
+      }
+      if (h.years != null && (!Array.isArray(h.years) || h.years.length !== 2 || h.years.some(y => !Number.isInteger(y)) || h.years[0] > h.years[1])) throw Error(`${page}: hero.years must be [first, last].`);
+    }
     const keys = new Set();
     for (const r of profile.rules) {
       if (!r || !/^[a-zA-Z0-9-]{1,60}$/.test(r.Key) || keys.has(r.Key)) throw Error(`${page}: rule keys must be unique letters, digits or hyphens.`);
