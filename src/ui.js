@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.2';
+const VERSION = '0.6.3';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -7,6 +7,7 @@ window.FazFortHomeFeed?.stop?.();
 let state = null, generation = 0, observer, timer, heartbeat, stopped = false, popoverFrame = 0;
 const snapshots = new Map();
 const savedFeeds = new Map();
+const heroMemoryCache = new Map();
 const loadedImages = new Set();
 const sessionShuffles = new Map();
 const ratingsCache = new Map();
@@ -24,6 +25,7 @@ const scopeKey = api => `${api.serverId?.() || location.origin}:${api.getCurrent
 const configKey = api => `fazfort-discovery:config:v1:${scopeKey(api)}`;
 const prefKey = (api, page) => `fazfort-discovery:view:${scopeKey(api)}:${page}`;
 const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${route.page}:${route.parentId || ''}:${route.view || 'home'}`;
+const heroCacheKey = (scope, page) => `fazfort-discovery:hero:v1:${scope}:${page}`;
 const trackingCacheKey = scope => `fazfort-discovery:tracking:v2:${scope}`;
 const ratingsSessionKey = 'fazfort-discovery:ratings:v1';
 function ensureAmbientBackground() {
@@ -435,8 +437,10 @@ function writeBootRows(s) {
 function clearBootRows(scope) {
   if (!scope) return;
   sessionShuffles.clear();
+  heroMemoryCache.clear();
   try {
     for (const page of ['home', 'movies', 'shows']) {
+      localStorage.removeItem?.(heroCacheKey(scope, page));
       for (const view of ['home', 'suggestions']) {
         localStorage.removeItem?.(bootRowsKey(scope, { page, parentId: '', view }));
       }
@@ -445,7 +449,7 @@ function clearBootRows(scope) {
       const toDelete = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && (k.startsWith(`fazfort-discovery:boot:v2:${scope}:`) || k.startsWith(`fazfort-discovery:boot:v3:${scope}:`))) {
+        if (k && (k.startsWith(`fazfort-discovery:boot:v2:${scope}:`) || k.startsWith(`fazfort-discovery:boot:v3:${scope}:`) || k.startsWith(`fazfort-discovery:hero:v1:${scope}:`))) {
           toDelete.push(k);
         }
       }
@@ -991,7 +995,7 @@ function onOsdAnchorPointer(event) {
     }
   }
   // Detail page three-dots (...) button
-  const detailMoreBtn = event.target?.closest?.('#itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i]');
+  const detailMoreBtn = event.target?.closest?.('#itemDetailPage .btnMoreCommands, #itemDetailPage [data-sleekfin-action-id="more"], #itemDetailPage button[title="More" i], #itemDetailPage button[aria-label="More" i], #itemDetailPage button:has(.more_vert)');
   if (detailMoreBtn && typeof detailMoreBtn.getBoundingClientRect === 'function') {
     const r = detailMoreBtn.getBoundingClientRect();
     if (r && (r.width > 0 || r.height > 0)) {
@@ -1063,51 +1067,101 @@ function positionDetailMoreMenu(popup, anchor) {
   const vw = window.innerWidth || document.documentElement?.clientWidth || 1280;
   const vh = window.innerHeight || document.documentElement?.clientHeight || 720;
   const margin = 12;
-  const gap = 10;
+  const gap = 12;
+  const rowCount = popup.querySelectorAll?.('.sleekfin-menu-item, .actionSheetMenuItem')?.length || 0;
   const measured = typeof popup.getBoundingClientRect === 'function' ? popup.getBoundingClientRect() : null;
-  const pw = Math.max(180, Math.min(vw - margin * 2, Math.round(popup.offsetWidth || measured?.width || 228)));
-  const rawPh = Math.round(popup.scrollHeight || popup.offsetHeight || measured?.height || 260);
-  const ph = Math.max(80, Math.min(vh - margin * 2, rawPh));
+  const rawPw = Math.round(popup.offsetWidth || measured?.width || 228);
+  const pw = Math.max(180, Math.min(vw - margin * 2, rawPw > 40 ? rawPw : 228));
+  const rawPh = Math.round(popup.scrollHeight || popup.offsetHeight || measured?.height || (rowCount ? rowCount * 40 + 16 : 260));
+  const ph = Math.max(80, Math.min(vh - margin * 2, rawPh > 40 ? rawPh : 260));
   const spaceBelow = vh - anchor.bottom - gap - margin;
   const spaceAbove = anchor.top - gap - margin;
   const spaceRight = vw - anchor.right - gap - margin;
   const spaceLeft = anchor.left - gap - margin;
 
   let place = 'bottom';
-  let left = Math.round(anchor.cx - pw / 2);
-  let top = Math.round(anchor.bottom + gap);
+  let leftPx = null, rightPx = null, topPx = null, bottomPx = null;
+  let maxW = vw - margin * 2;
+  let maxH = vh - margin * 2;
+  let boxLeft = margin, boxTop = margin;
 
   if (spaceBelow >= ph) {
     place = 'bottom';
-    top = Math.round(anchor.bottom + gap);
-    left = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    topPx = Math.round(anchor.bottom + gap);
+    leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    maxH = Math.max(120, Math.floor(vh - topPx - margin));
+    boxLeft = leftPx;
+    boxTop = topPx;
   } else if (spaceAbove >= ph) {
     place = 'top';
-    top = Math.round(anchor.top - gap - ph);
-    left = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    bottomPx = Math.round(vh - anchor.top + gap);
+    leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    maxH = Math.max(120, Math.floor(anchor.top - gap - margin));
+    boxLeft = leftPx;
+    boxTop = Math.max(margin, Math.round(anchor.top - gap - Math.min(ph, maxH)));
+  } else if (Math.max(spaceLeft, spaceRight) >= Math.min(pw, 168)) {
+    place = spaceRight > spaceLeft ? 'right' : 'left';
+    topPx = Math.max(margin, Math.min(vh - ph - margin, Math.round(anchor.cy - ph / 2)));
+    maxH = Math.max(120, Math.floor(vh - margin * 2));
+    if (place === 'right') {
+      leftPx = Math.round(anchor.right + gap);
+      maxW = Math.max(160, Math.floor(vw - leftPx - margin));
+      boxLeft = leftPx;
+    } else {
+      rightPx = Math.round(vw - anchor.left + gap);
+      maxW = Math.max(160, Math.floor(anchor.left - gap - margin));
+      boxLeft = Math.max(margin, Math.round(anchor.left - gap - Math.min(pw, maxW)));
+    }
+    boxTop = topPx;
+  } else if (spaceBelow >= spaceAbove) {
+    place = 'bottom';
+    topPx = Math.round(anchor.bottom + gap);
+    leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    maxH = Math.max(110, Math.floor(vh - topPx - margin));
+    boxLeft = leftPx;
+    boxTop = topPx;
   } else {
-    place = spaceRight >= spaceLeft ? 'right' : 'left';
-    top = Math.max(margin, Math.min(vh - ph - margin, Math.round(anchor.cy - ph / 2)));
-    left = place === 'right'
-      ? Math.min(vw - pw - margin, Math.round(anchor.right + gap))
-      : Math.max(margin, Math.round(anchor.left - gap - pw));
+    place = 'top';
+    bottomPx = Math.round(vh - anchor.top + gap);
+    leftPx = Math.max(margin, Math.min(vw - pw - margin, Math.round(anchor.cx - pw / 2)));
+    maxH = Math.max(110, Math.floor(anchor.top - gap - margin));
+    boxLeft = leftPx;
+    boxTop = Math.max(margin, Math.round(anchor.top - gap - Math.min(ph, maxH)));
   }
 
-  const originX = Math.max(0, Math.min(pw, Math.round(anchor.cx - left)));
-  const originY = Math.max(0, Math.min(ph, Math.round(anchor.cy - top)));
-  const dx = Math.max(-44, Math.min(44, Math.round(anchor.cx - (left + pw / 2))));
-  const dy = Math.max(-44, Math.min(44, Math.round(anchor.cy - (top + ph / 2))));
+  const effW = Math.min(pw, maxW);
+  const effH = Math.min(ph, maxH);
+  const originX = Math.max(0, Math.min(effW, Math.round(anchor.cx - boxLeft)));
+  const originY = Math.max(0, Math.min(effH, Math.round(anchor.cy - boxTop)));
+  const dx = Math.max(-44, Math.min(44, Math.round(anchor.cx - (boxLeft + effW / 2))));
+  const dy = Math.max(-44, Math.min(44, Math.round(anchor.cy - (boxTop + effH / 2))));
 
   popup.dataset.fxDetailMore = 'true';
   popup.dataset.fxMorePlace = place;
+  popup.dataset.fxDetailMoreRows = String(rowCount);
   popup.style.setProperty('position', 'fixed', 'important');
-  popup.style.setProperty('left', `${left}px`, 'important');
-  popup.style.setProperty('top', `${top}px`, 'important');
-  popup.style.setProperty('right', 'auto', 'important');
-  popup.style.setProperty('bottom', 'auto', 'important');
+  popup.style.setProperty('left', leftPx !== null ? `${leftPx}px` : 'auto', 'important');
+  popup.style.setProperty('right', rightPx !== null ? `${rightPx}px` : 'auto', 'important');
+  popup.style.setProperty('top', topPx !== null ? `${topPx}px` : 'auto', 'important');
+  popup.style.setProperty('bottom', bottomPx !== null ? `${bottomPx}px` : 'auto', 'important');
+  popup.style.setProperty('max-width', `${maxW}px`, 'important');
+  popup.style.setProperty('max-height', `${maxH}px`, 'important');
   popup.style.setProperty('transform-origin', `${originX}px ${originY}px`, 'important');
   popup.style.setProperty('--fx-more-dx', `${dx}px`);
   popup.style.setProperty('--fx-more-dy', `${dy}px`);
+
+  // Re-measure once after SleekFin finishes populating items so final dimensions stay strictly clear of the button
+  if (!popup._fxMoreReflowQueued && (rowCount === 0 || rawPh <= 40)) {
+    popup._fxMoreReflowQueued = true;
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        popup._fxMoreReflowQueued = false;
+        if (!stopped && popup.isConnected && !popup.closest?.('.sleekfin-menu-closing')) {
+          positionDetailMoreMenu(popup, anchor);
+        }
+      });
+    }
+  }
 }
 function syncPlaybackStats() {
   if (stopped) return;
@@ -1161,8 +1215,10 @@ function enhanceOsdSettingsMenu() {
     }
   }
   const audioBtn = osd?.querySelector?.('.btnAudio');
+  const airPlayBtn = osd?.querySelector?.('.btnAirPlay');
   const favBtn = osd?.querySelector?.('.btnUserRating');
   const canAudio = Boolean(osdOpen && audioBtn && !audioBtn.classList.contains('hide') && !audioBtn.hidden && !audioBtn.disabled);
+  const canAirPlay = Boolean(osdOpen && airPlayBtn && !airPlayBtn.classList.contains('hide') && !airPlayBtn.hidden && !airPlayBtn.disabled);
   const canFav = Boolean(osdOpen && favBtn && !favBtn.classList.contains('hide') && !favBtn.hidden && !favBtn.disabled);
   const portalPopups = [...document.querySelectorAll('.sleekfin-popup-layer .sleekfin-menu-popup')];
   const sheets = [...document.querySelectorAll('.dialog.actionSheet')];
@@ -1229,7 +1285,8 @@ function enhanceOsdSettingsMenu() {
     // 2. Detail page three-dots (...) menu -> smart placement (below / above / side centered) + origin morph
     if (!osdOpen && freshDetailMore && document.getElementById('itemDetailPage') && visible(document.getElementById('itemDetailPage'))) {
       const targetPopup = sleekPopup || (!sheet.classList.contains('sleekfin-menu-host') ? sheet : null);
-      if (targetPopup && targetPopup.dataset.fxDetailMore !== 'true') {
+      const curRowCount = targetPopup?.querySelectorAll?.('.sleekfin-menu-item, .actionSheetMenuItem')?.length || 0;
+      if (targetPopup && (targetPopup.dataset.fxDetailMore !== 'true' || Number(targetPopup.dataset.fxDetailMoreRows || -1) !== curRowCount)) {
         positionDetailMoreMenu(targetPopup, freshDetailMore);
       }
       continue;
@@ -1263,6 +1320,11 @@ function enhanceOsdSettingsMenu() {
       closeSheet();
       setTimeout(() => { try { audioBtn?.click(); } catch {} }, 45);
     };
+    const triggerAirPlay = () => {
+      // Invoke AirPlay synchronously inside the click gesture so Safari/WebKit allows webkitShowPlaybackTargetPicker()
+      closeSheet();
+      try { airPlayBtn?.click(); } catch {}
+    };
     const triggerFav = () => {
       closeSheet();
       setTimeout(() => {
@@ -1293,6 +1355,9 @@ function enhanceOsdSettingsMenu() {
       if (canAudio && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
         scroller.append(makeActionItem('fx-osd-audio', 'audiotrack', 'Audio', triggerAudio));
       }
+      if (canAirPlay && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-airplay"]')) {
+        scroller.append(makeActionItem('fx-osd-airplay', 'airplay', 'AirPlay', triggerAirPlay));
+      }
       if (canFav && !scroller.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
         scroller.append(makeActionItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', isFav ? 'Remove from Favorites' : 'Add to Favorites', triggerFav));
       }
@@ -1322,6 +1387,9 @@ function enhanceOsdSettingsMenu() {
       if (canAudio && !popupLabels.has('audio') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]')) {
         sleekPopup.append(makeSleekItem('fx-osd-audio', 'audiotrack', 'Audio', triggerAudio));
       }
+      if (canAirPlay && !popupLabels.has('airplay') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-airplay"]')) {
+        sleekPopup.append(makeSleekItem('fx-osd-airplay', 'airplay', 'AirPlay', triggerAirPlay));
+      }
       const favLabel = isFav ? 'Remove from Favorites' : 'Add to Favorites';
       if (canFav && !popupLabels.has('add to favorites') && !popupLabels.has('remove from favorites') && !sleekPopup.querySelector('[data-fx-osd-menu-item="fx-osd-favorite"]')) {
         sleekPopup.append(makeSleekItem('fx-osd-favorite', isFav ? 'favorite' : 'favorite_border', favLabel, triggerFav));
@@ -1338,8 +1406,11 @@ function enhanceOsdSettingsMenu() {
       if (trig) updateHeaderPopupAnchor(trig);
       if (osdOpen) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
       popup.dataset.fxHeaderAnchored = 'true';
-    } else if (!osdOpen && freshDetailMore && popup.dataset.fxDetailMore !== 'true' && document.getElementById('itemDetailPage') && visible(document.getElementById('itemDetailPage'))) {
-      positionDetailMoreMenu(popup, freshDetailMore);
+    } else if (!osdOpen && freshDetailMore && document.getElementById('itemDetailPage') && visible(document.getElementById('itemDetailPage'))) {
+      const curRowCount = popup.querySelectorAll?.('.sleekfin-menu-item, .actionSheetMenuItem')?.length || 0;
+      if (popup.dataset.fxDetailMore !== 'true' || Number(popup.dataset.fxDetailMoreRows || -1) !== curRowCount) {
+        positionDetailMoreMenu(popup, freshDetailMore);
+      }
     }
   }
 }
@@ -2942,11 +3013,15 @@ function renderSkeletonRows(s, count = 3) {
 }
 function shouldShowPageHero(s) {
   if (!s || s.full || s.failed || s.subpageActive || s.route?.cat) return false;
+  if (s.route?.page === 'home') return true;
   return (s.route?.page === 'movies' || s.route?.page === 'shows') && s.route?.view === 'suggestions';
 }
 function formatHeroRuntime(item, seasonsList = []) {
   if (item.Type === 'Series') {
-    const count = (seasonsList || []).filter(sn => (sn.SeriesId === item.Id || sn.ParentId === item.Id) && Number(sn.IndexNumber) > 0).length;
+    const cachedCount = Number(item.SeasonCount || 0);
+    const count = cachedCount > 0
+      ? cachedCount
+      : (seasonsList || []).filter(sn => (sn.SeriesId === item.Id || sn.ParentId === item.Id) && Number(sn.IndexNumber) > 0).length;
     return count > 0 ? `${count} ${count === 1 ? 'Season' : 'Seasons'}` : 'Series';
   }
   const mins = Math.round((Number(item.RunTimeTicks) || 0) / 600000000);
@@ -2954,21 +3029,81 @@ function formatHeroRuntime(item, seasonsList = []) {
   const h = Math.floor(mins / 60), m = mins % 60;
   return h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
 }
+function compactHeroItem(item, seasonsList = []) {
+  const seasonCount = item.Type === 'Series'
+    ? (Number(item.SeasonCount || 0) || (seasonsList || []).filter(sn => (sn.SeriesId === item.Id || sn.ParentId === item.Id) && Number(sn.IndexNumber) > 0).length)
+    : 0;
+  return {
+    Id: item.Id,
+    Name: item.Name,
+    Type: item.Type,
+    ProductionYear: item.ProductionYear || null,
+    RunTimeTicks: item.RunTimeTicks || null,
+    SeasonCount: seasonCount || null,
+    Genres: Array.isArray(item.Genres) ? item.Genres.slice(0, 3) : [],
+    Overview: item.Overview || '',
+    CommunityRating: item.CommunityRating || null,
+    CriticRating: item.CriticRating || null,
+    BackdropImageTags: Array.isArray(item.BackdropImageTags) ? item.BackdropImageTags.slice(0, 1) : [],
+    ImageTags: item.ImageTags ? {
+      ...(item.ImageTags.Logo ? { Logo: item.ImageTags.Logo } : {}),
+      ...(item.ImageTags.Thumb ? { Thumb: item.ImageTags.Thumb } : {}),
+      ...(item.ImageTags.Primary ? { Primary: item.ImageTags.Primary } : {})
+    } : {}
+  };
+}
+function readHeroCache(s) {
+  const k = heroCacheKey(s.scope, s.route?.page || 'home');
+  const today = dayInZone(s.now, s.config?.timeZone || DEFAULT_CONFIG?.timeZone || 'America/Los_Angeles');
+  const mem = heroMemoryCache.get(k);
+  if (mem && mem.day === today && Array.isArray(mem.items) && mem.items.length) return mem.items;
+  try {
+    const raw = localStorage.getItem(k);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.day !== today || !Array.isArray(parsed.items) || !parsed.items.length) return null;
+    if (Date.now() - (parsed.at || 0) > 24 * 3600 * 1000) return null;
+    heroMemoryCache.set(k, parsed);
+    return parsed.items;
+  } catch { return null; }
+}
+function writeHeroCache(s, items) {
+  if (!Array.isArray(items) || !items.length) return;
+  const k = heroCacheKey(s.scope, s.route?.page || 'home');
+  const today = dayInZone(s.now, s.config?.timeZone || DEFAULT_CONFIG?.timeZone || 'America/Los_Angeles');
+  const compact = items.map(it => compactHeroItem(it, s.inventory?.seasons));
+  const payload = { version: VERSION, day: today, at: Date.now(), items: compact };
+  heroMemoryCache.set(k, payload);
+  try { localStorage.setItem(k, JSON.stringify(payload)); } catch {}
+}
 function pickPageHeroItems(s, count = 8) {
-  const wantType = s.route.page === 'movies' ? 'Movie' : 'Series';
-  const pool = (s.inventory?.items || []).filter(i => i && i.Type === wantType && !isLeavingSoonItem(i) && (i.BackdropImageTags?.length || i.ImageTags?.Thumb || i.ImageTags?.Primary));
+  const isHome = s.route.page === 'home';
+  const wantTypes = isHome ? ['Movie', 'Series'] : [s.route.page === 'movies' ? 'Movie' : 'Series'];
+  const pool = (s.inventory?.items || []).filter(i => i && wantTypes.includes(i.Type) && !isLeavingSoonItem(i) && (i.BackdropImageTags?.length || i.ImageTags?.Thumb || i.ImageTags?.Primary));
   if (!pool.length) return [];
   const withBackdrop = pool.filter(i => i.BackdropImageTags?.length);
   const candidates = withBackdrop.length >= Math.min(4, count) ? withBackdrop : pool;
   const seed = `${s.scope}:${dayInZone(s.now, s.config?.timeZone || 'America/Los_Angeles')}:${s.route.page}:${s.shuffle}`;
-  const scored = candidates.map(item => {
+  const scoreItem = item => {
     const rating = Number(item.CommunityRating || 0);
     const critic = Number(item.CriticRating || 0) / 10;
     const hasLogo = item.ImageTags?.Logo ? 1.2 : 0;
     const hasOverview = item.Overview ? 0.6 : 0;
     const jitter = (hash(`${seed}:hero:${item.Id}`) % 1000) / 350;
     return { item, score: Math.max(rating, critic) + hasLogo + hasOverview + jitter };
-  }).sort((a, b) => b.score - a.score);
+  };
+  const scored = candidates.map(scoreItem).sort((a, b) => b.score - a.score);
+  if (isHome) {
+    const movies = scored.filter(x => x.item.Type === 'Movie').map(x => x.item);
+    const shows = scored.filter(x => x.item.Type === 'Series').map(x => x.item);
+    const mixed = [];
+    let mi = 0, si = 0;
+    while (mixed.length < count && (mi < movies.length || si < shows.length)) {
+      if (mi < movies.length && (mixed.length % 2 === 0 || si >= shows.length)) mixed.push(movies[mi++]);
+      else if (si < shows.length) mixed.push(shows[si++]);
+    }
+    return mixed;
+  }
   return scored.slice(0, count).map(x => x.item);
 }
 function stopPageHeroTimer(s) {
@@ -2991,11 +3126,17 @@ function syncPageHero(s) {
   }
   if (!s.heroEl) {
     s.heroEl = element('section', 'fx-page-hero is-loading');
-    s.heroEl.setAttribute('aria-label', s.route.page === 'movies' ? 'Featured Movies' : 'Featured TV Shows');
+    s.heroEl.setAttribute('aria-label', s.route.page === 'home' ? 'Featured Titles' : s.route.page === 'movies' ? 'Featured Movies' : 'Featured TV Shows');
     s.root.prepend(s.heroEl);
   }
-  if (!s.inventory?.items?.length) return;
-  const featured = pickPageHeroItems(s, 8);
+  let featured = [];
+  if (s.inventory?.items?.length) {
+    featured = pickPageHeroItems(s, 8);
+    if (featured.length) writeHeroCache(s, featured);
+  } else {
+    featured = readHeroCache(s) || [];
+    if (!featured.length) return;
+  }
   if (!featured.length) {
     s.heroEl.remove();
     s.heroEl = null;
@@ -3037,13 +3178,15 @@ function syncPageHero(s) {
     if (bgTag && typeof s.api?.getImageUrl === 'function') {
       const img = element('img', 'fx-page-hero-backdrop');
       img.alt = '';
-      img.loading = idx === 0 ? 'eager' : 'lazy';
-      img.decoding = 'async';
+      img.loading = idx <= 1 ? 'eager' : 'lazy';
+      img.decoding = idx === 0 ? 'sync' : 'async';
       img.dataset.loaded = 'false';
       const url = safeUrl(s.api.getImageUrl(item.Id, { type: bgType, tag: bgTag, maxWidth: compact ? 960 : 1920, quality: 86, ...(bgType === 'Backdrop' ? { index: 0 } : {}) }));
-      img.addEventListener('load', () => { img.dataset.loaded = 'true'; });
+      const isCachedImg = loadedImages.has(url);
+      if (isCachedImg) img.dataset.loaded = 'true';
+      img.addEventListener('load', () => { loadedImages.add(url); img.dataset.loaded = 'true'; });
       img.src = url;
-      if (img.complete && img.naturalWidth > 0) img.dataset.loaded = 'true';
+      if (img.complete && img.naturalWidth > 0) { loadedImages.add(url); img.dataset.loaded = 'true'; }
       bgWrap.append(img);
     }
     const vignette = element('div', 'fx-page-hero-vignette');
@@ -3054,8 +3197,9 @@ function syncPageHero(s) {
     if (item.ImageTags?.Logo && typeof s.api?.getImageUrl === 'function') {
       const logo = element('img', 'fx-page-hero-logo');
       logo.alt = item.Name || '';
-      logo.loading = idx === 0 ? 'eager' : 'lazy';
-      logo.src = safeUrl(s.api.getImageUrl(item.Id, { type: 'Logo', tag: item.ImageTags.Logo, maxWidth: 520, quality: 90 }));
+      logo.loading = idx <= 1 ? 'eager' : 'lazy';
+      const logoUrl = safeUrl(s.api.getImageUrl(item.Id, { type: 'Logo', tag: item.ImageTags.Logo, maxWidth: 520, quality: 90 }));
+      logo.src = logoUrl;
       titleNode.hidden = true;
       logo.addEventListener('load', () => {
         if (logo.naturalWidth > 0 && (logo.naturalWidth < 160 || logo.naturalHeight < 28)) {
@@ -3084,7 +3228,6 @@ function syncPageHero(s) {
     }
     const metaParts = [];
     if (item.ProductionYear) metaParts.push(element('span', '', String(item.ProductionYear)));
-    if (item.OfficialRating) metaParts.push(element('span', 'fx-page-hero-cert', String(item.OfficialRating)));
     const runtimeTxt = formatHeroRuntime(item, s.inventory?.seasons);
     if (runtimeTxt) metaParts.push(element('span', '', runtimeTxt));
     (item.Genres || []).slice(0, 2).forEach(g => metaParts.push(element('span', '', g)));
@@ -4208,11 +4351,11 @@ function reconcile() {
   syncSearchPage(api);
   guardMicroLogos();
   syncHeroAndDetailRatings(api);
-  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();lastScope='';searchUiState.tracking=null;searchUiState.trackingScope='';return;}
+  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();heroMemoryCache.clear();lastScope='';searchUiState.tracking=null;searchUiState.trackingScope='';return;}
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
-  if(lastScope&&lastScope!==scope){cleanup(false);savedFeeds.clear();snapshots.clear();}
+  if(lastScope&&lastScope!==scope){cleanup(false);savedFeeds.clear();snapshots.clear();heroMemoryCache.clear();}
   lastScope=scope;
   if (!target) { if (state) cleanup(); return; }
   const key = `${scope}:${route.page}:${route.parentId}:${route.view||'home'}`;
@@ -5135,7 +5278,7 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');

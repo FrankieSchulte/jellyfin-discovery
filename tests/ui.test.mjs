@@ -1483,6 +1483,10 @@ test('v0.6.1 prevents microtask freeze when Ratings API is in-flight, pending, o
     return origGetJSON(req);
   };
   await f.settle();
+  // Isolate from Home hero's initial ratings batch
+  ratingsCalls = 0;
+  resolvePending = null;
+  const testSlideId = id(99);
 
   // Mount a SleekFin hero slide whose rating fetch stays in-flight
   const hero = f.document.createElement('div');
@@ -1490,7 +1494,7 @@ test('v0.6.1 prevents microtask freeze when Ratings API is in-flight, pending, o
   const slide = f.document.createElement('section');
   slide.className = 'sleekfin-hero-slide';
   const link = f.document.createElement('a');
-  link.setAttribute('href', `#/details?id=${id(2)}`);
+  link.setAttribute('href', `#/details?id=${testSlideId}`);
   const score = f.document.createElement('span');
   score.className = 'sleekfin-hero-score';
   score.textContent = '8.1';
@@ -1507,7 +1511,7 @@ test('v0.6.1 prevents microtask freeze when Ratings API is in-flight, pending, o
   assert.equal(ratingsCalls, 1, 'only 1 Ratings call fired while in-flight');
 
   // Even when the response returns pending:true, cooldown prevents immediate microtask loop
-  resolvePending({ Ratings: { [id(2)]: { criticScore: 88, criticState: 'fresh', audienceScore: null, source: 'jellyfin', pending: true } } });
+  resolvePending({ Ratings: { [testSlideId]: { criticScore: 88, criticState: 'fresh', audienceScore: null, source: 'jellyfin', pending: true } } });
   await f.settle();
   f.notify();
   f.frames();
@@ -1550,7 +1554,7 @@ test('v0.6.2 fixes transparent hero transitions, borderless hero title, unified 
   assert.ok(styleText.includes('.osdHeader .videoOsd-appBar > button:first-child'));
   assert.ok(styleText.includes('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;'));
   assert.ok(styleText.includes('margin:0 0 16px 0!important;'));
-  assert.ok(styleText.includes('#videoOsdPage .btnPause .material-icons.play_arrow{\n  transform:translateX(1px)!important;'));
+  assert.ok(styleText.includes('#videoOsdPage .btnPause .material-icons{'));
 
   // 4. Info modal keeps .fx-modal-origin-anim after animationend (zero flash/reappear) and releases only on closing
   const infoBtn = f.document.createElement('button');
@@ -1638,5 +1642,115 @@ test('v0.6.2 fixes transparent hero transitions, borderless hero title, unified 
   backBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
   assert.equal(f.document.documentElement.getAttribute('data-fx-osd-anchor'), 'bottom');
 
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.3 unifies cached Home hero without Rated pill, moves AirPlay+Audio under Settings, fixes OSD buttons/header/focus ring, fixes three-dots overlap/visibility, removes hover underlines, hides native backdropContainer, and strips raw star text next to RT', async () => {
+  const f = fixture();
+  await f.settle();
+  const Ev = f.ctx.document.defaultView.Event;
+  const styleText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+
+  // 1. Unified cached Hero Banner mounts on Home page with Play/More Info pills, side arrows, dots nav, NO Rated pill, and caches to localStorage
+  assert.equal(f.document.documentElement.getAttribute('data-fx-page-hero'), 'true');
+  const homeHero = f.document.querySelector('#indexPage .fx-page-hero');
+  assert.ok(homeHero, 'Home page mounts unified .fx-page-hero');
+  assert.ok(homeHero.querySelector('.fx-page-hero-btn-primary'), 'Home hero has unified Play button');
+  assert.ok(homeHero.querySelector('.fx-page-hero-btn-secondary'), 'Home hero has unified More Info button');
+  assert.ok(homeHero.querySelector('.fx-page-hero-prev') && homeHero.querySelector('.fx-page-hero-next'), 'Home hero has side navigation arrows');
+  assert.ok(homeHero.querySelectorAll('.fx-page-hero-dot').length >= 2, 'Home hero has dot navigation bar');
+  assert.equal(homeHero.querySelector('.fx-page-hero-cert'), null, 'Rated pill removed from hero banner');
+  const heroCacheRaw = f.storage.get('fazfort-discovery:hero:v1:s:u:home');
+  assert.ok(heroCacheRaw && JSON.parse(heroCacheRaw).items.length >= 1, 'Home hero slides cached in localStorage');
+
+  // Instant Frame-0 Home hero render from cache even before slow inventory returns
+  const f2 = fixture();
+  f2.storage.set('fazfort-discovery:hero:v1:s:u:home', heroCacheRaw);
+  f2.api.getItems = () => new Promise(() => {});
+  f2.ctx.window.FazFortDiscovery.restart();
+  f2.flushTimeouts(120);
+  const cachedHero = f2.document.querySelector('#indexPage .fx-page-hero');
+  assert.ok(cachedHero && cachedHero.querySelectorAll('.fx-page-hero-slide').length >= 1, 'cached Home hero renders instantaneously before inventory finishes');
+  f2.ctx.window.FazFortDiscovery.stop();
+
+  // 2. CSS checks: no hover underlines, hidden native .backdropContainer, zero raw star text font-size, hidden .btnRecord/.btnAirPlay, no white focus circle, top bar aligned at 40px, and .dialogContainer contain:none
+  assert.equal(styleText.includes('text-decoration:underline'), false, 'hover text underline completely removed');
+  assert.ok(styleText.includes(':is(.backdropContainer,.backdropImage){\n  display:none!important;'), 'native backdropContainer hidden behind detail pages');
+  assert.ok(styleText.includes('.sleekfin-details-score[data-fx-ratings-mounted="true"]{\n  font-size:0!important;'), 'raw star text node hidden cleanly next to RT score');
+  assert.ok(styleText.includes('#videoOsdPage .videoOsdBottom :is(.hide,[hidden],.btnRecord,.btnPreviousTrack,.btnNextTrack,.btnPreviousChapter,.btnNextChapter,.btnRewind,.btnFastForward,.btnUserRating,.btnAudio,.btnAirPlay){\n  display:none!important;'));
+  assert.ok(styleText.includes('#videoOsdPage .btnPause:focus-visible'));
+  assert.ok(styleText.includes('html:root .dialogContainer:has(.sleekfin-menu-host)'));
+
+  // 3. Playback Settings injects AirPlay alongside Audio & Favorites when available
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  osd.className = 'page';
+  const audioBtn = f.document.createElement('button');
+  audioBtn.className = 'btnAudio';
+  let airPlayClicked = false;
+  const airPlayBtn = f.document.createElement('button');
+  airPlayBtn.className = 'btnAirPlay';
+  airPlayBtn.addEventListener('click', () => { airPlayClicked = true; });
+  const favBtn = f.document.createElement('button');
+  favBtn.className = 'btnUserRating';
+  const gearBtn = f.document.createElement('button');
+  gearBtn.className = 'btnVideoOsdSettings';
+  osd.append(audioBtn, airPlayBtn, favBtn, gearBtn);
+  f.document.body.append(osd);
+
+  const settingsSheet = f.document.createElement('div');
+  settingsSheet.className = 'dialog actionSheet';
+  const scroller = f.document.createElement('div');
+  scroller.className = 'actionSheetScroller';
+  const qItem = f.document.createElement('button');
+  qItem.className = 'actionSheetMenuItem';
+  qItem.setAttribute('data-id', 'quality');
+  qItem.textContent = 'Quality';
+  scroller.append(qItem);
+  settingsSheet.append(scroller);
+  f.document.body.append(settingsSheet);
+  f.notify();
+  f.frames();
+  const injectedAirPlay = scroller.querySelector('[data-fx-osd-menu-item="fx-osd-airplay"]');
+  assert.ok(injectedAirPlay, 'AirPlay moved into Playback Settings menu');
+  assert.ok(scroller.querySelector('[data-fx-osd-menu-item="fx-osd-audio"]'), 'Audio present in Playback Settings menu');
+  injectedAirPlay.click();
+  assert.equal(airPlayClicked, true, 'clicking Settings -> AirPlay triggers native AirPlay button synchronously for Safari user gesture');
+  settingsSheet.remove();
+  osd.remove();
+
+  // 4. Three-dots menu edge-anchors strictly BEYOND the button (never overlapping when placed above or left!)
+  const detailPage = f.document.createElement('div');
+  detailPage.id = 'itemDetailPage';
+  detailPage.className = 'page';
+  const moreBtn = f.document.createElement('button');
+  moreBtn.className = 'btnMoreCommands';
+  moreBtn.getBoundingClientRect = () => ({ left: 1180, right: 1224, top: 640, bottom: 684, width: 44, height: 44 });
+  detailPage.append(moreBtn);
+  f.document.body.append(detailPage);
+  f.notify();
+  f.frames();
+  moreBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  const moreSheet = f.document.createElement('div');
+  moreSheet.className = 'dialog actionSheet sleekfin-menu-host';
+  const morePopup = f.document.createElement('div');
+  morePopup.className = 'sleekfin-menu-popup';
+  for (let k = 0; k < 6; k++) {
+    const it = f.document.createElement('button');
+    it.className = 'sleekfin-menu-item';
+    it.textContent = `Action ${k}`;
+    morePopup.append(it);
+  }
+  Object.defineProperties(morePopup, { offsetWidth: { value: 220 }, scrollHeight: { value: 260 }, offsetHeight: { value: 260 } });
+  moreSheet.append(morePopup);
+  f.document.body.append(moreSheet);
+  f.notify();
+  f.frames();
+  assert.equal(morePopup.dataset.fxDetailMore, 'true');
+  assert.equal(morePopup.dataset.fxMorePlace, 'top');
+  assert.equal(morePopup.style.getPropertyValue('top'), 'auto', 'top-placed three-dots menu anchors from bottom up so it can never grow over the button');
+  assert.ok(parseInt(morePopup.style.getPropertyValue('bottom'), 10) >= 88, 'anchored strictly >=12px above button top');
+  moreSheet.remove();
+  detailPage.remove();
   f.ctx.window.FazFortDiscovery.stop();
 });
