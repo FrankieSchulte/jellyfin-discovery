@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.8';
+const VERSION = '0.7.0';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -28,6 +28,17 @@ const bootRowsKey = (scope, route) => `fazfort-discovery:boot:v2:${scope}:${rout
 const heroCacheKey = (scope, page) => `fazfort-discovery:hero:v1:${scope}:${page}`;
 const trackingCacheKey = scope => `fazfort-discovery:tracking:v2:${scope}`;
 const ratingsSessionKey = 'fazfort-discovery:ratings:v1';
+const oscars = createOscarsRuntime({
+  version: VERSION,
+  isStopped: () => stopped,
+  hasActiveState: () => Boolean(state),
+  cleanup: (...args) => cleanup(...args),
+  element,
+  scopeKey,
+  scrollToTop: () => scrollToTop(),
+  showToast: (...args) => showToast(...args),
+  findCachedInventory: (...args) => findCachedInventory(...args)
+});
 function ensureAmbientBackground() {
   if (stopped || !document.documentElement) return;
   setRootAttr('data-fx-ambient-bg', true);
@@ -4685,7 +4696,8 @@ function reconcile() {
   syncSearchPage(api);
   guardMicroLogos();
   syncHeroAndDetailRatings(api);
-  if (!api?.getCurrentUserId?.()) {cleanup(false);savedFeeds.clear();snapshots.clear();heroMemoryCache.clear();lastScope='';searchUiState.tracking=null;searchUiState.trackingScope='';return;}
+  if (!api?.getCurrentUserId?.()) {oscars.resetOscarsSession();cleanup(false);savedFeeds.clear();snapshots.clear();heroMemoryCache.clear();lastScope='';searchUiState.tracking=null;searchUiState.trackingScope='';return;}
+  oscars.syncOscarsPage(api);
   if(!route){if(state)cleanup();else if(!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash))closeDialog();return;}
   if(route.serverId && route.serverId.toLowerCase() !== (api.serverId?.() || '').toLowerCase()){cleanup();return;}
   const target = locate(route), scope = scopeKey(api);
@@ -5544,7 +5556,16 @@ function onRouteEvent() {
   releaseOsdSpeedHold();
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(window.ApiClient);
+  oscars.ensureOscarsNav(window.ApiClient);
   reconcile();
+}
+function onHeaderCatalogChanged() {
+  hideLeavingSoonNav();
+  oscars.ensureOscarsNav(window.ApiClient);
+}
+function onWindowResize() {
+  scheduleScroll();
+  oscars.ensureOscarsNav(window.ApiClient);
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
@@ -5599,14 +5620,15 @@ function start() {
         }
       }
       if (!needsHeader && r.type === 'childList' && t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage')) {
-        needsHeader = true;
+        const onlyOscarsLink = [...r.addedNodes, ...r.removedNodes].every(n => n.nodeType === 1 && n.matches?.('[data-fx-oscars-link]'));
+        if (!onlyOscarsLink) needsHeader = true;
       }
       if (!needsSearch && t.id === 'searchPage') {
         needsSearch = true;
       } else if (!needsSearch && t.closest?.('#searchPage') && !t.closest?.('.fx-search-library,.searchResults,.searchSuggestions')) {
         needsSearch = true;
       }
-      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
+      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-oscars-page,.fx-oscar-admin,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
         needsReconcile = true;
       }
     }
@@ -5627,6 +5649,7 @@ function start() {
       hideLeavingSoonNav();
       hideSleekFinUserSettingsMenu();
       syncMobileOverflowDrawer(window.ApiClient);
+      oscars.ensureOscarsNav(window.ApiClient);
     }
     if (needsSearch) syncSearchPage(window.ApiClient);
     if (needsReconcile) schedule();
@@ -5651,17 +5674,18 @@ function start() {
   document.addEventListener('touchcancel', onOsdTouchEnd, { passive: true, capture: true });
   window.addEventListener('scroll', onOsdScrollGuard, { passive: true });
   window.addEventListener('blur', releaseOsdSpeedHold);
-  window.addEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
+  window.addEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
-  document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', scheduleScroll);
+  document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', onWindowResize);
   // Sign-out / server switch can occur without a hash change.
   heartbeat = setInterval(schedule, 3000); reconcile();
 }
 window.FazFortDiscovery = {
-  version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient),
+  version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient), mountOscarsSettings:(host)=>oscars.mountOscarsSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(headerMenuOpeningTimer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); clearTimeout(osdPlayState.timer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(headerMenuOpeningTimer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); clearTimeout(osdPlayState.timer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); oscars.resetOscarsSession(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
+    document.documentElement?.removeAttribute?.('data-fx-oscars');
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
@@ -5692,7 +5716,7 @@ window.FazFortDiscovery = {
     document.removeEventListener('dblclick', onOsdDblClick, true);
     document.removeEventListener('contextmenu', onOsdContextMenu, true);
     document.removeEventListener('keydown', onOsdKeyDown, true);
-    document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', scheduleScroll);
+    document.removeEventListener('click',navSuggestions,true);window.removeEventListener('hashchange', onRouteEvent); window.removeEventListener('popstate', onRouteEvent); document.removeEventListener('viewshow', onRouteEvent); document.removeEventListener('scroll', scheduleScroll, true); window.removeEventListener('resize', onWindowResize);
     document.removeEventListener('touchstart', onOsdTouchStart, true);
     document.removeEventListener('touchmove', onOsdTouchMove, true);
     window.removeEventListener('touchmove', onOsdTouchMove, true);
@@ -5700,9 +5724,9 @@ window.FazFortDiscovery = {
     document.removeEventListener('touchcancel', onOsdTouchEnd, true);
     window.removeEventListener('scroll', onOsdScrollGuard);
     window.removeEventListener('blur', releaseOsdSpeedHold);
-    window.removeEventListener('sleekfin:header-catalog-changed', hideLeavingSoonNav);
+    window.removeEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast').forEach(n=>n.remove());
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast').forEach(n=>n.remove());
     document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };

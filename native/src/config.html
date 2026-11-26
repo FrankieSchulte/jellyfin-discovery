@@ -173,6 +173,8 @@
     </div>
    </div>
 
+   <div id="ffOscarsAdmin"></div>
+
    <div id="ffInlineStudio"></div>
 
    <form id="FazFortShelvesForm" class="ff-cfg-card">
@@ -227,9 +229,13 @@
    var pluginId='da85d59b-cd29-4f4a-9b72-820a298cdb9d', page=document.querySelector('#FazFortShelvesPage'), config;
    var el=function(id){return page.querySelector('#'+id);};
    function ensureStudioMounted(){
-    var host=el('ffInlineStudio');
+    var host=el('ffInlineStudio'), oscarsHost=el('ffOscarsAdmin');
+    var mountBoth=function(){
+     if(window.FazFortDiscovery&&window.FazFortDiscovery.mountSettings)window.FazFortDiscovery.mountSettings(host);
+     if(oscarsHost&&window.FazFortDiscovery&&window.FazFortDiscovery.mountOscarsSettings)window.FazFortDiscovery.mountOscarsSettings(oscarsHost);
+    };
     if(window.FazFortDiscovery&&window.FazFortDiscovery.mountSettings){
-     window.FazFortDiscovery.mountSettings(host);
+     mountBoth();
      return;
     }
     if(!document.querySelector('script[data-fazfort-discovery]')){
@@ -237,10 +243,10 @@
      s.defer=true;
      s.src='../FazFortDiscovery/Assets/discovery.js';
      s.setAttribute('data-fazfort-discovery','browser');
-     s.onload=function(){if(window.FazFortDiscovery&&window.FazFortDiscovery.mountSettings)window.FazFortDiscovery.mountSettings(host);};
+     s.onload=mountBoth;
      document.head.appendChild(s);
     }else{
-     setTimeout(function(){if(window.FazFortDiscovery&&window.FazFortDiscovery.mountSettings)window.FazFortDiscovery.mountSettings(host);},250);
+     setTimeout(mountBoth,250);
     }
    }
    el('ffOpenModalStudio').onclick=function(){

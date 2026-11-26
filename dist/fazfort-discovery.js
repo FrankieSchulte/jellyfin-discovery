@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.8 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.0 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -8971,6 +8971,790 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     animation:none!important;
   }
 }
+
+/* 15. Oscars Season Subpage \u2014 Dark Champagne/Obsidian, Gold & White Theme, Header Tab, Pure Logo Hero & Admin Studio */
+.fx-oscar-nav-icon{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 18px!important;
+  line-height:1!important;
+  color:#e5c158!important;
+}
+.fx-oscar-nav-icon svg{
+  width:18px!important;
+  height:18px!important;
+  display:block!important;
+}
+[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-visual="true"]{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  line-height:1!important;
+}
+[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-label="true"]{
+  display:inline-block!important;
+  line-height:1!important;
+}
+a.fx-oscars-nav{
+  color:#f5ebd0;
+  text-decoration:none;
+  padding:8px 14px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+}
+a.fx-oscars-nav[aria-current="page"]{
+  background:rgba(212,175,55,.2);
+  border:1px solid rgba(243,220,143,.45);
+  color:#fff;
+}
+html[data-fx-oscars="true"]{
+  --sleekfin-accent:#d4af37!important;
+  --fx-oscar-bg:#0b0906;
+  --fx-oscar-surface:#16130e;
+  --fx-oscar-gold:#d4af37;
+  --fx-oscar-gold-bright:#f3dc8f;
+  --fx-oscar-gold-deep:#9a761f;
+  --fx-oscar-white:#faf8f4;
+  --fx-oscar-muted:rgba(245,236,214,.72);
+  --fx-bg-base:#0b0906;
+  --fx-bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='290' height='290' viewBox='0 0 290 290'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='290' height='290' filter='url(%23n)' opacity='0.11'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 52% 32% at 20% 24%,rgba(196,158,54,.24) 0%,rgba(148,114,34,.11) 46%,rgba(96,74,22,.03) 76%,transparent 100%),
+    radial-gradient(ellipse 40% 28% at 78% 68%,rgba(232,199,106,.16) 0%,rgba(154,118,31,.07) 48%,transparent 100%),
+    radial-gradient(ellipse 48% 30% at 82% 28%,rgba(74,60,30,.38) 0%,rgba(52,42,22,.16) 52%,transparent 100%),
+    radial-gradient(ellipse 56% 28% at 38% 74%,rgba(68,55,28,.34) 0%,rgba(44,36,18,.14) 52%,transparent 100%),
+    radial-gradient(ellipse 54% 36% at 50% 48%,rgba(110,88,36,.18) 0%,rgba(44,36,18,.08) 56%,transparent 100%);
+  background-color:#0b0906!important;
+  background-image:var(--fx-bg-image)!important;
+  background-repeat:var(--fx-bg-repeat,repeat,repeat-y,repeat-y,repeat-y,repeat-y,repeat-y)!important;
+  background-size:var(--fx-bg-size,290px 290px,100% 1380px,100% 1380px,100% 1820px,100% 1820px,100% 2340px)!important;
+  background-position:0 0!important;
+  background-attachment:scroll!important;
+  background-blend-mode:var(--fx-bg-blend,overlay,normal,normal,normal,normal,normal)!important;
+}
+html[data-fx-oscars="true"] ::selection{
+  background:rgba(212,175,55,.34);
+  color:#fff;
+}
+html[data-fx-oscars="true"] body,
+html[data-fx-oscars="true"] .backgroundContainer,
+html[data-fx-oscars="true"] .mainAnimatedPages,
+html[data-fx-oscars="true"] #indexPage,
+html[data-fx-oscars="true"] .homePage{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  padding-top:0!important;
+  margin-top:0!important;
+}
+html[data-fx-oscars="true"] #indexPage [data-fx-oscars-hidden="true"],
+html[data-fx-oscars="true"] #indexPage :is(.sleekfin-hero,.hero,#slides-container,.homeSectionsContainer){
+  display:none!important;
+}
+html[data-fx-oscars="true"] [data-sleekfin-header-proxy]{
+  border-color:rgba(243,220,143,.22)!important;
+}
+html[data-fx-oscars="true"] [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"][data-sleekfin-current="true"],
+html[data-fx-oscars="true"] [data-sleekfin-header-overflow-drawer] button[data-fx-oscars-link="true"][data-sleekfin-current="true"]{
+  background:linear-gradient(180deg,rgba(243,220,143,.26) 0%,rgba(212,175,55,.14) 100%)!important;
+  border-color:rgba(243,220,143,.46)!important;
+  color:#faf8f4!important;
+  box-shadow:inset 0 1px rgba(255,244,196,.26)!important;
+}
+html[data-fx-oscars="true"] .rh-dialog{
+  border-color:rgba(243,220,143,.26)!important;
+}
+html[data-fx-oscars="true"] .rh-eyebrow{
+  color:#f3dc8f!important;
+}
+html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
+  background:linear-gradient(180deg,#f3dc8f 0%,#c79b2b 100%)!important;
+  border-color:#f3dc8f!important;
+  color:#110e07!important;
+}
+.fx-oscars-page{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+  padding:0 var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 88px;
+  box-sizing:border-box;
+  color:var(--fx-oscar-white,#faf8f4);
+  font-family:var(--fx-font-family,var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif));
+}
+.fx-oscars-hero{
+  position:relative;
+  width:calc(100% + 2 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)));
+  margin:0 calc(-1 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px))) 28px;
+  height:clamp(340px,54vh,540px);
+  min-height:320px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  isolation:isolate;
+}
+.fx-oscars-hero-media{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,rgba(0,0,0,.62) 78%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 58%,rgba(0,0,0,.62) 78%,transparent 100%);
+}
+.fx-oscars-hero-bg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 38%;
+  display:block;
+  filter:brightness(.92) contrast(1.04);
+}
+.fx-oscars-hero-media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 64% 68% at 50% 52%,rgba(10,9,7,.12) 0%,rgba(10,9,7,.62) 100%),
+    linear-gradient(180deg,rgba(10,9,7,.46) 0%,rgba(10,9,7,.08) 38%,rgba(10,9,7,.52) 100%);
+  pointer-events:none;
+}
+.fx-oscars-hero-logo-wrap{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:46px 24px 12px;
+  max-width:min(86vw,560px);
+  pointer-events:none;
+}
+.fx-oscars-hero-logo-svg{
+  width:min(80vw,490px);
+  height:auto;
+  display:block;
+  filter:drop-shadow(0 12px 32px rgba(0,0,0,.78));
+}
+.fx-oscars-hero-logo-img{
+  max-width:min(80vw,460px);
+  max-height:clamp(110px,22vh,210px);
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  filter:drop-shadow(0 12px 32px rgba(0,0,0,.78));
+}
+.fx-oscars-shelves{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+.fx-oscars-shelf{
+  min-width:0;
+}
+.fx-oscars-row-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.fx-oscars-heading-btn{
+  appearance:none;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+  margin:0 auto 0 0!important;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  color:var(--fx-oscar-white,#faf8f4);
+  text-align:left;
+  min-width:0;
+}
+.fx-oscar-award-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:30px;
+  flex:0 0 22px;
+  filter:drop-shadow(0 2px 6px rgba(212,175,55,.32));
+}
+.fx-oscar-award-icon svg{
+  width:22px;
+  height:30px;
+  display:block;
+}
+.fx-oscars-row-head h2{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  font-family:var(--fx-font-family,Inter,"Noto Sans",sans-serif)!important;
+  font-size:21px!important;
+  line-height:1.25!important;
+  font-weight:600!important;
+  letter-spacing:-.015em!important;
+  color:var(--fx-oscar-white,#faf8f4)!important;
+  transition:color .16s ease;
+}
+.fx-oscars-heading-btn:hover h2{
+  color:var(--fx-oscar-gold-bright,#f3dc8f)!important;
+}
+.fx-oscars-row-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.fx-oscars-arrow{
+  appearance:none;
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid rgba(243,220,143,.16);
+  background:linear-gradient(180deg,rgba(255,248,224,.07) 0%,rgba(255,248,224,.015) 100%),rgba(22,19,14,.84);
+  box-shadow:inset 0 1px rgba(255,244,196,.12),0 6px 14px -6px rgba(0,0,0,.55);
+  color:#f5ebd0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .14s ease;
+}
+.fx-oscars-arrow:hover{
+  background:linear-gradient(180deg,rgba(243,220,143,.18) 0%,rgba(212,175,55,.08) 100%),rgba(34,29,20,.92);
+  border-color:rgba(243,220,143,.42);
+  color:#fff;
+}
+.fx-oscars-arrow:active{
+  transform:scale(.94);
+}
+.fx-oscars-track-wrap{
+  position:relative;
+  --fx-oscar-fade:clamp(22px,3.2vw,54px);
+  margin-inline:calc(-1 * var(--sleekfin-page-gutter,clamp(16px,4vw,80px)));
+}
+.fx-oscars-track{
+  display:flex;
+  gap:14px;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:4px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 14px;
+  scroll-padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
+  box-sizing:border-box;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+  touch-action:pan-x pan-y;
+}
+.fx-oscars-track::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.fx-oscars-track-wrap[data-fx-scroll-start="true"][data-fx-scroll-end="false"] .fx-oscars-track{
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-oscar-fade)),transparent 100%);
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - var(--fx-oscar-fade)),transparent 100%);
+}
+.fx-oscars-track-wrap[data-fx-scroll-start="false"][data-fx-scroll-end="false"] .fx-oscars-track{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-oscar-fade),#000 calc(100% - var(--fx-oscar-fade)),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-oscar-fade),#000 calc(100% - var(--fx-oscar-fade)),transparent 100%);
+}
+.fx-oscars-track-wrap[data-fx-scroll-start="false"][data-fx-scroll-end="true"] .fx-oscars-track{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-oscar-fade),#000 100%);
+  mask-image:linear-gradient(to right,transparent 0,#000 var(--fx-oscar-fade),#000 100%);
+}
+.fx-oscar-card{
+  appearance:none;
+  border:0!important;
+  padding:0!important;
+  background:transparent!important;
+  flex:0 0 clamp(136px,13.6vw,196px);
+  width:clamp(136px,13.6vw,196px);
+  max-width:clamp(136px,13.6vw,196px);
+  text-align:left;
+  cursor:pointer;
+  color:inherit;
+  font:inherit;
+  min-width:0;
+  outline:none;
+}
+.fx-oscar-poster{
+  position:relative;
+  aspect-ratio:2/3;
+  width:100%;
+  border-radius:11px;
+  overflow:hidden;
+  background:linear-gradient(155deg,#1d1911 0%,#0f0d09 100%);
+  border:1px solid rgba(243,220,143,.14);
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.78);
+  transition:transform .24s cubic-bezier(.22,1,.36,1),border-color .2s ease,box-shadow .24s ease,filter .22s ease;
+}
+.fx-oscar-card:hover .fx-oscar-poster{
+  transform:translateY(-3px) scale(1.02);
+  border-color:rgba(243,220,143,.62);
+  box-shadow:0 18px 34px -10px rgba(0,0,0,.85),0 0 0 1px rgba(212,175,55,.28);
+}
+.fx-oscar-poster img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:filter .22s ease,opacity .2s ease;
+}
+.fx-oscar-card.is-missing .fx-oscar-poster img{
+  filter:saturate(.48) brightness(.72);
+}
+.fx-oscar-card.is-missing:hover .fx-oscar-poster img{
+  filter:saturate(.92) brightness(.96);
+}
+.fx-oscar-fallback{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:16px;
+  text-align:center;
+  background:radial-gradient(circle at 50% 34%,rgba(212,175,55,.16) 0%,rgba(16,14,10,.96) 76%);
+}
+.fx-oscar-fallback-icon{
+  width:28px;
+  height:40px;
+  opacity:.82;
+}
+.fx-oscar-fallback-title{
+  font-size:13px;
+  font-weight:600;
+  color:#f5ebd0;
+  line-height:1.3;
+}
+.fx-oscar-badge{
+  position:absolute;
+  top:8px;
+  left:8px;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.02em;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 4px 12px rgba(0,0,0,.55);
+}
+.fx-oscar-badge-request{
+  background:linear-gradient(180deg,rgba(243,220,143,.22) 0%,rgba(154,118,31,.24) 100%),rgba(18,15,10,.88);
+  border:1px solid rgba(243,220,143,.52);
+  color:#fdf6dc;
+}
+.fx-oscar-badge-requested{
+  background:rgba(120,85,18,.92);
+  border:1px solid rgba(243,220,143,.58);
+  color:#fef9e7;
+}
+.fx-oscar-watched{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:2;
+  width:24px;
+  height:24px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#f3dc8f 0%,#c79c2e 100%);
+  color:#110e07;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.55);
+}
+.fx-oscar-watched svg{
+  width:14px;
+  height:14px;
+  display:block;
+}
+.fx-oscar-meta{
+  padding:8px 2px 0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.fx-oscar-title{
+  font-size:14px;
+  font-weight:500;
+  line-height:1.35;
+  color:var(--fx-oscar-white,#faf8f4);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:color .16s ease;
+}
+.fx-oscar-card:hover .fx-oscar-title{
+  color:var(--fx-oscar-gold-bright,#f3dc8f);
+}
+.fx-oscar-note{
+  font-size:12px;
+  line-height:1.3;
+  color:var(--fx-oscar-muted,rgba(245,236,214,.7));
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.fx-oscars-subgrid-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:calc(var(--sleekfin-header-height,72px) + 22px) 0 22px;
+}
+.fx-oscars-back-btn{
+  appearance:none;
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  border:1px solid rgba(243,220,143,.22);
+  background:linear-gradient(180deg,rgba(255,248,224,.08) 0%,rgba(255,248,224,.02) 100%),rgba(22,19,14,.88);
+  box-shadow:inset 0 1px rgba(255,244,196,.12),0 6px 14px -6px rgba(0,0,0,.55);
+  color:#faf8f4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.fx-oscars-back-btn:hover{
+  border-color:rgba(243,220,143,.52);
+  color:#f3dc8f;
+}
+.fx-oscars-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(136px,13.6vw,196px),1fr));
+  gap:22px 16px;
+}
+.fx-oscars-grid .fx-oscar-card{
+  width:100%;
+  max-width:none;
+  flex:none;
+}
+.fx-oscars-empty{
+  margin:24px auto;
+  max-width:520px;
+  text-align:center;
+  padding:32px 24px;
+  border-radius:16px;
+  background:rgba(255,248,224,.03);
+  border:1px solid rgba(243,220,143,.16);
+  color:var(--fx-oscar-muted,rgba(245,236,214,.74));
+  line-height:1.55;
+}
+.fx-oscars-empty h3{
+  margin:12px 0 6px;
+  color:#faf8f4;
+  font-size:1.15rem;
+}
+html.layout-tv .fx-oscar-card:focus-visible .fx-oscar-poster,
+html.layout-tv .fx-oscars-arrow:focus-visible,
+html.layout-tv .fx-oscars-heading-btn:focus-visible{
+  outline:3px solid #f3dc8f;
+  outline-offset:3px;
+}
+@media(max-width:599px),((max-width:768px) and (hover:none) and (pointer:coarse)){
+  .fx-oscars-page{
+    padding:0 14px calc(100px + env(safe-area-inset-bottom,0px));
+  }
+  .fx-oscars-hero{
+    width:calc(100% + 28px);
+    margin:0 -14px 20px;
+    height:clamp(250px,40vh,360px);
+    min-height:240px;
+  }
+  .fx-oscars-track-wrap{
+    margin-inline:-14px;
+    --fx-oscar-fade:clamp(16px,5vw,32px);
+  }
+  .fx-oscars-track{
+    padding:4px 14px 12px;
+    scroll-padding-inline:14px;
+    gap:10px;
+  }
+  .fx-oscars-row-head h2{
+    font-size:18px!important;
+  }
+  .fx-oscar-card{
+    flex:0 0 clamp(102px,29vw,142px);
+    width:clamp(102px,29vw,142px);
+    max-width:clamp(102px,29vw,142px);
+  }
+  .fx-oscars-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px 10px;
+  }
+}
+
+/* Oscars Admin Settings Card inside Dashboard -> Plugins -> Jellyfin Discovery */
+.fx-oscar-admin{
+  background:linear-gradient(155deg,rgba(212,175,55,.08) 0%,rgba(22,23,30,.98) 46%,#16171e 100%);
+  border:1px solid rgba(212,175,55,.26);
+  border-radius:16px;
+  padding:22px 24px;
+  margin-bottom:20px;
+  color:#f5f3ec;
+  box-shadow:0 14px 32px rgba(0,0,0,.35);
+}
+.fx-oscar-admin-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.fx-oscar-admin-title{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin:0;
+  font-size:1.2rem;
+  font-weight:700;
+  color:#faf8f4;
+}
+.fx-oscar-admin-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:600;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.78);
+}
+.fx-oscar-admin-pill.is-live{
+  background:rgba(212,175,55,.2);
+  border-color:rgba(243,220,143,.52);
+  color:#fdf6dc;
+}
+.fx-oscar-admin-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));
+  gap:12px;
+  margin:14px 0 18px;
+}
+.fx-oscar-admin-field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-size:.82rem;
+  font-weight:600;
+  color:rgba(250,248,244,.82);
+}
+.fx-oscar-admin-field input{
+  box-sizing:border-box;
+  width:100%;
+  padding:9px 11px;
+  border-radius:10px;
+  background:#0d0e13;
+  border:1px solid rgba(243,220,143,.2);
+  color:#fff;
+  font:inherit;
+}
+.fx-oscar-admin-field input:focus{
+  outline:none;
+  border-color:#d4af37;
+}
+.fx-oscar-admin-assets{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));
+  gap:14px;
+  margin:0 0 18px;
+}
+.fx-oscar-asset-box{
+  padding:14px;
+  border-radius:12px;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(243,220,143,.14);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.fx-oscar-asset-preview{
+  width:100%;
+  height:110px;
+  border-radius:8px;
+  overflow:hidden;
+  background:#0a0907;
+  border:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.fx-oscar-asset-preview img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:cover;
+  display:block;
+}
+.fx-oscar-asset-preview.is-logo img,
+.fx-oscar-asset-preview.is-logo svg{
+  object-fit:contain;
+  max-width:86%;
+  max-height:78%;
+}
+.fx-oscar-admin-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:12px 0;
+}
+.fx-oscar-btn{
+  appearance:none;
+  font:inherit;
+  font-size:.84rem;
+  font-weight:600;
+  padding:8px 14px;
+  min-height:36px;
+  border-radius:999px;
+  border:1px solid rgba(243,220,143,.22);
+  background:linear-gradient(180deg,rgba(255,248,224,.07) 0%,rgba(255,248,224,.015) 100%),rgba(22,21,18,.86);
+  color:#faf8f4;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.fx-oscar-btn:hover:not(:disabled){
+  border-color:rgba(243,220,143,.48);
+  background:rgba(212,175,55,.16);
+}
+.fx-oscar-btn-gold{
+  background:linear-gradient(180deg,#f3dc8f 0%,#c79b2b 100%);
+  border-color:#f3dc8f;
+  color:#110e07;
+  font-weight:700;
+}
+.fx-oscar-btn-gold:hover:not(:disabled){
+  background:linear-gradient(180deg,#faebb0 0%,#d4af37 100%);
+  color:#0a0907;
+}
+.fx-oscar-btn-xs{
+  min-height:30px;
+  padding:4px 10px;
+  font-size:.76rem;
+}
+.fx-oscar-cat-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:12px;
+}
+.fx-oscar-cat-item{
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(12,12,15,.72);
+  overflow:hidden;
+}
+.fx-oscar-cat-summary{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px;
+  cursor:pointer;
+  user-select:none;
+}
+.fx-oscar-cat-summary:hover{
+  background:rgba(212,175,55,.06);
+}
+.fx-oscar-cat-name{
+  font-weight:600;
+  color:#faf8f4;
+  margin-right:auto;
+}
+.fx-oscar-cat-count{
+  font-size:.78rem;
+  color:#f3dc8f;
+  padding:2px 9px;
+  border-radius:999px;
+  background:rgba(212,175,55,.14);
+  border:1px solid rgba(212,175,55,.28);
+}
+.fx-oscar-cat-body{
+  padding:12px 14px 14px;
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.fx-oscar-nom-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+}
+.fx-oscar-nom-title{
+  font-weight:600;
+  color:#fff;
+  min-width:140px;
+}
+.fx-oscar-nom-note{
+  flex:1 1 160px;
+  min-width:120px;
+  padding:6px 9px;
+  border-radius:8px;
+  background:#0d0e13;
+  border:1px solid rgba(255,255,255,.12);
+  color:#f5ebd0;
+  font:inherit;
+  font-size:.82rem;
+}
+.fx-oscar-search-results{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:6px;
+}
+.fx-oscar-search-hit{
+  appearance:none;
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid rgba(243,220,143,.24);
+  background:rgba(212,175,55,.09);
+  color:#faf8f4;
+  font:inherit;
+  font-size:.78rem;
+  cursor:pointer;
+}
+.fx-oscar-search-hit:hover{
+  background:rgba(212,175,55,.22);
+  border-color:#f3dc8f;
+}
+.fx-oscar-admin-status{
+  margin:10px 0 0;
+  font-size:.86rem;
+  font-weight:600;
+  color:#f3dc8f;
+}
+.fx-oscar-admin-status:empty{
+  display:none;
+}
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLowerCase();
     const intersects = (wanted, actual) => !(wanted == null ? void 0 : wanted.length) || wanted.some((x) => (actual || []).some((y) => normalize(x) === normalize(y)));
@@ -9345,12 +10129,52 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         return { ...shelf, allItems: orderedAll, items: selected, ordinal: this.index };
       }
     }
+    function isOscarsHash(hashValue) {
+      const value = String(hashValue || "").replace(/^#!?\/?/, "").replace(/^\//, "");
+      const [path, query = ""] = value.split("?");
+      const name = path.replace(/\.html$/, "").toLowerCase();
+      const p = new URLSearchParams(query);
+      return ["home", ""].includes(name) && ["1", "true"].includes(String(p.get("fxOscars") || "").toLowerCase());
+    }
+    function normalizeOscarTitle(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, " and ").replace(/['’`]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    }
+    function matchOscarNominee(nominee, movieItems) {
+      if (!nominee || !Array.isArray(movieItems) || !movieItems.length) return null;
+      const targetTmdb = Number(nominee.tmdbId || 0);
+      if (targetTmdb > 0) {
+        const byTmdb = movieItems.find((m) => {
+          var _a, _b;
+          return m && m.Type === "Movie" && Number(((_a = m.ProviderIds) == null ? void 0 : _a.Tmdb) || ((_b = m.ProviderIds) == null ? void 0 : _b.tmdb) || 0) === targetTmdb;
+        });
+        if (byTmdb) return byTmdb;
+      }
+      const want = normalizeOscarTitle(nominee.title);
+      if (!want) return null;
+      const wantYear = Number(nominee.year || 0);
+      const candidates = movieItems.filter((m) => {
+        if (!m || m.Type !== "Movie") return false;
+        return normalizeOscarTitle(m.Name) === want || m.OriginalTitle && normalizeOscarTitle(m.OriginalTitle) === want;
+      });
+      if (!candidates.length) return null;
+      if (wantYear > 0) {
+        const exactYear = candidates.find((m) => Number(m.ProductionYear || 0) === wantYear);
+        if (exactYear) return exactYear;
+        const nearYear = candidates.find((m) => {
+          const y = Number(m.ProductionYear || 0);
+          return y > 0 && Math.abs(y - wantYear) <= 1;
+        });
+        if (nearYear) return nearYear;
+        return null;
+      }
+      return candidates[0];
+    }
     function routeInfo(hashValue) {
       var _a;
       const value = String(hashValue || "").replace(/^#!?\/?/, "").replace(/^\//, "");
       const [path, query = ""] = value.split("?");
       const p = new URLSearchParams(query), name = path.replace(/\.html$/, "").toLowerCase();
-      if ([...p.keys()].some((k) => ["seerrfintab", "requesthub"].includes(k.toLowerCase()))) return null;
+      if ([...p.keys()].some((k) => ["seerrfintab", "requesthub", "fxoscars"].includes(k.toLowerCase()))) return null;
       const collection = (_a = p.get("collectionType")) == null ? void 0 : _a.toLowerCase();
       const page = ["home", ""].includes(name) ? "home" : name === "movies" ? "movies" : ["tv", "tvshows"].includes(name) ? "shows" : name === "list" && ["movies", "tvshows"].includes(collection) ? collection === "movies" ? "movies" : "shows" : null;
       const tab = p.get("tab");
@@ -10817,9 +11641,1050 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
       };
     }
+    const OSCAR_STATUETTE_SVG = '<svg viewBox="0 0 24 36" width="22" height="30" fill="none" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5.4" rx="2.35" ry="2.8" fill="#e6c155"/><path d="M10.9 3.4c-.7.5-1.1 1.4-1 2.4.1.9.6 1.6 1.2 1.9-.3-.7-.4-1.6-.2-2.6.1-.7.3-1.3.7-1.7h-.7Z" fill="#fff2ba" opacity=".85"/><path d="M10.7 8.4h2.6l3 1.45c.78.38 1.22 1.15 1.1 2l-.55 4.3c-.1.7-.54 1.28-1.18 1.54l-.92.37-.48 9.94h1.35v1.8h-7.24v-1.8h1.35l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l3-1.45Z" fill="#dfb645"/><path d="M10.7 8.4h1.35v19.6h-1.8l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l2.48-1.45Z" fill="#f7e297" opacity=".55"/><path d="M9.6 12.6l2.4 1.35 2.4-1.35" stroke="#8f6816" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/><rect x="6.6" y="30" width="10.8" height="2" rx=".65" fill="#c49526"/><rect x="5" y="32.4" width="14" height="2.6" rx=".8" fill="#9a7219"/><rect x="5.4" y="32.4" width="13.2" height=".9" rx=".4" fill="#f3dc8f" opacity=".65"/></svg>';
+    const OSCAR_NAV_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" focusable="false"><ellipse cx="12" cy="4.2" rx="1.65" ry="1.95" fill="currentColor"/><path d="M11.1 6.3h1.8l2.1 1c.52.26.82.78.74 1.36l-.38 2.95c-.07.48-.38.88-.82 1.05l-.62.25-.34 6.59h.96v1.25H9.46V19.5h.96l-.34-6.59-.62-.25c-.44-.17-.75-.57-.82-1.05l-.38-2.95c-.08-.58.22-1.1.74-1.36l2.1-1Z" fill="currentColor"/><rect x="7.8" y="20.9" width="8.4" height="1.8" rx=".6" fill="currentColor" opacity=".88"/></svg>';
+    const OSCAR_HERO_LOGO_SVG = '<svg class="fx-oscars-hero-logo-svg" viewBox="0 0 540 176" width="540" height="176" fill="none" role="img" aria-label="The Oscars"><g transform="translate(251, 8) scale(1.62)"><ellipse cx="12" cy="5.4" rx="2.35" ry="2.8" fill="#e8c45a"/><path d="M10.9 3.4c-.7.5-1.1 1.4-1 2.4.1.9.6 1.6 1.2 1.9-.3-.7-.4-1.6-.2-2.6.1-.7.3-1.3.7-1.7h-.7Z" fill="#fff5cc" opacity=".9"/><path d="M10.7 8.4h2.6l3 1.45c.78.38 1.22 1.15 1.1 2l-.55 4.3c-.1.7-.54 1.28-1.18 1.54l-.92.37-.48 9.94h1.35v1.8h-7.24v-1.8h1.35l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l3-1.45Z" fill="#dfb645"/><path d="M10.7 8.4h1.35v19.6h-1.8l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l2.48-1.45Z" fill="#fae79e" opacity=".6"/><rect x="6.6" y="30" width="10.8" height="2" rx=".65" fill="#c79928"/><rect x="5" y="32.4" width="14" height="2.6" rx=".8" fill="#9a7219"/></g><line x1="74" y1="86" x2="214" y2="86" stroke="#d4af37" stroke-width="1" opacity=".62"/><line x1="326" y1="86" x2="466" y2="86" stroke="#d4af37" stroke-width="1" opacity=".62"/><text x="270" y="92" text-anchor="middle" fill="#f3dc8f" font-family="Georgia, Times New Roman, serif" font-size="14" font-weight="600" letter-spacing="7">THE</text><text x="270" y="150" text-anchor="middle" fill="#faf8f4" font-family="Georgia, Times New Roman, serif" font-size="60" font-weight="400" letter-spacing="14">OSCARS</text><line x1="170" y1="166" x2="370" y2="166" stroke="#d4af37" stroke-width="1.2" opacity=".55"/></svg>';
+    const OSCAR_CHECK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+    const OSCAR_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>';
+    function createOscarsRuntime({
+      version,
+      isStopped,
+      hasActiveState,
+      cleanup,
+      element,
+      scopeKey,
+      scrollToTop,
+      showToast,
+      findCachedInventory
+    }) {
+      const button = (text, action, cls = "") => {
+        const b = element("button", cls, text);
+        b.type = "button";
+        b.addEventListener("click", action);
+        return b;
+      };
+      function oscarsAssetUrl(api, path, params) {
+        if (typeof (api == null ? void 0 : api.getUrl) === "function") {
+          const out = api.getUrl(path, params);
+          if (typeof out === "string" && out) return out;
+        }
+        const qs = params ? new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== "")).toString() : "";
+        return `../${path}${qs ? `?${qs}` : ""}`;
+      }
+      const oscarsState = {
+        scope: "",
+        data: null,
+        fetchedAt: 0,
+        pending: null,
+        root: null,
+        hidden: [],
+        subCategoryKey: "",
+        renderGen: 0,
+        tmdbCache: /* @__PURE__ */ new Map(),
+        tmdbInflight: /* @__PURE__ */ new Map()
+      };
+      function resetOscarsSession() {
+        unmountOscarsPage();
+        removeOscarsNav();
+        oscarsState.scope = "";
+        oscarsState.data = null;
+        oscarsState.fetchedAt = 0;
+        oscarsState.pending = null;
+        oscarsState.subCategoryKey = "";
+        oscarsState.tmdbCache.clear();
+        oscarsState.tmdbInflight.clear();
+      }
+      function removeOscarsNav() {
+        document.querySelectorAll("[data-fx-oscars-link]").forEach((n) => n.remove());
+      }
+      function fetchOscarsConfig(api = window.ApiClient, force = false) {
+        var _a;
+        if (!((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api)) || typeof api.getJSON !== "function" || typeof api.getUrl !== "function") {
+          return Promise.resolve(null);
+        }
+        const own = scopeKey(api);
+        if (oscarsState.scope && oscarsState.scope !== own) {
+          resetOscarsSession();
+        }
+        oscarsState.scope = own;
+        if (!force && oscarsState.data && Date.now() - oscarsState.fetchedAt < 6e4) {
+          return Promise.resolve(oscarsState.data);
+        }
+        if (!force && oscarsState.pending) return oscarsState.pending;
+        const req = Promise.resolve(api.getJSON(api.getUrl("FazFortDiscovery/Oscars"))).then((res) => {
+          if (oscarsState.scope !== own) return null;
+          oscarsState.pending = null;
+          oscarsState.data = res && typeof res === "object" ? res : { active: false, enabled: false, categories: [] };
+          oscarsState.fetchedAt = Date.now();
+          ensureOscarsNav(api);
+          if (isOscarsHash(location.hash)) syncOscarsPage(api);
+          return oscarsState.data;
+        }).catch(() => {
+          if (oscarsState.scope === own) {
+            oscarsState.pending = null;
+            if (!oscarsState.data) {
+              oscarsState.data = { active: false, enabled: false, categories: [] };
+              oscarsState.fetchedAt = Date.now();
+            }
+          }
+          return oscarsState.data;
+        });
+        oscarsState.pending = req;
+        return req;
+      }
+      function closeSleekfinDrawerIfOpen() {
+        var _a;
+        const drawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
+        if (drawer && !drawer.hidden) {
+          const toggle = document.querySelector("[data-sleekfin-header-overflow-toggle]");
+          (_a = toggle == null ? void 0 : toggle.click) == null ? void 0 : _a.call(toggle);
+        }
+      }
+      function openOscarsRoute(ev) {
+        var _a, _b;
+        (_a = ev == null ? void 0 : ev.preventDefault) == null ? void 0 : _a.call(ev);
+        (_b = ev == null ? void 0 : ev.stopPropagation) == null ? void 0 : _b.call(ev);
+        closeSleekfinDrawerIfOpen();
+        oscarsState.subCategoryKey = "";
+        if (isOscarsHash(location.hash)) {
+          syncOscarsPage(window.ApiClient);
+        } else {
+          location.hash = "#/home?fxOscars=1";
+        }
+      }
+      function createOscarNavIconSpan() {
+        const icon = element("span", "fx-oscar-nav-icon");
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = OSCAR_NAV_ICON_SVG;
+        return icon;
+      }
+      function syncOscarsHeaderCurrent(active) {
+        document.querySelectorAll('[data-fx-oscars-link="true"]').forEach((link) => {
+          if (active) {
+            link.setAttribute("aria-current", "page");
+            link.dataset.sleekfinCurrent = "true";
+          } else {
+            link.removeAttribute("aria-current");
+            delete link.dataset.sleekfinCurrent;
+          }
+        });
+        if (active) {
+          document.querySelectorAll('[data-sleekfin-header-proxy] [data-sleekfin-current="true"], [data-sleekfin-header-overflow-drawer] [data-sleekfin-current="true"]').forEach((btn) => {
+            if (btn.dataset.fxOscarsLink !== "true") {
+              delete btn.dataset.sleekfinCurrent;
+              btn.removeAttribute("aria-current");
+            }
+          });
+        }
+      }
+      function ensureOscarsNav(api = window.ApiClient) {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        if (isStopped() || !((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api))) {
+          removeOscarsNav();
+          return;
+        }
+        const data = oscarsState.data;
+        if (!(data == null ? void 0 : data.active)) {
+          removeOscarsNav();
+          return;
+        }
+        const labelText = (data.navTitle || "Oscars").trim() || "Oscars";
+        const activeRoute = isOscarsHash(location.hash);
+        const proxy = document.querySelector("[data-sleekfin-header-proxy]");
+        const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
+        const overflowActive = Boolean(overflowDrawer || document.querySelector("[data-sleekfin-header-overflow-toggle]"));
+        const isPhone = Boolean((_c = (_b = window.matchMedia) == null ? void 0 : _b.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _c.matches);
+        const isMobile = Boolean(isPhone || overflowActive && ((_e = (_d = window.matchMedia) == null ? void 0 : _d.call(window, "(max-width: 899px)")) == null ? void 0 : _e.matches));
+        const findInsertAnchor = (host, selector) => {
+          const siblings = [...host.querySelectorAll(selector)];
+          return siblings.find((b) => {
+            const k = (b.getAttribute("data-sleekfin-header-proxy-item") || b.getAttribute("data-sleekfin-header-overflow-item") || "").toLowerCase();
+            const txt = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+            return k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
+          }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle],[data-fx-overflow-settings],[data-sleekfin-header-overflow-item="jellyfin:search"],[data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+        };
+        if (proxy) {
+          document.querySelectorAll("[data-fx-oscars-link]").forEach((n) => {
+            if (!proxy.contains(n) && !(overflowDrawer && overflowDrawer.contains(n))) n.remove();
+          });
+          if (isMobile) {
+            proxy.querySelectorAll("[data-fx-oscars-link]").forEach((n) => n.remove());
+            if (overflowDrawer) {
+              const existingItems = [...overflowDrawer.querySelectorAll("button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]")];
+              let btn = overflowDrawer.querySelector('[data-fx-oscars-link="true"]');
+              if (!btn && existingItems.length) {
+                const listHost = existingItems[0].parentElement;
+                if (listHost) {
+                  const sample = existingItems.find((b) => (b.getAttribute("data-sleekfin-header-overflow-item") || "") !== "jellyfin:user-menu") || existingItems[0];
+                  btn = element("button", (sample == null ? void 0 : sample.className) || "fx-oscars-nav");
+                  btn.type = "button";
+                  btn.dataset.fxOscarsLink = "true";
+                  btn.setAttribute("data-sleekfin-header-overflow-item", "fazfort:oscars");
+                  btn.setAttribute("data-sleekfin-header-overflow-full", "true");
+                  btn.onclick = openOscarsRoute;
+                  const vis = element("span");
+                  vis.dataset.sleekfinHeaderOverflowVisual = "true";
+                  vis.append(createOscarNavIconSpan());
+                  const lbl = element("span", "", labelText);
+                  lbl.dataset.sleekfinHeaderSourceLabel = "true";
+                  btn.append(vis, lbl);
+                  const anchor = findInsertAnchor(listHost, "button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]");
+                  if (anchor && anchor.parentElement === listHost) listHost.insertBefore(btn, anchor);
+                  else listHost.append(btn);
+                }
+              }
+              if (btn) {
+                btn.title = labelText;
+                btn.setAttribute("aria-label", labelText);
+                const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+                if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+              }
+            }
+          } else {
+            (_g = (_f = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _f.call(overflowDrawer, "[data-fx-oscars-link]")) == null ? void 0 : _g.forEach((n) => n.remove());
+            let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
+            if (!btn) {
+              const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+              btn = element("button", "fx-oscars-nav");
+              btn.type = "button";
+              btn.dataset.fxOscarsLink = "true";
+              btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
+              btn.dataset.sleekfinHeaderZone = "tabs";
+              btn.dataset.sleekfinHeaderDisplay = ((_h = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _h.sleekfinHeaderDisplay) || "both";
+              btn.onclick = openOscarsRoute;
+              const vis = element("span");
+              vis.dataset.sleekfinHeaderSourceVisual = "true";
+              const lbl2 = element("span", "", labelText);
+              lbl2.dataset.sleekfinHeaderSourceLabel = "true";
+              vis.append(createOscarNavIconSpan(), lbl2);
+              btn.append(vis);
+              const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
+              if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+              else proxy.append(btn);
+            }
+            btn.title = labelText;
+            btn.setAttribute("aria-label", labelText);
+            const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+            if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+          }
+        } else {
+          const nav = document.querySelector(".headerTabs") || document.querySelector(".skinHeader");
+          if (nav) {
+            let link = nav.querySelector('[data-fx-oscars-link="true"]');
+            if (!link) {
+              link = element("a", "fx-oscars-nav");
+              link.href = "#/home?fxOscars=1";
+              link.dataset.fxOscarsLink = "true";
+              link.onclick = openOscarsRoute;
+              link.append(createOscarNavIconSpan(), element("span", "", labelText));
+              nav.append(link);
+            }
+          }
+        }
+        syncOscarsHeaderCurrent(activeRoute);
+      }
+      function unmountOscarsPage() {
+        var _a, _b, _c;
+        oscarsState.renderGen++;
+        (_a = oscarsState.root) == null ? void 0 : _a.remove();
+        oscarsState.root = null;
+        oscarsState.hidden.forEach((n) => n.removeAttribute("data-fx-oscars-hidden"));
+        oscarsState.hidden = [];
+        document.querySelectorAll("[data-fx-oscars-hidden]").forEach((n) => n.removeAttribute("data-fx-oscars-hidden"));
+        (_c = (_b = document.documentElement) == null ? void 0 : _b.removeAttribute) == null ? void 0 : _c.call(_b, "data-fx-oscars");
+        syncOscarsHeaderCurrent(false);
+      }
+      function oscarsTmdbCacheKey(nominee) {
+        return `${normalizeOscarTitle(nominee == null ? void 0 : nominee.title)}:${Number((nominee == null ? void 0 : nominee.year) || 0)}`;
+      }
+      async function resolveOscarTmdb(api, nominee) {
+        if (!(nominee == null ? void 0 : nominee.title)) return null;
+        const key = oscarsTmdbCacheKey(nominee);
+        if (oscarsState.tmdbCache.has(key)) return oscarsState.tmdbCache.get(key);
+        if (oscarsState.tmdbInflight.has(key)) return oscarsState.tmdbInflight.get(key);
+        if (typeof (api == null ? void 0 : api.getJSON) !== "function" || typeof (api == null ? void 0 : api.getUrl) !== "function") return null;
+        const task = Promise.resolve(api.getJSON(api.getUrl("RequestHub/Browse", { kind: "search", page: 1, query: nominee.title }))).then((res) => {
+          const results = ((res == null ? void 0 : res.results) || []).filter((r) => r && r.type === "movie");
+          const want = normalizeOscarTitle(nominee.title);
+          const wantYear = Number(nominee.year || 0);
+          let best = results.find((r) => Number(r.id) === Number(nominee.tmdbId || 0));
+          if (!best) {
+            const titleMatches = results.filter((r) => normalizeOscarTitle(r.title) === want);
+            if (wantYear > 0) {
+              best = titleMatches.find((r) => Math.abs(Number(String(r.releaseDate || "").slice(0, 4)) - wantYear) <= 1) || titleMatches[0];
+            } else {
+              best = titleMatches[0];
+            }
+          }
+          if (!best && wantYear > 0) {
+            best = results.find((r) => Math.abs(Number(String(r.releaseDate || "").slice(0, 4)) - wantYear) <= 1);
+          }
+          if (!best) best = results[0] || null;
+          const resolved = best ? { id: Number(best.id) || 0, poster: best.poster || "", status: Number(best.status || 0), releaseDate: best.releaseDate || "" } : null;
+          oscarsState.tmdbCache.set(key, resolved);
+          oscarsState.tmdbInflight.delete(key);
+          return resolved;
+        }).catch(() => {
+          oscarsState.tmdbInflight.delete(key);
+          return null;
+        });
+        oscarsState.tmdbInflight.set(key, task);
+        return task;
+      }
+      function updateOscarTrackFade(wrap, track) {
+        if (!wrap || !track) return;
+        const max = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
+        wrap.dataset.fxScrollStart = track.scrollLeft <= 6 ? "true" : "false";
+        wrap.dataset.fxScrollEnd = max <= 6 || track.scrollLeft >= max - 6 ? "true" : "false";
+      }
+      function buildOscarNomineeCard(api, nominee, ownedMovie, serverId, missingLookups) {
+        var _a, _b;
+        const card = element("button", `fx-oscar-card ${ownedMovie ? "is-owned" : "is-missing"}`);
+        card.type = "button";
+        card.dataset.oscarTitle = nominee.title || "";
+        if (ownedMovie == null ? void 0 : ownedMovie.Id) card.dataset.itemId = ownedMovie.Id;
+        if (nominee.tmdbId) card.dataset.tmdbId = String(nominee.tmdbId);
+        const posterBox = element("div", "fx-oscar-poster");
+        const setPosterImage = (src) => {
+          var _a2;
+          if (!src) return;
+          (_a2 = posterBox.querySelector(".fx-oscar-fallback")) == null ? void 0 : _a2.remove();
+          let img = posterBox.querySelector("img");
+          if (!img) {
+            img = element("img");
+            img.alt = "";
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.onerror = () => {
+              img.remove();
+              ensureFallback();
+            };
+            posterBox.prepend(img);
+          }
+          img.src = src;
+        };
+        const ensureFallback = () => {
+          if (posterBox.querySelector("img") || posterBox.querySelector(".fx-oscar-fallback")) return;
+          const fb = element("div", "fx-oscar-fallback");
+          const ic = element("span", "fx-oscar-fallback-icon");
+          ic.innerHTML = OSCAR_STATUETTE_SVG;
+          fb.append(ic, element("span", "fx-oscar-fallback-title", nominee.title || ""));
+          posterBox.prepend(fb);
+        };
+        if (ownedMovie) {
+          const tag = (_a = ownedMovie.ImageTags) == null ? void 0 : _a.Primary;
+          const imgSrc = tag ? typeof (api == null ? void 0 : api.getImageUrl) === "function" ? api.getImageUrl(ownedMovie.Id, { type: "Primary", tag, maxWidth: 400, quality: 90 }) : oscarsAssetUrl(api, `Items/${encodeURIComponent(ownedMovie.Id)}/Images/Primary`, { fillWidth: 400, quality: 90, tag }) : "";
+          if (imgSrc) setPosterImage(imgSrc);
+          else ensureFallback();
+          if ((_b = ownedMovie.UserData) == null ? void 0 : _b.Played) {
+            const watched = element("span", "fx-oscar-watched");
+            watched.title = "Watched";
+            watched.setAttribute("aria-label", "Watched");
+            watched.innerHTML = OSCAR_CHECK_SVG;
+            posterBox.append(watched);
+          }
+          card.addEventListener("click", () => {
+            var _a2;
+            const sid = serverId || ((_a2 = api == null ? void 0 : api.serverId) == null ? void 0 : _a2.call(api)) || "";
+            location.hash = `#/details?id=${encodeURIComponent(ownedMovie.Id)}${sid ? `&serverId=${encodeURIComponent(sid)}` : ""}`;
+          });
+        } else {
+          const cached = oscarsState.tmdbCache.get(oscarsTmdbCacheKey(nominee));
+          let resolvedId = Number(nominee.tmdbId || (cached == null ? void 0 : cached.id) || 0);
+          let resolvedPoster = nominee.poster || (cached == null ? void 0 : cached.poster) || "";
+          let resolvedStatus = Number((cached == null ? void 0 : cached.status) || 0);
+          let resolvedDate = (cached == null ? void 0 : cached.releaseDate) || (nominee.year ? `${nominee.year}-01-01` : "");
+          if (resolvedPoster) setPosterImage(resolvedPoster);
+          else ensureFallback();
+          const badge = element("span", `fx-oscar-badge ${resolvedStatus === 2 || resolvedStatus === 3 ? "fx-oscar-badge-requested" : "fx-oscar-badge-request"}`, resolvedStatus === 2 || resolvedStatus === 3 ? "Requested" : "Request");
+          posterBox.append(badge);
+          if ((!resolvedPoster || !resolvedId) && Array.isArray(missingLookups)) {
+            missingLookups.push({
+              nominee,
+              apply(info) {
+                if (!info || !card.isConnected) return;
+                if (info.id > 0) {
+                  resolvedId = info.id;
+                  card.dataset.tmdbId = String(info.id);
+                }
+                if (info.poster) {
+                  resolvedPoster = info.poster;
+                  setPosterImage(info.poster);
+                }
+                if (info.releaseDate) resolvedDate = info.releaseDate;
+                if (info.status === 2 || info.status === 3) {
+                  resolvedStatus = info.status;
+                  badge.className = "fx-oscar-badge fx-oscar-badge-requested";
+                  badge.textContent = "Requested";
+                }
+              }
+            });
+          }
+          card.addEventListener("click", async () => {
+            var _a2;
+            if (!resolvedId) {
+              const info = await resolveOscarTmdb(api, nominee);
+              if (info == null ? void 0 : info.id) {
+                resolvedId = info.id;
+                resolvedPoster = resolvedPoster || info.poster || "";
+                resolvedDate = resolvedDate || info.releaseDate || "";
+              }
+            }
+            if (resolvedId > 0 && typeof ((_a2 = window.JellyfinRequestHub) == null ? void 0 : _a2.openDetails) === "function") {
+              window.JellyfinRequestHub.openDetails({
+                id: resolvedId,
+                type: "movie",
+                title: nominee.title,
+                poster: resolvedPoster,
+                releaseDate: resolvedDate,
+                status: resolvedStatus
+              }, card);
+            } else {
+              showToast(`\u201C${nominee.title}\u201D is not in your library yet.`);
+            }
+          });
+        }
+        const meta = element("div", "fx-oscar-meta");
+        meta.append(element("span", "fx-oscar-title", nominee.title || ""));
+        if (nominee.note) {
+          meta.append(element("span", "fx-oscar-note", nominee.note));
+        }
+        card.append(posterBox, meta);
+        return card;
+      }
+      async function fetchOscarsMoviesInventory(api) {
+        var _a, _b;
+        const own = scopeKey(api);
+        const cached = findCachedInventory(own, { page: "movies", parentId: "" });
+        if ((_a = cached == null ? void 0 : cached.items) == null ? void 0 : _a.length) return cached.items.filter((i) => (i == null ? void 0 : i.Type) === "Movie");
+        const uid = (_b = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _b.call(api);
+        if (!uid || typeof (api == null ? void 0 : api.getItems) !== "function") return [];
+        try {
+          const res = await api.getItems(uid, {
+            Recursive: true,
+            IncludeItemTypes: "Movie",
+            Fields: "ProviderIds,OriginalTitle,ProductionYear,ImageTags,UserData",
+            Limit: 5e3
+          });
+          return ((res == null ? void 0 : res.Items) || []).filter((i) => (i == null ? void 0 : i.Type) === "Movie");
+        } catch {
+          return [];
+        }
+      }
+      async function renderOscarsView(api, root) {
+        var _a;
+        const gen = ++oscarsState.renderGen;
+        const data = oscarsState.data || await fetchOscarsConfig(api);
+        if (gen !== oscarsState.renderGen || !(root == null ? void 0 : root.isConnected)) return;
+        const movies = await fetchOscarsMoviesInventory(api);
+        if (gen !== oscarsState.renderGen || !(root == null ? void 0 : root.isConnected)) return;
+        const serverId = ((_a = api == null ? void 0 : api.serverId) == null ? void 0 : _a.call(api)) || "";
+        const activeCategories = ((data == null ? void 0 : data.categories) || []).filter((c) => c && c.enabled !== false && Array.isArray(c.nominees) && c.nominees.length > 0);
+        const missingLookups = [];
+        root.replaceChildren();
+        if (oscarsState.subCategoryKey) {
+          const cat = activeCategories.find((c) => c.key === oscarsState.subCategoryKey);
+          if (cat) {
+            const head = element("div", "fx-oscars-subgrid-head");
+            const backBtn = element("button", "fx-oscars-back-btn");
+            backBtn.type = "button";
+            backBtn.setAttribute("aria-label", "Back to Oscars");
+            backBtn.innerHTML = OSCAR_BACK_SVG;
+            backBtn.onclick = () => {
+              oscarsState.subCategoryKey = "";
+              renderOscarsView(api, root);
+              scrollToTop();
+            };
+            const awardIcon = element("span", "fx-oscar-award-icon");
+            awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
+            const h1 = element("h1", "", cat.title);
+            h1.style.margin = "0";
+            h1.style.fontSize = "24px";
+            h1.style.fontWeight = "600";
+            head.append(backBtn, awardIcon, h1);
+            const grid = element("div", "fx-oscars-grid");
+            for (const nom of cat.nominees) {
+              grid.append(buildOscarNomineeCard(api, nom, matchOscarNominee(nom, movies), serverId, missingLookups));
+            }
+            root.append(head, grid);
+            runOscarMissingEnrichment(api, gen, missingLookups);
+            return;
+          }
+          oscarsState.subCategoryKey = "";
+        }
+        const hero = element("section", "fx-oscars-hero");
+        hero.setAttribute("aria-label", (data == null ? void 0 : data.navTitle) || "Oscars");
+        const heroMedia = element("div", "fx-oscars-hero-media");
+        const heroImg = element("img", "fx-oscars-hero-bg");
+        heroImg.alt = "";
+        heroImg.decoding = "async";
+        heroImg.src = oscarsAssetUrl(api, "FazFortDiscovery/Assets/oscars-hero", { v: (data == null ? void 0 : data.assetVersion) || version });
+        heroMedia.append(heroImg);
+        const logoWrap = element("div", "fx-oscars-hero-logo-wrap");
+        if (data == null ? void 0 : data.hasCustomLogo) {
+          const logoImg = element("img", "fx-oscars-hero-logo-img");
+          logoImg.alt = (data == null ? void 0 : data.navTitle) || "Oscars";
+          logoImg.src = oscarsAssetUrl(api, "FazFortDiscovery/Assets/oscars-logo", { v: (data == null ? void 0 : data.assetVersion) || version });
+          logoImg.onerror = () => {
+            logoWrap.innerHTML = OSCAR_HERO_LOGO_SVG;
+          };
+          logoWrap.append(logoImg);
+        } else {
+          logoWrap.innerHTML = OSCAR_HERO_LOGO_SVG;
+        }
+        hero.append(heroMedia, logoWrap);
+        root.append(hero);
+        const shelvesWrap = element("div", "fx-oscars-shelves");
+        if (!activeCategories.length) {
+          const empty = element("div", "fx-oscars-empty");
+          const ic = element("span", "fx-oscar-award-icon");
+          ic.innerHTML = OSCAR_STATUETTE_SVG;
+          empty.append(
+            ic,
+            element("h3", "", "No Oscars nominees configured yet"),
+            element("p", "", "Add this season\u2019s nominated movies in Dashboard \u2192 Plugins \u2192 Jellyfin Discovery under Oscars Season.")
+          );
+          shelvesWrap.append(empty);
+        } else {
+          for (const cat of activeCategories) {
+            const shelf = element("section", "fx-oscars-shelf");
+            shelf.dataset.oscarCategory = cat.key;
+            const head = element("div", "fx-oscars-row-head");
+            const headingBtn = element("button", "fx-oscars-heading-btn");
+            headingBtn.type = "button";
+            const awardIcon = element("span", "fx-oscar-award-icon");
+            awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
+            const h2 = element("h2", "", cat.title);
+            headingBtn.append(awardIcon, h2);
+            headingBtn.onclick = () => {
+              oscarsState.subCategoryKey = cat.key;
+              renderOscarsView(api, root);
+              scrollToTop();
+            };
+            const controls = element("div", "fx-oscars-row-controls");
+            const prevBtn = element("button", "fx-oscars-arrow", "\u2039");
+            prevBtn.type = "button";
+            prevBtn.setAttribute("aria-label", `Previous ${cat.title}`);
+            const nextBtn = element("button", "fx-oscars-arrow", "\u203A");
+            nextBtn.type = "button";
+            nextBtn.setAttribute("aria-label", `More ${cat.title}`);
+            controls.append(prevBtn, nextBtn);
+            head.append(headingBtn, controls);
+            const trackWrap = element("div", "fx-oscars-track-wrap");
+            const track = element("div", "fx-oscars-track");
+            for (const nom of cat.nominees) {
+              track.append(buildOscarNomineeCard(api, nom, matchOscarNominee(nom, movies), serverId, missingLookups));
+            }
+            const scrollShelf = (dir) => {
+              var _a2;
+              const step = Math.max(260, Math.round((track.clientWidth || 800) * 0.82));
+              (_a2 = track.scrollBy) == null ? void 0 : _a2.call(track, { left: dir * step, behavior: "smooth" });
+            };
+            prevBtn.onclick = () => scrollShelf(-1);
+            nextBtn.onclick = () => scrollShelf(1);
+            track.addEventListener("scroll", () => updateOscarTrackFade(trackWrap, track), { passive: true });
+            trackWrap.append(track);
+            shelf.append(head, trackWrap);
+            shelvesWrap.append(shelf);
+            requestAnimationFrame(() => updateOscarTrackFade(trackWrap, track));
+          }
+        }
+        root.append(shelvesWrap);
+        runOscarMissingEnrichment(api, gen, missingLookups);
+      }
+      async function runOscarMissingEnrichment(api, gen, missingLookups) {
+        if (!missingLookups.length) return;
+        const byKey = /* @__PURE__ */ new Map();
+        for (const entry of missingLookups) {
+          const k = oscarsTmdbCacheKey(entry.nominee);
+          if (!byKey.has(k)) byKey.set(k, { nominee: entry.nominee, callbacks: [] });
+          byKey.get(k).callbacks.push(entry.apply);
+        }
+        const queue = [...byKey.values()];
+        const worker = async () => {
+          while (queue.length && gen === oscarsState.renderGen && !isStopped()) {
+            const item = queue.shift();
+            if (!item) break;
+            const info = await resolveOscarTmdb(api, item.nominee);
+            if (gen !== oscarsState.renderGen || isStopped()) return;
+            if (info) item.callbacks.forEach((fn) => fn(info));
+          }
+        };
+        await Promise.all([worker(), worker(), worker()]);
+      }
+      function syncOscarsPage(api = window.ApiClient, forceRender = false) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+        if (isStopped() || !((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api))) {
+          unmountOscarsPage();
+          removeOscarsNav();
+          return;
+        }
+        fetchOscarsConfig(api);
+        ensureOscarsNav(api);
+        if (!isOscarsHash(location.hash)) {
+          if (oscarsState.root || ((_c = (_b = document.documentElement) == null ? void 0 : _b.getAttribute) == null ? void 0 : _c.call(_b, "data-fx-oscars")) === "true") {
+            unmountOscarsPage();
+          }
+          return;
+        }
+        if (hasActiveState()) cleanup(true);
+        (_e = (_d = document.documentElement) == null ? void 0 : _d.setAttribute) == null ? void 0 : _e.call(_d, "data-fx-oscars", "true");
+        (_h = (_g = (_f = document.documentElement) == null ? void 0 : _f.classList) == null ? void 0 : _g.remove) == null ? void 0 : _h.call(_g, "sleekfin-hero-boot-loading", "sleekfin-hero-loading");
+        syncOscarsHeaderCurrent(true);
+        const candidates = [...document.querySelectorAll("#indexPage, .homePage")];
+        const page = candidates.find((n) => !n.closest(".hide,.hidePage,[hidden]")) || candidates[0];
+        if (!page) return;
+        if (((_i = oscarsState.root) == null ? void 0 : _i.isConnected) && oscarsState.root.parentNode === page) {
+          [...page.children].forEach((n) => {
+            if (n !== oscarsState.root && n.getAttribute("data-fx-oscars-hidden") !== "true") {
+              n.setAttribute("data-fx-oscars-hidden", "true");
+              oscarsState.hidden.push(n);
+            }
+          });
+          if (forceRender) renderOscarsView(api, oscarsState.root);
+          return;
+        }
+        (_j = oscarsState.root) == null ? void 0 : _j.remove();
+        const root = element("div", "fx-oscars-page");
+        [...page.children].forEach((n) => {
+          n.setAttribute("data-fx-oscars-hidden", "true");
+          oscarsState.hidden.push(n);
+        });
+        page.prepend(root);
+        oscarsState.root = root;
+        renderOscarsView(api, root);
+      }
+      async function mountOscarsSettings(host, api = window.ApiClient) {
+        var _a, _b;
+        if (!host || !((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api))) return;
+        host.replaceChildren(element("p", "fx-oscar-admin-status", "Loading Oscars Season settings\u2026"));
+        let draft;
+        try {
+          draft = await api.getJSON(api.getUrl("FazFortDiscovery/Oscars"));
+        } catch {
+          host.replaceChildren(element("p", "fx-oscar-admin-status", "Could not load Oscars Season settings. Verify Jellyfin Discovery 0.7.0+ is installed."));
+          return;
+        }
+        draft = cloneJson(draft || { enabled: false, startDate: "", endDate: "", navTitle: "Oscars", ceremonyTitle: "98th Academy Awards", categories: [] });
+        if (!Array.isArray(draft.categories)) draft.categories = [];
+        const expanded = new Set(((_b = draft.categories[0]) == null ? void 0 : _b.key) ? [draft.categories[0].key] : []);
+        let statusText = "";
+        const computeLivePill = () => {
+          if (!draft.enabled) return { live: false, text: "Disabled \u2014 hidden from header" };
+          const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+          const s = (draft.startDate || "").trim();
+          const e = (draft.endDate || "").trim();
+          if (s && today < s) return { live: false, text: `Scheduled \u2014 starts ${s}` };
+          if (e && today > e) return { live: false, text: `Ended ${e} \u2014 hidden from header` };
+          if (s || e) return { live: true, text: `Active now (${s || "now"} \u2192 ${e || "manual stop"})` };
+          return { live: true, text: "Active now \u2014 visible in header" };
+        };
+        const broadcastUpdate = (saved) => {
+          oscarsState.data = saved;
+          oscarsState.fetchedAt = Date.now();
+          ensureOscarsNav(api);
+          if (isOscarsHash(location.hash)) syncOscarsPage(api, true);
+          try {
+            window.dispatchEvent(new CustomEvent("fazfort:oscars-updated", { detail: saved }));
+          } catch {
+          }
+        };
+        const uploadAssetFile = (kind, file) => {
+          if (!file) return;
+          if (file.size > 5e6) {
+            statusText = "Image must be 5 MB or smaller.";
+            draw();
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = async () => {
+            var _a2;
+            statusText = `Uploading custom ${kind}\u2026`;
+            draw();
+            try {
+              const res = await api.ajax({
+                url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}`),
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({ dataUrl: String(reader.result || "") })
+              });
+              draft.assetVersion = res.assetVersion || Date.now();
+              draft.hasCustomHero = Boolean(res.hasCustomHero);
+              draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+              statusText = `Uploaded custom ${kind}.`;
+              broadcastUpdate({ ...draft, active: computeLivePill().live });
+            } catch (err) {
+              statusText = ((_a2 = err == null ? void 0 : err.responseJSON) == null ? void 0 : _a2.error) || `Could not upload custom ${kind}.`;
+            }
+            draw();
+          };
+          reader.readAsDataURL(file);
+        };
+        const resetAsset = async (kind) => {
+          statusText = `Resetting ${kind} to built-in default\u2026`;
+          draw();
+          try {
+            const res = await api.ajax({
+              url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}`),
+              type: "DELETE",
+              dataType: "json"
+            });
+            draft.assetVersion = res.assetVersion || Date.now();
+            draft.hasCustomHero = Boolean(res.hasCustomHero);
+            draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+            statusText = `Reverted ${kind} to built-in default.`;
+            broadcastUpdate({ ...draft, active: computeLivePill().live });
+          } catch {
+            statusText = `Could not reset custom ${kind}.`;
+          }
+          draw();
+        };
+        const saveDraft = async () => {
+          var _a2;
+          statusText = "Saving Oscars Season settings\u2026";
+          draw();
+          try {
+            const saved = await api.ajax({
+              url: api.getUrl("FazFortDiscovery/Oscars"),
+              type: "PUT",
+              contentType: "application/json",
+              dataType: "json",
+              data: JSON.stringify({
+                enabled: Boolean(draft.enabled),
+                startDate: (draft.startDate || "").trim(),
+                endDate: (draft.endDate || "").trim(),
+                navTitle: (draft.navTitle || "Oscars").trim() || "Oscars",
+                ceremonyTitle: (draft.ceremonyTitle || "Academy Awards").trim() || "Academy Awards",
+                categories: draft.categories
+              })
+            });
+            draft = cloneJson(saved);
+            statusText = saved.active ? "Saved! The Oscars tab is now live in the top header bar." : "Saved! Oscars settings updated.";
+            broadcastUpdate(saved);
+          } catch (err) {
+            statusText = ((_a2 = err == null ? void 0 : err.responseJSON) == null ? void 0 : _a2.error) || "Could not save Oscars settings. Check dates and category entries.";
+          }
+          draw();
+        };
+        const draw = () => {
+          host.replaceChildren();
+          const card = element("section", "fx-oscar-admin");
+          const head = element("div", "fx-oscar-admin-head");
+          const title = element("h3", "fx-oscar-admin-title");
+          const titleIcon = element("span", "fx-oscar-award-icon");
+          titleIcon.innerHTML = OSCAR_STATUETTE_SVG;
+          title.append(titleIcon, element("span", "", "Oscars Season Subpage"));
+          const pillInfo = computeLivePill();
+          const pill = element("span", `fx-oscar-admin-pill ${pillInfo.live ? "is-live" : ""}`, pillInfo.text);
+          head.append(title, pill);
+          card.append(head);
+          card.append(element("p", "ff-cfg-sub", "Toggle the white-and-gold Oscars tab in the top navigation bar during awards season. Movies already in your library open directly to play; missing nominees appear with a Request badge powered by Request Hub."));
+          const toggleRow = element("div", "ff-cfg-toggle-row");
+          const toggleLbl = element("label", "ff-cfg-toggle");
+          const toggleChk = element("input");
+          toggleChk.type = "checkbox";
+          toggleChk.checked = Boolean(draft.enabled);
+          toggleChk.setAttribute("aria-label", "Enable Oscars Page");
+          toggleChk.onchange = () => {
+            draft.enabled = toggleChk.checked;
+            draw();
+          };
+          toggleLbl.append(toggleChk, element("span", "", "Enable Oscars Page"));
+          toggleRow.append(toggleLbl);
+          card.append(toggleRow);
+          const grid = element("div", "fx-oscar-admin-grid");
+          const addInput = (label, type, val, onChange, placeholder = "") => {
+            const f = element("label", "fx-oscar-admin-field", label);
+            const inp = element("input");
+            inp.type = type;
+            inp.value = val || "";
+            if (placeholder) inp.placeholder = placeholder;
+            inp.setAttribute("aria-label", label);
+            inp.onchange = () => onChange(inp.value);
+            f.append(inp);
+            grid.append(f);
+          };
+          addInput("Start Date (optional)", "date", draft.startDate, (v) => {
+            draft.startDate = v;
+            draw();
+          });
+          addInput("End Date (optional)", "date", draft.endDate, (v) => {
+            draft.endDate = v;
+            draw();
+          });
+          addInput("Header Tab Title", "text", draft.navTitle || "Oscars", (v) => {
+            draft.navTitle = v;
+          }, "Oscars");
+          card.append(grid);
+          const assetsGrid = element("div", "fx-oscar-admin-assets");
+          const heroBox = element("div", "fx-oscar-asset-box");
+          heroBox.append(element("strong", "", "Hero Banner Backdrop"));
+          const heroPrev = element("div", "fx-oscar-asset-preview");
+          const heroImg = element("img");
+          heroImg.alt = "Oscars hero backdrop preview";
+          heroImg.src = oscarsAssetUrl(api, "FazFortDiscovery/Assets/oscars-hero", { v: draft.assetVersion || version });
+          heroPrev.append(heroImg);
+          const heroActions = element("div", "fx-oscar-admin-actions");
+          const heroFile = element("input");
+          heroFile.type = "file";
+          heroFile.accept = "image/png,image/jpeg,image/webp";
+          heroFile.hidden = true;
+          heroFile.onchange = () => {
+            var _a2;
+            return uploadAssetFile("hero", (_a2 = heroFile.files) == null ? void 0 : _a2[0]);
+          };
+          heroActions.append(
+            button("Upload Custom Hero", () => heroFile.click(), "fx-oscar-btn fx-oscar-btn-xs"),
+            ...draft.hasCustomHero ? [button("Reset Default", () => resetAsset("hero"), "fx-oscar-btn fx-oscar-btn-xs")] : [],
+            heroFile
+          );
+          heroBox.append(heroPrev, heroActions);
+          const logoBox = element("div", "fx-oscar-asset-box");
+          logoBox.append(element("strong", "", "Oscars Hero Logo"));
+          const logoPrev = element("div", "fx-oscar-asset-preview is-logo");
+          if (draft.hasCustomLogo) {
+            const lImg = element("img");
+            lImg.alt = "Oscars logo preview";
+            lImg.src = oscarsAssetUrl(api, "FazFortDiscovery/Assets/oscars-logo", { v: draft.assetVersion || version });
+            logoPrev.append(lImg);
+          } else {
+            logoPrev.innerHTML = OSCAR_HERO_LOGO_SVG;
+          }
+          const logoActions = element("div", "fx-oscar-admin-actions");
+          const logoFile = element("input");
+          logoFile.type = "file";
+          logoFile.accept = "image/png,image/jpeg,image/webp,image/svg+xml";
+          logoFile.hidden = true;
+          logoFile.onchange = () => {
+            var _a2;
+            return uploadAssetFile("logo", (_a2 = logoFile.files) == null ? void 0 : _a2[0]);
+          };
+          logoActions.append(
+            button("Upload Custom Logo", () => logoFile.click(), "fx-oscar-btn fx-oscar-btn-xs"),
+            ...draft.hasCustomLogo ? [button("Reset Default", () => resetAsset("logo"), "fx-oscar-btn fx-oscar-btn-xs")] : [],
+            logoFile
+          );
+          logoBox.append(logoPrev, logoActions);
+          assetsGrid.append(heroBox, logoBox);
+          card.append(assetsGrid);
+          const topBar = element("div", "fx-oscar-admin-actions");
+          const saveBtn = button("Save Oscars Settings", saveDraft, "fx-oscar-btn fx-oscar-btn-gold");
+          const exportBtn = button("Export Nominees JSON", () => {
+            try {
+              const blob = new Blob([JSON.stringify({ ceremonyTitle: draft.ceremonyTitle, categories: draft.categories }, null, 2)], { type: "application/json" });
+              const a = element("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = "oscars-nominees.json";
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+            } catch {
+            }
+          }, "fx-oscar-btn");
+          const importInput = element("input");
+          importInput.type = "file";
+          importInput.accept = "application/json,.json";
+          importInput.hidden = true;
+          importInput.onchange = async () => {
+            var _a2;
+            try {
+              const f = (_a2 = importInput.files) == null ? void 0 : _a2[0];
+              if (!f) return;
+              const parsed = JSON.parse(await f.text());
+              const cats = Array.isArray(parsed) ? parsed : parsed == null ? void 0 : parsed.categories;
+              if (!Array.isArray(cats)) throw Error("JSON must contain a categories array.");
+              draft.categories = cats;
+              if (parsed == null ? void 0 : parsed.ceremonyTitle) draft.ceremonyTitle = String(parsed.ceremonyTitle);
+              statusText = `Imported ${cats.length} categories. Click Save Oscars Settings to apply.`;
+            } catch (e) {
+              statusText = `Import failed: ${e.message}`;
+            }
+            draw();
+          };
+          const importBtn = button("Import JSON", () => importInput.click(), "fx-oscar-btn");
+          const clearNomsBtn = button("Clear All Nominees", () => {
+            draft.categories.forEach((c) => {
+              c.nominees = [];
+            });
+            statusText = "Cleared nominees across all categories (categories preserved). Click Save to apply.";
+            draw();
+          }, "fx-oscar-btn");
+          const addCatBtn = button("+ Add Category", () => {
+            const idx = draft.categories.length + 1;
+            const key = `custom-category-${Date.now().toString(36)}-${idx}`;
+            draft.categories.push({ key, title: `Custom Category ${idx}`, enabled: true, nominees: [] });
+            expanded.add(key);
+            draw();
+          }, "fx-oscar-btn");
+          topBar.append(saveBtn, importBtn, exportBtn, clearNomsBtn, addCatBtn, importInput);
+          card.append(topBar);
+          const statusNode = element("p", "fx-oscar-admin-status", statusText);
+          statusNode.setAttribute("role", "status");
+          card.append(statusNode);
+          const list = element("div", "fx-oscar-cat-list");
+          draft.categories.forEach((cat, cIdx) => {
+            const box = element("div", "fx-oscar-cat-item");
+            const isOpen = expanded.has(cat.key);
+            const sum = element("div", "fx-oscar-cat-summary");
+            const en = element("input");
+            en.type = "checkbox";
+            en.checked = cat.enabled !== false;
+            en.onclick = (ev) => ev.stopPropagation();
+            en.onchange = () => {
+              cat.enabled = en.checked;
+            };
+            const nameSpan = element("span", "fx-oscar-cat-name", cat.title || cat.key);
+            const countPill = element("span", "fx-oscar-cat-count", `${(cat.nominees || []).length} nominees`);
+            const upBtn = button("\u2191", (ev) => {
+              ev.stopPropagation();
+              if (cIdx > 0) {
+                [draft.categories[cIdx - 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx - 1]];
+                draw();
+              }
+            }, "fx-oscar-btn fx-oscar-btn-xs");
+            upBtn.disabled = cIdx === 0;
+            const downBtn = button("\u2193", (ev) => {
+              ev.stopPropagation();
+              if (cIdx < draft.categories.length - 1) {
+                [draft.categories[cIdx + 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx + 1]];
+                draw();
+              }
+            }, "fx-oscar-btn fx-oscar-btn-xs");
+            downBtn.disabled = cIdx === draft.categories.length - 1;
+            sum.append(en, nameSpan, countPill, upBtn, downBtn);
+            sum.onclick = () => {
+              if (expanded.has(cat.key)) expanded.delete(cat.key);
+              else expanded.add(cat.key);
+              draw();
+            };
+            box.append(sum);
+            if (isOpen) {
+              const body = element("div", "fx-oscar-cat-body");
+              const titleRow = element("div", "fx-oscar-nom-row");
+              const catTitleInput = element("input", "fx-oscar-nom-note");
+              catTitleInput.value = cat.title || "";
+              catTitleInput.placeholder = "Category title";
+              catTitleInput.onchange = () => {
+                cat.title = catTitleInput.value.trim() || cat.title;
+                nameSpan.textContent = cat.title;
+              };
+              const delCatBtn = button("Delete Category", () => {
+                draft.categories.splice(cIdx, 1);
+                expanded.delete(cat.key);
+                draw();
+              }, "fx-oscar-btn fx-oscar-btn-xs");
+              titleRow.append(catTitleInput, delCatBtn);
+              body.append(titleRow);
+              (cat.nominees || []).forEach((nom, nIdx) => {
+                const nRow = element("div", "fx-oscar-nom-row");
+                const lbl = element("span", "fx-oscar-nom-title", `${nom.title}${nom.year ? ` (${nom.year})` : ""}`);
+                const noteInput = element("input", "fx-oscar-nom-note");
+                noteInput.value = nom.note || "";
+                noteInput.placeholder = "Optional subtitle (actor, director, song\u2026)";
+                noteInput.onchange = () => {
+                  nom.note = noteInput.value.trim() || null;
+                };
+                const remNom = button("Remove", () => {
+                  cat.nominees.splice(nIdx, 1);
+                  draw();
+                }, "fx-oscar-btn fx-oscar-btn-xs");
+                nRow.append(lbl, noteInput, remNom);
+                body.append(nRow);
+              });
+              const pickerWrap = element("div");
+              const searchInput = element("input", "fx-oscar-nom-note");
+              searchInput.style.width = "100%";
+              searchInput.style.boxSizing = "border-box";
+              searchInput.placeholder = "Search Jellyfin library or TMDb to add a nominated movie\u2026";
+              const resultsWrap = element("div", "fx-oscar-search-results");
+              let searchTimer = 0;
+              searchInput.oninput = () => {
+                clearTimeout(searchTimer);
+                const q = searchInput.value.trim();
+                if (q.length < 2) {
+                  resultsWrap.replaceChildren();
+                  return;
+                }
+                searchTimer = setTimeout(async () => {
+                  var _a2, _b2;
+                  const hits = [];
+                  const seen = /* @__PURE__ */ new Set();
+                  try {
+                    const uid = api.getCurrentUserId();
+                    if (uid && typeof api.getItems === "function") {
+                      const lib = await api.getItems(uid, { Recursive: true, IncludeItemTypes: "Movie", SearchTerm: q, Fields: "ProviderIds,ProductionYear", Limit: 6 });
+                      for (const m of (lib == null ? void 0 : lib.Items) || []) {
+                        const tmdb = Number(((_a2 = m.ProviderIds) == null ? void 0 : _a2.Tmdb) || ((_b2 = m.ProviderIds) == null ? void 0 : _b2.tmdb) || 0) || null;
+                        const k = tmdb ? `tmdb:${tmdb}` : `t:${normalizeOscarTitle(m.Name)}:${m.ProductionYear || 0}`;
+                        if (seen.has(k)) continue;
+                        seen.add(k);
+                        hits.push({ title: m.Name, year: m.ProductionYear || null, tmdbId: tmdb, poster: null, source: "Library" });
+                      }
+                    }
+                  } catch {
+                  }
+                  try {
+                    const rh = await api.getJSON(api.getUrl("RequestHub/Browse", { kind: "search", page: 1, query: q }));
+                    for (const r of ((rh == null ? void 0 : rh.results) || []).filter((x) => (x == null ? void 0 : x.type) === "movie").slice(0, 6)) {
+                      const yr = Number(String(r.releaseDate || "").slice(0, 4)) || null;
+                      const tmdb = Number(r.id) || null;
+                      const k = tmdb ? `tmdb:${tmdb}` : `t:${normalizeOscarTitle(r.title)}:${yr || 0}`;
+                      if (seen.has(k)) continue;
+                      seen.add(k);
+                      hits.push({ title: r.title, year: yr, tmdbId: tmdb, poster: r.poster || null, source: "TMDb" });
+                    }
+                  } catch {
+                  }
+                  resultsWrap.replaceChildren();
+                  hits.slice(0, 8).forEach((hit) => {
+                    const b = button(`+ ${hit.title}${hit.year ? ` (${hit.year})` : ""} \xB7 ${hit.source}`, () => {
+                      cat.nominees = cat.nominees || [];
+                      cat.nominees.push({ title: hit.title, year: hit.year, tmdbId: hit.tmdbId, poster: hit.poster, note: null, winner: false });
+                      draw();
+                    }, "fx-oscar-search-hit");
+                    resultsWrap.append(b);
+                  });
+                }, 220);
+              };
+              pickerWrap.append(searchInput, resultsWrap);
+              body.append(pickerWrap);
+              const manRow = element("div", "fx-oscar-nom-row");
+              const mTitle = element("input", "fx-oscar-nom-note");
+              mTitle.placeholder = "Or type movie title manually";
+              const mYear = element("input", "fx-oscar-nom-note");
+              mYear.style.flex = "0 0 84px";
+              mYear.placeholder = "Year";
+              const mAdd = button("+ Add", () => {
+                const t = mTitle.value.trim();
+                if (!t) return;
+                const y = Number(mYear.value.trim());
+                cat.nominees = cat.nominees || [];
+                cat.nominees.push({ title: t, year: y >= 1888 && y <= 2100 ? y : null, tmdbId: null, poster: null, note: null, winner: false });
+                draw();
+              }, "fx-oscar-btn fx-oscar-btn-xs");
+              manRow.append(mTitle, mYear, mAdd);
+              body.append(manRow);
+              box.append(body);
+            }
+            list.append(box);
+          });
+          card.append(list);
+          host.append(card);
+        };
+        draw();
+      }
+      return {
+        fetchOscarsConfig,
+        ensureOscarsNav,
+        syncOscarsPage,
+        unmountOscarsPage,
+        resetOscarsSession,
+        mountOscarsSettings
+      };
+    }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.8";
+      const VERSION = "0.7.0";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -10860,6 +12725,17 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
       const heroCacheKey = (scope, page) => `fazfort-discovery:hero:v1:${scope}:${page}`;
       const trackingCacheKey = (scope) => `fazfort-discovery:tracking:v2:${scope}`;
       const ratingsSessionKey = "fazfort-discovery:ratings:v1";
+      const oscars = createOscarsRuntime({
+        version: VERSION,
+        isStopped: () => stopped,
+        hasActiveState: () => Boolean(state),
+        cleanup: (...args) => cleanup(...args),
+        element,
+        scopeKey,
+        scrollToTop: () => scrollToTop(),
+        showToast: (...args) => showToast(...args),
+        findCachedInventory: (...args) => findCachedInventory(...args)
+      });
       function ensureAmbientBackground() {
         if (stopped || !document.documentElement) return;
         setRootAttr("data-fx-ambient-bg", true);
@@ -15980,6 +17856,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         guardMicroLogos();
         syncHeroAndDetailRatings(api);
         if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+          oscars.resetOscarsSession();
           cleanup(false);
           savedFeeds.clear();
           snapshots.clear();
@@ -15989,6 +17866,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           searchUiState.trackingScope = "";
           return;
         }
+        oscars.syncOscarsPage(api);
         if (!route) {
           if (state) cleanup();
           else if (!/^#\/mypreferencesmenu(?:[?]|$)/i.test(location.hash)) closeDialog();
@@ -17033,7 +18911,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         releaseOsdSpeedHold();
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(window.ApiClient);
+        oscars.ensureOscarsNav(window.ApiClient);
         reconcile();
+      }
+      function onHeaderCatalogChanged() {
+        hideLeavingSoonNav();
+        oscars.ensureOscarsNav(window.ApiClient);
+      }
+      function onWindowResize() {
+        scheduleScroll();
+        oscars.ensureOscarsNav(window.ApiClient);
       }
       function start() {
         const style = element("style");
@@ -17099,14 +18986,18 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
               }
             }
             if (!needsHeader && r.type === "childList" && ((_i = t.closest) == null ? void 0 : _i.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
-              needsHeader = true;
+              const onlyOscarsLink = [...r.addedNodes, ...r.removedNodes].every((n) => {
+                var _a3;
+                return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, "[data-fx-oscars-link]"));
+              });
+              if (!onlyOscarsLink) needsHeader = true;
             }
             if (!needsSearch && t.id === "searchPage") {
               needsSearch = true;
             } else if (!needsSearch && ((_j = t.closest) == null ? void 0 : _j.call(t, "#searchPage")) && !((_k = t.closest) == null ? void 0 : _k.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-oscars-page,.fx-oscar-admin,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
             }
           }
@@ -17127,6 +19018,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             hideLeavingSoonNav();
             hideSleekFinUserSettingsMenu();
             syncMobileOverflowDrawer(window.ApiClient);
+            oscars.ensureOscarsNav(window.ApiClient);
           }
           if (needsSearch) syncSearchPage(window.ApiClient);
           if (needsReconcile) schedule();
@@ -17154,12 +19046,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         document.addEventListener("touchcancel", onOsdTouchEnd, { passive: true, capture: true });
         window.addEventListener("scroll", onOsdScrollGuard, { passive: true });
         window.addEventListener("blur", releaseOsdSpeedHold);
-        window.addEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
+        window.addEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
         document.addEventListener("keydown", remoteKey, true);
         document.addEventListener("keyup", remoteKeyUp, true);
         document.addEventListener("focusin", rememberFocus);
         document.addEventListener("scroll", scheduleScroll, { passive: true, capture: true });
-        window.addEventListener("resize", scheduleScroll);
+        window.addEventListener("resize", onWindowResize);
         heartbeat = setInterval(schedule, 3e3);
         reconcile();
       }
@@ -17168,12 +19060,13 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         restart,
         openSettings: () => openUserSettings(window.ApiClient),
         mountSettings: (host) => mountInlineSettings(host, window.ApiClient),
+        mountOscarsSettings: (host) => oscars.mountOscarsSettings(host, window.ApiClient),
         diagnostics: () => {
           var _a2, _b2;
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q;
           stopped = true;
           clearTimeout(timer);
           clearTimeout(headerMenuOpeningTimer);
@@ -17201,29 +19094,31 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           restoreNativeFullscreenGuard();
           restoreFiltersFetchGuard();
           clearTimeout(osdGesture.streakTimer);
+          oscars.resetOscarsSession();
           cleanup(false);
           closeDownloadMenu();
           snapshots.clear();
           savedFeeds.clear();
           heroMemoryCache.clear();
-          (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-hide-count-chip");
-          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-curated-tab");
-          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-home-mode");
-          (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-subpage");
-          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-page-hero");
-          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-ambient-bg");
-          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-popover-open");
-          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-video-osd");
-          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-osd-anchor");
-          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-header-menu-opening");
-          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-livetv");
-          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-search-page");
-          (_z = (_y = document.documentElement) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-has-subheader");
-          (_C = (_B = (_A = document.documentElement) == null ? void 0 : _A.style) == null ? void 0 : _B.removeProperty) == null ? void 0 : _C.call(_B, "--fx-osd-popup-bottom");
-          (_F = (_E = (_D = document.documentElement) == null ? void 0 : _D.style) == null ? void 0 : _E.removeProperty) == null ? void 0 : _F.call(_E, "--fx-osd-popup-right");
-          (_I = (_H = (_G = document.documentElement) == null ? void 0 : _G.style) == null ? void 0 : _H.removeProperty) == null ? void 0 : _I.call(_H, "--fx-header-popup-top");
-          (_L = (_K = (_J = document.documentElement) == null ? void 0 : _J.style) == null ? void 0 : _K.removeProperty) == null ? void 0 : _L.call(_K, "--fx-header-popup-right");
-          (_N = (_M = document.getElementById("searchPage")) == null ? void 0 : _M.removeAttribute) == null ? void 0 : _N.call(_M, "data-fx-search-active");
+          (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-oscars");
+          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-hide-count-chip");
+          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-curated-tab");
+          (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-home-mode");
+          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-subpage");
+          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-page-hero");
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-ambient-bg");
+          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-popover-open");
+          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-video-osd");
+          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-osd-anchor");
+          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-header-menu-opening");
+          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-livetv");
+          (_z = (_y = document.documentElement) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-search-page");
+          (_B = (_A = document.documentElement) == null ? void 0 : _A.removeAttribute) == null ? void 0 : _B.call(_A, "data-fx-has-subheader");
+          (_E = (_D = (_C = document.documentElement) == null ? void 0 : _C.style) == null ? void 0 : _D.removeProperty) == null ? void 0 : _E.call(_D, "--fx-osd-popup-bottom");
+          (_H = (_G = (_F = document.documentElement) == null ? void 0 : _F.style) == null ? void 0 : _G.removeProperty) == null ? void 0 : _H.call(_G, "--fx-osd-popup-right");
+          (_K = (_J = (_I = document.documentElement) == null ? void 0 : _I.style) == null ? void 0 : _J.removeProperty) == null ? void 0 : _K.call(_J, "--fx-header-popup-top");
+          (_N = (_M = (_L = document.documentElement) == null ? void 0 : _L.style) == null ? void 0 : _M.removeProperty) == null ? void 0 : _N.call(_M, "--fx-header-popup-right");
+          (_P = (_O = document.getElementById("searchPage")) == null ? void 0 : _O.removeAttribute) == null ? void 0 : _P.call(_O, "data-fx-search-active");
           document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
           document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdAnchorPointer, true);
@@ -17241,7 +19136,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           window.removeEventListener("popstate", onRouteEvent);
           document.removeEventListener("viewshow", onRouteEvent);
           document.removeEventListener("scroll", scheduleScroll, true);
-          window.removeEventListener("resize", scheduleScroll);
+          window.removeEventListener("resize", onWindowResize);
           document.removeEventListener("touchstart", onOsdTouchStart, true);
           document.removeEventListener("touchmove", onOsdTouchMove, true);
           window.removeEventListener("touchmove", onOsdTouchMove, true);
@@ -17249,12 +19144,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           document.removeEventListener("touchcancel", onOsdTouchEnd, true);
           window.removeEventListener("scroll", onOsdScrollGuard);
           window.removeEventListener("blur", releaseOsdSpeedHold);
-          window.removeEventListener("sleekfin:header-catalog-changed", hideLeavingSoonNav);
+          window.removeEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
-          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
-          (_O = document.getElementById("fx-discovery-style")) == null ? void 0 : _O.remove();
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
+          (_Q = document.getElementById("fx-discovery-style")) == null ? void 0 : _Q.remove();
           delete window.FazFortDiscovery;
         }
       };

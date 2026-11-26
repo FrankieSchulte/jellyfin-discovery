@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { badgeFor, buildShelves, FeedPlanner, matches, monthAgo, recent, resolveHeroConfig, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, selectHeroItems, validateConfig } from '../src/engine.js';
+import { badgeFor, buildShelves, FeedPlanner, isOscarsHash, matchOscarNominee, matches, monthAgo, normalizeOscarTitle, recent, resolveHeroConfig, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, selectHeroItems, validateConfig } from '../src/engine.js';
 const config = JSON.parse(await readFile(new URL('../config/default.json', import.meta.url)));
 const now = new Date('2026-11-04T12:00:00Z');
 const items = Array.from({length: 48}, (_, n) => ({ Id: n.toString(16).padStart(32,'0'), Name: 'Item '+n, Type: n % 3 ? 'Movie' : 'Series', Genres: ['Action', 'Comedy'], Tags: ['space', 'superhero'], CommunityRating: n % 2 ? 8 : 6, RunTimeTicks: 90*600000000, ProductionYear: 2000 + n % 20, People: [{ Name: 'Director '+(n % 4), Type: 'Director' }, { Name: 'Actor '+(n % 3), Type: 'Actor' }], Studios:[{Name:'Studio'}], UserData:{ Played: n % 5 === 0 } }));
@@ -180,4 +180,24 @@ test('v0.6.7 family:any opening token validates and default.json ships expanded 
   assert.ok(c.pages.home.rules.length >= 125, 'Home ships 125+ curated categories');
   c.pages.home.layouts = { 'family:any': 'portrait' };
   assert.doesNotThrow(() => validateConfig(c));
+});
+test('v0.7.0 Oscars route detection and nominee-to-library matching (TMDb ID, title+year, ±1 year, OriginalTitle)', () => {
+  assert.equal(isOscarsHash('#/home?fxOscars=1'), true);
+  assert.equal(isOscarsHash('#!/home.html?fxOscars=true'), true);
+  assert.equal(isOscarsHash('#/home'), false);
+  assert.equal(isOscarsHash('#/movies?fxOscars=1'), false);
+  assert.equal(routeInfo('#/home?fxOscars=1'), null, 'Discovery Home skips mounting when fxOscars=1 is active');
+  assert.equal(normalizeOscarTitle('F1: The Movie!'), 'f1 the movie');
+  assert.equal(normalizeOscarTitle('Sentimental Value — Director’s Cut'), 'sentimental value directors cut');
+
+  const movies = [
+    { Id: 'm-sinners', Name: 'Sinners', Type: 'Movie', ProductionYear: 2025, ProviderIds: { Tmdb: '1233413' } },
+    { Id: 'm-secret', Name: 'The Secret Agent', OriginalTitle: 'O Agente Secreto', Type: 'Movie', ProductionYear: 2025, ProviderIds: {} },
+    { Id: 'm-marty', Name: 'Marty Supreme', Type: 'Movie', ProductionYear: 2026, ProviderIds: {} },
+    { Id: 'm-old-frank', Name: 'Frankenstein', Type: 'Movie', ProductionYear: 1931, ProviderIds: { Tmdb: '3035' } }
+  ];
+  assert.equal(matchOscarNominee({ title: 'Different Localized Title', year: 2025, tmdbId: 1233413 }, movies)?.Id, 'm-sinners');
+  assert.equal(matchOscarNominee({ title: 'O Agente Secreto', year: 2025 }, movies)?.Id, 'm-secret');
+  assert.equal(matchOscarNominee({ title: 'Marty Supreme', year: 2025 }, movies)?.Id, 'm-marty', 'allows ±1 year festival release offset');
+  assert.equal(matchOscarNominee({ title: 'Frankenstein', year: 2025 }, movies), null, 'does not mismatch 1931 remake against 2025 nominee');
 });

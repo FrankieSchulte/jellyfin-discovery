@@ -2284,3 +2284,207 @@ test('v0.6.7 polish: volume focus fix, SyncPlay icon centering, hover-only Play/
 
   f.ctx.window.FazFortDiscovery.stop();
 });
+
+test('v0.7.0 Oscars Season subpage: seasonal header tab, pure hero banner, gold statuette categories, owned/missing Request Hub cards, and Admin Settings', async () => {
+  const { window, document } = parseHTML(
+    '<html><head></head><body>' +
+    '<div data-sleekfin-header-proxy="true">' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:home" data-sleekfin-current="true"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Home</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:movies"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Movies</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:view:9d7ad6afe9afa2dab1a2f6e00ad28fa6"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Collections</span></span></button>' +
+    '</div>' +
+    '<div id="indexPage" class="page"><div class="sleekfin-hero">Home hero</div><div class="homeSectionsContainer"></div></div>' +
+    '<div id="adminHost"></div>' +
+    '</body></html>'
+  );
+  let oscarsPayload = {
+    enabled: false,
+    active: false,
+    startDate: '',
+    endDate: '',
+    navTitle: 'Oscars',
+    ceremonyTitle: '98th Academy Awards',
+    hasCustomHero: false,
+    hasCustomLogo: false,
+    assetVersion: 1,
+    categories: [
+      {
+        key: 'best-picture',
+        title: 'Best Picture',
+        enabled: true,
+        nominees: [
+          { title: 'Sinners', year: 2025, tmdbId: 1233413, note: 'Ryan Coogler', winner: false },
+          { title: 'Hamnet', year: 2025, tmdbId: null, note: 'Chloé Zhao', winner: false }
+        ]
+      },
+      {
+        key: 'best-director',
+        title: 'Best Directing',
+        enabled: true,
+        nominees: [
+          { title: 'Sinners', year: 2025, tmdbId: 1233413, note: 'Ryan Coogler', winner: false }
+        ]
+      }
+    ]
+  };
+  const ownedMovies = [
+    { Id: id(101), Name: 'Sinners', Type: 'Movie', ProductionYear: 2025, ProviderIds: { Tmdb: '1233413' }, ImageTags: { Primary: 'p1' }, UserData: { Played: true } },
+    ...fixtureItems.slice(0, 12)
+  ];
+  const putCalls = [];
+  const hubCalls = [];
+  let timeouts = [], nextTimerId = 1, frames = [];
+  const listeners = new Map();
+  const storage = new Map();
+  const api = {
+    getCurrentUserId: () => 'u1',
+    serverId: () => 'srv1',
+    getImageUrl: (i, o) => `https://example.test/Items/${i}/Images/${o.type}`,
+    getUrl: (p, q) => `https://example.test/${p}${q ? '?' + new URLSearchParams(q).toString() : ''}`,
+    getJSON: async url => {
+      const s = String(url);
+      if (s.includes('FazFortDiscovery/Oscars')) return structuredClone(oscarsPayload);
+      if (s.includes('FazFortDiscovery/Preferences')) return { Version: 0, Config: null };
+      if (s.includes('FazFortDiscovery/Tracking')) return { Ready: true, Records: {} };
+      if (s.includes('RequestHub/Browse') && s.includes('Hamnet')) {
+        return { results: [{ id: 858024, type: 'movie', title: 'Hamnet', releaseDate: '2025-11-27', poster: 'https://image.tmdb.org/hamnet.jpg', status: 0 }] };
+      }
+      if (s.includes('/Views')) return { Items: [{ Id: 'm', Name: 'Movies', CollectionType: 'movies' }] };
+      return { Items: [] };
+    },
+    ajax: async options => {
+      const s = String(options.url || '');
+      if (s.includes('FazFortDiscovery/Oscars') && options.type === 'PUT') {
+        const body = JSON.parse(options.data);
+        putCalls.push(body);
+        oscarsPayload = { ...oscarsPayload, ...body, active: Boolean(body.enabled) };
+        return structuredClone(oscarsPayload);
+      }
+      return { Version: 1 };
+    },
+    getItems: async (u, p) => {
+      if (p.IncludeItemTypes === 'Season') return { Items: [] };
+      return { Items: ownedMovies.filter(i => p.IncludeItemTypes.split(',').includes(i.Type)) };
+    }
+  };
+  const location = { hash: '#/home', origin: 'https://example.test', href: 'https://example.test/web/#/home' };
+  const fakeWindow = {
+    ApiClient: api,
+    JellyfinRequestHub: { openDetails: (item, trigger) => hubCalls.push({ item, trigger }) },
+    matchMedia: () => ({ matches: false }),
+    addEventListener: (n, fn) => { const list = listeners.get(n) || []; list.push(fn); listeners.set(n, fn ? list : list); },
+    removeEventListener: (n, fn) => { const list = listeners.get(n) || []; listeners.set(n, list.filter(x => x !== fn)); },
+    dispatchEvent: () => true,
+    scrollTo: () => {}
+  };
+  const context = {
+    window: fakeWindow, document, Element: window.Element, CustomEvent: window.CustomEvent, location, console, structuredClone, URL, URLSearchParams, Blob, Intl, Date, Map, Set, innerHeight: 800,
+    localStorage: { getItem: k => storage.get(k) || null, setItem: (k, v) => storage.set(k, v) },
+    getComputedStyle: n => ({ display: n.classList.contains('hide') ? 'none' : 'block' }),
+    setTimeout: (fn, ms) => { const tid = nextTimerId++; timeouts.push({ id: tid, fn, ms }); return tid; },
+    clearTimeout: tid => { timeouts = timeouts.filter(t => t.id !== tid); },
+    setInterval: () => 1, clearInterval() {},
+    requestAnimationFrame: fn => frames.push(fn),
+    MutationObserver: class { observe() {} disconnect() {} },
+    IntersectionObserver: class { observe() {} disconnect() {} }
+  };
+  window.HTMLElement.prototype.getBoundingClientRect = () => ({ top: 1000, bottom: 1250, height: 250 });
+  window.HTMLElement.prototype.scrollBy = () => {};
+  const ctx = vm.createContext(context);
+  vm.runInContext(source, ctx);
+  const settle = async () => { for (let i = 0; i < 60; i++) await Promise.resolve(); };
+  await settle();
+
+  // 1. Disabled by default -> no Oscars button in header
+  assert.equal(document.querySelector('[data-fx-oscars-link="true"]'), null, 'Oscars nav tab is hidden when disabled');
+
+  // 2. Mount Admin Settings -> enable Oscars + set dates + save -> immediately inserts Oscars tab in header
+  const adminHost = document.getElementById('adminHost');
+  await fakeWindow.FazFortDiscovery.mountOscarsSettings(adminHost);
+  await settle();
+  const enableChk = adminHost.querySelector('input[aria-label="Enable Oscars Page"]');
+  const startInp = adminHost.querySelector('input[aria-label="Start Date (optional)"]');
+  const endInp = adminHost.querySelector('input[aria-label="End Date (optional)"]');
+  assert.ok(enableChk && startInp && endInp, 'Admin settings renders enable toggle and start/end date inputs');
+  enableChk.checked = true;
+  enableChk.dispatchEvent(new window.Event('change', { bubbles: true }));
+  startInp.value = '2026-01-22';
+  startInp.dispatchEvent(new window.Event('change', { bubbles: true }));
+  endInp.value = '2026-03-31';
+  endInp.dispatchEvent(new window.Event('change', { bubbles: true }));
+  const saveBtn = [...adminHost.querySelectorAll('button')].find(b => b.textContent.includes('Save Oscars Settings'));
+  assert.ok(saveBtn, 'Admin settings renders gold Save Oscars Settings button');
+  saveBtn.click();
+  await settle();
+  assert.equal(putCalls.length, 1);
+  assert.equal(putCalls[0].enabled, true);
+  assert.equal(putCalls[0].startDate, '2026-01-22');
+  assert.equal(putCalls[0].endDate, '2026-03-31');
+
+  const navBtn = document.querySelector('[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"]');
+  assert.ok(navBtn, 'Oscars tab appears in SleekFin top header proxy immediately after enabling');
+  assert.ok(navBtn.querySelector('.fx-oscar-nav-icon svg'), 'Header tab includes Oscar statuette SVG icon');
+
+  // 3. Click Oscars tab -> navigates to #/home?fxOscars=1, mounts pure hero & gold statuette category shelves
+  navBtn.click();
+  assert.equal(location.hash, '#/home?fxOscars=1');
+  (listeners.get('hashchange') || []).forEach(fn => fn());
+  await settle();
+
+  assert.equal(document.documentElement.getAttribute('data-fx-oscars'), 'true', 'Oscars gold-and-white theme attribute applied');
+  const oscarsPage = document.querySelector('#indexPage .fx-oscars-page');
+  assert.ok(oscarsPage, 'Oscars page mounted inside #indexPage');
+  assert.equal(document.querySelector('#indexPage .sleekfin-hero').getAttribute('data-fx-oscars-hidden'), 'true', 'Home hero hidden on Oscars subpage');
+  assert.equal(document.querySelector('#indexPage .fx-discovery'), null, 'Standard Discovery Home unmounted on Oscars subpage');
+
+  // Pure hero verification: ONLY background image + Oscars logo, NO play/more-info buttons or description text
+  const hero = oscarsPage.querySelector('.fx-oscars-hero');
+  assert.ok(hero.querySelector('img.fx-oscars-hero-bg')?.src.includes('FazFortDiscovery/Assets/oscars-hero'), 'Hero renders Oscars backdrop image');
+  assert.ok(hero.querySelector('.fx-oscars-hero-logo-svg'), 'Hero renders Oscars vector logo');
+  assert.equal(hero.querySelectorAll('button, a, p').length, 0, 'Hero contains zero action buttons, links, or movie descriptions');
+
+  // Category headings use gold Oscar statuette SVG instead of red bar
+  const shelves = [...oscarsPage.querySelectorAll('.fx-oscars-shelf')];
+  assert.equal(shelves.length, 2);
+  assert.equal(shelves[0].querySelector('h2').textContent, 'Best Picture');
+  assert.ok(shelves[0].querySelector('.fx-oscar-award-icon svg'), 'Category heading displays Oscar statuette icon');
+
+  // Owned vs missing nominee cards
+  const sinnersCard = shelves[0].querySelector('.fx-oscar-card[data-oscar-title="Sinners"]');
+  const hamnetCard = shelves[0].querySelector('.fx-oscar-card[data-oscar-title="Hamnet"]');
+  assert.ok(sinnersCard.classList.contains('is-owned'), 'Library match renders as owned');
+  assert.ok(sinnersCard.querySelector('.fx-oscar-watched svg'), 'Played owned movie displays gold watched checkmark');
+  assert.ok(hamnetCard.classList.contains('is-missing'), 'Undownloaded nominee renders as missing');
+  assert.equal(hamnetCard.querySelector('.fx-oscar-badge')?.textContent, 'Request');
+  assert.equal(hamnetCard.querySelector('img')?.src, 'https://image.tmdb.org/hamnet.jpg', 'Missing nominee poster enriched from TMDb/Request Hub');
+
+  // Clicking missing card opens Request Hub dialog right in place
+  hamnetCard.click();
+  await settle();
+  assert.equal(hubCalls.length, 1);
+  assert.equal(hubCalls[0].item.id, 858024);
+  assert.equal(hubCalls[0].item.type, 'movie');
+  assert.equal(location.hash, '#/home?fxOscars=1', 'Opening Request Hub modal keeps user on Oscars subpage');
+
+  // Clicking category heading opens full grid subview with Back button
+  shelves[0].querySelector('.fx-oscars-heading-btn').click();
+  await settle();
+  assert.ok(oscarsPage.querySelector('.fx-oscars-grid'), 'Category click opens full poster grid');
+  oscarsPage.querySelector('.fx-oscars-back-btn').click();
+  await settle();
+  assert.ok(oscarsPage.querySelector('.fx-oscars-hero'), 'Back button returns to main Oscars view');
+
+  // Clicking owned card navigates to Jellyfin details page
+  oscarsPage.querySelector('.fx-oscar-card[data-oscar-title="Sinners"]').click();
+  assert.equal(location.hash, `#/details?id=${id(101)}&serverId=srv1`);
+
+  // Navigating back to #/home clears data-fx-oscars and restores normal Home
+  location.hash = '#/home';
+  (listeners.get('hashchange') || []).forEach(fn => fn());
+  await settle();
+  assert.equal(document.documentElement.hasAttribute('data-fx-oscars'), false, 'Leaving Oscars removes gold-and-white theme attribute');
+  assert.equal(document.querySelector('.fx-oscars-page'), null, 'Leaving Oscars unmounts Oscars page');
+  assert.ok(document.querySelector('#indexPage .fx-discovery'), 'Normal Discovery Home remounts cleanly');
+
+  fakeWindow.FazFortDiscovery.stop();
+});

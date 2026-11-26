@@ -352,11 +352,55 @@ export class FeedPlanner {
     return { ...shelf, allItems: orderedAll, items: selected, ordinal: this.index };
   }
 }
+export function isOscarsHash(hashValue) {
+  const value = String(hashValue || '').replace(/^#!?\/?/, '').replace(/^\//, '');
+  const [path, query = ''] = value.split('?');
+  const name = path.replace(/\.html$/, '').toLowerCase();
+  const p = new URLSearchParams(query);
+  return ['home', ''].includes(name) && ['1', 'true'].includes(String(p.get('fxOscars') || '').toLowerCase());
+}
+export function normalizeOscarTitle(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/['’`]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+export function matchOscarNominee(nominee, movieItems) {
+  if (!nominee || !Array.isArray(movieItems) || !movieItems.length) return null;
+  const targetTmdb = Number(nominee.tmdbId || 0);
+  if (targetTmdb > 0) {
+    const byTmdb = movieItems.find(m => m && m.Type === 'Movie' && Number(m.ProviderIds?.Tmdb || m.ProviderIds?.tmdb || 0) === targetTmdb);
+    if (byTmdb) return byTmdb;
+  }
+  const want = normalizeOscarTitle(nominee.title);
+  if (!want) return null;
+  const wantYear = Number(nominee.year || 0);
+  const candidates = movieItems.filter(m => {
+    if (!m || m.Type !== 'Movie') return false;
+    return normalizeOscarTitle(m.Name) === want || (m.OriginalTitle && normalizeOscarTitle(m.OriginalTitle) === want);
+  });
+  if (!candidates.length) return null;
+  if (wantYear > 0) {
+    const exactYear = candidates.find(m => Number(m.ProductionYear || 0) === wantYear);
+    if (exactYear) return exactYear;
+    const nearYear = candidates.find(m => {
+      const y = Number(m.ProductionYear || 0);
+      return y > 0 && Math.abs(y - wantYear) <= 1;
+    });
+    if (nearYear) return nearYear;
+    return null;
+  }
+  return candidates[0];
+}
 export function routeInfo(hashValue) {
   const value = String(hashValue || '').replace(/^#!?\/?/, '').replace(/^\//, '');
   const [path, query = ''] = value.split('?');
   const p = new URLSearchParams(query), name = path.replace(/\.html$/, '').toLowerCase();
-  if ([...p.keys()].some(k=>['seerrfintab','requesthub'].includes(k.toLowerCase()))) return null;
+  if ([...p.keys()].some(k=>['seerrfintab','requesthub','fxoscars'].includes(k.toLowerCase()))) return null;
   const collection = p.get('collectionType')?.toLowerCase();
   const page = ['home', ''].includes(name) ? 'home' : name === 'movies' ? 'movies' : ['tv', 'tvshows'].includes(name) ? 'shows' : name === 'list' && ['movies', 'tvshows'].includes(collection) ? (collection === 'movies' ? 'movies' : 'shows') : null;
   const tab=p.get('tab');

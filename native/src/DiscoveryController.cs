@@ -14,7 +14,7 @@ public sealed class ProfileWrite
 [ApiController]
 [Route("FazFortDiscovery")]
 [Authorize]
-public sealed class DiscoveryController(DiscoveryStore store, RatingsService ratings, ILibraryManager library, IUserManager users) : ControllerBase
+public sealed class DiscoveryController(DiscoveryStore store, OscarsStore oscars, RatingsService ratings, ILibraryManager library, IUserManager users) : ControllerBase
 {
     private Guid? OwnUser()
     {
@@ -70,5 +70,53 @@ public sealed class DiscoveryController(DiscoveryStore store, RatingsService rat
         try { return Ok(new { Version = store.UpdateProfile(user.Value, body.ExpectedVersion, body.Config) }); }
         catch (InvalidOperationException) { return Conflict("Preferences changed on another device. Reload before saving."); }
         catch (IOException) { return StatusCode(503, "Discovery storage could not save preferences."); }
+    }
+    [HttpGet("Oscars")]
+    public ActionResult GetOscars()
+    {
+        Guid? user = OwnUser(); if (user is null) return Forbid();
+        string? tz = Plugin.Instance?.Configuration?.TimeZone;
+        return Ok(oscars.GetPublicState(tz, DateTimeOffset.UtcNow));
+    }
+    [HttpPut("Oscars")]
+    [Authorize(Policy = "RequiresElevation")]
+    [RequestSizeLimit(300000)]
+    public ActionResult SaveOscars([FromBody] OscarsConfig body)
+    {
+        Guid? user = OwnUser(); if (user is null) return Forbid();
+        try
+        {
+            string? tz = Plugin.Instance?.Configuration?.TimeZone;
+            return Ok(oscars.SaveConfig(body, tz, DateTimeOffset.UtcNow));
+        }
+        catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (IOException) { return StatusCode(503, new { error = "Could not save Oscars settings." }); }
+    }
+    [HttpPost("Oscars/Asset/{kind}")]
+    [Authorize(Policy = "RequiresElevation")]
+    [RequestSizeLimit(7000000)]
+    public ActionResult UploadOscarsAsset(string kind, [FromBody] OscarsAssetUpload body)
+    {
+        Guid? user = OwnUser(); if (user is null) return Forbid();
+        try
+        {
+            var res = oscars.SaveAsset(kind.ToLowerInvariant(), body?.DataUrl);
+            return Ok(new { ok = true, assetVersion = res.Version, hasCustomHero = res.HasCustomHero, hasCustomLogo = res.HasCustomLogo });
+        }
+        catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (IOException) { return StatusCode(503, new { error = "Could not save uploaded Oscars asset." }); }
+    }
+    [HttpDelete("Oscars/Asset/{kind}")]
+    [Authorize(Policy = "RequiresElevation")]
+    public ActionResult DeleteOscarsAsset(string kind)
+    {
+        Guid? user = OwnUser(); if (user is null) return Forbid();
+        try
+        {
+            var res = oscars.DeleteAsset(kind.ToLowerInvariant());
+            return Ok(new { ok = true, assetVersion = res.Version, hasCustomHero = res.HasCustomHero, hasCustomLogo = res.HasCustomLogo });
+        }
+        catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (IOException) { return StatusCode(503, new { error = "Could not remove custom Oscars asset." }); }
     }
 }

@@ -55,7 +55,7 @@ public sealed class WebRegistration(ILogger<WebRegistration> logger) : IHostedSe
 // A fixed, public static asset only. No user data or integration configuration.
 [ApiController]
 [Route("FazFortDiscovery/Assets")]
-public sealed class DiscoveryAssetsController : ControllerBase
+public sealed class DiscoveryAssetsController(OscarsStore oscars) : ControllerBase
 {
     [AllowAnonymous]
     [HttpGet("discovery.js")]
@@ -66,5 +66,30 @@ public sealed class DiscoveryAssetsController : ControllerBase
         Response.Headers.CacheControl = "no-cache";
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return File(stream, "application/javascript; charset=utf-8");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("oscars-hero")]
+    public IActionResult OscarsHero()
+    {
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        var custom = oscars.ResolveCustomAsset("hero");
+        if (custom is not null) return PhysicalFile(custom.Value.Path, custom.Value.ContentType);
+        Stream? stream = typeof(Plugin).Assembly.GetManifestResourceStream("FazFort.Discovery.oscars-hero.jpg");
+        if (stream is null) return NotFound();
+        return File(stream, "image/jpeg");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("oscars-logo")]
+    public IActionResult OscarsLogo()
+    {
+        var custom = oscars.ResolveCustomAsset("logo");
+        if (custom is null) return NotFound();
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        if (custom.Value.IsSvg) Response.Headers["Content-Security-Policy"] = "sandbox";
+        return PhysicalFile(custom.Value.Path, custom.Value.ContentType);
     }
 }

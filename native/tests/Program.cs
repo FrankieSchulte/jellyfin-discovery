@@ -71,4 +71,29 @@ ratingsConfig["ratings"]!["tomatometer"] = "yes";
 Check(!ConfigPolicy.Valid(JsonDocument.Parse(ratingsConfig.ToJsonString()).RootElement), "Non-boolean ratings preference is rejected");
 ratingsConfig["ratings"] = new System.Text.Json.Nodes.JsonObject { ["unknown"] = true };
 Check(!ConfigPolicy.Valid(JsonDocument.Parse(ratingsConfig.ToJsonString()).RootElement), "Unknown ratings preference key is rejected");
+
+// Oscars Season policy & asset validation tests
+var defaultOscars = OscarsPolicy.DefaultConfig();
+Check(defaultOscars.Categories.Count == 24, "Default Oscars config includes all 24 official Academy Award categories");
+Check(!OscarsPolicy.IsActive(defaultOscars, "America/Los_Angeles", now), "Disabled Oscars config is not active");
+defaultOscars.Enabled = true;
+Check(OscarsPolicy.IsActive(defaultOscars, "America/Los_Angeles", now), "Enabled Oscars config without date bounds is active immediately");
+defaultOscars.StartDate = "2026-01-22";
+defaultOscars.EndDate = "2026-03-20";
+Check(OscarsPolicy.IsActive(defaultOscars, "America/Los_Angeles", DateTimeOffset.Parse("2026-02-15T18:00:00Z")), "Oscars config is active within start and end dates");
+Check(!OscarsPolicy.IsActive(defaultOscars, "America/Los_Angeles", DateTimeOffset.Parse("2026-01-10T18:00:00Z")), "Oscars config is inactive before start date");
+Check(!OscarsPolicy.IsActive(defaultOscars, "America/Los_Angeles", DateTimeOffset.Parse("2026-03-25T18:00:00Z")), "Oscars config is inactive after end date");
+var validatedOscars = OscarsPolicy.ValidateAndNormalize(defaultOscars);
+Check(validatedOscars.Categories.Count == 24 && validatedOscars.NavTitle == "Oscars", "Default Oscars config validates and normalizes cleanly");
+defaultOscars.StartDate = "2026-04-01";
+try { OscarsPolicy.ValidateAndNormalize(defaultOscars); throw new Exception("Reversed Oscars dates accepted"); } catch (ArgumentException) { checks++; }
+var tinyPng = "data:image/png;base64," + Convert.ToBase64String(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00 });
+var parsedHero = OscarsPolicy.ValidateAsset("hero", tinyPng);
+Check(parsedHero.Extension == ".png" && parsedHero.ContentType == "image/png", "Valid PNG asset magic bytes pass");
+var safeSvg = "data:image/svg+xml;base64," + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 40\"><text>OSCARS</text></svg>"));
+Check(OscarsPolicy.ValidateAsset("logo", safeSvg).Extension == ".svg", "Static SVG logo passes validation");
+var evilSvg = "data:image/svg+xml;base64," + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("<svg><script>alert(1)</script></svg>"));
+try { OscarsPolicy.ValidateAsset("logo", evilSvg); throw new Exception("Scripted SVG accepted"); } catch (ArgumentException) { checks++; }
+try { OscarsPolicy.ValidateAsset("hero", safeSvg); throw new Exception("SVG accepted for hero backdrop"); } catch (ArgumentException) { checks++; }
+
 Console.WriteLine($"{checks} native ledger and validation checks passed.");
