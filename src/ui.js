@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.7';
+const VERSION = '0.6.8';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -5172,7 +5172,7 @@ function showOsdSkipOverlay(direction, totalSec) {
 const osdPlayState = {
   timer: 0
 };
-const OSD_PLAY_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.8-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14Z"/></svg>';
+const OSD_PLAY_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><path d="M6.6 5.45v13.1a1 1 0 0 0 1.54.84l10.22-6.55a1 1 0 0 0 0-1.68L8.14 4.61a1 1 0 0 0-1.54.84Z"/></svg>';
 const OSD_PAUSE_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="4.5" width="4.4" height="15" rx="1.4"/><rect x="13.6" y="4.5" width="4.4" height="15" rx="1.4"/></svg>';
 function showOsdPlayStateOverlay(kind) {
   let overlay = document.querySelector('.fx-osd-playstate-overlay');

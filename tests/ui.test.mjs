@@ -756,7 +756,8 @@ test('category subpages open all matching items on heading click, unified search
   assert.deepEqual([...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey),initialRowKeys);
   assert.equal(lateTab.getAttribute('data-fx-native-hidden'),'true');
 
-  const themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
+  let themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
+  for(let tries=0;!themeShelf&&tries<6;tries++){f.intersection();await f.settle();themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));}
   assert.ok(themeShelf);
   const shelfKey=themeShelf.dataset.shelfKey;
   const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
@@ -2171,6 +2172,7 @@ test('v0.6.7 polish: volume focus fix, SyncPlay icon centering, hover-only Play/
   vid.dispatchEvent(new Ev('play'));
   assert.equal(burst.dataset.state, 'play', 'overlay switches to play icon when resumed');
   assert.equal(burst.classList.contains('is-visible'), true, 'overlay becomes visible on resume');
+  assert.equal(cssText.includes('.fx-osd-playstate-overlay[data-state="play"] svg{\n  transform:translateX(2px);'), false, 'centered play icon does not double-shift right');
 
   // Seeking does not trigger false play/pause overlay
   burst.classList.remove('is-visible');

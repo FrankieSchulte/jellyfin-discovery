@@ -1,11 +1,7 @@
-Jellyfin Discovery 0.6.7 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.6.8 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.6.7):
-- First 3 categories always random + Recently Added further down: Home, Movies, and Shows now always start with 3 randomized, family-diverse categories (`family:any`), followed by `Continue Watching` at Category 4, with `Recently Added in Movies` and `Recently Added in Shows` shuffled organically further down after `Continue Watching` (with seamless migration for legacy & v0.6.6 profiles).
-- Massively expanded Movie & TV Show categories: added 39 new Movie categories and 30 new TV Show categories (heists, whodunits, espionage, road trips, post-apocalypse, AI/robots, multiverse/time loops, vampires, cult horror, sports, music, rom-coms, war, westerns, history, courtroom, mafia, quick flicks under 95m, world cinema, kaiju, pirates, indie/A24, animation powerhouses, decade spotlights, prestige drama/streaming, anime studios, cozy slice-of-life, miniseries, medical/legal, and more), automatically merged into existing saved profiles.
-- Playback OSD polish: fixed the Volume button reverting to a flat look on click (`:focus` no longer strips hover/active 3D glass shadow and pointer clicks cleanly blur focus), raised and centered the SyncPlay people icon (`translateY(-2px)`), made the Play/Pause button borderless at rest so its circular glass border appears only on hover like all other OSD buttons, and added a Netflix/YouTube-style centered animated Play/Pause burst indicator whenever playback is paused or resumed.
-- More Like This single Rotten Tomatoes score: fixed async SleekFin hydration race on `#similarCollapsible` cards so each similar title renders only ONE Rotten Tomatoes score instead of two.
+Discovery (0.6.8):
+- Centered resume Play burst icon: optically centered the `OSD_PLAY_SVG` triangle inside the center-screen `.fx-osd-playstate-overlay` badge and removed the double right-shift (`translateX(2px)`) so the Play icon sits dead-center inside its circle when resuming playback.
 
-Request Hub (0.6.7):
-- Fixed bugged title loading on legacy requests and upcoming releases: made every JSON integer/double/property projection in `Gateway.cs` and `Controller.cs` strictly null-safe (`"profileId": null` on pre-v0.6.5 requests, `"runtime": null` / `"voteAverage": null` on unreleased movies like *The Hunger Games: Sunrise on the Reaping*, and null RT scores), raised the upstream response cap to 4 MB, and improved client error messaging.
-- Restyled Request Hub pop-up to match SleekFin & the rest of the server: glassy 3D modal surface, red-accented kicker bar, circular glassy close icon button, primary white pill Confirm button, 3D glass secondary/season chips, glassy crimson Cancel button, and custom SleekFin-styled quality profile dropdown.
+Request Hub (0.6.8):
+- Version parity release with Jellyfin Discovery 0.6.8.

@@ -4354,9 +4354,6 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   height:34px;
   display:block;
 }
-.fx-osd-playstate-overlay[data-state="play"] svg{
-  transform:translateX(2px);
-}
 @media(prefers-reduced-motion:reduce){
   .fx-osd-playstate-overlay.is-visible{
     animation:none;

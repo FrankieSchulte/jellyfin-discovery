@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.7 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.8 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -8577,9 +8577,6 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   height:34px;
   display:block;
 }
-.fx-osd-playstate-overlay[data-state="play"] svg{
-  transform:translateX(2px);
-}
 @media(prefers-reduced-motion:reduce){
   .fx-osd-playstate-overlay.is-visible{
     animation:none;
@@ -10822,7 +10819,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.7";
+      const VERSION = "0.6.8";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -16618,7 +16615,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
       const osdPlayState = {
         timer: 0
       };
-      const OSD_PLAY_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.8-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14Z"/></svg>';
+      const OSD_PLAY_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><path d="M6.6 5.45v13.1a1 1 0 0 0 1.54.84l10.22-6.55a1 1 0 0 0 0-1.68L8.14 4.61a1 1 0 0 0-1.54.84Z"/></svg>';
       const OSD_PAUSE_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="4.5" width="4.4" height="15" rx="1.4"/><rect x="13.6" y="4.5" width="4.4" height="15" rx="1.4"/></svg>';
       function showOsdPlayStateOverlay(kind) {
         let overlay = document.querySelector(".fx-osd-playstate-overlay");
