@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.1 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.2 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -12773,7 +12773,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.1";
+      const VERSION = "0.7.2";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);

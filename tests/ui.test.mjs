@@ -756,8 +756,9 @@ test('category subpages open all matching items on heading click, unified search
   assert.deepEqual([...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey),initialRowKeys);
   assert.equal(lateTab.getAttribute('data-fx-native-hidden'),'true');
 
-  let themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:')&&n.querySelectorAll('.fx-card').length>=20);
-  for(let tries=0;!themeShelf&&tries<10;tries++){f.intersection();await f.settle();themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:')&&n.querySelectorAll('.fx-card').length>=20);}
+  const isFullRuleShelf=n=>(n.dataset.shelfKey||'').startsWith('rule:')&&new Set([...n.querySelectorAll('.fx-card')].map(c=>c.dataset.itemId)).size>=20;
+  let themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(isFullRuleShelf);
+  for(let tries=0;!themeShelf&&tries<12;tries++){f.intersection();await f.settle();themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(isFullRuleShelf);}
   assert.ok(themeShelf);
   const shelfKey=themeShelf.dataset.shelfKey;
   const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
