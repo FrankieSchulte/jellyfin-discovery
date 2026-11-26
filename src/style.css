@@ -447,6 +447,21 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   transition:none!important;
   animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
 }
+@keyframes fx-header-fade-in{
+  from{opacity:0}
+  to{opacity:1}
+}
+/* Under SleekFin menu UI, suppress the raw pre-wrap MUI/ActionSheet box on Frame 0 (leaving inline style.opacity intact for SleekFin's E(e,n) check) so only the final .sleekfin-menu-popup paints once with zero double-animation jitter */
+html.sleekfin-menu-ui :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper:not(.sleekfin-menu-host),
+html.sleekfin-menu-ui .dialog.actionSheet.syncPlayGroupMenu:not(.sleekfin-menu-host),
+html.sleekfin-menu-ui[data-fx-header-menu-opening="true"] .dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]),
+html.sleekfin-menu-ui[data-fx-video-osd="true"][data-fx-osd-anchor="top"] .dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]){
+  opacity:0!important;
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+  pointer-events:none!important;
+}
 html:root :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper.sleekfin-menu-host{
   position:fixed!important;
   left:0!important;
@@ -459,9 +474,33 @@ html:root :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper.sle
   transform:none!important;
   animation:none!important;
 }
+html:root .dialog.actionSheet.syncPlayGroupMenu.sleekfin-menu-host,
+html:root .dialog.actionSheet.sleekfin-menu-host:has([data-fx-header-anchored="true"]){
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  contain:none!important;
+  transform:none!important;
+  transition:none!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  will-change:auto!important;
+  perspective:none!important;
+}
 html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"])),
 html[data-fx-header-menu-opening="true"] :is(.dialog.actionSheet .sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]),.sleekfin-popup-layer .sleekfin-menu-popup:not([data-fx-detail-more="true"])),
-html:root :is(#app-sync-play-menu,#app-remote-play-menu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
+html:root :is(#app-sync-play-menu,#app-remote-play-menu,.syncPlayGroupMenu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
 html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-paper[data-fx-header-anchored="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
   position:fixed!important;
   top:var(--fx-header-popup-top,64px)!important;
@@ -479,9 +518,10 @@ html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-p
   -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
   border:1px solid rgba(255,255,255,.11)!important;
   pointer-events:auto!important;
+  transform:none!important;
   transition:none!important;
   transform-origin:top right!important;
-  animation:fx-dropdown-enter .14s cubic-bezier(.22,1,.36,1) both!important;
+  animation:fx-header-fade-in 110ms ease-out both!important;
 }
 #app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
 #app-user-menu .sleekfin-menu-popup,
@@ -952,9 +992,9 @@ html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .
   color:#fff!important;
 }
 
-/* Unify Category Headings, Spacing & Scroll Arrows Across Home, Movies, Shows, Live TV, Collections (including Genres), Library Pages & Search (Single Red Bar Only) */
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle),
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+/* Unify Category Headings, Spacing & Scroll Arrows Across Home, Movies, Shows, Live TV, Collections (including Genres), Library Pages & Search (Single Red Bar Only — never duplicate SleekFin's .sleekfin-section-rail on #itemDetailPage!) */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle),
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:24px!important;
   line-height:32px!important;
@@ -967,23 +1007,25 @@ main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-card
   opacity:1!important;
   text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before,
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before,
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
   display:none!important;
   content:none!important;
 }
-.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a),
-#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards){
+html body .sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a,.sleekfin-section-title),
+html body #itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title),
+html body #itemDetailPage .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title){
   border-left:0!important;
   padding-left:0!important;
 }
-.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a)::before,
-#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards)::before{
+html body .sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a,.sleekfin-section-title)::before,
+html body #itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title)::before,
+html body #itemDetailPage .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title)::before{
   display:none!important;
   content:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
   padding:0!important;
   margin:0 auto 0 0!important;
   background:transparent!important;
@@ -994,24 +1036,24 @@ main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
   align-items:center!important;
   gap:4px!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton:hover,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton:hover{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton:hover,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton:hover{
   opacity:.86!important;
   text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton > .material-icons,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton > .material-icons{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton > .material-icons,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton > .material-icons{
   color:rgba(255,255,255,.75)!important;
   opacity:1!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitleContainer,.sectionTitleContainer-cards),
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitleContainer,.sectionTitleContainer-cards),
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   margin-bottom:14px!important;
   display:flex!important;
   align-items:center!important;
   gap:10px!important;
 }
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,.libraryPage,.genresTab) .verticalSection{
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,.libraryPage:not(#itemDetailPage),.genresTab) .verticalSection{
   margin-top:0!important;
   margin-bottom:24px!important;
 }

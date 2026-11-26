@@ -248,3 +248,101 @@ test('in-place openDetails works from Home without navigating, shows quality pro
  win.JellyfinRequestHub.stop();
  assert.equal(document.querySelector('.rh-overlay'),null,'stop() cleans up standalone overlays');
 });
+
+test('request cancellation, grayed-out Confirm request on requested movies, and already-downloaded items visible in Discover Search only',async()=>{
+ const {document,window}=parseHTML('<html><head></head><body><header><div class="headerTabs"></div></header><div id="indexPage"><div id="native">Native Home</div></div></body></html>');
+ window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollBy=function(){};
+ const calls=[];
+ const location={hash:'#/home?requesthub=discover'};
+ const profiles=[
+  {id:12,name:'1080p Efficient',serverId:0,is4k:false,isDefault:false},
+  {id:15,name:'1080p Quality',serverId:0,is4k:false,isDefault:true}
+ ];
+ const downloadedMovie={id:777,type:'movie',title:'Inception',overview:'Dream heist',poster:'https://image.tmdb.org/t/p/w500/inc.jpg',status:5,releaseDate:'2010-07-16'};
+ const newMovie={id:550,type:'movie',title:'Fight Club',overview:'Soap',poster:'https://image.tmdb.org/t/p/w500/fc.jpg',status:0,releaseDate:'1999-10-15'};
+ const alreadyRequestedMovie={id:864,type:'movie',title:'Cool Runnings',overview:'Bobsled',poster:'https://image.tmdb.org/t/p/w500/cr.jpg',status:3,releaseDate:'1993-10-01'};
+ const api={
+  getCurrentUserId:()=>'user-one',
+  serverId:()=>'server',
+  getUrl:(path,query)=>({path,query}),
+  getJSON:async({path,query})=>{
+   if(path.endsWith('Status'))return {enabled:true,canRequest:true};
+   if(path.endsWith('Details')&&Number(query.id)===550){
+    return {item:newMovie,seasons:[],profiles,defaultProfileId:15,requests:[],canRequest:true};
+   }
+   if(path.endsWith('Details')&&Number(query.id)===864){
+    return {item:alreadyRequestedMovie,seasons:[],profiles,defaultProfileId:15,requests:[{id:256,status:2,is4k:false,profileId:15,seasons:[],canCancel:true}],canRequest:true};
+   }
+   if(query?.kind==='search')return {results:[downloadedMovie,newMovie],pages:1,canRequest:true};
+   if(query?.kind==='genres')return {results:[],pages:1};
+   return {results:[downloadedMovie,newMovie],pages:1,canRequest:true};
+  },
+  ajax:async options=>{
+   const body=JSON.parse(options.data);
+   calls.push({path:options.url.path,body});
+   if(options.url.path.endsWith('Request')){
+    return {message:'Submitted for approval',request:{id:901,status:1,is4k:false,profileId:body.profileId,seasons:body.seasons||[],canCancel:true}};
+   }
+   if(options.url.path.endsWith('Cancel')){
+    return {message:'Request cancelled.'};
+   }
+   return {};
+  }
+ };
+ const win={ApiClient:api,innerWidth:1280,innerHeight:800,matchMedia:()=>({matches:false}),addEventListener(){},removeEventListener(){}};
+ const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:fn=>{fn();return 1;},clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
+ vm.runInContext(source,ctx);
+ const settle=async()=>{for(let n=0;n<100;n++)await Promise.resolve();};
+ await settle();
+
+ // 1. Scrollable Discover categories hide already-downloaded movies (status=5)
+ assert.equal([...document.querySelectorAll('.rh-row .rh-card strong')].some(n=>n.textContent==='Inception'),false,'scrollable categories exclude downloaded titles');
+
+ // 2. Discover Search DOES show already-downloaded movies with Available pill
+ const searchInput=document.querySelector('.rh-search input');
+ searchInput.value='Inception';
+ searchInput.dispatchEvent(new window.Event('input',{bubbles:true}));
+ await settle();
+ const searchCards=[...document.querySelectorAll('.rh-grid .rh-card')];
+ const incCard=searchCards.find(c=>c.textContent.includes('Inception'));
+ assert.ok(incCard,'Discover search displays already-downloaded movies');
+ assert.ok(incCard.querySelector('.rh-status')?.textContent==='Available','downloaded search result shows Available badge');
+
+ // 3. Requesting a movie grays out Confirm request & reveals Cancel request; cancelling re-enables Confirm & quality profile!
+ win.JellyfinRequestHub.openDetails(newMovie);
+ await settle();
+ let dialog=document.querySelector('.rh-dialog');
+ let confirmBtn=[...dialog.querySelectorAll('button')].find(b=>b.classList.contains('rh-btn-primary'));
+ let select=dialog.querySelector('select.rh-select');
+ assert.equal(confirmBtn.disabled,false);
+ assert.equal(dialog.querySelector('[data-rh-cancel-request]'),null,'no cancel button before requesting');
+ confirmBtn.click();
+ await settle();
+ assert.equal(confirmBtn.disabled,true,'Confirm request grays out immediately after requesting');
+ assert.equal(confirmBtn.textContent,'Already requested');
+ assert.equal(select.disabled,true,'Quality profile locks while movie is requested');
+ const cancelBtn=dialog.querySelector('[data-rh-cancel-request="901"]');
+ assert.ok(cancelBtn,'Cancel request button appears immediately after requesting');
+ cancelBtn.click();
+ await settle();
+ assert.deepEqual(calls.find(c=>c.path.endsWith('Cancel'))?.body,{requestId:901});
+ assert.equal(dialog.querySelector('[data-rh-cancel-request]'),null,'Cancel button disappears after cancellation');
+ assert.equal(confirmBtn.disabled,false,'Confirm request re-enables once cancelled');
+ assert.equal(confirmBtn.textContent,'Confirm request');
+ assert.equal(select.disabled,false,'Quality profile unlocks so user can pick a different quality and re-request');
+
+ // 4. Opening an already-requested movie starts with Confirm request grayed out until cancelled
+ win.JellyfinRequestHub.openDetails(alreadyRequestedMovie);
+ await settle();
+ dialog=document.querySelector('.rh-dialog');
+ confirmBtn=[...dialog.querySelectorAll('button')].find(b=>b.classList.contains('rh-btn-primary'));
+ assert.equal(confirmBtn.disabled,true,'already-requested movie opens with Confirm request grayed out');
+ assert.equal(confirmBtn.textContent,'Already requested');
+ const existingCancel=dialog.querySelector('[data-rh-cancel-request="256"]');
+ assert.ok(existingCancel,'already-requested movie displays Cancel request button');
+ existingCancel.click();
+ await settle();
+ assert.equal(confirmBtn.disabled,false,'cancelling existing request unlocks Confirm request');
+
+ win.JellyfinRequestHub.stop();
+});

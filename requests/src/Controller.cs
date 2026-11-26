@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Jellyfin.RequestHub;
 public sealed class RequestBody {public string Type{get;set;}="";public int Id{get;set;}public int[] Seasons{get;set;}=[];public int? ProfileId{get;set;}public int? ServerId{get;set;}public bool? Is4k{get;set;}}
+public sealed class CancelBody {public int RequestId{get;set;}}
 [ApiController,Route("RequestHub"),Authorize]
 public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibraryManager? library=null):ControllerBase
 {
@@ -42,7 +43,7 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
         lock(OwnedLock){CachedMovies=movies;CachedSeries=series;OwnedCachedAt=now;return(movies,series);}
     }
     private UserLink? Link(){var c=Plugin.Instance.Configuration;if(!c.Enabled)return null;var claim=User.Claims.FirstOrDefault(c=>c.Type.Equals("Jellyfin-UserId",StringComparison.OrdinalIgnoreCase))?.Value;return Guid.TryParse(claim,out var id)&&users.GetUserById(id)is not null?HubPolicy.OwnMapping(c.Users,id):null;}
-    private async Task<IActionResult> Run(Func<UserLink,Task<IActionResult>> action){var link=Link();if(link is null)return StatusCode(403,new{error="Request Hub is disabled or your account has not been mapped by the administrator."});try{return await action(link);}catch(HubException e){return StatusCode(e.Status is 403 or 409 or 429?e.Status:502,new{error=e.Status==403?"Jellyseerr denied this operation. Check account permissions and request quota.":e.Status==409?"This title or season has already been requested.":"Jellyseerr could not complete the operation. Try again later."});}catch(Exception e)when(e is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException or KeyNotFoundException){return StatusCode(502,new{error="Jellyseerr is unavailable or returned an unsupported response."});}}
+    private async Task<IActionResult> Run(Func<UserLink,Task<IActionResult>> action){var link=Link();if(link is null)return StatusCode(403,new{error="Request Hub is disabled or your account has not been mapped by the administrator."});try{return await action(link);}catch(HubException e){return StatusCode(e.Status is 403 or 404 or 409 or 429?e.Status:502,new{error=e.Status==403?"Jellyseerr denied this operation. Check account permissions and request quota.":e.Status==404?"Request not found or already cancelled.":e.Status==409?"This title or season has already been requested.":"Jellyseerr could not complete the operation. Try again later."});}catch(Exception e)when(e is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException or KeyNotFoundException){return StatusCode(502,new{error="Jellyseerr is unavailable or returned an unsupported response."});}}
     [HttpGet("Status")]
     public IActionResult Status(){var link=Link();return Ok(new{enabled=link is not null,canRequest=link?.AllowRequests==true});}
     [HttpGet("Browse")]
@@ -53,7 +54,18 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
         var today=DateOnly.FromDateTime(DateTime.UtcNow);
         var fallbackType=kind is "movies" or "genre" or "studio"?"movie":kind is "tv" or "network"?"tv":null;
         var (ownedMovies,ownedSeries)=GetOwnedTmdb(library);
-        var items=root.GetProperty("results").EnumerateArray().Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries)).Select(i=>Projection.Item(i,fallbackType)).ToArray();
+        bool isSearch=kind=="search";
+        var items=root.GetProperty("results").EnumerateArray().Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries,allowOwned:isSearch)).Select(i=>{
+            int? statusOverride=null;
+            if(isSearch)
+            {
+                int itemId=i.TryGetProperty("id",out var ip)&&ip.TryGetInt32(out var n)?n:0;
+                string itemType=fallbackType??(i.TryGetProperty("mediaType",out var mt)&&mt.ValueKind==JsonValueKind.String?(mt.GetString()??""):"");
+                int st=Projection.StatusOf(i);
+                if(itemId>0&&((itemType=="movie"&&ownedMovies.Contains(itemId))||(itemType=="tv"&&st!=4&&ownedSeries.Contains(itemId))))statusOverride=5;
+            }
+            return Projection.Item(i,fallbackType,statusOverride);
+        }).ToArray();
         return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});
     });
     private async Task<QualityProfile[]> GetProfilesAsync(string type,CancellationToken token)
@@ -117,12 +129,16 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
         var profiles=await profilesTask;
         var defaultProfile=profiles.FirstOrDefault(p=>p.IsDefault)??profiles.FirstOrDefault();
         var ratings=type=="movie"?await ratingsTask:null;
+        var (ownedMovies,ownedSeries)=GetOwnedTmdb(library);
+        int? statusOverride=(type=="movie"&&ownedMovies.Contains(id))||(type=="tv"&&Projection.StatusOf(r)!=4&&ownedSeries.Contains(id))?5:null;
+        var requests=Projection.ActiveRequests(r,link.SeerrUserId);
         return Ok(new{
-            item=Projection.Details(r,type),
+            item=Projection.Details(r,type,statusOverride),
             seasons,
             profiles=profiles.Select(p=>new{id=p.Id,name=p.Name,serverId=p.ServerId,is4k=p.Is4k,isDefault=p.IsDefault}).ToArray(),
             defaultProfileId=defaultProfile?.Id,
             ratings,
+            requests,
             canRequest=link.AllowRequests
         });
     });
@@ -146,6 +162,14 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
             payload=new{mediaType=body.Type,mediaId=body.Id,seasons=body.Seasons,is4k=false};
         }
         using var response=await gateway.Send(link,"request",payload,HttpContext.RequestAborted);
-        return Ok(new{message="Request submitted. Jellyseerr approval rules and quotas apply."});
+        return Ok(new{message="Request submitted. Jellyseerr approval rules and quotas apply.",request=Projection.CreatedRequest(response.RootElement)});
+    });
+    [HttpPost("Cancel"),RequestSizeLimit(1024)]
+    public Task<IActionResult> CancelRequest([FromBody]CancelBody body)=>Run(async link=>{
+        if(!link.AllowRequests)return Forbid();
+        if(body.RequestId<=0)return BadRequest();
+        if(!gateway.PermitWrite(link.JellyfinUserId))return StatusCode(429);
+        await gateway.Delete(link,$"request/{body.RequestId}",HttpContext.RequestAborted);
+        return Ok(new{message="Request cancelled."});
     });
 }

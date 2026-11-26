@@ -229,7 +229,7 @@ export class JellyfinClient {
     const limit = Math.min(config?.cardsPerShelf || 20, 20);
     const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
     this.assertCurrent();
-    return items.length ? [{ key: 'ContinueWatchingNextUp', title: 'Continue Watching / Next Up', family: 'anchor', items }] : [];
+    return items.length ? [{ key: 'ContinueWatchingNextUp', title: 'Continue Watching', family: 'anchor', items }] : [];
   }
   async anchor(id, route, inventory, config) {
     const typed = list => route.page === 'home' ? list : list.filter(i => route.page === 'movies' ? i.Type === 'Movie' || i.SourceType === 'movie' : ['Series', 'Episode'].includes(i.Type) || i.SourceType === 'tv');
@@ -238,7 +238,7 @@ export class JellyfinClient {
     const recentItemsAll = kind => inventory.items
       .filter(i => i.Type === kind && !isLeavingSoonItem(i))
       .sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name || '').localeCompare(String(b.Name || '')));
-    const title = { ContinueWatchingNextUp: 'Continue Watching / Next Up', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
+    const title = { ContinueWatchingNextUp: 'Continue Watching', RecentlyAddedMovies: 'Recently Added in Movies', RecentlyAddedShows: 'Recently Added in Shows', DiscoverMovies: 'Discover Movies', DiscoverTV: 'Discover TV Shows', MyJellyseerrRequests: 'My Requests', MyMedia: 'My Media' }[id];
     const seeMoreItem = id === 'DiscoverMovies'
       ? { Id: 'fx-see-more:movies', Name: 'All Popular Movies', Type: 'SeeMore', SeeMoreKind: 'movies', SeeMoreLabel: 'See More', SeeMoreSub: 'Popular Movies' }
       : id === 'DiscoverTV'

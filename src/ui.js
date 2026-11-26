@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.6.5';
+const VERSION = '0.6.6';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -1058,7 +1058,7 @@ function updateOsdPopupAnchor(anchorEl) {
   document.documentElement.style?.setProperty?.('--fx-osd-popup-bottom', `${bottomPx}px`);
   document.documentElement.style?.setProperty?.('--fx-osd-popup-right', `${rightPx}px`);
 }
-function updateHeaderPopupAnchor(anchorEl) {
+function updateHeaderPopupAnchor(anchorEl, force = false) {
   if (!anchorEl || !document.documentElement) return false;
   const r = anchorEl.getBoundingClientRect?.();
   if (!r || (r.width <= 0 && r.height <= 0)) return false;
@@ -1066,6 +1066,13 @@ function updateHeaderPopupAnchor(anchorEl) {
   const vh = window.innerHeight || document.documentElement.clientHeight || 720;
   const topPx = Math.max(40, Math.min(vh - 140, Math.round(r.bottom + 8)));
   const rightPx = Math.max(12, Math.min(vw - 200, Math.round(vw - r.right)));
+  if (!force) {
+    const prevTop = parseInt(document.documentElement.style?.getPropertyValue?.('--fx-header-popup-top') || '', 10);
+    const prevRight = parseInt(document.documentElement.style?.getPropertyValue?.('--fx-header-popup-right') || '', 10);
+    if (Number.isFinite(prevTop) && Number.isFinite(prevRight) && Math.abs(prevTop - topPx) <= 6 && Math.abs(prevRight - rightPx) <= 6) {
+      return true;
+    }
+  }
   document.documentElement.style?.setProperty?.('--fx-header-popup-top', `${topPx}px`);
   document.documentElement.style?.setProperty?.('--fx-header-popup-right', `${rightPx}px`);
   return true;
@@ -1125,7 +1132,8 @@ function onOsdAnchorPointer(event) {
   const headerBtn = event.target?.closest?.('.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button, [data-sleekfin-header-proxy] button');
   const isBackBtn = Boolean(headerBtn?.matches?.('.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
   if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || (isVideoOsdOpen() && headerBtn.closest('.osdHeader, .videoOsd-appBar, .skinHeader')))) {
-    updateHeaderPopupAnchor(headerBtn);
+    const isFreshPress = event.type === 'pointerdown' || !headerMenuAnchor || headerMenuAnchor.el !== headerBtn || (Date.now() - headerMenuAnchor.at > 600);
+    updateHeaderPopupAnchor(headerBtn, isFreshPress);
     headerMenuAnchor = { el: headerBtn, at: Date.now() };
     markHeaderMenuOpening(true);
     if (isVideoOsdOpen()) document.documentElement?.setAttribute?.('data-fx-osd-anchor', 'top');
@@ -2510,6 +2518,11 @@ function syncLibraryViewMenu() {
 }
 const LEGACY_DUPLICATE_SHOW_KEYS = new Set(['tv-drama', 'tv-comedy', 'tv-anime', 'tv-scifi', 'tv-crime', 'tv-acclaimed']);
 const LEGACY_DEFAULT_RULE_COUNTS = { home: 32, movies: 26, shows: 28 };
+const LEGACY_DEFAULT_ANCHORS = {
+  home: 'ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests,DiscoverTV,MyMedia',
+  movies: 'ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests',
+  shows: 'ContinueWatchingNextUp,RecentlyAddedShows,DiscoverTV,MyJellyseerrRequests'
+};
 function upgradeLegacyConfig(cfg) {
   if (!cfg || typeof cfg !== 'object') return cfg;
   if (cfg.cardsPerShelf === 8) {
@@ -2518,13 +2531,16 @@ function upgradeLegacyConfig(cfg) {
   if (cfg.pages && DEFAULT_CONFIG?.pages) {
     for (const page of ['home', 'movies', 'shows']) {
       const prof = cfg.pages[page];
-      const supplied = DEFAULT_CONFIG.pages[page]?.rules;
+      const suppliedPage = DEFAULT_CONFIG.pages[page];
+      const supplied = suppliedPage?.rules;
       if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
-      if (Array.isArray(prof.anchors)) {
-        if (!prof.anchors.includes('ContinueWatchingNextUp') && !Array.isArray(prof.opening)) {
-          prof.anchors.unshift('ContinueWatchingNextUp');
-        } else if (prof.anchors.includes('ContinueWatchingNextUp') && prof.anchors[0] !== 'ContinueWatchingNextUp') {
-          prof.anchors = ['ContinueWatchingNextUp', ...prof.anchors.filter(a => a !== 'ContinueWatchingNextUp')];
+      if (Array.isArray(prof.anchors) && !Array.isArray(prof.opening)) {
+        const sig = prof.anchors.join(',');
+        if (sig === LEGACY_DEFAULT_ANCHORS[page]) {
+          prof.anchors = cloneJson(suppliedPage.anchors);
+          if (Array.isArray(suppliedPage.opening)) prof.opening = cloneJson(suppliedPage.opening);
+        } else if (page === 'home' && prof.anchors.includes('MyMedia')) {
+          prof.anchors = prof.anchors.filter(a => a !== 'MyMedia');
         }
       }
       if (page === 'shows') {

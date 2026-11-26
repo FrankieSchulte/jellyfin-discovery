@@ -11,6 +11,15 @@ public sealed class SeerrGateway : IDisposable
     public bool PermitWrite(Guid user){lock(writes){var now=DateTimeOffset.UtcNow;if(!writes.TryGetValue(user,out var queue))writes[user]=queue=new();while(queue.TryPeek(out var old)&&old<now.AddMinutes(-1))queue.Dequeue();if(queue.Count>=10)return false;queue.Enqueue(now);return true;}}
     public Task<JsonDocument> Send(UserLink link,string path,object? body,CancellationToken token)=>SendCore(link,path,body,token);
     public Task<JsonDocument> SendAdmin(string path,CancellationToken token)=>SendCore(null,path,null,token);
+    public async Task Delete(UserLink link,string path,CancellationToken token)
+    {
+        var config=Plugin.Instance.Configuration;
+        using var request=new HttpRequestMessage(HttpMethod.Delete,new Uri(HubPolicy.BaseUri(config.ServerUrl),path));
+        request.Headers.Add("X-API-Key",config.ApiKey);
+        request.Headers.Add("X-API-User",link.SeerrUserId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        using var response=await client.SendAsync(request,token);
+        if(!response.IsSuccessStatusCode)throw new HubException(response.StatusCode);
+    }
     private async Task<JsonDocument> SendCore(UserLink? link,string path,object? body,CancellationToken token)
     {
         var config=Plugin.Instance.Configuration;
@@ -41,24 +50,28 @@ public static class Projection
         if(item.TryGetProperty("voteCount",out var vc)&&vc.TryGetInt32(out var votes)&&votes<=0)return false;
         return true;
     }
-    public static bool ShouldIncludeBrowseItem(JsonElement item,string? fallbackType,DateOnly today,IReadOnlySet<int>? ownedMovies=null,IReadOnlySet<int>? ownedSeries=null)
+    public static bool ShouldIncludeBrowseItem(JsonElement item,string? fallbackType,DateOnly today,IReadOnlySet<int>? ownedMovies=null,IReadOnlySet<int>? ownedSeries=null,bool allowOwned=false)
     {
-        if(!IsReleased(item,today))return false;
-        int status=StatusOf(item);
-        if(status==5)return false;
         string resolvedType=fallbackType??Text(item,"mediaType");
         if(resolvedType is not("movie" or "tv"))return false;
+        int status=StatusOf(item);
         int id=item.TryGetProperty("id",out var idProp)&&idProp.TryGetInt32(out var number)?number:0;
-        if(id>0&&resolvedType=="movie"&&ownedMovies?.Contains(id)==true)return false;
-        if(id>0&&resolvedType=="tv"&&status!=4&&ownedSeries?.Contains(id)==true)return false;
+        bool ownedInLibrary=id>0&&((resolvedType=="movie"&&ownedMovies?.Contains(id)==true)||(resolvedType=="tv"&&status!=4&&ownedSeries?.Contains(id)==true));
+        if(allowOwned)
+        {
+            if(status==5||ownedInLibrary)return true;
+            return IsReleased(item,today);
+        }
+        if(!IsReleased(item,today))return false;
+        if(status==5||ownedInLibrary)return false;
         return true;
     }
-    public static object Item(JsonElement item,string? type=null)=>new {
+    public static object Item(JsonElement item,string? type=null,int? statusOverride=null)=>new {
         id=item.TryGetProperty("id",out var id)&&id.TryGetInt32(out var number)?number:0,
         type=type??Text(item,"mediaType"),title=Text(item,"title") is {Length:>0} t?t:Text(item,"name"),
         overview=Text(item,"overview"),poster=HubPolicy.Poster(Text(item,"posterPath")),
         releaseDate=ReleaseDate(item),
-        status=StatusOf(item)
+        status=statusOverride??StatusOf(item)
     };
     private static string[] NamesOf(JsonElement item,string field,int limit)
     {
@@ -110,7 +123,7 @@ public static class Projection
         }
         return 0;
     }
-    public static object Details(JsonElement item,string type)
+    public static object Details(JsonElement item,string type,int? statusOverride=null)
     {
         var director="";
         string[] cast=[];
@@ -139,7 +152,7 @@ public static class Projection
             overview=Text(item,"overview"),
             poster=HubPolicy.Poster(Text(item,"posterPath")),
             releaseDate=ReleaseDate(item),
-            status=StatusOf(item),
+            status=statusOverride??StatusOf(item),
             tagline=Text(item,"tagline").Trim(),
             runtime=RuntimeOf(item,type),
             genres=NamesOf(item,"genres",4),
@@ -151,6 +164,65 @@ public static class Projection
             networks=type=="tv"?NamesOf(item,"networks",2):Array.Empty<string>(),
             numberOfSeasons=seasonCount,
             numberOfEpisodes=episodeCount
+        };
+    }
+    private static int[] RequestSeasons(JsonElement req)
+    {
+        if(!req.TryGetProperty("seasons",out var arr)||arr.ValueKind!=JsonValueKind.Array)return [];
+        var list=new List<int>();
+        foreach(var entry in arr.EnumerateArray())
+        {
+            int num;
+            if(entry.ValueKind==JsonValueKind.Object&&entry.TryGetProperty("seasonNumber",out var sn)&&sn.TryGetInt32(out num)&&num>=0)
+            {
+                if(!list.Contains(num))list.Add(num);
+            }
+            else if(entry.ValueKind==JsonValueKind.Number&&entry.TryGetInt32(out num)&&num>=0)
+            {
+                if(!list.Contains(num))list.Add(num);
+            }
+        }
+        list.Sort();
+        return list.ToArray();
+    }
+    public static object[] ActiveRequests(JsonElement item,int currentSeerrUserId)
+    {
+        if(!item.TryGetProperty("mediaInfo",out var media)||media.ValueKind!=JsonValueKind.Object||!media.TryGetProperty("requests",out var arr)||arr.ValueKind!=JsonValueKind.Array)return [];
+        var list=new List<object>();
+        foreach(var req in arr.EnumerateArray())
+        {
+            if(req.ValueKind!=JsonValueKind.Object)continue;
+            if(!req.TryGetProperty("id",out var idProp)||!idProp.TryGetInt32(out var reqId)||reqId<=0)continue;
+            int status=req.TryGetProperty("status",out var st)&&st.TryGetInt32(out var sv)?sv:0;
+            if(status is not(1 or 2))continue;
+            int requestedById=req.TryGetProperty("requestedBy",out var rb)&&rb.ValueKind==JsonValueKind.Object&&rb.TryGetProperty("id",out var rbid)&&rbid.TryGetInt32(out var rbu)?rbu:0;
+            bool is4k=req.TryGetProperty("is4k",out var k4)&&k4.ValueKind==JsonValueKind.True;
+            int? profileId=req.TryGetProperty("profileId",out var pid)&&pid.TryGetInt32(out var pv)&&pv>0?pv:null;
+            list.Add(new {
+                id=reqId,
+                status,
+                is4k,
+                profileId,
+                seasons=RequestSeasons(req),
+                canCancel=currentSeerrUserId==1||(requestedById>0&&requestedById==currentSeerrUserId)
+            });
+        }
+        return list.ToArray();
+    }
+    public static object? CreatedRequest(JsonElement req)
+    {
+        if(req.ValueKind!=JsonValueKind.Object)return null;
+        if(!req.TryGetProperty("id",out var idProp)||!idProp.TryGetInt32(out var reqId)||reqId<=0)return null;
+        int status=req.TryGetProperty("status",out var st)&&st.TryGetInt32(out var sv)?sv:1;
+        bool is4k=req.TryGetProperty("is4k",out var k4)&&k4.ValueKind==JsonValueKind.True;
+        int? profileId=req.TryGetProperty("profileId",out var pid)&&pid.TryGetInt32(out var pv)&&pv>0?pv:null;
+        return new {
+            id=reqId,
+            status,
+            is4k,
+            profileId,
+            seasons=RequestSeasons(req),
+            canCancel=true
         };
     }
     public static object? MovieRatings(JsonElement ratings)

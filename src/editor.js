@@ -1,7 +1,7 @@
 // Visual editing works on a cloned configuration. Nothing persists until Apply.
 export function createVisualEditor(host, initial, selectedPage, inventory, changed, {element,button,supplied}) {
   let draft=cloneJson(initial), page=selectedPage||'home', editing=null, explorerKind='director', explorerQuery='', libraryQuery='', heroQuery='';
-  const anchors={ContinueWatchingNextUp:'Continue Watching / Next Up',RecentlyAddedMovies:'Recently Added in Movies',RecentlyAddedShows:'Recently Added in Shows',DiscoverMovies:'Discover Movies',DiscoverTV:'Discover TV Shows',MyJellyseerrRequests:'My Requests',MyMedia:'My Media'};
+  const anchors={ContinueWatchingNextUp:'Continue Watching',RecentlyAddedMovies:'Recently Added in Movies',RecentlyAddedShows:'Recently Added in Shows',DiscoverMovies:'Discover Movies',DiscoverTV:'Discover TV Shows',MyJellyseerrRequests:'My Requests',MyMedia:'My Media'};
   const families={theme:'Rotating theme',genre:'Rotating genre',director:'Directed by…',actor:'Starring…',decade:'Best of a decade',studio:'Studio / network',rating:'Highly rated',rewatch:'Worth another watch',runtime:'Short movies'};
   const emit=()=>changed(cloneJson(draft));
   function field(parent,label,value,save,choices=null,type='text') {

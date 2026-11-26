@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.5 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.6 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -22,13 +22,19 @@
       },
       "pages": {
         "home": {
+          "opening": [
+            "anchor:RecentlyAddedMovies",
+            "family:theme",
+            "anchor:RecentlyAddedShows",
+            "anchor:ContinueWatchingNextUp"
+          ],
           "anchors": [
-            "ContinueWatchingNextUp",
             "RecentlyAddedMovies",
+            "RecentlyAddedShows",
+            "ContinueWatchingNextUp",
             "DiscoverMovies",
             "MyJellyseerrRequests",
-            "DiscoverTV",
-            "MyMedia"
+            "DiscoverTV"
           ],
           "families": [
             "theme",
@@ -839,10 +845,16 @@
           ]
         },
         "movies": {
+          "opening": [
+            "anchor:RecentlyAddedMovies",
+            "family:theme",
+            "anchor:DiscoverMovies",
+            "anchor:ContinueWatchingNextUp"
+          ],
           "anchors": [
-            "ContinueWatchingNextUp",
             "RecentlyAddedMovies",
             "DiscoverMovies",
+            "ContinueWatchingNextUp",
             "MyJellyseerrRequests"
           ],
           "families": [
@@ -1493,10 +1505,16 @@
           ]
         },
         "shows": {
+          "opening": [
+            "anchor:RecentlyAddedShows",
+            "family:theme",
+            "anchor:DiscoverTV",
+            "anchor:ContinueWatchingNextUp"
+          ],
           "anchors": [
-            "ContinueWatchingNextUp",
             "RecentlyAddedShows",
             "DiscoverTV",
+            "ContinueWatchingNextUp",
             "MyJellyseerrRequests"
           ],
           "families": [
@@ -2438,6 +2456,21 @@ html:root :is(.sleekfin-menu-popup,.sleekfin-select-menu,.sleekfin-details-dropd
   transition:none!important;
   animation:fx-dropdown-enter .16s cubic-bezier(.22,1,.36,1) both!important;
 }
+@keyframes fx-header-fade-in{
+  from{opacity:0}
+  to{opacity:1}
+}
+/* Under SleekFin menu UI, suppress the raw pre-wrap MUI/ActionSheet box on Frame 0 (leaving inline style.opacity intact for SleekFin's E(e,n) check) so only the final .sleekfin-menu-popup paints once with zero double-animation jitter */
+html.sleekfin-menu-ui :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper:not(.sleekfin-menu-host),
+html.sleekfin-menu-ui .dialog.actionSheet.syncPlayGroupMenu:not(.sleekfin-menu-host),
+html.sleekfin-menu-ui[data-fx-header-menu-opening="true"] .dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]),
+html.sleekfin-menu-ui[data-fx-video-osd="true"][data-fx-osd-anchor="top"] .dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]){
+  opacity:0!important;
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+  pointer-events:none!important;
+}
 html:root :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper.sleekfin-menu-host{
   position:fixed!important;
   left:0!important;
@@ -2450,9 +2483,33 @@ html:root :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper.sle
   transform:none!important;
   animation:none!important;
 }
+html:root .dialog.actionSheet.syncPlayGroupMenu.sleekfin-menu-host,
+html:root .dialog.actionSheet.sleekfin-menu-host:has([data-fx-header-anchored="true"]){
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  contain:none!important;
+  transform:none!important;
+  transition:none!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  will-change:auto!important;
+  perspective:none!important;
+}
 html[data-fx-video-osd="true"][data-fx-osd-anchor="top"] :is(.sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"])),
 html[data-fx-header-menu-opening="true"] :is(.dialog.actionSheet .sleekfin-menu-popup:not([data-fx-detail-more="true"]),.dialog.actionSheet:not(.sleekfin-menu-host):not([data-fx-detail-more="true"]),.sleekfin-popup-layer .sleekfin-menu-popup:not([data-fx-detail-more="true"])),
-html:root :is(#app-sync-play-menu,#app-remote-play-menu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
+html:root :is(#app-sync-play-menu,#app-remote-play-menu,.syncPlayGroupMenu) :is(.sleekfin-menu-popup,.MuiPopover-paper:not(.sleekfin-menu-host)),
 html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-paper[data-fx-header-anchored="true"]:not(.sleekfin-menu-host),.dialog.actionSheet[data-fx-header-anchored="true"]:not(.sleekfin-menu-host)){
   position:fixed!important;
   top:var(--fx-header-popup-top,64px)!important;
@@ -2470,9 +2527,10 @@ html:root :is(.sleekfin-menu-popup[data-fx-header-anchored="true"],.MuiPopover-p
   -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
   border:1px solid rgba(255,255,255,.11)!important;
   pointer-events:auto!important;
+  transform:none!important;
   transition:none!important;
   transform-origin:top right!important;
-  animation:fx-dropdown-enter .14s cubic-bezier(.22,1,.36,1) both!important;
+  animation:fx-header-fade-in 110ms ease-out both!important;
 }
 #app-user-menu:not([aria-hidden="true"]):not(.MuiModal-hidden) > .MuiPopover-paper:not(.sleekfin-menu-host),
 #app-user-menu .sleekfin-menu-popup,
@@ -2943,9 +3001,9 @@ html:root .sleekfin-menu-item:is(:hover,:focus-visible,[data-selected="true"]) .
   color:#fff!important;
 }
 
-/* Unify Category Headings, Spacing & Scroll Arrows Across Home, Movies, Shows, Live TV, Collections (including Genres), Library Pages & Search (Single Red Bar Only) */
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle),
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
+/* Unify Category Headings, Spacing & Scroll Arrows Across Home, Movies, Shows, Live TV, Collections (including Genres), Library Pages & Search (Single Red Bar Only \u2014 never duplicate SleekFin's .sleekfin-section-rail on #itemDetailPage!) */
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle),
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle){
   font-family:var(--sleekfin-font-family,Inter,"Noto Sans",sans-serif)!important;
   font-size:24px!important;
   line-height:32px!important;
@@ -2958,23 +3016,25 @@ main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-card
   opacity:1!important;
   text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before,
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before,
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sectionTitleTextButton > .sectionTitle)::before{
   display:none!important;
   content:none!important;
 }
-.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a),
-#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards){
+html body .sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a,.sleekfin-section-title),
+html body #itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title),
+html body #itemDetailPage .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title){
   border-left:0!important;
   padding-left:0!important;
 }
-.sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a)::before,
-#itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards)::before{
+html body .sleekfin-section-heading :is(.sectionTitle,.sectionTitle-cards,h2,a,.sleekfin-section-title)::before,
+html body #itemDetailPage :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title)::before,
+html body #itemDetailPage .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title)::before{
   display:none!important;
   content:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
   padding:0!important;
   margin:0 auto 0 0!important;
   background:transparent!important;
@@ -2985,24 +3045,24 @@ main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton{
   align-items:center!important;
   gap:4px!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton:hover,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton:hover{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton:hover,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton:hover{
   opacity:.86!important;
   text-decoration:none!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) .sectionTitleTextButton > .material-icons,
-main :not(#itemDetailPage) .verticalSection .sectionTitleTextButton > .material-icons{
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) .sectionTitleTextButton > .material-icons,
+main > .page:not(#itemDetailPage) .verticalSection .sectionTitleTextButton > .material-icons{
   color:rgba(255,255,255,.75)!important;
   opacity:1!important;
 }
-:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage,.genresTab) :is(.sectionTitleContainer,.sectionTitleContainer-cards),
-main :not(#itemDetailPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
+:is(#indexPage,#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,#liveTvSuggestedPage,#liveTvPage,#searchPage,.libraryPage:not(#itemDetailPage),.genresTab) :is(.sectionTitleContainer,.sectionTitleContainer-cards),
+main > .page:not(#itemDetailPage) .verticalSection :is(.sectionTitleContainer,.sectionTitleContainer-cards){
   margin-bottom:14px!important;
   display:flex!important;
   align-items:center!important;
   gap:10px!important;
 }
-:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,.libraryPage,.genresTab) .verticalSection{
+:is(#moviesPage,#tvshowsPage,#tvRecommendedPage,#boxsetsPage,#genresPage,#listPage,.libraryPage:not(#itemDetailPage),.genresTab) .verticalSection{
   margin-top:0!important;
   margin-bottom:24px!important;
 }
@@ -7446,7 +7506,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         const limit = Math.min((config == null ? void 0 : config.cardsPerShelf) || 20, 20);
         const items = await this.fetchContinueWatching(route, { items: [] }, limit).catch(() => []);
         this.assertCurrent();
-        return items.length ? [{ key: "ContinueWatchingNextUp", title: "Continue Watching / Next Up", family: "anchor", items }] : [];
+        return items.length ? [{ key: "ContinueWatchingNextUp", title: "Continue Watching", family: "anchor", items }] : [];
       }
       async anchor(id, route, inventory, config) {
         var _a, _b, _c, _d, _e, _f, _g;
@@ -7458,7 +7518,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           return Date.parse(kindDate(item, r)) || 0;
         };
         const recentItemsAll = (kind) => inventory.items.filter((i) => i.Type === kind && !isLeavingSoonItem(i)).sort((a, b) => Number(!!arrival(b)) - Number(!!arrival(a)) || arrival(b) - arrival(a) || (Date.parse(b.DateCreated) || 0) - (Date.parse(a.DateCreated) || 0) || String(a.Name || "").localeCompare(String(b.Name || "")));
-        const title = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
+        const title = { ContinueWatchingNextUp: "Continue Watching", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" }[id];
         const seeMoreItem = id === "DiscoverMovies" ? { Id: "fx-see-more:movies", Name: "All Popular Movies", Type: "SeeMore", SeeMoreKind: "movies", SeeMoreLabel: "See More", SeeMoreSub: "Popular Movies" } : id === "DiscoverTV" ? { Id: "fx-see-more:tv", Name: "All Popular Series", Type: "SeeMore", SeeMoreKind: "tv", SeeMoreLabel: "See More", SeeMoreSub: "Popular Series" } : null;
         if (id === "RecentlyAddedMovies" || id === "RecentlyAddedShows") {
           const all = recentItemsAll(id === "RecentlyAddedMovies" ? "Movie" : "Series");
@@ -7579,7 +7639,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     }
     function createVisualEditor(host, initial, selectedPage, inventory, changed, { element, button, supplied }) {
       let draft = cloneJson(initial), page = selectedPage || "home", editing = null, explorerKind = "director", explorerQuery = "", libraryQuery = "", heroQuery = "";
-      const anchors = { ContinueWatchingNextUp: "Continue Watching / Next Up", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
+      const anchors = { ContinueWatchingNextUp: "Continue Watching", RecentlyAddedMovies: "Recently Added in Movies", RecentlyAddedShows: "Recently Added in Shows", DiscoverMovies: "Discover Movies", DiscoverTV: "Discover TV Shows", MyJellyseerrRequests: "My Requests", MyMedia: "My Media" };
       const families = { theme: "Rotating theme", genre: "Rotating genre", director: "Directed by\u2026", actor: "Starring\u2026", decade: "Best of a decade", studio: "Studio / network", rating: "Highly rated", rewatch: "Worth another watch", runtime: "Short movies" };
       const emit = () => changed(cloneJson(draft));
       function field(parent, label, value, save, choices = null, type = "text") {
@@ -8478,7 +8538,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.5";
+      const VERSION = "0.6.6";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -9579,8 +9639,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         (_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.setProperty) == null ? void 0 : _e2.call(_d2, "--fx-osd-popup-bottom", `${bottomPx}px`);
         (_g = (_f = document.documentElement.style) == null ? void 0 : _f.setProperty) == null ? void 0 : _g.call(_f, "--fx-osd-popup-right", `${rightPx}px`);
       }
-      function updateHeaderPopupAnchor(anchorEl) {
-        var _a2, _b2, _c2, _d2, _e2;
+      function updateHeaderPopupAnchor(anchorEl, force = false) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i;
         if (!anchorEl || !document.documentElement) return false;
         const r = (_a2 = anchorEl.getBoundingClientRect) == null ? void 0 : _a2.call(anchorEl);
         if (!r || r.width <= 0 && r.height <= 0) return false;
@@ -9588,8 +9648,15 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         const vh = window.innerHeight || document.documentElement.clientHeight || 720;
         const topPx = Math.max(40, Math.min(vh - 140, Math.round(r.bottom + 8)));
         const rightPx = Math.max(12, Math.min(vw - 200, Math.round(vw - r.right)));
-        (_c2 = (_b2 = document.documentElement.style) == null ? void 0 : _b2.setProperty) == null ? void 0 : _c2.call(_b2, "--fx-header-popup-top", `${topPx}px`);
-        (_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.setProperty) == null ? void 0 : _e2.call(_d2, "--fx-header-popup-right", `${rightPx}px`);
+        if (!force) {
+          const prevTop = parseInt(((_c2 = (_b2 = document.documentElement.style) == null ? void 0 : _b2.getPropertyValue) == null ? void 0 : _c2.call(_b2, "--fx-header-popup-top")) || "", 10);
+          const prevRight = parseInt(((_e2 = (_d2 = document.documentElement.style) == null ? void 0 : _d2.getPropertyValue) == null ? void 0 : _e2.call(_d2, "--fx-header-popup-right")) || "", 10);
+          if (Number.isFinite(prevTop) && Number.isFinite(prevRight) && Math.abs(prevTop - topPx) <= 6 && Math.abs(prevRight - rightPx) <= 6) {
+            return true;
+          }
+        }
+        (_g = (_f = document.documentElement.style) == null ? void 0 : _f.setProperty) == null ? void 0 : _g.call(_f, "--fx-header-popup-top", `${topPx}px`);
+        (_i = (_h = document.documentElement.style) == null ? void 0 : _h.setProperty) == null ? void 0 : _i.call(_h, "--fx-header-popup-right", `${rightPx}px`);
         return true;
       }
       function isSyncPlayOrCastTrigger(el) {
@@ -9658,7 +9725,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         const headerBtn = (_f = (_e2 = event.target) == null ? void 0 : _e2.closest) == null ? void 0 : _f.call(_e2, '.headerSyncButton, .syncButton, .headerSyncPlayButton, .btnSyncPlay, .headerCastButton, .castButton, .btnCast, [aria-controls="app-sync-play-menu"], [aria-controls="app-remote-play-menu"], .videoOsd-appBar button, .osdHeader button, .skinHeader .headerRight button, .skinHeader .headerRight a, header.MuiAppBar-root button, [data-sleekfin-header] button, [data-sleekfin-header-proxy] button');
         const isBackBtn = Boolean((_g = headerBtn == null ? void 0 : headerBtn.matches) == null ? void 0 : _g.call(headerBtn, '.headerBackButton, [aria-label="Back" i], .videoOsd-appBar > button:first-child'));
         if (headerBtn && !isBackBtn && (isSyncPlayOrCastTrigger(headerBtn) || isVideoOsdOpen() && headerBtn.closest(".osdHeader, .videoOsd-appBar, .skinHeader"))) {
-          updateHeaderPopupAnchor(headerBtn);
+          const isFreshPress = event.type === "pointerdown" || !headerMenuAnchor || headerMenuAnchor.el !== headerBtn || Date.now() - headerMenuAnchor.at > 600;
+          updateHeaderPopupAnchor(headerBtn, isFreshPress);
           headerMenuAnchor = { el: headerBtn, at: Date.now() };
           markHeaderMenuOpening(true);
           if (isVideoOsdOpen()) (_i = (_h = document.documentElement) == null ? void 0 : _h.setAttribute) == null ? void 0 : _i.call(_h, "data-fx-osd-anchor", "top");
@@ -11115,8 +11183,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
       }
       const LEGACY_DUPLICATE_SHOW_KEYS = /* @__PURE__ */ new Set(["tv-drama", "tv-comedy", "tv-anime", "tv-scifi", "tv-crime", "tv-acclaimed"]);
       const LEGACY_DEFAULT_RULE_COUNTS = { home: 32, movies: 26, shows: 28 };
+      const LEGACY_DEFAULT_ANCHORS = {
+        home: "ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests,DiscoverTV,MyMedia",
+        movies: "ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests",
+        shows: "ContinueWatchingNextUp,RecentlyAddedShows,DiscoverTV,MyJellyseerrRequests"
+      };
       function upgradeLegacyConfig(cfg) {
-        var _a2;
         if (!cfg || typeof cfg !== "object") return cfg;
         if (cfg.cardsPerShelf === 8) {
           cfg.cardsPerShelf = 20;
@@ -11124,13 +11196,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (cfg.pages && (DEFAULT_CONFIG2 == null ? void 0 : DEFAULT_CONFIG2.pages)) {
           for (const page of ["home", "movies", "shows"]) {
             const prof = cfg.pages[page];
-            const supplied = (_a2 = DEFAULT_CONFIG2.pages[page]) == null ? void 0 : _a2.rules;
+            const suppliedPage = DEFAULT_CONFIG2.pages[page];
+            const supplied = suppliedPage == null ? void 0 : suppliedPage.rules;
             if (!prof || !Array.isArray(prof.rules) || !Array.isArray(supplied)) continue;
-            if (Array.isArray(prof.anchors)) {
-              if (!prof.anchors.includes("ContinueWatchingNextUp") && !Array.isArray(prof.opening)) {
-                prof.anchors.unshift("ContinueWatchingNextUp");
-              } else if (prof.anchors.includes("ContinueWatchingNextUp") && prof.anchors[0] !== "ContinueWatchingNextUp") {
-                prof.anchors = ["ContinueWatchingNextUp", ...prof.anchors.filter((a) => a !== "ContinueWatchingNextUp")];
+            if (Array.isArray(prof.anchors) && !Array.isArray(prof.opening)) {
+              const sig = prof.anchors.join(",");
+              if (sig === LEGACY_DEFAULT_ANCHORS[page]) {
+                prof.anchors = cloneJson(suppliedPage.anchors);
+                if (Array.isArray(suppliedPage.opening)) prof.opening = cloneJson(suppliedPage.opening);
+              } else if (page === "home" && prof.anchors.includes("MyMedia")) {
+                prof.anchors = prof.anchors.filter((a) => a !== "MyMedia");
               }
             }
             if (page === "shows") {

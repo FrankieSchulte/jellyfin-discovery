@@ -51,7 +51,7 @@ test('home mounts, alternates core/theme, preserves hero and restores native on 
   const f=fixture();await f.settle();
   assert.equal(f.document.querySelectorAll('.fx-discovery').length,1);
   const rows=[...f.document.querySelectorAll('.fx-shelf')].map(x=>x.dataset.shelfKey);
-  assert.equal(rows[0],'ContinueWatchingNextUp');assert.ok(rows[1].startsWith('rule:'));assert.equal(rows[2],'RecentlyAddedMovies');assert.ok(rows[3].startsWith('rule:'));
+  assert.equal(rows[0],'RecentlyAddedMovies');assert.ok(rows[1].startsWith('rule:'));assert.equal(rows[2],'RecentlyAddedShows');assert.equal(rows[3],'ContinueWatchingNextUp');
   assert.equal(f.document.querySelector('.hero').textContent,'Keep hero');
   assert.equal(f.document.querySelector('.homeSectionsContainer').getAttribute('data-fx-native-hidden'),null);
   assert.equal(f.document.querySelector('.homeSectionsContainer .card').getAttribute('data-fx-native-hidden'),'true');
@@ -541,7 +541,7 @@ test('Settings consolidates Customize Home inside Settings -> Home, styles Displ
   assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="right"].is-visible'));
 
   const firstShelf=f.document.querySelector('.fx-shelf');
-  assert.equal(firstShelf?.dataset?.shelfKey,'ContinueWatchingNextUp');
+  assert.equal(firstShelf?.dataset?.shelfKey,'RecentlyAddedMovies');
 
   f.document.getElementById('indexPage').classList.add('hide');
 
@@ -2034,6 +2034,79 @@ test('v0.6.5 polish: hero shadow z-layers, manual hero timer reset, stutter-free
   assert.equal(openedInPlace?.item?.type, 'movie');
   assert.equal(openedInPlace?.trigger, discoverCard);
   delete f.ctx.window.JellyfinRequestHub;
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.6 polish: Continue Watching renamed & moved to Category 4, My Media removed from Home (with legacy migration), single detail red bar, and jitter-free SyncPlay/Cast popups', async () => {
+  const f = fixture({ hash: '#/home' });
+  await f.settle();
+  const cssText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+  const Ev = f.document.defaultView.Event;
+
+  // 1. Default Home ordering: Category 4 is Continue Watching (renamed), and My Media is absent
+  const shelves = [...f.document.querySelectorAll('#indexPage .fx-shelf')];
+  const keys = shelves.map(s => s.dataset.shelfKey);
+  assert.equal(keys[3], 'ContinueWatchingNextUp', 'Continue Watching is Category 4 on Home');
+  assert.equal(shelves[3].querySelector('h2')?.textContent, 'Continue Watching', 'Continue Watching title omits / Next Up');
+  assert.equal(keys.includes('MyMedia'), false, 'My Media is removed from Home');
+
+  // 2. Legacy saved user config migrates automatically: removes MyMedia, puts Continue Watching at Category 4, preserves custom hero settings
+  const legacyCfg = {
+    schemaVersion: 1,
+    timeZone: 'America/Los_Angeles',
+    cardsPerShelf: 20,
+    batchSize: 4,
+    minimumItems: 3,
+    maxLiveRows: 24,
+    endless: true,
+    hideWatched: false,
+    pages: {
+      home: {
+        anchors: ['ContinueWatchingNextUp', 'RecentlyAddedMovies', 'DiscoverMovies', 'MyJellyseerrRequests', 'DiscoverTV', 'MyMedia'],
+        families: ['theme', 'genre'],
+        rules: [{ Key: 'popcorn', Title: 'Perfect Popcorn Movies', Enabled: true, Types: ['Movie'], GenresAny: ['Action'] }],
+        hero: { mode: 'auto', excludeWatched: true, minCriticScore: 90 }
+      },
+      movies: { anchors: ['ContinueWatchingNextUp', 'RecentlyAddedMovies', 'DiscoverMovies', 'MyJellyseerrRequests'], families: ['theme'], rules: [] },
+      shows: { anchors: ['ContinueWatchingNextUp', 'RecentlyAddedShows', 'DiscoverTV', 'MyJellyseerrRequests'], families: ['theme'], rules: [] }
+    }
+  };
+  const fMig = fixture({ hash: '#/home', config: legacyCfg });
+  await fMig.settle();
+  const migKeys = [...fMig.document.querySelectorAll('#indexPage .fx-shelf')].map(s => s.dataset.shelfKey);
+  assert.equal(migKeys[3], 'ContinueWatchingNextUp', 'migrated legacy profile places Continue Watching at Category 4');
+  assert.equal(migKeys.includes('MyMedia'), false, 'migrated legacy profile removes My Media from Home');
+  fMig.ctx.window.FazFortDiscovery.stop();
+
+  // 3. Single red bar on Movie/Show detail pages (no duplicate border-left over SleekFin's .sleekfin-section-rail)
+  assert.ok(cssText.includes('.libraryPage:not(#itemDetailPage)'), 'libraryPage sectionTitle rule excludes #itemDetailPage');
+  assert.ok(cssText.includes('main > .page:not(#itemDetailPage) .verticalSection'), 'verticalSection rule targets direct page wrapper, never children inside #itemDetailPage');
+  assert.ok(cssText.includes('html body #itemDetailPage .verticalSection :is(.sectionTitle,.sectionTitle-cards,h2.sectionTitle,a.sectionTitle-cards,.sleekfin-section-title){\n  border-left:0!important;'), 'high-specificity reset strips duplicate border-left on #itemDetailPage');
+
+  // 4. Anti-jitter SyncPlay & Cast popups: Frame-0 pre-wrap hide, opacity-only fade, and click coordinate lock
+  assert.ok(cssText.includes('html.sleekfin-menu-ui :is(#app-sync-play-menu,#app-remote-play-menu) > .MuiPopover-paper:not(.sleekfin-menu-host)'), 'Frame-0 raw MUI popover paper hidden under SleekFin until wrapped');
+  assert.ok(cssText.includes('html:root .dialog.actionSheet.syncPlayGroupMenu.sleekfin-menu-host'), 'legacy SyncPlay actionSheet host is zero-sized');
+  assert.ok(cssText.includes('animation:fx-header-fade-in 110ms ease-out both!important;'), 'header popups use pure opacity fade without scale/translate jitter');
+  let rectShift = 0;
+  const syncBtn = f.document.createElement('button');
+  syncBtn.className = 'headerSyncButton';
+  syncBtn.setAttribute('aria-controls', 'app-sync-play-menu');
+  syncBtn.getBoundingClientRect = () => ({ left: 1120 + rectShift, right: 1160 + rectShift, top: 16 + rectShift, bottom: 56 + rectShift, width: 40, height: 40 });
+  const hdr = f.document.createElement('div');
+  hdr.className = 'skinHeader';
+  const hr = f.document.createElement('div');
+  hr.className = 'headerRight';
+  hr.append(syncBtn);
+  hdr.append(hr);
+  f.document.body.append(hdr);
+  syncBtn.dispatchEvent(new Ev('pointerdown', { bubbles: true }));
+  assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '64px');
+  // Simulate 2px :active transform shift on subsequent click -> coordinate stays locked with zero jitter!
+  rectShift = 2;
+  syncBtn.dispatchEvent(new Ev('click', { bubbles: true }));
+  assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '64px', 'small :active shift on click does not twitch header popup position');
+  hdr.remove();
 
   f.ctx.window.FazFortDiscovery.stop();
 });

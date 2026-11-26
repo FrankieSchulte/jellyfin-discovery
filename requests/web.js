@@ -138,10 +138,15 @@ function ensureOwnedLibrary(own){
  }).catch(()=>{ownedPending=null;});
  return ownedPending;
 }
-function isReleased(item){
+function isReleased(item,allowOwned=false){
  if(!['movie','tv'].includes(item?.type))return false;
- if(Number(item.status)===5)return false;
- if(item.id>0&&!(item.type==='tv'&&Number(item.status)===4)&&ownedTmdb.has(`${item.type}:${Number(item.id)}`))return false;
+ const includeOwned=allowOwned===true;
+ const owned=item.id>0&&!(item.type==='tv'&&Number(item.status)===4)&&ownedTmdb.has(`${item.type}:${Number(item.id)}`);
+ if(includeOwned){
+  if(Number(item.status)===5||owned)return true;
+ }else{
+  if(Number(item.status)===5||owned)return false;
+ }
  if(item.status>=4)return true;
  if(item.voteCount!==undefined&&Number(item.voteCount)<=0)return false;
  if(item.releaseDate!==undefined){
@@ -349,42 +354,42 @@ async function details(item,triggerEl=null){
  }
 
  const seasons=[];
+ let seasonGrid=null;
+ let seasonSelectAllBtn=null;
+ let seasonClearBtn=null;
+ const syncSeasonBoxes=()=>{
+  if(!seasonGrid)return;
+  seasons.length=0;
+  seasonGrid.querySelectorAll('input[type="checkbox"]').forEach(b=>{
+   const num=Number(b.dataset.seasonNumber);
+   if(b.checked&&!b.disabled&&!seasons.includes(num))seasons.push(num);
+   b.closest('label')?.classList?.toggle('is-checked',Boolean(b.checked&&!b.disabled));
+   b.closest('label')?.classList?.toggle('is-requested',Boolean(b.disabled));
+  });
+ };
  if(mediaType==='tv'){
   const group=el('fieldset','','rh-seasons');
   const legend=el('legend','Choose seasons to request');
   const quickRow=el('div','','rh-season-actions');
-  const grid=el('div','','rh-season-grid');
-  const syncBoxes=()=>{
-   seasons.length=0;
-   grid.querySelectorAll('input[type="checkbox"]').forEach(b=>{
-    const num=Number(b.dataset.seasonNumber);
-    if(b.checked&&!seasons.includes(num))seasons.push(num);
-    b.closest('label')?.classList?.toggle('is-checked',Boolean(b.checked));
-   });
-  };
-  const selectAll=button('Select all',()=>{
-   grid.querySelectorAll('input[type="checkbox"]').forEach(b=>{b.checked=true;});
-   syncBoxes();
+  seasonGrid=el('div','','rh-season-grid');
+  seasonSelectAllBtn=button('Select all',()=>{
+   seasonGrid.querySelectorAll('input[type="checkbox"]').forEach(b=>{if(!b.disabled)b.checked=true;});
+   syncSeasonBoxes();
   },'rh-btn rh-btn-xs');
-  const clearAll=button('Clear',()=>{
-   grid.querySelectorAll('input[type="checkbox"]').forEach(b=>{b.checked=false;});
-   syncBoxes();
+  seasonClearBtn=button('Clear',()=>{
+   seasonGrid.querySelectorAll('input[type="checkbox"]').forEach(b=>{if(!b.disabled)b.checked=false;});
+   syncSeasonBoxes();
   },'rh-btn rh-btn-xs');
-  quickRow.append(selectAll,clearAll);
-  group.append(legend,quickRow,grid);
+  quickRow.append(seasonSelectAllBtn,seasonClearBtn);
+  group.append(legend,quickRow,seasonGrid);
   (data.seasons||[]).forEach(number=>{
    const label=el('label',number===0?'Specials':`Season ${number}`,'rh-season-chip');
    const box=el('input');
    box.type='checkbox';
    box.dataset.seasonNumber=String(number);
-   box.onchange=()=>{
-    const i=seasons.indexOf(number);
-    if(box.checked&&i<0)seasons.push(number);
-    else if(!box.checked&&i>=0)seasons.splice(i,1);
-    label.classList?.toggle('is-checked',Boolean(box.checked));
-   };
+   box.onchange=()=>syncSeasonBoxes();
    label.prepend(box);
-   grid.append(label);
+   seasonGrid.append(label);
   });
   infoCol.append(group);
  }
@@ -408,48 +413,158 @@ async function details(item,triggerEl=null){
    profileSelect.append(opt);
   });
   try{profileSelect.value=String(defaultIdx);}catch{}
-  profileSelect.disabled=!data.canRequest||d.status===5;
   field.append(lbl,profileSelect);
   infoCol.append(field);
  }
 
+ let currentStatus=Number(d.status||0);
+ let activeRequests=Array.isArray(data.requests)?data.requests.filter(r=>r&&Number(r.id)>0).map(r=>({...r,seasons:Array.isArray(r.seasons)?r.seasons.map(Number):[]})):[];
+ let busyAction=false;
  const status=el('p','','rh-dialog-status');
  status.setAttribute('role','status');
  const actions=el('div','','rh-dialog-actions');
+ const cancelWrap=el('div','','rh-cancel-actions');
+
+ const syncVisibleCards=()=>{
+  const mediaKey=`${mediaType}:${Number(d.id||item.id)}`;
+  document.querySelectorAll(`.rh-card[data-rh-media-key="${mediaKey}"] .rh-poster`).forEach(frame=>{
+   frame.querySelector('.rh-status')?.remove();
+   if(currentStatus>=2){
+    frame.append(el('span',STATUS_LABELS[currentStatus]||'Requested',`rh-status ${STATUS_CLASSES[currentStatus]||''}`.trim()));
+   }
+  });
+ };
+
+ const syncRequestState=(keepStatusText=false)=>{
+  mediaCol.replaceChildren(poster({...d,status:currentStatus}));
+  syncVisibleCards();
+  const isAvailable=currentStatus===5;
+  const requestedSeasons=new Set();
+  activeRequests.forEach(r=>(r.seasons||[]).forEach(n=>requestedSeasons.add(Number(n))));
+  if(seasonGrid){
+   seasonGrid.querySelectorAll('input[type="checkbox"]').forEach(b=>{
+    const num=Number(b.dataset.seasonNumber);
+    const locked=isAvailable||requestedSeasons.has(num);
+    b.disabled=locked||busyAction;
+    if(locked)b.checked=true;
+   });
+   syncSeasonBoxes();
+   if(seasonSelectAllBtn)seasonSelectAllBtn.disabled=isAvailable||busyAction;
+   if(seasonClearBtn)seasonClearBtn.disabled=isAvailable||busyAction;
+  }
+  const allSeasonsRequested=mediaType==='tv'&&Array.isArray(data.seasons)&&data.seasons.length>0&&data.seasons.every(n=>requestedSeasons.has(Number(n)));
+  const isMovieRequested=mediaType==='movie'&&!isAvailable&&(currentStatus===2||currentStatus===3||currentStatus===4||activeRequests.length>0);
+  const blockConfirm=!data.canRequest||isAvailable||isMovieRequested||allSeasonsRequested||busyAction;
+  confirm.disabled=blockConfirm;
+  confirm.textContent=isAvailable?'Already available':(isMovieRequested||allSeasonsRequested)?'Already requested':'Confirm request';
+  if(profileSelect){
+   profileSelect.disabled=blockConfirm;
+   if(isMovieRequested&&activeRequests[0]?.profileId){
+    const idx=profiles.findIndex(p=>Number(p.id)===Number(activeRequests[0].profileId));
+    if(idx>=0){
+     [...profileSelect.querySelectorAll('option')].forEach((opt,i)=>{opt.selected=i===idx;opt.toggleAttribute('selected',i===idx);});
+     try{profileSelect.value=String(idx);}catch{}
+    }
+   }
+  }
+  cancelWrap.replaceChildren();
+  const cancellable=!isAvailable&&data.canRequest?activeRequests.filter(r=>r.canCancel!==false&&Number(r.id)>0):[];
+  cancellable.forEach(req=>{
+   const seasonTag=mediaType==='tv'&&req.seasons?.length?` (${req.seasons.map(n=>n===0?'Specials':`S${n}`).join(', ')})`:'';
+   const cancelBtn=button(`Cancel request${seasonTag}`,async()=>{
+    if(busyAction)return;
+    busyAction=true;
+    syncRequestState(true);
+    status.textContent='Cancelling request…';
+    try{
+     await api('Cancel',{},{requestId:Number(req.id)});
+     if(token!==dialogGen||!overlay.isConnected)return;
+     const cancelledSeasons=new Set((req.seasons||[]).map(Number));
+     activeRequests=activeRequests.filter(r=>Number(r.id)!==Number(req.id));
+     if(activeRequests.length===0&&currentStatus!==5)currentStatus=0;
+     if(seasonGrid&&cancelledSeasons.size){
+      seasonGrid.querySelectorAll('input[type="checkbox"]').forEach(b=>{
+       if(cancelledSeasons.has(Number(b.dataset.seasonNumber))){b.disabled=false;b.checked=false;}
+      });
+     }
+     busyAction=false;
+     status.textContent='Request cancelled. You can submit a new request anytime.';
+     syncRequestState(true);
+    }catch(e){
+     busyAction=false;
+     if(overlay.isConnected){
+      status.textContent=e?.status===403?'You do not have permission to cancel this request.':e?.status===404?'Request was already cancelled.':'Could not cancel request. Try again later.';
+      if(e?.status===404){
+       activeRequests=activeRequests.filter(r=>Number(r.id)!==Number(req.id));
+       if(activeRequests.length===0&&currentStatus!==5)currentStatus=0;
+      }
+      syncRequestState(true);
+     }
+    }
+   },'rh-btn rh-btn-danger');
+   cancelBtn.dataset.rhCancelRequest=String(req.id);
+   cancelBtn.disabled=busyAction;
+   cancelWrap.append(cancelBtn);
+  });
+  cancelWrap.hidden=!cancellable.length;
+  if(!keepStatusText){
+   if(isAvailable)status.textContent='Already available in Jellyfin.';
+   else if(isMovieRequested||allSeasonsRequested){
+    const reqProf=activeRequests[0]?.profileId?profiles.find(p=>Number(p.id)===Number(activeRequests[0].profileId)):null;
+    status.textContent=reqProf?`Already requested (${reqProf.name}). Cancel to change quality profile.`:'Already requested. Cancel this request to request again.';
+   }
+  }
+ };
+
  const confirm=button('Confirm request',async()=>{
-  if(mediaType==='tv'&&!seasons.length){status.textContent='Select at least one season.';return;}
-  confirm.disabled=true;
-  if(profileSelect)profileSelect.disabled=true;
+  if(busyAction)return;
+  const submittedSeasons=seasons.slice();
+  if(mediaType==='tv'&&!submittedSeasons.length){status.textContent='Select at least one season.';return;}
+  let chosenProfile=null;
+  if(profileSelect&&profiles.length){
+   chosenProfile=profiles[Number(profileSelect.value)]||profiles[0];
+  }
+  busyAction=true;
+  syncRequestState(true);
   status.textContent='Submitting request…';
   try{
-   const payload={type:mediaType,id:Number(d.id||item.id),seasons};
-   if(profileSelect&&profiles.length){
-    const chosen=profiles[Number(profileSelect.value)]||profiles[0];
-    if(chosen){
-     payload.profileId=Number(chosen.id);
-     if(Number.isFinite(Number(chosen.serverId)))payload.serverId=Number(chosen.serverId);
-     payload.is4k=Boolean(chosen.is4k);
-    }
+   const payload={type:mediaType,id:Number(d.id||item.id),seasons:submittedSeasons};
+   if(chosenProfile){
+    payload.profileId=Number(chosenProfile.id);
+    if(Number.isFinite(Number(chosenProfile.serverId)))payload.serverId=Number(chosenProfile.serverId);
+    payload.is4k=Boolean(chosenProfile.is4k);
    }
    const result=await api('Request',{},payload);
    if(token!==dialogGen||!overlay.isConnected)return;
+   if(result?.request&&Number(result.request.id)>0){
+    const created={
+     ...result.request,
+     profileId:result.request.profileId??(chosenProfile?Number(chosenProfile.id):null),
+     seasons:Array.isArray(result.request.seasons)&&result.request.seasons.length?result.request.seasons.map(Number):submittedSeasons,
+     canCancel:true
+    };
+    activeRequests=[...activeRequests.filter(r=>Number(r.id)!==Number(created.id)),created];
+   }
+   if(currentStatus<2)currentStatus=2;
+   busyAction=false;
    status.textContent=result.message||'Submitted for approval';
+   syncRequestState(true);
   }catch(e){
+   busyAction=false;
    if(overlay.isConnected){
     status.textContent=e?.status===403?'Request denied. Check permissions or quota.':e?.status===409?'Already requested.':e?.status===429?'Please wait before submitting another request.':'Request failed. Check Jellyseerr availability and try again.';
-    confirm.disabled=false;
-    if(profileSelect)profileSelect.disabled=false;
+    syncRequestState(true);
    }
   }
  },'rh-btn rh-btn-primary');
- confirm.disabled=!data.canRequest||d.status===5;
- if(d.status===5)status.textContent='Already available in Jellyfin.';
- actions.append(confirm);
+ actions.append(confirm,cancelWrap);
  infoCol.append(actions,status);
+ syncRequestState(false);
  dialog.focus();
 }
 function card(item){
  const n=button('',()=>details(item,n),'rh-card');
+ n.dataset.rhMediaKey=`${item.type}:${Number(item.id)}`;
  const meta=el('div','','rh-card-body');
  meta.append(el('strong',item.title));
  n.append(poster(item),meta);
@@ -560,7 +675,13 @@ async function gridView(host,title,kind,filter=null,query=null){
     if(token!==generation||!sec.isConnected)return;
     page++;
     pages=data.pages||1;
-    const items=(data.results||[]).filter(isReleased);
+    const allowOwned=kind==='search';
+    const items=(data.results||[]).filter(i=>isReleased(i,allowOwned)).map(i=>{
+     if(allowOwned&&i.id>0&&!(i.type==='tv'&&Number(i.status)===4)&&ownedTmdb.has(`${i.type}:${Number(i.id)}`)&&Number(i.status)!==5){
+      return {...i,status:5};
+     }
+     return i;
+    });
     items.forEach(i=>{frag.append(card(i));added++;});
     if(!data.results?.length)break;
    }
@@ -1360,6 +1481,26 @@ html[data-rh-active="true"][data-rh-subview="true"] [data-sleekfin-header-proxy]
 .rh-overlay button.rh-btn-primary:hover:not(:disabled){
  background:#f6121d;
 }
+.rh-root button.rh-btn-primary:disabled,
+.rh-overlay button.rh-btn-primary:disabled{
+ background:#3a3d45;
+ border-color:#525660;
+ color:rgba(255,255,255,0.58);
+ opacity:0.85;
+ cursor:not-allowed;
+}
+.rh-root button.rh-btn-danger,
+.rh-overlay button.rh-btn-danger{
+ background:rgba(185,28,28,0.18);
+ border-color:rgba(248,113,113,0.45);
+ color:#fecaca;
+}
+.rh-root button.rh-btn-danger:hover:not(:disabled),
+.rh-overlay button.rh-btn-danger:hover:not(:disabled){
+ background:rgba(185,28,28,0.34);
+ border-color:#f87171;
+ color:#fff;
+}
 .rh-root button.rh-btn-xs,
 .rh-overlay button.rh-btn-xs{
  min-height:32px;
@@ -2023,11 +2164,23 @@ a.rh-nav[aria-current=page]{
  border-color:#e50914;
  color:#fff;
 }
+.rh-season-chip.is-requested{
+ opacity:0.58;
+ cursor:default;
+}
 .rh-dialog-actions{
  display:flex;
+ flex-wrap:wrap;
  align-items:center;
- gap:12px;
+ gap:10px;
 }
+.rh-cancel-actions{
+ display:inline-flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:8px;
+}
+.rh-cancel-actions[hidden]{display:none}
 .rh-dialog-status{
  margin:12px 0 0;
  font-size:0.92rem;

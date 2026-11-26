@@ -14,13 +14,19 @@
   },
   "pages": {
     "home": {
+      "opening": [
+        "anchor:RecentlyAddedMovies",
+        "family:theme",
+        "anchor:RecentlyAddedShows",
+        "anchor:ContinueWatchingNextUp"
+      ],
       "anchors": [
-        "ContinueWatchingNextUp",
         "RecentlyAddedMovies",
+        "RecentlyAddedShows",
+        "ContinueWatchingNextUp",
         "DiscoverMovies",
         "MyJellyseerrRequests",
-        "DiscoverTV",
-        "MyMedia"
+        "DiscoverTV"
       ],
       "families": [
         "theme",
@@ -831,10 +837,16 @@
       ]
     },
     "movies": {
+      "opening": [
+        "anchor:RecentlyAddedMovies",
+        "family:theme",
+        "anchor:DiscoverMovies",
+        "anchor:ContinueWatchingNextUp"
+      ],
       "anchors": [
-        "ContinueWatchingNextUp",
         "RecentlyAddedMovies",
         "DiscoverMovies",
+        "ContinueWatchingNextUp",
         "MyJellyseerrRequests"
       ],
       "families": [
@@ -1485,10 +1497,16 @@
       ]
     },
     "shows": {
+      "opening": [
+        "anchor:RecentlyAddedShows",
+        "family:theme",
+        "anchor:DiscoverTV",
+        "anchor:ContinueWatchingNextUp"
+      ],
       "anchors": [
-        "ContinueWatchingNextUp",
         "RecentlyAddedShows",
         "DiscoverTV",
+        "ContinueWatchingNextUp",
         "MyJellyseerrRequests"
       ],
       "families": [
