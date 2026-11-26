@@ -170,3 +170,14 @@ test('hero banner controls validate config and filter by RT %, excludeWatched, g
   assert.equal(pinnedFirst[0].Id, 'm5');
   assert.equal(pinnedFirst.some(i => i.Id === 'm2'), false);
 });
+test('v0.6.7 family:any opening token validates and default.json ships expanded Movie and TV Show categories with random opening trio', () => {
+  const c = structuredClone(config);
+  for (const page of ['home', 'movies', 'shows']) {
+    assert.deepEqual(c.pages[page].opening, ['family:any', 'family:any', 'family:any', 'anchor:ContinueWatchingNextUp']);
+  }
+  assert.ok(c.pages.movies.rules.length >= 90, 'Movies ships 90+ curated categories');
+  assert.ok(c.pages.shows.rules.length >= 65, 'Shows ships 65+ curated categories');
+  assert.ok(c.pages.home.rules.length >= 125, 'Home ships 125+ curated categories');
+  c.pages.home.layouts = { 'family:any': 'portrait' };
+  assert.doesNotThrow(() => validateConfig(c));
+});

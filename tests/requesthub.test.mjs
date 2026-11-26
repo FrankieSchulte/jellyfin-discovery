@@ -346,3 +346,52 @@ test('request cancellation, grayed-out Confirm request on requested movies, and 
 
  win.JellyfinRequestHub.stop();
 });
+
+test('v0.6.7 Request Hub pop-up matches SleekFin glassmorphic styling and surfaces accurate 502 vs 403 error messages',async()=>{
+ const {document,window}=parseHTML('<html><head></head><body><header><div class="headerTabs"></div></header><div id="indexPage"><div id="native">Native Home</div></div></body></html>');
+ window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollBy=function(){};
+ const location={hash:'#/home'};
+ let errMode=502;
+ const api={
+  getCurrentUserId:()=>'user-one',
+  serverId:()=>'server',
+  getUrl:(path,query)=>({path,query}),
+  getJSON:async({path})=>{
+   if(path.endsWith('Status'))return {enabled:true,canRequest:true};
+   if(path.endsWith('Details')){
+    if(errMode===502)throw {status:502,responseJSON:{error:'Jellyseerr is unavailable or returned an unsupported response.'}};
+    if(errMode===403)throw {status:403};
+   }
+   return {results:[],pages:1,canRequest:true};
+  },
+  ajax:async()=>({})
+ };
+ const win={ApiClient:api,innerWidth:1280,innerHeight:800,matchMedia:()=>({matches:false}),addEventListener(){},removeEventListener(){}};
+ const ctx=vm.createContext({window:win,document,location,URL,URLSearchParams,Date,Element:window.Element,console,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},MutationObserver:class{observe(){}disconnect(){}}});
+ vm.runInContext(source,ctx);
+ const settle=async()=>{for(let n=0;n<100;n++)await Promise.resolve();};
+ await settle();
+
+ const cssText=document.querySelector('head style')?.textContent||'';
+ assert.ok(cssText.includes('var(--sleekfin-surface,#101113)'),'dialog uses SleekFin surface token');
+ assert.ok(cssText.includes('border-left:3px solid var(--sleekfin-accent,#dc2626)'),'dialog kicker matches server red bar');
+ assert.ok(cssText.includes('background:var(--sleekfin-text,#f5f5f7)'),'primary request button matches server white pill');
+ assert.ok(cssText.includes('width:38px;\n height:38px;'),'close button is circular glass icon button');
+ assert.equal(cssText.includes('.rh-overlay button:is(:focus,:focus-visible,:active)'),false,'overlay focus rule no longer flattens 3D glass button shadow');
+
+ // 502 error displays upstream message instead of misleading account mapping prompt
+ win.JellyfinRequestHub.openDetails({id:1317288,type:'movie',title:'The Hunger Games: Sunrise on the Reaping'});
+ await settle();
+ let dialog=document.querySelector('.rh-dialog');
+ assert.ok(dialog.querySelector('.rh-dialog-close svg'),'close button renders crisp X SVG');
+ assert.ok(dialog.querySelector('.rh-dialog-status.is-error').textContent.includes('Jellyseerr is unavailable'),'502 shows server error instead of mapping message');
+
+ // 403 error keeps account mapping guidance
+ errMode=403;
+ win.JellyfinRequestHub.openDetails({id:1317288,type:'movie',title:'The Hunger Games: Sunrise on the Reaping'});
+ await settle();
+ dialog=document.querySelector('.rh-dialog');
+ assert.ok(dialog.querySelector('.rh-dialog-status.is-error').textContent.includes('account mapping'),'403 shows account mapping message');
+
+ win.JellyfinRequestHub.stop();
+});

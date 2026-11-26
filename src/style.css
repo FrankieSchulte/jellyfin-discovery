@@ -4197,15 +4197,23 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
 #videoOsdPage .videoOsdBottom :is(.hide,[hidden],.btnRecord,.btnPreviousTrack,.btnNextTrack,.btnPreviousChapter,.btnNextChapter,.btnRewind,.btnFastForward,.btnUserRating,.btnAudio,.btnAirPlay){
   display:none!important;
 }
+/* Raise SyncPlay "people" glyph slightly so it sits optically centered with sibling header icons */
+:is(.headerSyncButton,.syncButton,.btnSyncPlay,button[aria-controls="app-sync-play-menu"],button[aria-label*="SyncPlay" i],button[title*="SyncPlay" i]) :is(.material-icons,svg,.sleekfin-icon),
+.skinHeader .material-icons.groups,
+.osdHeader svg[data-testid="GroupsIcon"],
+.osdHeader svg[data-testid="GroupIcon"]{
+  transform:translateY(-2px)!important;
+}
 #videoOsdPage .paper-icon-button-light,
 html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton),
 html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])){
   border-radius:999px!important;
   color:rgba(255,255,255,.84)!important;
   background:transparent!important;
+  border:1px solid transparent!important;
   box-shadow:none!important;
   outline:none!important;
-  transition:background-color .15s cubic-bezier(.22,1,.36,1),color .15s ease,transform .14s ease,box-shadow .15s ease!important;
+  transition:background .16s cubic-bezier(.22,1,.36,1),border-color .16s ease,color .16s ease,transform .14s ease,box-shadow .16s ease!important;
 }
 #videoOsdPage .paper-icon-button-light::before,
 #videoOsdPage .paper-icon-button-light::after,
@@ -4214,33 +4222,44 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerB
   display:none!important;
   content:none!important;
 }
-#videoOsdPage .paper-icon-button-light:hover,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover{
-  background:rgba(255,255,255,.14)!important;
-  color:#fff!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.14)!important;
-}
-#videoOsdPage .paper-icon-button-light:active,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active{
-  transform:scale(.9)!important;
-  background:rgba(255,255,255,.22)!important;
-}
-#videoOsdPage .paper-icon-button-light:focus,
-#videoOsdPage .paper-icon-button-light:focus-visible,
-#videoOsdPage .btnPause:focus,
-#videoOsdPage .btnPause:focus-visible,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visible,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:focus,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:focus-visible{
+/* Focus reset ONLY when NOT hovered or active so clicking volume/controls never flattens the 3D hover surface */
+#videoOsdPage .paper-icon-button-light:focus:not(:hover):not(:active),
+#videoOsdPage .paper-icon-button-light:focus-visible:not(:hover):not(:active),
+#videoOsdPage .btnPause:focus:not(:hover):not(:active),
+#videoOsdPage .btnPause:focus-visible:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus-visible:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):focus:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):focus-visible:not(:hover):not(:active){
+  background:transparent!important;
+  border-color:transparent!important;
   box-shadow:none!important;
   outline:none!important;
 }
-#videoOsdPage .paper-icon-button-light:not(.btnPause):focus:not(:hover):not(:active),
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus:not(:hover):not(:active){
-  background:transparent!important;
+#videoOsdPage .paper-icon-button-light:hover,
+#videoOsdPage .paper-icon-button-light:hover:focus,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover:focus,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover:focus{
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.86)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.14),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  outline:none!important;
+}
+#videoOsdPage .paper-icon-button-light:active,
+#videoOsdPage .paper-icon-button-light:active:focus,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active:focus,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active:focus{
+  transform:scale(.9)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.06) 100%),rgba(44,44,48,.92)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 4px 10px -4px rgba(0,0,0,.5)!important;
+  outline:none!important;
 }
 html.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible,
 body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
@@ -4255,8 +4274,8 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   min-height:44px!important;
   padding:0!important;
   margin:0!important;
-  background:rgba(255,255,255,.09)!important;
-  border:1px solid rgba(255,255,255,.12)!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
   box-shadow:none!important;
   outline:none!important;
   overflow:hidden!important;
@@ -4283,18 +4302,67 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   text-align:center!important;
   transform:none!important;
 }
-#videoOsdPage .btnPause:focus:not(:hover):not(:active){
-  background:rgba(255,255,255,.09)!important;
-  border-color:rgba(255,255,255,.12)!important;
+#videoOsdPage .btnPause:hover,
+#videoOsdPage .btnPause:hover:focus{
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.86)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.14),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  color:#fff!important;
 }
-#videoOsdPage .btnPause:hover{
-  background:rgba(255,255,255,.18)!important;
-  border-color:rgba(255,255,255,.24)!important;
-}
-#videoOsdPage .btnPause:active{
+#videoOsdPage .btnPause:active,
+#videoOsdPage .btnPause:active:focus{
   transform:scale(.9)!important;
-  background:rgba(255,255,255,.24)!important;
-  border-color:rgba(255,255,255,.28)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.06) 100%),rgba(44,44,48,.92)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 4px 10px -4px rgba(0,0,0,.5)!important;
+  color:#fff!important;
+}
+/* Center-screen Play / Pause feedback burst during video playback (Netflix / YouTube style) */
+@keyframes fx-osd-playstate-burst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}
+  24%{opacity:.96;transform:translate(-50%,-50%) scale(1.02)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.24)}
+}
+.fx-osd-playstate-overlay{
+  position:fixed;
+  left:50%;
+  top:50%;
+  width:78px;
+  height:78px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  z-index:1200;
+  opacity:0;
+  visibility:hidden;
+  transform:translate(-50%,-50%) scale(.72);
+  background:linear-gradient(180deg,rgba(255,255,255,.085) 0%,rgba(255,255,255,.02) 100%),rgba(14,15,18,.78);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 18px 44px rgba(0,0,0,.55);
+  color:#fff;
+}
+.fx-osd-playstate-overlay.is-visible{
+  visibility:visible;
+  animation:fx-osd-playstate-burst 520ms cubic-bezier(.22,1,.36,1) both;
+}
+.fx-osd-playstate-overlay svg{
+  width:34px;
+  height:34px;
+  display:block;
+}
+.fx-osd-playstate-overlay[data-state="play"] svg{
+  transform:translateX(2px);
+}
+@media(prefers-reduced-motion:reduce){
+  .fx-osd-playstate-overlay.is-visible{
+    animation:none;
+    opacity:.92;
+    transform:translate(-50%,-50%) scale(1);
+  }
 }
 #videoOsdPage .volumeButtons{
   display:inline-flex!important;

@@ -15,18 +15,18 @@
   "pages": {
     "home": {
       "opening": [
-        "anchor:RecentlyAddedMovies",
-        "family:theme",
-        "anchor:RecentlyAddedShows",
+        "family:any",
+        "family:any",
+        "family:any",
         "anchor:ContinueWatchingNextUp"
       ],
       "anchors": [
-        "RecentlyAddedMovies",
-        "RecentlyAddedShows",
         "ContinueWatchingNextUp",
         "DiscoverMovies",
+        "DiscoverTV",
+        "RecentlyAddedMovies",
         "MyJellyseerrRequests",
-        "DiscoverTV"
+        "RecentlyAddedShows"
       ],
       "families": [
         "theme",
@@ -833,20 +833,1127 @@
             2029
           ],
           "MinRating": 8
+        },
+        {
+          "Key": "heists-cons",
+          "Title": "Heists, Cons & Masterminds",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "heist",
+            "con artist",
+            "robbery",
+            "bank robbery",
+            "caper",
+            "burglary",
+            "con man",
+            "double cross"
+          ]
+        },
+        {
+          "Key": "whodunits-detectives",
+          "Title": "Detectives, Clues & Whodunits",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "detective",
+            "investigation",
+            "whodunit",
+            "private detective",
+            "police investigation",
+            "murder mystery"
+          ]
+        },
+        {
+          "Key": "spies-espionage",
+          "Title": "Spies, Assassins & Covert Ops",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "spy",
+            "espionage",
+            "secret agent",
+            "assassin",
+            "hitman",
+            "cia",
+            "undercover",
+            "conspiracy"
+          ]
+        },
+        {
+          "Key": "road-trips",
+          "Title": "Hit the Road: Road Trips & Getaways",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "road trip",
+            "road movie",
+            "cross country",
+            "hitchhiker",
+            "vacation",
+            "escape"
+          ]
+        },
+        {
+          "Key": "post-apocalypse",
+          "Title": "End of the World & Wastelands",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "post-apocalyptic future",
+            "apocalypse",
+            "end of the world",
+            "nuclear war",
+            "pandemic",
+            "doomsday"
+          ]
+        },
+        {
+          "Key": "ai-robots",
+          "Title": "AI Gone Rogue & Robots",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "artificial intelligence (a.i.)",
+            "artificial intelligence",
+            "robot",
+            "android",
+            "cyborg",
+            "virtual reality",
+            "simulation"
+          ]
+        },
+        {
+          "Key": "multiverse-loops",
+          "Title": "Time Loops, Multiverses & Glitches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "time loop",
+            "multiverse",
+            "parallel world",
+            "alternate reality",
+            "alternate universe",
+            "alternate timeline",
+            "butterfly effect"
+          ]
+        },
+        {
+          "Key": "vampires-werewolves",
+          "Title": "Vampires, Werewolves & Midnight Bites",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "vampire",
+            "werewolf",
+            "dracula",
+            "undead",
+            "gothic horror",
+            "curse"
+          ]
+        },
+        {
+          "Key": "folk-cult-horror",
+          "Title": "Cults, Rituals & Eerie Towns",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cult",
+            "occult",
+            "ritual",
+            "folk horror",
+            "secret society",
+            "witchcraft",
+            "paranormal"
+          ]
+        },
+        {
+          "Key": "cabin-survival-scares",
+          "Title": "Don't Go In There: Cabin & Survival Scares",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "slasher",
+            "cabin",
+            "haunted house",
+            "trapped",
+            "home invasion",
+            "isolated"
+          ]
+        },
+        {
+          "Key": "sports-underdogs",
+          "Title": "Underdogs, Training Montages & Sports",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "sports",
+            "boxing",
+            "basketball",
+            "football",
+            "baseball",
+            "racing",
+            "tournament",
+            "underdog",
+            "olympics",
+            "coach"
+          ]
+        },
+        {
+          "Key": "music-legends-movies",
+          "Title": "Turn It Up: Music, Bands & Legends",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "music",
+            "musician",
+            "singer",
+            "band",
+            "rock and roll",
+            "jazz",
+            "concert",
+            "hip-hop"
+          ]
+        },
+        {
+          "Key": "romance-date-night",
+          "Title": "Date Night & Rom-Coms",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Romance"
+          ]
+        },
+        {
+          "Key": "emotional-tearjerkers",
+          "Title": "Bring the Tissues: Emotional Gut-Punches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "grief",
+            "loss of loved one",
+            "tragic",
+            "bittersweet",
+            "melancholic",
+            "terminal illness",
+            "tearjerker",
+            "heartbreak"
+          ]
+        },
+        {
+          "Key": "buddy-comedies",
+          "Title": "Buddy Comedies & Chaotic Duos",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "buddy cop",
+            "buddy comedy",
+            "buddy",
+            "bromance",
+            "slapstick",
+            "odd couple",
+            "stoner"
+          ]
+        },
+        {
+          "Key": "high-school-campus",
+          "Title": "High School Chaos & Campus Classics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "high school",
+            "teenager",
+            "college",
+            "prom",
+            "boarding school",
+            "summer camp",
+            "teen comedy"
+          ]
+        },
+        {
+          "Key": "war-battlefields",
+          "Title": "Boots on the Ground: War Epics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "War"
+          ]
+        },
+        {
+          "Key": "westerns-outlaws",
+          "Title": "Saddle Up: Westerns & Outlaws",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Western"
+          ]
+        },
+        {
+          "Key": "period-history",
+          "Title": "Swords, Crowns & History Lessons",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "History"
+          ]
+        },
+        {
+          "Key": "courtroom-legal",
+          "Title": "Order in the Court: Legal & Political Thrillers",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "courtroom",
+            "lawyer",
+            "trial",
+            "politics",
+            "corruption",
+            "scandal",
+            "journalist",
+            "whistleblower",
+            "prison"
+          ]
+        },
+        {
+          "Key": "gangsters-mafia",
+          "Title": "Mobsters, Cartels & Organized Crime",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "mafia",
+            "gangster",
+            "organized crime",
+            "mobster",
+            "drug cartel",
+            "yakuza",
+            "crime boss",
+            "underworld"
+          ]
+        },
+        {
+          "Key": "quick-watch-95",
+          "Title": "Quick Flicks Under 95 Minutes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MaxMinutes": 95
+        },
+        {
+          "Key": "world-cinema",
+          "Title": "World Cinema & International Gems",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "japan",
+            "south korea",
+            "france",
+            "italy",
+            "spain",
+            "hong kong",
+            "samurai",
+            "paris",
+            "tokyo",
+            "london"
+          ]
+        },
+        {
+          "Key": "kaiju-disaster",
+          "Title": "Giant Monsters & Disaster Flicks",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "kaiju",
+            "giant monster",
+            "disaster",
+            "earthquake",
+            "asteroid",
+            "shark",
+            "dinosaur",
+            "volcano"
+          ]
+        },
+        {
+          "Key": "pirates-high-seas",
+          "Title": "High Seas, Pirates & Sunken Treasure",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "pirate",
+            "ship",
+            "ocean",
+            "submarine",
+            "island",
+            "treasure hunt",
+            "shipwreck",
+            "sailing"
+          ]
+        },
+        {
+          "Key": "family-movie-night",
+          "Title": "Family Movie Night",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Family"
+          ]
+        },
+        {
+          "Key": "docs-movies",
+          "Title": "Real Life: Documentaries",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Documentary"
+          ]
+        },
+        {
+          "Key": "a24-indie-vibes",
+          "Title": "Indie Darlings & A24 Vibes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "StudiosAny": [
+            "A24",
+            "Searchlight Pictures",
+            "Fox Searchlight Pictures",
+            "NEON",
+            "Focus Features",
+            "Annapurna Pictures",
+            "Miramax",
+            "Blumhouse Productions"
+          ]
+        },
+        {
+          "Key": "animation-powerhouses",
+          "Title": "Animation Powerhouses",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "StudiosAny": [
+            "Pixar",
+            "DreamWorks Animation",
+            "Studio Ghibli",
+            "Walt Disney Animation Studios",
+            "Sony Pictures Animation",
+            "Illumination",
+            "Laika"
+          ]
+        },
+        {
+          "Key": "90s-gold-movies",
+          "Title": "90s Cinema Hall of Fame",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            1990,
+            1999
+          ],
+          "MinRating": 7.4
+        },
+        {
+          "Key": "2000s-classics-movies",
+          "Title": "2000s Essential Rewatches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2000,
+            2009
+          ],
+          "MinRating": 7.2
+        },
+        {
+          "Key": "2010s-bangers-movies",
+          "Title": "2010s Modern Classics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2010,
+            2019
+          ],
+          "MinRating": 7.4
+        },
+        {
+          "Key": "2020s-standouts-movies",
+          "Title": "Best of the 2020s",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2020,
+            2029
+          ],
+          "MinRating": 7.0
+        },
+        {
+          "Key": "retro-pre-90s-movies",
+          "Title": "Retro Gems (Before 1990)",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            1920,
+            1989
+          ]
+        },
+        {
+          "Key": "cult-midnight-movies",
+          "Title": "Cult Classics & Midnight Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cult film",
+            "cult classic",
+            "satire",
+            "camp",
+            "parody",
+            "b-movie",
+            "neo-noir",
+            "noir"
+          ]
+        },
+        {
+          "Key": "cars-speed-adrenaline",
+          "Title": "Fast Cars, Chases & Adrenaline",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "car chase",
+            "street racing",
+            "car race",
+            "explosion",
+            "stunt",
+            "motorcycle",
+            "chase"
+          ]
+        },
+        {
+          "Key": "twist-endings",
+          "Title": "Wait... What?! Plot Twists & Mind Games",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "twist ending",
+            "plot twist",
+            "surprise ending",
+            "unreliable narrator",
+            "amnesia",
+            "mind game"
+          ]
+        },
+        {
+          "Key": "snowed-in-winter",
+          "Title": "Snowed In & Winter Vibes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "snow",
+            "winter",
+            "blizzard",
+            "alaska",
+            "antarctica",
+            "mountain"
+          ]
+        },
+        {
+          "Key": "food-kitchen-movies",
+          "Title": "Chef's Kiss: Food & Kitchen Stories",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "chef",
+            "cooking",
+            "restaurant",
+            "food",
+            "kitchen",
+            "bakery"
+          ]
+        },
+        {
+          "Key": "sci-fi-space-tv",
+          "Title": "Deep Space & Sci-Fi Voyages",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "space",
+            "space opera",
+            "space travel",
+            "spacecraft",
+            "alien",
+            "extraterrestrial",
+            "planet",
+            "future",
+            "cyberpunk"
+          ]
+        },
+        {
+          "Key": "dystopia-rebellion-tv",
+          "Title": "Rebellions, Empires & Broken Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dystopia",
+            "rebellion",
+            "resistance",
+            "revolution",
+            "totalitarian",
+            "post-apocalyptic future",
+            "empire",
+            "uprising"
+          ]
+        },
+        {
+          "Key": "crime-cartels-tv",
+          "Title": "Kingpins, Cartels & Dirty Money",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "mafia",
+            "gangster",
+            "organized crime",
+            "drug cartel",
+            "drug dealer",
+            "heist",
+            "money laundering",
+            "corruption",
+            "crime boss"
+          ]
+        },
+        {
+          "Key": "cop-detective-tv",
+          "Title": "Badges, Cases & Cold Trails",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "detective",
+            "police",
+            "police procedural",
+            "fbi",
+            "murder investigation",
+            "serial killer",
+            "forensic",
+            "homicide",
+            "crime investigation"
+          ]
+        },
+        {
+          "Key": "spies-politics-tv",
+          "Title": "Spies, Power Plays & Political Drama",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "spy",
+            "espionage",
+            "cia",
+            "secret agent",
+            "politics",
+            "political thriller",
+            "government",
+            "conspiracy",
+            "assassin"
+          ]
+        },
+        {
+          "Key": "family-drama-tv",
+          "Title": "Messy Families & Dynasties",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dysfunctional family",
+            "family drama",
+            "family relationships",
+            "family secrets",
+            "sibling relationship",
+            "siblings",
+            "dynasty",
+            "wealth"
+          ]
+        },
+        {
+          "Key": "high-school-teen-tv",
+          "Title": "Teen Drama & Coming of Age",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "high school",
+            "teenager",
+            "teen drama",
+            "coming of age",
+            "college",
+            "boarding school",
+            "youth"
+          ]
+        },
+        {
+          "Key": "romance-ships-tv",
+          "Title": "Will-They-Won't-They & Romance",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "romance",
+            "love",
+            "love triangle",
+            "relationship",
+            "romantic comedy",
+            "dating",
+            "marriage"
+          ]
+        },
+        {
+          "Key": "fantasy-realms-tv",
+          "Title": "Swords, Dragons & Fantasy Realms",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dragon",
+            "sword and sorcery",
+            "fantasy world",
+            "medieval",
+            "kingdom",
+            "monster",
+            "demon",
+            "mythology",
+            "isekai"
+          ]
+        },
+        {
+          "Key": "vampires-monsters-tv",
+          "Title": "Monsters, Ghosts & After-Dark Chills",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "vampire",
+            "zombie",
+            "ghost",
+            "demon",
+            "haunting",
+            "monster",
+            "paranormal",
+            "occult",
+            "werewolf"
+          ]
+        },
+        {
+          "Key": "antiheroes-villains-tv",
+          "Title": "Antiheroes, Schemes & Bad Decisions",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "anti hero",
+            "villain",
+            "criminal",
+            "manipulation",
+            "double life",
+            "moral ambiguity",
+            "redemption",
+            "greed"
+          ]
+        },
+        {
+          "Key": "slice-of-life-cozy-tv",
+          "Title": "Cozy Escapes & Slice of Life",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "slice of life",
+            "small town",
+            "cozy",
+            "wholesome",
+            "heartwarming",
+            "friendship",
+            "found family",
+            "everyday life"
+          ]
+        },
+        {
+          "Key": "isekai-fantasy-anime-tv",
+          "Title": "Isekai, Magic & Other Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "isekai",
+            "magic",
+            "alchemy",
+            "guild",
+            "demon",
+            "spirit",
+            "samurai"
+          ]
+        },
+        {
+          "Key": "mecha-scifi-anime-tv",
+          "Title": "Mecha, Cybernetics & Future Anime",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "mecha",
+            "giant robot",
+            "cyberpunk",
+            "artificial intelligence",
+            "robot",
+            "android",
+            "futuristic"
+          ]
+        },
+        {
+          "Key": "miniseries-limited-tv",
+          "Title": "Tightly Wound Miniseries",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "miniseries",
+            "limited series",
+            "based on true story",
+            "true crime",
+            "anthology"
+          ]
+        },
+        {
+          "Key": "true-crime-docs-tv",
+          "Title": "Docuseries & True Stories",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Documentary"
+          ]
+        },
+        {
+          "Key": "reality-competition-tv",
+          "Title": "Reality, Games & Competitions",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Reality",
+            "Game Show"
+          ]
+        },
+        {
+          "Key": "war-history-tv",
+          "Title": "War, History & Period Epics",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "War & Politics",
+            "History",
+            "War"
+          ]
+        },
+        {
+          "Key": "western-frontier-tv",
+          "Title": "Frontier Justice & Western Series",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Western"
+          ]
+        },
+        {
+          "Key": "kids-family-tv",
+          "Title": "Family & Nostalgic Cartoons",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Kids",
+            "Family"
+          ]
+        },
+        {
+          "Key": "british-intl-tv",
+          "Title": "Across the Pond: British & International TV",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "london",
+            "england",
+            "uk",
+            "british humor",
+            "britain",
+            "scotland",
+            "ireland",
+            "japan",
+            "south korea",
+            "korea",
+            "tokyo",
+            "seoul"
+          ]
+        },
+        {
+          "Key": "medical-legal-tv",
+          "Title": "ERs, Courtrooms & High Pressure",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "hospital",
+            "doctor",
+            "medical drama",
+            "lawyer",
+            "courtroom",
+            "legal drama",
+            "law firm",
+            "surgeon"
+          ]
+        },
+        {
+          "Key": "music-showbiz-tv",
+          "Title": "Backstage, Showbiz & Music",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "music",
+            "band",
+            "singer",
+            "hollywood",
+            "show business",
+            "theater",
+            "stand-up comedy",
+            "celebrity"
+          ]
+        },
+        {
+          "Key": "sports-rivalry-tv",
+          "Title": "Sports, Training & Rivalries",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "sports",
+            "football",
+            "basketball",
+            "soccer",
+            "boxing",
+            "wrestling",
+            "coach",
+            "championship",
+            "competition"
+          ]
+        },
+        {
+          "Key": "2010s-golden-age-tv",
+          "Title": "2010s Peak TV",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "Years": [
+            2010,
+            2019
+          ],
+          "MinRating": 7.5
+        },
+        {
+          "Key": "2020s-all-tv",
+          "Title": "Fresh From the 2020s",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "Years": [
+            2020,
+            2029
+          ]
+        },
+        {
+          "Key": "acclaimed-prestige-tv",
+          "Title": "All-Time Greats (8.3+)",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "MinRating": 8.3
+        },
+        {
+          "Key": "hbo-apple-prestige-tv",
+          "Title": "HBO, Apple TV+ & FX Standouts",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "HBO",
+            "Apple TV+",
+            "Apple TV",
+            "FX",
+            "FXX",
+            "AMC",
+            "Showtime",
+            "Starz"
+          ]
+        },
+        {
+          "Key": "anime-studios-tv",
+          "Title": "Top Anime Studios",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "MAPPA",
+            "ufotable",
+            "Wit Studio",
+            "Madhouse",
+            "Bones",
+            "A-1 Pictures",
+            "CloverWorks",
+            "Kyoto Animation",
+            "Production I.G",
+            "Trigger",
+            "Studio Pierrot",
+            "Toei Animation",
+            "David Production",
+            "Sunrise",
+            "Science SARU"
+          ]
+        },
+        {
+          "Key": "comedy-networks-tv",
+          "Title": "NBC, CBS, ABC & Comedy Central Hits",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "NBC",
+            "CBS",
+            "ABC",
+            "Comedy Central",
+            "Adult Swim",
+            "TBS",
+            "BBC One",
+            "Channel 4"
+          ]
         }
       ]
     },
     "movies": {
       "opening": [
-        "anchor:RecentlyAddedMovies",
-        "family:theme",
-        "anchor:DiscoverMovies",
+        "family:any",
+        "family:any",
+        "family:any",
         "anchor:ContinueWatchingNextUp"
       ],
       "anchors": [
-        "RecentlyAddedMovies",
-        "DiscoverMovies",
         "ContinueWatchingNextUp",
+        "DiscoverMovies",
+        "RecentlyAddedMovies",
         "MyJellyseerrRequests"
       ],
       "families": [
@@ -1493,20 +2600,627 @@
             "cheerful",
             "joyful"
           ]
+        },
+        {
+          "Key": "heists-cons",
+          "Title": "Heists, Cons & Masterminds",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "heist",
+            "con artist",
+            "robbery",
+            "bank robbery",
+            "caper",
+            "burglary",
+            "con man",
+            "double cross"
+          ]
+        },
+        {
+          "Key": "whodunits-detectives",
+          "Title": "Detectives, Clues & Whodunits",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "detective",
+            "investigation",
+            "whodunit",
+            "private detective",
+            "police investigation",
+            "murder mystery"
+          ]
+        },
+        {
+          "Key": "spies-espionage",
+          "Title": "Spies, Assassins & Covert Ops",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "spy",
+            "espionage",
+            "secret agent",
+            "assassin",
+            "hitman",
+            "cia",
+            "undercover",
+            "conspiracy"
+          ]
+        },
+        {
+          "Key": "road-trips",
+          "Title": "Hit the Road: Road Trips & Getaways",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "road trip",
+            "road movie",
+            "cross country",
+            "hitchhiker",
+            "vacation",
+            "escape"
+          ]
+        },
+        {
+          "Key": "post-apocalypse",
+          "Title": "End of the World & Wastelands",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "post-apocalyptic future",
+            "apocalypse",
+            "end of the world",
+            "nuclear war",
+            "pandemic",
+            "doomsday"
+          ]
+        },
+        {
+          "Key": "ai-robots",
+          "Title": "AI Gone Rogue & Robots",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "artificial intelligence (a.i.)",
+            "artificial intelligence",
+            "robot",
+            "android",
+            "cyborg",
+            "virtual reality",
+            "simulation"
+          ]
+        },
+        {
+          "Key": "multiverse-loops",
+          "Title": "Time Loops, Multiverses & Glitches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "time loop",
+            "multiverse",
+            "parallel world",
+            "alternate reality",
+            "alternate universe",
+            "alternate timeline",
+            "butterfly effect"
+          ]
+        },
+        {
+          "Key": "vampires-werewolves",
+          "Title": "Vampires, Werewolves & Midnight Bites",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "vampire",
+            "werewolf",
+            "dracula",
+            "undead",
+            "gothic horror",
+            "curse"
+          ]
+        },
+        {
+          "Key": "folk-cult-horror",
+          "Title": "Cults, Rituals & Eerie Towns",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cult",
+            "occult",
+            "ritual",
+            "folk horror",
+            "secret society",
+            "witchcraft",
+            "paranormal"
+          ]
+        },
+        {
+          "Key": "cabin-survival-scares",
+          "Title": "Don't Go In There: Cabin & Survival Scares",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "slasher",
+            "cabin",
+            "haunted house",
+            "trapped",
+            "home invasion",
+            "isolated"
+          ]
+        },
+        {
+          "Key": "sports-underdogs",
+          "Title": "Underdogs, Training Montages & Sports",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "sports",
+            "boxing",
+            "basketball",
+            "football",
+            "baseball",
+            "racing",
+            "tournament",
+            "underdog",
+            "olympics",
+            "coach"
+          ]
+        },
+        {
+          "Key": "music-legends-movies",
+          "Title": "Turn It Up: Music, Bands & Legends",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "music",
+            "musician",
+            "singer",
+            "band",
+            "rock and roll",
+            "jazz",
+            "concert",
+            "hip-hop"
+          ]
+        },
+        {
+          "Key": "romance-date-night",
+          "Title": "Date Night & Rom-Coms",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Romance"
+          ]
+        },
+        {
+          "Key": "emotional-tearjerkers",
+          "Title": "Bring the Tissues: Emotional Gut-Punches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "grief",
+            "loss of loved one",
+            "tragic",
+            "bittersweet",
+            "melancholic",
+            "terminal illness",
+            "tearjerker",
+            "heartbreak"
+          ]
+        },
+        {
+          "Key": "buddy-comedies",
+          "Title": "Buddy Comedies & Chaotic Duos",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "buddy cop",
+            "buddy comedy",
+            "buddy",
+            "bromance",
+            "slapstick",
+            "odd couple",
+            "stoner"
+          ]
+        },
+        {
+          "Key": "high-school-campus",
+          "Title": "High School Chaos & Campus Classics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "high school",
+            "teenager",
+            "college",
+            "prom",
+            "boarding school",
+            "summer camp",
+            "teen comedy"
+          ]
+        },
+        {
+          "Key": "war-battlefields",
+          "Title": "Boots on the Ground: War Epics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "War"
+          ]
+        },
+        {
+          "Key": "westerns-outlaws",
+          "Title": "Saddle Up: Westerns & Outlaws",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Western"
+          ]
+        },
+        {
+          "Key": "period-history",
+          "Title": "Swords, Crowns & History Lessons",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "History"
+          ]
+        },
+        {
+          "Key": "courtroom-legal",
+          "Title": "Order in the Court: Legal & Political Thrillers",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "courtroom",
+            "lawyer",
+            "trial",
+            "politics",
+            "corruption",
+            "scandal",
+            "journalist",
+            "whistleblower",
+            "prison"
+          ]
+        },
+        {
+          "Key": "gangsters-mafia",
+          "Title": "Mobsters, Cartels & Organized Crime",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "mafia",
+            "gangster",
+            "organized crime",
+            "mobster",
+            "drug cartel",
+            "yakuza",
+            "crime boss",
+            "underworld"
+          ]
+        },
+        {
+          "Key": "quick-watch-95",
+          "Title": "Quick Flicks Under 95 Minutes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "MaxMinutes": 95
+        },
+        {
+          "Key": "world-cinema",
+          "Title": "World Cinema & International Gems",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "japan",
+            "south korea",
+            "france",
+            "italy",
+            "spain",
+            "hong kong",
+            "samurai",
+            "paris",
+            "tokyo",
+            "london"
+          ]
+        },
+        {
+          "Key": "kaiju-disaster",
+          "Title": "Giant Monsters & Disaster Flicks",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "kaiju",
+            "giant monster",
+            "disaster",
+            "earthquake",
+            "asteroid",
+            "shark",
+            "dinosaur",
+            "volcano"
+          ]
+        },
+        {
+          "Key": "pirates-high-seas",
+          "Title": "High Seas, Pirates & Sunken Treasure",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "pirate",
+            "ship",
+            "ocean",
+            "submarine",
+            "island",
+            "treasure hunt",
+            "shipwreck",
+            "sailing"
+          ]
+        },
+        {
+          "Key": "family-movie-night",
+          "Title": "Family Movie Night",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Family"
+          ]
+        },
+        {
+          "Key": "docs-movies",
+          "Title": "Real Life: Documentaries",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "GenresAny": [
+            "Documentary"
+          ]
+        },
+        {
+          "Key": "a24-indie-vibes",
+          "Title": "Indie Darlings & A24 Vibes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "StudiosAny": [
+            "A24",
+            "Searchlight Pictures",
+            "Fox Searchlight Pictures",
+            "NEON",
+            "Focus Features",
+            "Annapurna Pictures",
+            "Miramax",
+            "Blumhouse Productions"
+          ]
+        },
+        {
+          "Key": "animation-powerhouses",
+          "Title": "Animation Powerhouses",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "StudiosAny": [
+            "Pixar",
+            "DreamWorks Animation",
+            "Studio Ghibli",
+            "Walt Disney Animation Studios",
+            "Sony Pictures Animation",
+            "Illumination",
+            "Laika"
+          ]
+        },
+        {
+          "Key": "90s-gold-movies",
+          "Title": "90s Cinema Hall of Fame",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            1990,
+            1999
+          ],
+          "MinRating": 7.4
+        },
+        {
+          "Key": "2000s-classics-movies",
+          "Title": "2000s Essential Rewatches",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2000,
+            2009
+          ],
+          "MinRating": 7.2
+        },
+        {
+          "Key": "2010s-bangers-movies",
+          "Title": "2010s Modern Classics",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2010,
+            2019
+          ],
+          "MinRating": 7.4
+        },
+        {
+          "Key": "2020s-standouts-movies",
+          "Title": "Best of the 2020s",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            2020,
+            2029
+          ],
+          "MinRating": 7.0
+        },
+        {
+          "Key": "retro-pre-90s-movies",
+          "Title": "Retro Gems (Before 1990)",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "Years": [
+            1920,
+            1989
+          ]
+        },
+        {
+          "Key": "cult-midnight-movies",
+          "Title": "Cult Classics & Midnight Movies",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "cult film",
+            "cult classic",
+            "satire",
+            "camp",
+            "parody",
+            "b-movie",
+            "neo-noir",
+            "noir"
+          ]
+        },
+        {
+          "Key": "cars-speed-adrenaline",
+          "Title": "Fast Cars, Chases & Adrenaline",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "car chase",
+            "street racing",
+            "car race",
+            "explosion",
+            "stunt",
+            "motorcycle",
+            "chase"
+          ]
+        },
+        {
+          "Key": "twist-endings",
+          "Title": "Wait... What?! Plot Twists & Mind Games",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "twist ending",
+            "plot twist",
+            "surprise ending",
+            "unreliable narrator",
+            "amnesia",
+            "mind game"
+          ]
+        },
+        {
+          "Key": "snowed-in-winter",
+          "Title": "Snowed In & Winter Vibes",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "snow",
+            "winter",
+            "blizzard",
+            "alaska",
+            "antarctica",
+            "mountain"
+          ]
+        },
+        {
+          "Key": "food-kitchen-movies",
+          "Title": "Chef's Kiss: Food & Kitchen Stories",
+          "Enabled": true,
+          "Types": [
+            "Movie"
+          ],
+          "TagsAny": [
+            "chef",
+            "cooking",
+            "restaurant",
+            "food",
+            "kitchen",
+            "bakery"
+          ]
         }
       ]
     },
     "shows": {
       "opening": [
-        "anchor:RecentlyAddedShows",
-        "family:theme",
-        "anchor:DiscoverTV",
+        "family:any",
+        "family:any",
+        "family:any",
         "anchor:ContinueWatchingNextUp"
       ],
       "anchors": [
-        "RecentlyAddedShows",
-        "DiscoverTV",
         "ContinueWatchingNextUp",
+        "DiscoverTV",
+        "RecentlyAddedShows",
         "MyJellyseerrRequests"
       ],
       "families": [
@@ -1994,6 +3708,506 @@
             2029
           ],
           "MinRating": 8
+        },
+        {
+          "Key": "sci-fi-space-tv",
+          "Title": "Deep Space & Sci-Fi Voyages",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "space",
+            "space opera",
+            "space travel",
+            "spacecraft",
+            "alien",
+            "extraterrestrial",
+            "planet",
+            "future",
+            "cyberpunk"
+          ]
+        },
+        {
+          "Key": "dystopia-rebellion-tv",
+          "Title": "Rebellions, Empires & Broken Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dystopia",
+            "rebellion",
+            "resistance",
+            "revolution",
+            "totalitarian",
+            "post-apocalyptic future",
+            "empire",
+            "uprising"
+          ]
+        },
+        {
+          "Key": "crime-cartels-tv",
+          "Title": "Kingpins, Cartels & Dirty Money",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "mafia",
+            "gangster",
+            "organized crime",
+            "drug cartel",
+            "drug dealer",
+            "heist",
+            "money laundering",
+            "corruption",
+            "crime boss"
+          ]
+        },
+        {
+          "Key": "cop-detective-tv",
+          "Title": "Badges, Cases & Cold Trails",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "detective",
+            "police",
+            "police procedural",
+            "fbi",
+            "murder investigation",
+            "serial killer",
+            "forensic",
+            "homicide",
+            "crime investigation"
+          ]
+        },
+        {
+          "Key": "spies-politics-tv",
+          "Title": "Spies, Power Plays & Political Drama",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "spy",
+            "espionage",
+            "cia",
+            "secret agent",
+            "politics",
+            "political thriller",
+            "government",
+            "conspiracy",
+            "assassin"
+          ]
+        },
+        {
+          "Key": "family-drama-tv",
+          "Title": "Messy Families & Dynasties",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dysfunctional family",
+            "family drama",
+            "family relationships",
+            "family secrets",
+            "sibling relationship",
+            "siblings",
+            "dynasty",
+            "wealth"
+          ]
+        },
+        {
+          "Key": "high-school-teen-tv",
+          "Title": "Teen Drama & Coming of Age",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "high school",
+            "teenager",
+            "teen drama",
+            "coming of age",
+            "college",
+            "boarding school",
+            "youth"
+          ]
+        },
+        {
+          "Key": "romance-ships-tv",
+          "Title": "Will-They-Won't-They & Romance",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "romance",
+            "love",
+            "love triangle",
+            "relationship",
+            "romantic comedy",
+            "dating",
+            "marriage"
+          ]
+        },
+        {
+          "Key": "fantasy-realms-tv",
+          "Title": "Swords, Dragons & Fantasy Realms",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "dragon",
+            "sword and sorcery",
+            "fantasy world",
+            "medieval",
+            "kingdom",
+            "monster",
+            "demon",
+            "mythology",
+            "isekai"
+          ]
+        },
+        {
+          "Key": "vampires-monsters-tv",
+          "Title": "Monsters, Ghosts & After-Dark Chills",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "vampire",
+            "zombie",
+            "ghost",
+            "demon",
+            "haunting",
+            "monster",
+            "paranormal",
+            "occult",
+            "werewolf"
+          ]
+        },
+        {
+          "Key": "antiheroes-villains-tv",
+          "Title": "Antiheroes, Schemes & Bad Decisions",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "anti hero",
+            "villain",
+            "criminal",
+            "manipulation",
+            "double life",
+            "moral ambiguity",
+            "redemption",
+            "greed"
+          ]
+        },
+        {
+          "Key": "slice-of-life-cozy-tv",
+          "Title": "Cozy Escapes & Slice of Life",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "slice of life",
+            "small town",
+            "cozy",
+            "wholesome",
+            "heartwarming",
+            "friendship",
+            "found family",
+            "everyday life"
+          ]
+        },
+        {
+          "Key": "isekai-fantasy-anime-tv",
+          "Title": "Isekai, Magic & Other Worlds",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "isekai",
+            "magic",
+            "alchemy",
+            "guild",
+            "demon",
+            "spirit",
+            "samurai"
+          ]
+        },
+        {
+          "Key": "mecha-scifi-anime-tv",
+          "Title": "Mecha, Cybernetics & Future Anime",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "mecha",
+            "giant robot",
+            "cyberpunk",
+            "artificial intelligence",
+            "robot",
+            "android",
+            "futuristic"
+          ]
+        },
+        {
+          "Key": "miniseries-limited-tv",
+          "Title": "Tightly Wound Miniseries",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "miniseries",
+            "limited series",
+            "based on true story",
+            "true crime",
+            "anthology"
+          ]
+        },
+        {
+          "Key": "true-crime-docs-tv",
+          "Title": "Docuseries & True Stories",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Documentary"
+          ]
+        },
+        {
+          "Key": "reality-competition-tv",
+          "Title": "Reality, Games & Competitions",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Reality",
+            "Game Show"
+          ]
+        },
+        {
+          "Key": "war-history-tv",
+          "Title": "War, History & Period Epics",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "War & Politics",
+            "History",
+            "War"
+          ]
+        },
+        {
+          "Key": "western-frontier-tv",
+          "Title": "Frontier Justice & Western Series",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Western"
+          ]
+        },
+        {
+          "Key": "kids-family-tv",
+          "Title": "Family & Nostalgic Cartoons",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "GenresAny": [
+            "Kids",
+            "Family"
+          ]
+        },
+        {
+          "Key": "british-intl-tv",
+          "Title": "Across the Pond: British & International TV",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "london",
+            "england",
+            "uk",
+            "british humor",
+            "britain",
+            "scotland",
+            "ireland",
+            "japan",
+            "south korea",
+            "korea",
+            "tokyo",
+            "seoul"
+          ]
+        },
+        {
+          "Key": "medical-legal-tv",
+          "Title": "ERs, Courtrooms & High Pressure",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "hospital",
+            "doctor",
+            "medical drama",
+            "lawyer",
+            "courtroom",
+            "legal drama",
+            "law firm",
+            "surgeon"
+          ]
+        },
+        {
+          "Key": "music-showbiz-tv",
+          "Title": "Backstage, Showbiz & Music",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "music",
+            "band",
+            "singer",
+            "hollywood",
+            "show business",
+            "theater",
+            "stand-up comedy",
+            "celebrity"
+          ]
+        },
+        {
+          "Key": "sports-rivalry-tv",
+          "Title": "Sports, Training & Rivalries",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "TagsAny": [
+            "sports",
+            "football",
+            "basketball",
+            "soccer",
+            "boxing",
+            "wrestling",
+            "coach",
+            "championship",
+            "competition"
+          ]
+        },
+        {
+          "Key": "2010s-golden-age-tv",
+          "Title": "2010s Peak TV",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "Years": [
+            2010,
+            2019
+          ],
+          "MinRating": 7.5
+        },
+        {
+          "Key": "2020s-all-tv",
+          "Title": "Fresh From the 2020s",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "Years": [
+            2020,
+            2029
+          ]
+        },
+        {
+          "Key": "acclaimed-prestige-tv",
+          "Title": "All-Time Greats (8.3+)",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "MinRating": 8.3
+        },
+        {
+          "Key": "hbo-apple-prestige-tv",
+          "Title": "HBO, Apple TV+ & FX Standouts",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "HBO",
+            "Apple TV+",
+            "Apple TV",
+            "FX",
+            "FXX",
+            "AMC",
+            "Showtime",
+            "Starz"
+          ]
+        },
+        {
+          "Key": "anime-studios-tv",
+          "Title": "Top Anime Studios",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "MAPPA",
+            "ufotable",
+            "Wit Studio",
+            "Madhouse",
+            "Bones",
+            "A-1 Pictures",
+            "CloverWorks",
+            "Kyoto Animation",
+            "Production I.G",
+            "Trigger",
+            "Studio Pierrot",
+            "Toei Animation",
+            "David Production",
+            "Sunrise",
+            "Science SARU"
+          ]
+        },
+        {
+          "Key": "comedy-networks-tv",
+          "Title": "NBC, CBS, ABC & Comedy Central Hits",
+          "Enabled": true,
+          "Types": [
+            "Series"
+          ],
+          "StudiosAny": [
+            "NBC",
+            "CBS",
+            "ABC",
+            "Comedy Central",
+            "Adult Swim",
+            "TBS",
+            "BBC One",
+            "Channel 4"
+          ]
         }
       ]
     }

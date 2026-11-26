@@ -51,7 +51,11 @@ test('home mounts, alternates core/theme, preserves hero and restores native on 
   const f=fixture();await f.settle();
   assert.equal(f.document.querySelectorAll('.fx-discovery').length,1);
   const rows=[...f.document.querySelectorAll('.fx-shelf')].map(x=>x.dataset.shelfKey);
-  assert.equal(rows[0],'RecentlyAddedMovies');assert.ok(rows[1].startsWith('rule:'));assert.equal(rows[2],'RecentlyAddedShows');assert.equal(rows[3],'ContinueWatchingNextUp');
+  const anchorKeys=new Set(['ContinueWatchingNextUp','RecentlyAddedMovies','RecentlyAddedShows','DiscoverMovies','DiscoverTV','MyJellyseerrRequests','MyMedia']);
+  assert.equal(anchorKeys.has(rows[0]),false,'Row 1 is a random non-anchor category');
+  assert.equal(anchorKeys.has(rows[1]),false,'Row 2 is a random non-anchor category');
+  assert.equal(anchorKeys.has(rows[2]),false,'Row 3 is a random non-anchor category');
+  assert.equal(rows[3],'ContinueWatchingNextUp','Row 4 is Continue Watching');
   assert.equal(f.document.querySelector('.hero').textContent,'Keep hero');
   assert.equal(f.document.querySelector('.homeSectionsContainer').getAttribute('data-fx-native-hidden'),null);
   assert.equal(f.document.querySelector('.homeSectionsContainer .card').getAttribute('data-fx-native-hidden'),'true');
@@ -541,7 +545,7 @@ test('Settings consolidates Customize Home inside Settings -> Home, styles Displ
   assert.ok(cssText.includes('.fx-osd-gesture-pill[data-pos="right"].is-visible'));
 
   const firstShelf=f.document.querySelector('.fx-shelf');
-  assert.equal(firstShelf?.dataset?.shelfKey,'RecentlyAddedMovies');
+  assert.ok(firstShelf?.dataset?.shelfKey&&!['RecentlyAddedMovies','RecentlyAddedShows','ContinueWatchingNextUp'].includes(firstShelf.dataset.shelfKey));
 
   f.document.getElementById('indexPage').classList.add('hide');
 
@@ -2107,6 +2111,174 @@ test('v0.6.6 polish: Continue Watching renamed & moved to Category 4, My Media r
   syncBtn.dispatchEvent(new Ev('click', { bubbles: true }));
   assert.equal(f.document.documentElement.style.getPropertyValue('--fx-header-popup-top'), '64px', 'small :active shift on click does not twitch header popup position');
   hdr.remove();
+
+  f.ctx.window.FazFortDiscovery.stop();
+});
+
+test('v0.6.7 polish: volume focus fix, SyncPlay icon centering, hover-only Play/Pause border, center Play/Pause burst, single More Like This RT score, random opening trio, and Recently Added after Continue Watching', async () => {
+  const f = fixture({ hash: '#/home' });
+  await f.settle();
+  const cssText = f.document.getElementById('fx-discovery-style')?.textContent || '';
+  const Ev = f.document.defaultView.Event;
+
+  // 1. Volume button never flattens on click (:focus reset scoped to :not(:hover):not(:active), and pointer click blurs buttonMute)
+  assert.ok(cssText.includes('#videoOsdPage .paper-icon-button-light:focus:not(:hover):not(:active)'), 'OSD button focus reset never overrides hover/active 3D glass shadow');
+  assert.ok(cssText.includes('#videoOsdPage .paper-icon-button-light:hover,\n#videoOsdPage .paper-icon-button-light:hover:focus'), 'OSD hover surface explicitly covers :hover:focus');
+
+  // 2. SyncPlay "people" icon raised slightly to optically center with sibling header icons
+  assert.ok(cssText.includes('.osdHeader svg[data-testid="GroupsIcon"],\n.osdHeader svg[data-testid="GroupIcon"]{\n  transform:translateY(-2px)!important;'), 'SyncPlay glyph is raised by -2px');
+
+  // 3. Play/Pause button has transparent border at rest and shows glass border only on hover/active
+  const btnPauseBlock = cssText.slice(cssText.indexOf('#videoOsdPage .btnPause{'), cssText.indexOf('#videoOsdPage .btnPause::before'));
+  assert.ok(btnPauseBlock.includes('background:transparent!important;'), 'btnPause is transparent at rest');
+  assert.ok(btnPauseBlock.includes('border:1px solid transparent!important;'), 'btnPause has no visible border at rest');
+  assert.ok(cssText.includes('#videoOsdPage .btnPause:hover,\n#videoOsdPage .btnPause:hover:focus{'), 'btnPause border and glass surface show only on hover');
+
+  // 4. Volume pointer click blurs buttonMute + Center-screen Play/Pause overlay triggers on pause & resume (skipping initial startup)
+  const osd = f.document.createElement('div');
+  osd.id = 'videoOsdPage';
+  const vid = f.document.createElement('video');
+  vid.className = 'htmlvideoplayer';
+  vid.currentTime = 12;
+  vid.volume = 1;
+  vid.muted = false;
+  vid.seeking = false;
+  vid.ended = false;
+  const muteBtn = f.document.createElement('button');
+  muteBtn.className = 'paper-icon-button-light buttonMute';
+  let muteBlurred = false;
+  muteBtn.blur = () => { muteBlurred = true; };
+  const muteIc = f.document.createElement('span');
+  muteIc.className = 'material-icons volume_up';
+  muteBtn.append(muteIc);
+  osd.append(vid, muteBtn);
+  f.document.body.append(osd);
+  f.notify();
+  f.flushTimeouts();
+  await f.settle();
+
+  const clickEv = new Ev('click', { bubbles: true, cancelable: true });
+  Object.defineProperty(clickEv, 'detail', { value: 1 });
+  muteBtn.dispatchEvent(clickEv);
+  assert.equal(muteBlurred, true, 'pointer click on volume button blurs focus so it never sticks flat');
+
+  vid.dispatchEvent(new Ev('pause'));
+  let burst = f.document.querySelector('.fx-osd-playstate-overlay');
+  assert.ok(burst, 'center play/pause overlay mounts on pause');
+  assert.equal(burst.dataset.state, 'pause', 'overlay shows pause icon when paused');
+  assert.equal(burst.classList.contains('is-visible'), true, 'overlay becomes visible on pause');
+
+  vid.dispatchEvent(new Ev('play'));
+  assert.equal(burst.dataset.state, 'play', 'overlay switches to play icon when resumed');
+  assert.equal(burst.classList.contains('is-visible'), true, 'overlay becomes visible on resume');
+
+  // Seeking does not trigger false play/pause overlay
+  burst.classList.remove('is-visible');
+  vid.seeking = true;
+  vid.dispatchEvent(new Ev('pause'));
+  assert.equal(burst.classList.contains('is-visible'), false, 'seeking suppresses center play/pause overlay');
+  vid.seeking = false;
+  osd.remove();
+
+  // 5. More Like This cards render ONLY ONE Rotten Tomatoes score even across two-phase SleekFin async starSlot hydration
+  const detailPage = f.document.createElement('div');
+  detailPage.id = 'itemDetailPage';
+  const simWrap = f.document.createElement('div');
+  simWrap.id = 'similarCollapsible';
+  const simCard = f.document.createElement('div');
+  simCard.className = 'card';
+  const sampleId = '0'.repeat(31) + '1';
+  simCard.dataset.id = sampleId;
+  const simMeta = f.document.createElement('div');
+  simMeta.className = 'sleekfin-details-similar-meta sleekfin-meta';
+  const simType = f.document.createElement('span');
+  simType.className = 'sleekfin-meta-item';
+  simType.textContent = 'Movie';
+  simMeta.append(simType);
+  simCard.append(simMeta);
+  simWrap.append(simCard);
+  detailPage.append(simWrap);
+  f.document.body.append(detailPage);
+  // Seed cached CriticRating on matching inventory item
+  const simInvItem = f.document.querySelector('.fx-card[data-item-id]');
+  if (simInvItem) simCard.dataset.id = simInvItem.dataset.itemId;
+  // Phase 1: no starSlot yet -> injects .fx-similar-injected-ratings
+  const preInjected = f.document.createElement('span');
+  preInjected.className = 'fx-similar-injected-ratings';
+  const preGroup = f.document.createElement('span');
+  preGroup.className = 'fx-ratings-group';
+  preGroup.textContent = '95%';
+  preInjected.append(preGroup);
+  const preSep = f.document.createElement('span');
+  preSep.className = 'sleekfin-meta-separator';
+  preSep.dataset.fxSimilarSep = 'true';
+  preSep.textContent = '·';
+  simMeta.prepend(preInjected, preSep);
+  // Phase 2: SleekFin async hydrates starSlot right alongside the fallback wrapper!
+  const starSlot = f.document.createElement('span');
+  starSlot.className = 'sleekfin-meta-item sleekfin-meta-accent';
+  starSlot.setAttribute('data-sleekfin-accent', 'true');
+  starSlot.textContent = '8.1';
+  simMeta.append(starSlot);
+  f.notify();
+  f.flushTimeouts();
+  await f.settle();
+  assert.equal(simMeta.querySelectorAll('.fx-similar-injected-ratings').length, 0, 'fallback injected rating is removed once SleekFin starSlot hydrates');
+  assert.equal(simMeta.querySelectorAll('[data-fx-similar-sep="true"]').length, 0, 'fallback separator is removed once SleekFin starSlot hydrates');
+  assert.ok(simMeta.querySelectorAll('.fx-ratings-group').length <= 1, 'More Like This card never displays two Rotten Tomatoes scores');
+  detailPage.remove();
+
+  // 6. First 3 categories are ALWAYS random non-anchors; Continue Watching is Category 4; Recently Added ONLY appears after Category 4
+  const initialKeys = [...f.document.querySelectorAll('#indexPage .fx-shelf')].map(s => s.dataset.shelfKey);
+  assert.equal(initialKeys.slice(0, 3).some(k => ['ContinueWatchingNextUp', 'RecentlyAddedMovies', 'RecentlyAddedShows', 'DiscoverMovies', 'DiscoverTV'].includes(k)), false, 'First 3 categories are random non-anchors');
+  assert.equal(initialKeys[3], 'ContinueWatchingNextUp', 'Category 4 is Continue Watching');
+  for (let i = 0; i < 6; i++) { f.intersection(); await f.settle(); }
+  const expandedKeys = [...f.document.querySelectorAll('#indexPage .fx-shelf')].map(s => s.dataset.shelfKey);
+  const recMovIdx = expandedKeys.indexOf('RecentlyAddedMovies');
+  const recShowIdx = expandedKeys.indexOf('RecentlyAddedShows');
+  const cwIdx = expandedKeys.indexOf('ContinueWatchingNextUp');
+  assert.equal(cwIdx, 3);
+  assert.ok(recMovIdx > cwIdx, `RecentlyAddedMovies (${recMovIdx}) appears only after Continue Watching (${cwIdx})`);
+  assert.ok(recShowIdx > cwIdx, `RecentlyAddedShows (${recShowIdx}) appears only after Continue Watching (${cwIdx})`);
+
+  // 7. v0.6.6 saved profiles seamlessly migrate to v0.6.7 random opening trio AND merge newly added Movie & Show categories
+  const v066Cfg = {
+    schemaVersion: 1,
+    timeZone: 'America/Los_Angeles',
+    cardsPerShelf: 20,
+    batchSize: 4,
+    minimumItems: 3,
+    maxLiveRows: 24,
+    endless: true,
+    hideWatched: false,
+    pages: {
+      home: {
+        opening: ['anchor:RecentlyAddedMovies', 'family:theme', 'anchor:RecentlyAddedShows', 'anchor:ContinueWatchingNextUp'],
+        anchors: ['RecentlyAddedMovies', 'RecentlyAddedShows', 'ContinueWatchingNextUp', 'DiscoverMovies', 'MyJellyseerrRequests', 'DiscoverTV'],
+        families: ['theme', 'genre', 'decade'],
+        rules: [{ Key: 'popcorn', Title: 'Perfect Popcorn Movies', Enabled: true, Types: ['Movie'], GenresAny: ['Action'] }]
+      },
+      movies: {
+        opening: ['anchor:RecentlyAddedMovies', 'family:theme', 'anchor:DiscoverMovies', 'anchor:ContinueWatchingNextUp'],
+        anchors: ['RecentlyAddedMovies', 'DiscoverMovies', 'ContinueWatchingNextUp', 'MyJellyseerrRequests'],
+        families: ['theme', 'genre'],
+        rules: []
+      },
+      shows: {
+        opening: ['anchor:RecentlyAddedShows', 'family:theme', 'anchor:DiscoverTV', 'anchor:ContinueWatchingNextUp'],
+        anchors: ['RecentlyAddedShows', 'DiscoverTV', 'ContinueWatchingNextUp', 'MyJellyseerrRequests'],
+        families: ['theme', 'genre'],
+        rules: []
+      }
+    }
+  };
+  const fMig66 = fixture({ hash: '#/home', config: v066Cfg });
+  await fMig66.settle();
+  const mig66Keys = [...fMig66.document.querySelectorAll('#indexPage .fx-shelf')].map(s => s.dataset.shelfKey);
+  assert.equal(mig66Keys.slice(0, 3).includes('RecentlyAddedMovies'), false, 'migrated v0.6.6 profile moves RecentlyAddedMovies out of top 3');
+  assert.equal(mig66Keys.slice(0, 3).includes('RecentlyAddedShows'), false, 'migrated v0.6.6 profile moves RecentlyAddedShows out of top 3');
+  assert.equal(mig66Keys[3], 'ContinueWatchingNextUp', 'migrated v0.6.6 profile keeps Continue Watching at Category 4');
+  fMig66.ctx.window.FazFortDiscovery.stop();
 
   f.ctx.window.FazFortDiscovery.stop();
 });

@@ -29,6 +29,7 @@ public static class ConfigPolicy
                 var rules=p.GetProperty("rules"); if(rules.ValueKind!=JsonValueKind.Array || rules.GetArrayLength()>250)return false;
                 var ruleKeys=rules.EnumerateArray().Select(r=>r.GetProperty("Key").GetString()).ToHashSet();
                 bool Token(string? token) => token is not null && (
+                    token == "family:any" ||
                     token.StartsWith("rule:",StringComparison.Ordinal)&&ruleKeys.Contains(token[5..]) ||
                     token.StartsWith("anchor:",StringComparison.Ordinal)&&new[]{"ContinueWatchingNextUp","RecentlyAddedMovies","RecentlyAddedShows","DiscoverMovies","DiscoverTV","MyJellyseerrRequests","MyMedia"}.Contains(token[7..]) ||
                     token.StartsWith("family:",StringComparison.Ordinal)&&new[]{"theme","genre","director","actor","decade","studio","rating","rewatch","runtime"}.Contains(token[7..]));

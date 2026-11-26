@@ -50,23 +50,24 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
     public Task<IActionResult> Browse(string kind="trending",int page=1,string? query=null,int? filter=null)=>Run(async link=>{
         string path;try{path=HubPolicy.BrowsePath(kind,page,query,filter);}catch(ArgumentException){return BadRequest();}
         using var response=await gateway.Send(link,path,null,HttpContext.RequestAborted);var root=response.RootElement;
-        if(kind=="genres")return Ok(new{results=root.EnumerateArray().Select(g=>new{id=g.GetProperty("id").GetInt32(),name=g.GetProperty("name").GetString(),backdrop=g.TryGetProperty("backdrops",out var b)&&b.ValueKind==JsonValueKind.Array&&b.GetArrayLength()>0?HubPolicy.Backdrop((b.GetArrayLength()>4?b[4]:b[0]).GetString()):null}).ToArray(),pages=1});
+        if(kind=="genres")return Ok(new{results=root.ValueKind==JsonValueKind.Array?root.EnumerateArray().Where(g=>Projection.Int(g,"id") is > 0).Select(g=>(object)new{id=Projection.Int(g,"id")??0,name=g.TryGetProperty("name",out var gn)&&gn.ValueKind==JsonValueKind.String?gn.GetString():"",backdrop=g.TryGetProperty("backdrops",out var b)&&b.ValueKind==JsonValueKind.Array&&b.GetArrayLength()>0&&((b.GetArrayLength()>4?b[4]:b[0]).ValueKind==JsonValueKind.String)?HubPolicy.Backdrop((b.GetArrayLength()>4?b[4]:b[0]).GetString()):null}).ToArray():Array.Empty<object>(),pages=1});
         var today=DateOnly.FromDateTime(DateTime.UtcNow);
         var fallbackType=kind is "movies" or "genre" or "studio"?"movie":kind is "tv" or "network"?"tv":null;
         var (ownedMovies,ownedSeries)=GetOwnedTmdb(library);
         bool isSearch=kind=="search";
-        var items=root.GetProperty("results").EnumerateArray().Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries,allowOwned:isSearch)).Select(i=>{
+        var rawResults=root.ValueKind==JsonValueKind.Object&&root.TryGetProperty("results",out var resProp)&&resProp.ValueKind==JsonValueKind.Array?resProp.EnumerateArray().ToArray():Array.Empty<JsonElement>();
+        var items=rawResults.Where(i=>Projection.ShouldIncludeBrowseItem(i,fallbackType,today,ownedMovies,ownedSeries,allowOwned:isSearch)).Select(i=>{
             int? statusOverride=null;
             if(isSearch)
             {
-                int itemId=i.TryGetProperty("id",out var ip)&&ip.TryGetInt32(out var n)?n:0;
+                int itemId=Projection.Int(i,"id")??0;
                 string itemType=fallbackType??(i.TryGetProperty("mediaType",out var mt)&&mt.ValueKind==JsonValueKind.String?(mt.GetString()??""):"");
                 int st=Projection.StatusOf(i);
                 if(itemId>0&&((itemType=="movie"&&ownedMovies.Contains(itemId))||(itemType=="tv"&&st!=4&&ownedSeries.Contains(itemId))))statusOverride=5;
             }
             return Projection.Item(i,fallbackType,statusOverride);
         }).ToArray();
-        return Ok(new{results=items,pages=root.TryGetProperty("totalPages",out var count)?count.GetInt32():1,canRequest=link.AllowRequests});
+        return Ok(new{results=items,pages=Projection.Int(root,"totalPages")??1,canRequest=link.AllowRequests});
     });
     private async Task<QualityProfile[]> GetProfilesAsync(string type,CancellationToken token)
     {
@@ -81,11 +82,11 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
             var servers=new List<(int Id,string RootFolder,bool Is4k,bool IsDefault,int ActiveProfileId)>();
             foreach(var s in listDoc.RootElement.EnumerateArray())
             {
-                if(!s.TryGetProperty("id",out var idProp)||!idProp.TryGetInt32(out var sid)||sid<0)continue;
-                var rootFolder=s.TryGetProperty("activeDirectory",out var dirProp)&&dirProp.ValueKind==JsonValueKind.String?(dirProp.GetString()??""):"";
-                var is4k=s.TryGetProperty("is4k",out var k4)&&k4.ValueKind==JsonValueKind.True;
-                var isDef=s.TryGetProperty("isDefault",out var def)&&def.ValueKind==JsonValueKind.True;
-                var activeProf=s.TryGetProperty("activeProfileId",out var ap)&&ap.TryGetInt32(out var apId)?apId:0;
+                if(Projection.Int(s,"id") is not int sid||sid<0)continue;
+                var rootFolder=s.ValueKind==JsonValueKind.Object&&s.TryGetProperty("activeDirectory",out var dirProp)&&dirProp.ValueKind==JsonValueKind.String?(dirProp.GetString()??""):"";
+                var is4k=s.ValueKind==JsonValueKind.Object&&s.TryGetProperty("is4k",out var k4)&&k4.ValueKind==JsonValueKind.True;
+                var isDef=s.ValueKind==JsonValueKind.Object&&s.TryGetProperty("isDefault",out var def)&&def.ValueKind==JsonValueKind.True;
+                var activeProf=Projection.Int(s,"activeProfileId")??0;
                 servers.Add((sid,rootFolder,is4k,isDef,activeProf));
             }
             servers.Sort((a,b)=>{int d=(b.IsDefault?1:0).CompareTo(a.IsDefault?1:0);return d!=0?d:a.Id.CompareTo(b.Id);});
@@ -125,7 +126,9 @@ public sealed class HubController(SeerrGateway gateway,IUserManager users,ILibra
         var ratingsTask=type=="movie"?FetchMovieRatingsAsync(link,id,ct):Task.FromResult<object?>(null);
         await Task.WhenAll(detailsTask,profilesTask,ratingsTask);
         using var response=await detailsTask;var r=response.RootElement;
-        var seasons=r.TryGetProperty("seasons",out var ss)&&ss.ValueKind==JsonValueKind.Array?ss.EnumerateArray().Select(s=>s.GetProperty("seasonNumber").GetInt32()).ToArray():Array.Empty<int>();
+        var seasons=r.ValueKind==JsonValueKind.Object&&r.TryGetProperty("seasons",out var ss)&&ss.ValueKind==JsonValueKind.Array
+            ?ss.EnumerateArray().Select(s=>Projection.Int(s,"seasonNumber")).Where(n=>n is >= 0).Select(n=>n!.Value).Distinct().ToArray()
+            :Array.Empty<int>();
         var profiles=await profilesTask;
         var defaultProfile=profiles.FirstOrDefault(p=>p.IsDefault)??profiles.FirstOrDefault();
         var ratings=type=="movie"?await ratingsTask:null;

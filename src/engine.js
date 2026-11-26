@@ -247,8 +247,8 @@ export function validateConfig(config) {
     if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);
     if (!Array.isArray(profile.anchors) || profile.anchors.some(a => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
     if (!Array.isArray(profile.families) || profile.families.some(f => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
-    if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>250||profile.opening.some(t=>typeof t!=='string'||!(t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
-    if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>500||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
+    if(profile.opening != null && (!Array.isArray(profile.opening)||profile.opening.length>250||profile.opening.some(t=>typeof t!=='string'||!(t==='family:any'||t.startsWith('anchor:')&&anchorsAllowed.has(t.slice(7))||t.startsWith('family:')&&familiesAllowed.has(t.slice(7))||t.startsWith('rule:')&&profile.rules.some(r=>r?.Key===t.slice(5))))))throw Error(`${page}: invalid opening rows.`);
+    if(profile.layouts != null && (typeof profile.layouts!=='object'||Array.isArray(profile.layouts)||Object.keys(profile.layouts).length>500||Object.entries(profile.layouts).some(([k,v])=>!['auto','portrait','landscape'].includes(v)||!(k==='family:any'||k.startsWith('anchor:')&&anchorsAllowed.has(k.slice(7))||k.startsWith('family:')&&familiesAllowed.has(k.slice(7))||k.startsWith('rule:')&&profile.rules.some(r=>r?.Key===k.slice(5))))))throw Error(`${page}: invalid card layouts.`);
     if (profile.hero != null) {
       const h = profile.hero;
       if (typeof h !== 'object' || Array.isArray(h)) throw Error(`${page}: hero must be an object.`);
@@ -337,7 +337,8 @@ export class FeedPlanner {
     if (preferred.length) pool = preferred;
     const familyDiverse = pool.filter(s => !this.lastFamilies.includes(s.family));
     if (familyDiverse.length) pool = familyDiverse;
-    pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
+    const boostSeasonal = preferredFamily === 'theme';
+    pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (boostSeasonal ? ((b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0)) : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
     const shelf = pool[0], recentIds = new Set(this.lastItems);
     const orderedAll = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`));
     const selected = orderedAll.slice(0, this.config.cardsPerShelf);

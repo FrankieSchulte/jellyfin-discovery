@@ -407,6 +407,7 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
       element('p','fx-editor-help','Arrange the exact shelves that appear at the top of this page. Mix core sections (Continue Watching, Recently Added), specific custom categories, and rotating pools (e.g. a random Director or Studio shelf). After these opening rows, the endless varied feed continues.')
     );
     const options=()=>[
+      ['family:any','Random category'],
       ...Object.entries(anchors).map(([key,label])=>[`anchor:${key}`,label]),
       ...profile.rules.map(r=>[`rule:${r.Key}`,r.Title]),
       ...Object.entries(families).map(([key,label])=>[`family:${key}`,label])
@@ -464,7 +465,7 @@ export function createVisualEditor(host, initial, selectedPage, inventory, chang
     const addRow=element('div','fx-editor-fields fx-add-opening-bar');
     let next=options()[0]?.[0]||'family:theme';
     field(addRow,'Add opening row',next,v=>next=v,options());
-    addRow.append(button('Add row',()=>{if(next.startsWith('family:'))profile.families=[...new Set([...profile.families,next.slice(7)])];opening.push(next);updateOpening();}));
+    addRow.append(button('Add row',()=>{if(next.startsWith('family:')&&next!=='family:any')profile.families=[...new Set([...profile.families,next.slice(7)])];opening.push(next);updateOpening();}));
     openingSec.append(addRow);
     host.append(openingSec);
 

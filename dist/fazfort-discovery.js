@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.6.6 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.6.7 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -23,18 +23,18 @@
       "pages": {
         "home": {
           "opening": [
-            "anchor:RecentlyAddedMovies",
-            "family:theme",
-            "anchor:RecentlyAddedShows",
+            "family:any",
+            "family:any",
+            "family:any",
             "anchor:ContinueWatchingNextUp"
           ],
           "anchors": [
-            "RecentlyAddedMovies",
-            "RecentlyAddedShows",
             "ContinueWatchingNextUp",
             "DiscoverMovies",
+            "DiscoverTV",
+            "RecentlyAddedMovies",
             "MyJellyseerrRequests",
-            "DiscoverTV"
+            "RecentlyAddedShows"
           ],
           "families": [
             "theme",
@@ -841,20 +841,1127 @@
                 2029
               ],
               "MinRating": 8
+            },
+            {
+              "Key": "heists-cons",
+              "Title": "Heists, Cons & Masterminds",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "heist",
+                "con artist",
+                "robbery",
+                "bank robbery",
+                "caper",
+                "burglary",
+                "con man",
+                "double cross"
+              ]
+            },
+            {
+              "Key": "whodunits-detectives",
+              "Title": "Detectives, Clues & Whodunits",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "detective",
+                "investigation",
+                "whodunit",
+                "private detective",
+                "police investigation",
+                "murder mystery"
+              ]
+            },
+            {
+              "Key": "spies-espionage",
+              "Title": "Spies, Assassins & Covert Ops",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "spy",
+                "espionage",
+                "secret agent",
+                "assassin",
+                "hitman",
+                "cia",
+                "undercover",
+                "conspiracy"
+              ]
+            },
+            {
+              "Key": "road-trips",
+              "Title": "Hit the Road: Road Trips & Getaways",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "road trip",
+                "road movie",
+                "cross country",
+                "hitchhiker",
+                "vacation",
+                "escape"
+              ]
+            },
+            {
+              "Key": "post-apocalypse",
+              "Title": "End of the World & Wastelands",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "post-apocalyptic future",
+                "apocalypse",
+                "end of the world",
+                "nuclear war",
+                "pandemic",
+                "doomsday"
+              ]
+            },
+            {
+              "Key": "ai-robots",
+              "Title": "AI Gone Rogue & Robots",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "artificial intelligence (a.i.)",
+                "artificial intelligence",
+                "robot",
+                "android",
+                "cyborg",
+                "virtual reality",
+                "simulation"
+              ]
+            },
+            {
+              "Key": "multiverse-loops",
+              "Title": "Time Loops, Multiverses & Glitches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "time loop",
+                "multiverse",
+                "parallel world",
+                "alternate reality",
+                "alternate universe",
+                "alternate timeline",
+                "butterfly effect"
+              ]
+            },
+            {
+              "Key": "vampires-werewolves",
+              "Title": "Vampires, Werewolves & Midnight Bites",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "vampire",
+                "werewolf",
+                "dracula",
+                "undead",
+                "gothic horror",
+                "curse"
+              ]
+            },
+            {
+              "Key": "folk-cult-horror",
+              "Title": "Cults, Rituals & Eerie Towns",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cult",
+                "occult",
+                "ritual",
+                "folk horror",
+                "secret society",
+                "witchcraft",
+                "paranormal"
+              ]
+            },
+            {
+              "Key": "cabin-survival-scares",
+              "Title": "Don't Go In There: Cabin & Survival Scares",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "slasher",
+                "cabin",
+                "haunted house",
+                "trapped",
+                "home invasion",
+                "isolated"
+              ]
+            },
+            {
+              "Key": "sports-underdogs",
+              "Title": "Underdogs, Training Montages & Sports",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "sports",
+                "boxing",
+                "basketball",
+                "football",
+                "baseball",
+                "racing",
+                "tournament",
+                "underdog",
+                "olympics",
+                "coach"
+              ]
+            },
+            {
+              "Key": "music-legends-movies",
+              "Title": "Turn It Up: Music, Bands & Legends",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "music",
+                "musician",
+                "singer",
+                "band",
+                "rock and roll",
+                "jazz",
+                "concert",
+                "hip-hop"
+              ]
+            },
+            {
+              "Key": "romance-date-night",
+              "Title": "Date Night & Rom-Coms",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Romance"
+              ]
+            },
+            {
+              "Key": "emotional-tearjerkers",
+              "Title": "Bring the Tissues: Emotional Gut-Punches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "grief",
+                "loss of loved one",
+                "tragic",
+                "bittersweet",
+                "melancholic",
+                "terminal illness",
+                "tearjerker",
+                "heartbreak"
+              ]
+            },
+            {
+              "Key": "buddy-comedies",
+              "Title": "Buddy Comedies & Chaotic Duos",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "buddy cop",
+                "buddy comedy",
+                "buddy",
+                "bromance",
+                "slapstick",
+                "odd couple",
+                "stoner"
+              ]
+            },
+            {
+              "Key": "high-school-campus",
+              "Title": "High School Chaos & Campus Classics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "high school",
+                "teenager",
+                "college",
+                "prom",
+                "boarding school",
+                "summer camp",
+                "teen comedy"
+              ]
+            },
+            {
+              "Key": "war-battlefields",
+              "Title": "Boots on the Ground: War Epics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "War"
+              ]
+            },
+            {
+              "Key": "westerns-outlaws",
+              "Title": "Saddle Up: Westerns & Outlaws",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Western"
+              ]
+            },
+            {
+              "Key": "period-history",
+              "Title": "Swords, Crowns & History Lessons",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "History"
+              ]
+            },
+            {
+              "Key": "courtroom-legal",
+              "Title": "Order in the Court: Legal & Political Thrillers",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "courtroom",
+                "lawyer",
+                "trial",
+                "politics",
+                "corruption",
+                "scandal",
+                "journalist",
+                "whistleblower",
+                "prison"
+              ]
+            },
+            {
+              "Key": "gangsters-mafia",
+              "Title": "Mobsters, Cartels & Organized Crime",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "mafia",
+                "gangster",
+                "organized crime",
+                "mobster",
+                "drug cartel",
+                "yakuza",
+                "crime boss",
+                "underworld"
+              ]
+            },
+            {
+              "Key": "quick-watch-95",
+              "Title": "Quick Flicks Under 95 Minutes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MaxMinutes": 95
+            },
+            {
+              "Key": "world-cinema",
+              "Title": "World Cinema & International Gems",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "japan",
+                "south korea",
+                "france",
+                "italy",
+                "spain",
+                "hong kong",
+                "samurai",
+                "paris",
+                "tokyo",
+                "london"
+              ]
+            },
+            {
+              "Key": "kaiju-disaster",
+              "Title": "Giant Monsters & Disaster Flicks",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "kaiju",
+                "giant monster",
+                "disaster",
+                "earthquake",
+                "asteroid",
+                "shark",
+                "dinosaur",
+                "volcano"
+              ]
+            },
+            {
+              "Key": "pirates-high-seas",
+              "Title": "High Seas, Pirates & Sunken Treasure",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "pirate",
+                "ship",
+                "ocean",
+                "submarine",
+                "island",
+                "treasure hunt",
+                "shipwreck",
+                "sailing"
+              ]
+            },
+            {
+              "Key": "family-movie-night",
+              "Title": "Family Movie Night",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Family"
+              ]
+            },
+            {
+              "Key": "docs-movies",
+              "Title": "Real Life: Documentaries",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Documentary"
+              ]
+            },
+            {
+              "Key": "a24-indie-vibes",
+              "Title": "Indie Darlings & A24 Vibes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "StudiosAny": [
+                "A24",
+                "Searchlight Pictures",
+                "Fox Searchlight Pictures",
+                "NEON",
+                "Focus Features",
+                "Annapurna Pictures",
+                "Miramax",
+                "Blumhouse Productions"
+              ]
+            },
+            {
+              "Key": "animation-powerhouses",
+              "Title": "Animation Powerhouses",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "StudiosAny": [
+                "Pixar",
+                "DreamWorks Animation",
+                "Studio Ghibli",
+                "Walt Disney Animation Studios",
+                "Sony Pictures Animation",
+                "Illumination",
+                "Laika"
+              ]
+            },
+            {
+              "Key": "90s-gold-movies",
+              "Title": "90s Cinema Hall of Fame",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                1990,
+                1999
+              ],
+              "MinRating": 7.4
+            },
+            {
+              "Key": "2000s-classics-movies",
+              "Title": "2000s Essential Rewatches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2e3,
+                2009
+              ],
+              "MinRating": 7.2
+            },
+            {
+              "Key": "2010s-bangers-movies",
+              "Title": "2010s Modern Classics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2010,
+                2019
+              ],
+              "MinRating": 7.4
+            },
+            {
+              "Key": "2020s-standouts-movies",
+              "Title": "Best of the 2020s",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2020,
+                2029
+              ],
+              "MinRating": 7
+            },
+            {
+              "Key": "retro-pre-90s-movies",
+              "Title": "Retro Gems (Before 1990)",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                1920,
+                1989
+              ]
+            },
+            {
+              "Key": "cult-midnight-movies",
+              "Title": "Cult Classics & Midnight Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cult film",
+                "cult classic",
+                "satire",
+                "camp",
+                "parody",
+                "b-movie",
+                "neo-noir",
+                "noir"
+              ]
+            },
+            {
+              "Key": "cars-speed-adrenaline",
+              "Title": "Fast Cars, Chases & Adrenaline",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "car chase",
+                "street racing",
+                "car race",
+                "explosion",
+                "stunt",
+                "motorcycle",
+                "chase"
+              ]
+            },
+            {
+              "Key": "twist-endings",
+              "Title": "Wait... What?! Plot Twists & Mind Games",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "twist ending",
+                "plot twist",
+                "surprise ending",
+                "unreliable narrator",
+                "amnesia",
+                "mind game"
+              ]
+            },
+            {
+              "Key": "snowed-in-winter",
+              "Title": "Snowed In & Winter Vibes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "snow",
+                "winter",
+                "blizzard",
+                "alaska",
+                "antarctica",
+                "mountain"
+              ]
+            },
+            {
+              "Key": "food-kitchen-movies",
+              "Title": "Chef's Kiss: Food & Kitchen Stories",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "chef",
+                "cooking",
+                "restaurant",
+                "food",
+                "kitchen",
+                "bakery"
+              ]
+            },
+            {
+              "Key": "sci-fi-space-tv",
+              "Title": "Deep Space & Sci-Fi Voyages",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "space",
+                "space opera",
+                "space travel",
+                "spacecraft",
+                "alien",
+                "extraterrestrial",
+                "planet",
+                "future",
+                "cyberpunk"
+              ]
+            },
+            {
+              "Key": "dystopia-rebellion-tv",
+              "Title": "Rebellions, Empires & Broken Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dystopia",
+                "rebellion",
+                "resistance",
+                "revolution",
+                "totalitarian",
+                "post-apocalyptic future",
+                "empire",
+                "uprising"
+              ]
+            },
+            {
+              "Key": "crime-cartels-tv",
+              "Title": "Kingpins, Cartels & Dirty Money",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "mafia",
+                "gangster",
+                "organized crime",
+                "drug cartel",
+                "drug dealer",
+                "heist",
+                "money laundering",
+                "corruption",
+                "crime boss"
+              ]
+            },
+            {
+              "Key": "cop-detective-tv",
+              "Title": "Badges, Cases & Cold Trails",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "detective",
+                "police",
+                "police procedural",
+                "fbi",
+                "murder investigation",
+                "serial killer",
+                "forensic",
+                "homicide",
+                "crime investigation"
+              ]
+            },
+            {
+              "Key": "spies-politics-tv",
+              "Title": "Spies, Power Plays & Political Drama",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "spy",
+                "espionage",
+                "cia",
+                "secret agent",
+                "politics",
+                "political thriller",
+                "government",
+                "conspiracy",
+                "assassin"
+              ]
+            },
+            {
+              "Key": "family-drama-tv",
+              "Title": "Messy Families & Dynasties",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dysfunctional family",
+                "family drama",
+                "family relationships",
+                "family secrets",
+                "sibling relationship",
+                "siblings",
+                "dynasty",
+                "wealth"
+              ]
+            },
+            {
+              "Key": "high-school-teen-tv",
+              "Title": "Teen Drama & Coming of Age",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "high school",
+                "teenager",
+                "teen drama",
+                "coming of age",
+                "college",
+                "boarding school",
+                "youth"
+              ]
+            },
+            {
+              "Key": "romance-ships-tv",
+              "Title": "Will-They-Won't-They & Romance",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "romance",
+                "love",
+                "love triangle",
+                "relationship",
+                "romantic comedy",
+                "dating",
+                "marriage"
+              ]
+            },
+            {
+              "Key": "fantasy-realms-tv",
+              "Title": "Swords, Dragons & Fantasy Realms",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dragon",
+                "sword and sorcery",
+                "fantasy world",
+                "medieval",
+                "kingdom",
+                "monster",
+                "demon",
+                "mythology",
+                "isekai"
+              ]
+            },
+            {
+              "Key": "vampires-monsters-tv",
+              "Title": "Monsters, Ghosts & After-Dark Chills",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "vampire",
+                "zombie",
+                "ghost",
+                "demon",
+                "haunting",
+                "monster",
+                "paranormal",
+                "occult",
+                "werewolf"
+              ]
+            },
+            {
+              "Key": "antiheroes-villains-tv",
+              "Title": "Antiheroes, Schemes & Bad Decisions",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "anti hero",
+                "villain",
+                "criminal",
+                "manipulation",
+                "double life",
+                "moral ambiguity",
+                "redemption",
+                "greed"
+              ]
+            },
+            {
+              "Key": "slice-of-life-cozy-tv",
+              "Title": "Cozy Escapes & Slice of Life",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "slice of life",
+                "small town",
+                "cozy",
+                "wholesome",
+                "heartwarming",
+                "friendship",
+                "found family",
+                "everyday life"
+              ]
+            },
+            {
+              "Key": "isekai-fantasy-anime-tv",
+              "Title": "Isekai, Magic & Other Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "isekai",
+                "magic",
+                "alchemy",
+                "guild",
+                "demon",
+                "spirit",
+                "samurai"
+              ]
+            },
+            {
+              "Key": "mecha-scifi-anime-tv",
+              "Title": "Mecha, Cybernetics & Future Anime",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "mecha",
+                "giant robot",
+                "cyberpunk",
+                "artificial intelligence",
+                "robot",
+                "android",
+                "futuristic"
+              ]
+            },
+            {
+              "Key": "miniseries-limited-tv",
+              "Title": "Tightly Wound Miniseries",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "miniseries",
+                "limited series",
+                "based on true story",
+                "true crime",
+                "anthology"
+              ]
+            },
+            {
+              "Key": "true-crime-docs-tv",
+              "Title": "Docuseries & True Stories",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Documentary"
+              ]
+            },
+            {
+              "Key": "reality-competition-tv",
+              "Title": "Reality, Games & Competitions",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Reality",
+                "Game Show"
+              ]
+            },
+            {
+              "Key": "war-history-tv",
+              "Title": "War, History & Period Epics",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "War & Politics",
+                "History",
+                "War"
+              ]
+            },
+            {
+              "Key": "western-frontier-tv",
+              "Title": "Frontier Justice & Western Series",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Western"
+              ]
+            },
+            {
+              "Key": "kids-family-tv",
+              "Title": "Family & Nostalgic Cartoons",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Kids",
+                "Family"
+              ]
+            },
+            {
+              "Key": "british-intl-tv",
+              "Title": "Across the Pond: British & International TV",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "london",
+                "england",
+                "uk",
+                "british humor",
+                "britain",
+                "scotland",
+                "ireland",
+                "japan",
+                "south korea",
+                "korea",
+                "tokyo",
+                "seoul"
+              ]
+            },
+            {
+              "Key": "medical-legal-tv",
+              "Title": "ERs, Courtrooms & High Pressure",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "hospital",
+                "doctor",
+                "medical drama",
+                "lawyer",
+                "courtroom",
+                "legal drama",
+                "law firm",
+                "surgeon"
+              ]
+            },
+            {
+              "Key": "music-showbiz-tv",
+              "Title": "Backstage, Showbiz & Music",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "music",
+                "band",
+                "singer",
+                "hollywood",
+                "show business",
+                "theater",
+                "stand-up comedy",
+                "celebrity"
+              ]
+            },
+            {
+              "Key": "sports-rivalry-tv",
+              "Title": "Sports, Training & Rivalries",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "sports",
+                "football",
+                "basketball",
+                "soccer",
+                "boxing",
+                "wrestling",
+                "coach",
+                "championship",
+                "competition"
+              ]
+            },
+            {
+              "Key": "2010s-golden-age-tv",
+              "Title": "2010s Peak TV",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "Years": [
+                2010,
+                2019
+              ],
+              "MinRating": 7.5
+            },
+            {
+              "Key": "2020s-all-tv",
+              "Title": "Fresh From the 2020s",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "Years": [
+                2020,
+                2029
+              ]
+            },
+            {
+              "Key": "acclaimed-prestige-tv",
+              "Title": "All-Time Greats (8.3+)",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "MinRating": 8.3
+            },
+            {
+              "Key": "hbo-apple-prestige-tv",
+              "Title": "HBO, Apple TV+ & FX Standouts",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "HBO",
+                "Apple TV+",
+                "Apple TV",
+                "FX",
+                "FXX",
+                "AMC",
+                "Showtime",
+                "Starz"
+              ]
+            },
+            {
+              "Key": "anime-studios-tv",
+              "Title": "Top Anime Studios",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "MAPPA",
+                "ufotable",
+                "Wit Studio",
+                "Madhouse",
+                "Bones",
+                "A-1 Pictures",
+                "CloverWorks",
+                "Kyoto Animation",
+                "Production I.G",
+                "Trigger",
+                "Studio Pierrot",
+                "Toei Animation",
+                "David Production",
+                "Sunrise",
+                "Science SARU"
+              ]
+            },
+            {
+              "Key": "comedy-networks-tv",
+              "Title": "NBC, CBS, ABC & Comedy Central Hits",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "NBC",
+                "CBS",
+                "ABC",
+                "Comedy Central",
+                "Adult Swim",
+                "TBS",
+                "BBC One",
+                "Channel 4"
+              ]
             }
           ]
         },
         "movies": {
           "opening": [
-            "anchor:RecentlyAddedMovies",
-            "family:theme",
-            "anchor:DiscoverMovies",
+            "family:any",
+            "family:any",
+            "family:any",
             "anchor:ContinueWatchingNextUp"
           ],
           "anchors": [
-            "RecentlyAddedMovies",
-            "DiscoverMovies",
             "ContinueWatchingNextUp",
+            "DiscoverMovies",
+            "RecentlyAddedMovies",
             "MyJellyseerrRequests"
           ],
           "families": [
@@ -1501,20 +2608,627 @@
                 "cheerful",
                 "joyful"
               ]
+            },
+            {
+              "Key": "heists-cons",
+              "Title": "Heists, Cons & Masterminds",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "heist",
+                "con artist",
+                "robbery",
+                "bank robbery",
+                "caper",
+                "burglary",
+                "con man",
+                "double cross"
+              ]
+            },
+            {
+              "Key": "whodunits-detectives",
+              "Title": "Detectives, Clues & Whodunits",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "detective",
+                "investigation",
+                "whodunit",
+                "private detective",
+                "police investigation",
+                "murder mystery"
+              ]
+            },
+            {
+              "Key": "spies-espionage",
+              "Title": "Spies, Assassins & Covert Ops",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "spy",
+                "espionage",
+                "secret agent",
+                "assassin",
+                "hitman",
+                "cia",
+                "undercover",
+                "conspiracy"
+              ]
+            },
+            {
+              "Key": "road-trips",
+              "Title": "Hit the Road: Road Trips & Getaways",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "road trip",
+                "road movie",
+                "cross country",
+                "hitchhiker",
+                "vacation",
+                "escape"
+              ]
+            },
+            {
+              "Key": "post-apocalypse",
+              "Title": "End of the World & Wastelands",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "post-apocalyptic future",
+                "apocalypse",
+                "end of the world",
+                "nuclear war",
+                "pandemic",
+                "doomsday"
+              ]
+            },
+            {
+              "Key": "ai-robots",
+              "Title": "AI Gone Rogue & Robots",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "artificial intelligence (a.i.)",
+                "artificial intelligence",
+                "robot",
+                "android",
+                "cyborg",
+                "virtual reality",
+                "simulation"
+              ]
+            },
+            {
+              "Key": "multiverse-loops",
+              "Title": "Time Loops, Multiverses & Glitches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "time loop",
+                "multiverse",
+                "parallel world",
+                "alternate reality",
+                "alternate universe",
+                "alternate timeline",
+                "butterfly effect"
+              ]
+            },
+            {
+              "Key": "vampires-werewolves",
+              "Title": "Vampires, Werewolves & Midnight Bites",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "vampire",
+                "werewolf",
+                "dracula",
+                "undead",
+                "gothic horror",
+                "curse"
+              ]
+            },
+            {
+              "Key": "folk-cult-horror",
+              "Title": "Cults, Rituals & Eerie Towns",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cult",
+                "occult",
+                "ritual",
+                "folk horror",
+                "secret society",
+                "witchcraft",
+                "paranormal"
+              ]
+            },
+            {
+              "Key": "cabin-survival-scares",
+              "Title": "Don't Go In There: Cabin & Survival Scares",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "slasher",
+                "cabin",
+                "haunted house",
+                "trapped",
+                "home invasion",
+                "isolated"
+              ]
+            },
+            {
+              "Key": "sports-underdogs",
+              "Title": "Underdogs, Training Montages & Sports",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "sports",
+                "boxing",
+                "basketball",
+                "football",
+                "baseball",
+                "racing",
+                "tournament",
+                "underdog",
+                "olympics",
+                "coach"
+              ]
+            },
+            {
+              "Key": "music-legends-movies",
+              "Title": "Turn It Up: Music, Bands & Legends",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "music",
+                "musician",
+                "singer",
+                "band",
+                "rock and roll",
+                "jazz",
+                "concert",
+                "hip-hop"
+              ]
+            },
+            {
+              "Key": "romance-date-night",
+              "Title": "Date Night & Rom-Coms",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Romance"
+              ]
+            },
+            {
+              "Key": "emotional-tearjerkers",
+              "Title": "Bring the Tissues: Emotional Gut-Punches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "grief",
+                "loss of loved one",
+                "tragic",
+                "bittersweet",
+                "melancholic",
+                "terminal illness",
+                "tearjerker",
+                "heartbreak"
+              ]
+            },
+            {
+              "Key": "buddy-comedies",
+              "Title": "Buddy Comedies & Chaotic Duos",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "buddy cop",
+                "buddy comedy",
+                "buddy",
+                "bromance",
+                "slapstick",
+                "odd couple",
+                "stoner"
+              ]
+            },
+            {
+              "Key": "high-school-campus",
+              "Title": "High School Chaos & Campus Classics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "high school",
+                "teenager",
+                "college",
+                "prom",
+                "boarding school",
+                "summer camp",
+                "teen comedy"
+              ]
+            },
+            {
+              "Key": "war-battlefields",
+              "Title": "Boots on the Ground: War Epics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "War"
+              ]
+            },
+            {
+              "Key": "westerns-outlaws",
+              "Title": "Saddle Up: Westerns & Outlaws",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Western"
+              ]
+            },
+            {
+              "Key": "period-history",
+              "Title": "Swords, Crowns & History Lessons",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "History"
+              ]
+            },
+            {
+              "Key": "courtroom-legal",
+              "Title": "Order in the Court: Legal & Political Thrillers",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "courtroom",
+                "lawyer",
+                "trial",
+                "politics",
+                "corruption",
+                "scandal",
+                "journalist",
+                "whistleblower",
+                "prison"
+              ]
+            },
+            {
+              "Key": "gangsters-mafia",
+              "Title": "Mobsters, Cartels & Organized Crime",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "mafia",
+                "gangster",
+                "organized crime",
+                "mobster",
+                "drug cartel",
+                "yakuza",
+                "crime boss",
+                "underworld"
+              ]
+            },
+            {
+              "Key": "quick-watch-95",
+              "Title": "Quick Flicks Under 95 Minutes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "MaxMinutes": 95
+            },
+            {
+              "Key": "world-cinema",
+              "Title": "World Cinema & International Gems",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "japan",
+                "south korea",
+                "france",
+                "italy",
+                "spain",
+                "hong kong",
+                "samurai",
+                "paris",
+                "tokyo",
+                "london"
+              ]
+            },
+            {
+              "Key": "kaiju-disaster",
+              "Title": "Giant Monsters & Disaster Flicks",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "kaiju",
+                "giant monster",
+                "disaster",
+                "earthquake",
+                "asteroid",
+                "shark",
+                "dinosaur",
+                "volcano"
+              ]
+            },
+            {
+              "Key": "pirates-high-seas",
+              "Title": "High Seas, Pirates & Sunken Treasure",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "pirate",
+                "ship",
+                "ocean",
+                "submarine",
+                "island",
+                "treasure hunt",
+                "shipwreck",
+                "sailing"
+              ]
+            },
+            {
+              "Key": "family-movie-night",
+              "Title": "Family Movie Night",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Family"
+              ]
+            },
+            {
+              "Key": "docs-movies",
+              "Title": "Real Life: Documentaries",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "GenresAny": [
+                "Documentary"
+              ]
+            },
+            {
+              "Key": "a24-indie-vibes",
+              "Title": "Indie Darlings & A24 Vibes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "StudiosAny": [
+                "A24",
+                "Searchlight Pictures",
+                "Fox Searchlight Pictures",
+                "NEON",
+                "Focus Features",
+                "Annapurna Pictures",
+                "Miramax",
+                "Blumhouse Productions"
+              ]
+            },
+            {
+              "Key": "animation-powerhouses",
+              "Title": "Animation Powerhouses",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "StudiosAny": [
+                "Pixar",
+                "DreamWorks Animation",
+                "Studio Ghibli",
+                "Walt Disney Animation Studios",
+                "Sony Pictures Animation",
+                "Illumination",
+                "Laika"
+              ]
+            },
+            {
+              "Key": "90s-gold-movies",
+              "Title": "90s Cinema Hall of Fame",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                1990,
+                1999
+              ],
+              "MinRating": 7.4
+            },
+            {
+              "Key": "2000s-classics-movies",
+              "Title": "2000s Essential Rewatches",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2e3,
+                2009
+              ],
+              "MinRating": 7.2
+            },
+            {
+              "Key": "2010s-bangers-movies",
+              "Title": "2010s Modern Classics",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2010,
+                2019
+              ],
+              "MinRating": 7.4
+            },
+            {
+              "Key": "2020s-standouts-movies",
+              "Title": "Best of the 2020s",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                2020,
+                2029
+              ],
+              "MinRating": 7
+            },
+            {
+              "Key": "retro-pre-90s-movies",
+              "Title": "Retro Gems (Before 1990)",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "Years": [
+                1920,
+                1989
+              ]
+            },
+            {
+              "Key": "cult-midnight-movies",
+              "Title": "Cult Classics & Midnight Movies",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "cult film",
+                "cult classic",
+                "satire",
+                "camp",
+                "parody",
+                "b-movie",
+                "neo-noir",
+                "noir"
+              ]
+            },
+            {
+              "Key": "cars-speed-adrenaline",
+              "Title": "Fast Cars, Chases & Adrenaline",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "car chase",
+                "street racing",
+                "car race",
+                "explosion",
+                "stunt",
+                "motorcycle",
+                "chase"
+              ]
+            },
+            {
+              "Key": "twist-endings",
+              "Title": "Wait... What?! Plot Twists & Mind Games",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "twist ending",
+                "plot twist",
+                "surprise ending",
+                "unreliable narrator",
+                "amnesia",
+                "mind game"
+              ]
+            },
+            {
+              "Key": "snowed-in-winter",
+              "Title": "Snowed In & Winter Vibes",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "snow",
+                "winter",
+                "blizzard",
+                "alaska",
+                "antarctica",
+                "mountain"
+              ]
+            },
+            {
+              "Key": "food-kitchen-movies",
+              "Title": "Chef's Kiss: Food & Kitchen Stories",
+              "Enabled": true,
+              "Types": [
+                "Movie"
+              ],
+              "TagsAny": [
+                "chef",
+                "cooking",
+                "restaurant",
+                "food",
+                "kitchen",
+                "bakery"
+              ]
             }
           ]
         },
         "shows": {
           "opening": [
-            "anchor:RecentlyAddedShows",
-            "family:theme",
-            "anchor:DiscoverTV",
+            "family:any",
+            "family:any",
+            "family:any",
             "anchor:ContinueWatchingNextUp"
           ],
           "anchors": [
-            "RecentlyAddedShows",
-            "DiscoverTV",
             "ContinueWatchingNextUp",
+            "DiscoverTV",
+            "RecentlyAddedShows",
             "MyJellyseerrRequests"
           ],
           "families": [
@@ -2002,6 +3716,506 @@
                 2029
               ],
               "MinRating": 8
+            },
+            {
+              "Key": "sci-fi-space-tv",
+              "Title": "Deep Space & Sci-Fi Voyages",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "space",
+                "space opera",
+                "space travel",
+                "spacecraft",
+                "alien",
+                "extraterrestrial",
+                "planet",
+                "future",
+                "cyberpunk"
+              ]
+            },
+            {
+              "Key": "dystopia-rebellion-tv",
+              "Title": "Rebellions, Empires & Broken Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dystopia",
+                "rebellion",
+                "resistance",
+                "revolution",
+                "totalitarian",
+                "post-apocalyptic future",
+                "empire",
+                "uprising"
+              ]
+            },
+            {
+              "Key": "crime-cartels-tv",
+              "Title": "Kingpins, Cartels & Dirty Money",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "mafia",
+                "gangster",
+                "organized crime",
+                "drug cartel",
+                "drug dealer",
+                "heist",
+                "money laundering",
+                "corruption",
+                "crime boss"
+              ]
+            },
+            {
+              "Key": "cop-detective-tv",
+              "Title": "Badges, Cases & Cold Trails",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "detective",
+                "police",
+                "police procedural",
+                "fbi",
+                "murder investigation",
+                "serial killer",
+                "forensic",
+                "homicide",
+                "crime investigation"
+              ]
+            },
+            {
+              "Key": "spies-politics-tv",
+              "Title": "Spies, Power Plays & Political Drama",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "spy",
+                "espionage",
+                "cia",
+                "secret agent",
+                "politics",
+                "political thriller",
+                "government",
+                "conspiracy",
+                "assassin"
+              ]
+            },
+            {
+              "Key": "family-drama-tv",
+              "Title": "Messy Families & Dynasties",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dysfunctional family",
+                "family drama",
+                "family relationships",
+                "family secrets",
+                "sibling relationship",
+                "siblings",
+                "dynasty",
+                "wealth"
+              ]
+            },
+            {
+              "Key": "high-school-teen-tv",
+              "Title": "Teen Drama & Coming of Age",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "high school",
+                "teenager",
+                "teen drama",
+                "coming of age",
+                "college",
+                "boarding school",
+                "youth"
+              ]
+            },
+            {
+              "Key": "romance-ships-tv",
+              "Title": "Will-They-Won't-They & Romance",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "romance",
+                "love",
+                "love triangle",
+                "relationship",
+                "romantic comedy",
+                "dating",
+                "marriage"
+              ]
+            },
+            {
+              "Key": "fantasy-realms-tv",
+              "Title": "Swords, Dragons & Fantasy Realms",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "dragon",
+                "sword and sorcery",
+                "fantasy world",
+                "medieval",
+                "kingdom",
+                "monster",
+                "demon",
+                "mythology",
+                "isekai"
+              ]
+            },
+            {
+              "Key": "vampires-monsters-tv",
+              "Title": "Monsters, Ghosts & After-Dark Chills",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "vampire",
+                "zombie",
+                "ghost",
+                "demon",
+                "haunting",
+                "monster",
+                "paranormal",
+                "occult",
+                "werewolf"
+              ]
+            },
+            {
+              "Key": "antiheroes-villains-tv",
+              "Title": "Antiheroes, Schemes & Bad Decisions",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "anti hero",
+                "villain",
+                "criminal",
+                "manipulation",
+                "double life",
+                "moral ambiguity",
+                "redemption",
+                "greed"
+              ]
+            },
+            {
+              "Key": "slice-of-life-cozy-tv",
+              "Title": "Cozy Escapes & Slice of Life",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "slice of life",
+                "small town",
+                "cozy",
+                "wholesome",
+                "heartwarming",
+                "friendship",
+                "found family",
+                "everyday life"
+              ]
+            },
+            {
+              "Key": "isekai-fantasy-anime-tv",
+              "Title": "Isekai, Magic & Other Worlds",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "isekai",
+                "magic",
+                "alchemy",
+                "guild",
+                "demon",
+                "spirit",
+                "samurai"
+              ]
+            },
+            {
+              "Key": "mecha-scifi-anime-tv",
+              "Title": "Mecha, Cybernetics & Future Anime",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "mecha",
+                "giant robot",
+                "cyberpunk",
+                "artificial intelligence",
+                "robot",
+                "android",
+                "futuristic"
+              ]
+            },
+            {
+              "Key": "miniseries-limited-tv",
+              "Title": "Tightly Wound Miniseries",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "miniseries",
+                "limited series",
+                "based on true story",
+                "true crime",
+                "anthology"
+              ]
+            },
+            {
+              "Key": "true-crime-docs-tv",
+              "Title": "Docuseries & True Stories",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Documentary"
+              ]
+            },
+            {
+              "Key": "reality-competition-tv",
+              "Title": "Reality, Games & Competitions",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Reality",
+                "Game Show"
+              ]
+            },
+            {
+              "Key": "war-history-tv",
+              "Title": "War, History & Period Epics",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "War & Politics",
+                "History",
+                "War"
+              ]
+            },
+            {
+              "Key": "western-frontier-tv",
+              "Title": "Frontier Justice & Western Series",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Western"
+              ]
+            },
+            {
+              "Key": "kids-family-tv",
+              "Title": "Family & Nostalgic Cartoons",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "GenresAny": [
+                "Kids",
+                "Family"
+              ]
+            },
+            {
+              "Key": "british-intl-tv",
+              "Title": "Across the Pond: British & International TV",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "london",
+                "england",
+                "uk",
+                "british humor",
+                "britain",
+                "scotland",
+                "ireland",
+                "japan",
+                "south korea",
+                "korea",
+                "tokyo",
+                "seoul"
+              ]
+            },
+            {
+              "Key": "medical-legal-tv",
+              "Title": "ERs, Courtrooms & High Pressure",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "hospital",
+                "doctor",
+                "medical drama",
+                "lawyer",
+                "courtroom",
+                "legal drama",
+                "law firm",
+                "surgeon"
+              ]
+            },
+            {
+              "Key": "music-showbiz-tv",
+              "Title": "Backstage, Showbiz & Music",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "music",
+                "band",
+                "singer",
+                "hollywood",
+                "show business",
+                "theater",
+                "stand-up comedy",
+                "celebrity"
+              ]
+            },
+            {
+              "Key": "sports-rivalry-tv",
+              "Title": "Sports, Training & Rivalries",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "TagsAny": [
+                "sports",
+                "football",
+                "basketball",
+                "soccer",
+                "boxing",
+                "wrestling",
+                "coach",
+                "championship",
+                "competition"
+              ]
+            },
+            {
+              "Key": "2010s-golden-age-tv",
+              "Title": "2010s Peak TV",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "Years": [
+                2010,
+                2019
+              ],
+              "MinRating": 7.5
+            },
+            {
+              "Key": "2020s-all-tv",
+              "Title": "Fresh From the 2020s",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "Years": [
+                2020,
+                2029
+              ]
+            },
+            {
+              "Key": "acclaimed-prestige-tv",
+              "Title": "All-Time Greats (8.3+)",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "MinRating": 8.3
+            },
+            {
+              "Key": "hbo-apple-prestige-tv",
+              "Title": "HBO, Apple TV+ & FX Standouts",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "HBO",
+                "Apple TV+",
+                "Apple TV",
+                "FX",
+                "FXX",
+                "AMC",
+                "Showtime",
+                "Starz"
+              ]
+            },
+            {
+              "Key": "anime-studios-tv",
+              "Title": "Top Anime Studios",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "MAPPA",
+                "ufotable",
+                "Wit Studio",
+                "Madhouse",
+                "Bones",
+                "A-1 Pictures",
+                "CloverWorks",
+                "Kyoto Animation",
+                "Production I.G",
+                "Trigger",
+                "Studio Pierrot",
+                "Toei Animation",
+                "David Production",
+                "Sunrise",
+                "Science SARU"
+              ]
+            },
+            {
+              "Key": "comedy-networks-tv",
+              "Title": "NBC, CBS, ABC & Comedy Central Hits",
+              "Enabled": true,
+              "Types": [
+                "Series"
+              ],
+              "StudiosAny": [
+                "NBC",
+                "CBS",
+                "ABC",
+                "Comedy Central",
+                "Adult Swim",
+                "TBS",
+                "BBC One",
+                "Channel 4"
+              ]
             }
           ]
         }
@@ -6206,15 +8420,23 @@ html[data-fx-video-osd="true"] .skinHeader .headerRight .paper-icon-button-light
 #videoOsdPage .videoOsdBottom :is(.hide,[hidden],.btnRecord,.btnPreviousTrack,.btnNextTrack,.btnPreviousChapter,.btnNextChapter,.btnRewind,.btnFastForward,.btnUserRating,.btnAudio,.btnAirPlay){
   display:none!important;
 }
+/* Raise SyncPlay "people" glyph slightly so it sits optically centered with sibling header icons */
+:is(.headerSyncButton,.syncButton,.btnSyncPlay,button[aria-controls="app-sync-play-menu"],button[aria-label*="SyncPlay" i],button[title*="SyncPlay" i]) :is(.material-icons,svg,.sleekfin-icon),
+.skinHeader .material-icons.groups,
+.osdHeader svg[data-testid="GroupsIcon"],
+.osdHeader svg[data-testid="GroupIcon"]{
+  transform:translateY(-2px)!important;
+}
 #videoOsdPage .paper-icon-button-light,
 html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton),
 html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])){
   border-radius:999px!important;
   color:rgba(255,255,255,.84)!important;
   background:transparent!important;
+  border:1px solid transparent!important;
   box-shadow:none!important;
   outline:none!important;
-  transition:background-color .15s cubic-bezier(.22,1,.36,1),color .15s ease,transform .14s ease,box-shadow .15s ease!important;
+  transition:background .16s cubic-bezier(.22,1,.36,1),border-color .16s ease,color .16s ease,transform .14s ease,box-shadow .16s ease!important;
 }
 #videoOsdPage .paper-icon-button-light::before,
 #videoOsdPage .paper-icon-button-light::after,
@@ -6223,33 +8445,44 @@ html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerB
   display:none!important;
   content:none!important;
 }
-#videoOsdPage .paper-icon-button-light:hover,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover{
-  background:rgba(255,255,255,.14)!important;
-  color:#fff!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.14)!important;
-}
-#videoOsdPage .paper-icon-button-light:active,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active{
-  transform:scale(.9)!important;
-  background:rgba(255,255,255,.22)!important;
-}
-#videoOsdPage .paper-icon-button-light:focus,
-#videoOsdPage .paper-icon-button-light:focus-visible,
-#videoOsdPage .btnPause:focus,
-#videoOsdPage .btnPause:focus-visible,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus,
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:focus-visible,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:focus,
-html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:focus-visible{
+/* Focus reset ONLY when NOT hovered or active so clicking volume/controls never flattens the 3D hover surface */
+#videoOsdPage .paper-icon-button-light:focus:not(:hover):not(:active),
+#videoOsdPage .paper-icon-button-light:focus-visible:not(:hover):not(:active),
+#videoOsdPage .btnPause:focus:not(:hover):not(:active),
+#videoOsdPage .btnPause:focus-visible:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus-visible:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):focus:not(:hover):not(:active),
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):focus-visible:not(:hover):not(:active){
+  background:transparent!important;
+  border-color:transparent!important;
   box-shadow:none!important;
   outline:none!important;
 }
-#videoOsdPage .paper-icon-button-light:not(.btnPause):focus:not(:hover):not(:active),
-html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):focus:not(:hover):not(:active){
-  background:transparent!important;
+#videoOsdPage .paper-icon-button-light:hover,
+#videoOsdPage .paper-icon-button-light:hover:focus,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):hover:focus,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):hover:focus{
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.86)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.14),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  outline:none!important;
+}
+#videoOsdPage .paper-icon-button-light:active,
+#videoOsdPage .paper-icon-button-light:active:focus,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active,
+html[data-fx-video-osd="true"] .skinHeader .paper-icon-button-light:not(.headerBackButton):active:focus,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active,
+html[data-fx-video-osd="true"] .osdHeader .MuiIconButton-root:not([aria-label="Back" i]):not(:has(svg[data-testid="ArrowBackIcon"])):active:focus{
+  transform:scale(.9)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.06) 100%),rgba(44,44,48,.92)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 4px 10px -4px rgba(0,0,0,.5)!important;
+  outline:none!important;
 }
 html.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible,
 body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
@@ -6264,8 +8497,8 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   min-height:44px!important;
   padding:0!important;
   margin:0!important;
-  background:rgba(255,255,255,.09)!important;
-  border:1px solid rgba(255,255,255,.12)!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
   box-shadow:none!important;
   outline:none!important;
   overflow:hidden!important;
@@ -6292,18 +8525,67 @@ body.layout-tv #videoOsdPage .paper-icon-button-light:focus-visible{
   text-align:center!important;
   transform:none!important;
 }
-#videoOsdPage .btnPause:focus:not(:hover):not(:active){
-  background:rgba(255,255,255,.09)!important;
-  border-color:rgba(255,255,255,.12)!important;
+#videoOsdPage .btnPause:hover,
+#videoOsdPage .btnPause:hover:focus{
+  background:linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.03) 100%),rgba(36,36,40,.86)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.14),0 6px 14px -6px rgba(0,0,0,.55)!important;
+  color:#fff!important;
 }
-#videoOsdPage .btnPause:hover{
-  background:rgba(255,255,255,.18)!important;
-  border-color:rgba(255,255,255,.24)!important;
-}
-#videoOsdPage .btnPause:active{
+#videoOsdPage .btnPause:active,
+#videoOsdPage .btnPause:active:focus{
   transform:scale(.9)!important;
-  background:rgba(255,255,255,.24)!important;
-  border-color:rgba(255,255,255,.28)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.06) 100%),rgba(44,44,48,.92)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 4px 10px -4px rgba(0,0,0,.5)!important;
+  color:#fff!important;
+}
+/* Center-screen Play / Pause feedback burst during video playback (Netflix / YouTube style) */
+@keyframes fx-osd-playstate-burst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}
+  24%{opacity:.96;transform:translate(-50%,-50%) scale(1.02)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.24)}
+}
+.fx-osd-playstate-overlay{
+  position:fixed;
+  left:50%;
+  top:50%;
+  width:78px;
+  height:78px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  z-index:1200;
+  opacity:0;
+  visibility:hidden;
+  transform:translate(-50%,-50%) scale(.72);
+  background:linear-gradient(180deg,rgba(255,255,255,.085) 0%,rgba(255,255,255,.02) 100%),rgba(14,15,18,.78);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px rgba(255,255,255,.16),0 18px 44px rgba(0,0,0,.55);
+  color:#fff;
+}
+.fx-osd-playstate-overlay.is-visible{
+  visibility:visible;
+  animation:fx-osd-playstate-burst 520ms cubic-bezier(.22,1,.36,1) both;
+}
+.fx-osd-playstate-overlay svg{
+  width:34px;
+  height:34px;
+  display:block;
+}
+.fx-osd-playstate-overlay[data-state="play"] svg{
+  transform:translateX(2px);
+}
+@media(prefers-reduced-motion:reduce){
+  .fx-osd-playstate-overlay.is-visible{
+    animation:none;
+    opacity:.92;
+    transform:translate(-50%,-50%) scale(1);
+  }
 }
 #videoOsdPage .volumeButtons{
   display:inline-flex!important;
@@ -6942,8 +9224,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (!profile || !Array.isArray(profile.rules) || profile.rules.length > 250) throw Error(`${page}: use up to 250 rules.`);
         if (!Array.isArray(profile.anchors) || profile.anchors.some((a) => !anchorsAllowed.has(a)) || new Set(profile.anchors).size !== profile.anchors.length) throw Error(`${page}: invalid or duplicate anchors.`);
         if (!Array.isArray(profile.families) || profile.families.some((f) => !familiesAllowed.has(f))) throw Error(`${page}: invalid families.`);
-        if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 250 || profile.opening.some((t) => typeof t !== "string" || !(t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
-        if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 500 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
+        if (profile.opening != null && (!Array.isArray(profile.opening) || profile.opening.length > 250 || profile.opening.some((t) => typeof t !== "string" || !(t === "family:any" || t.startsWith("anchor:") && anchorsAllowed.has(t.slice(7)) || t.startsWith("family:") && familiesAllowed.has(t.slice(7)) || t.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === t.slice(5)))))) throw Error(`${page}: invalid opening rows.`);
+        if (profile.layouts != null && (typeof profile.layouts !== "object" || Array.isArray(profile.layouts) || Object.keys(profile.layouts).length > 500 || Object.entries(profile.layouts).some(([k, v]) => !["auto", "portrait", "landscape"].includes(v) || !(k === "family:any" || k.startsWith("anchor:") && anchorsAllowed.has(k.slice(7)) || k.startsWith("family:") && familiesAllowed.has(k.slice(7)) || k.startsWith("rule:") && profile.rules.some((r) => (r == null ? void 0 : r.Key) === k.slice(5)))))) throw Error(`${page}: invalid card layouts.`);
         if (profile.hero != null) {
           const h = profile.hero;
           if (typeof h !== "object" || Array.isArray(h)) throw Error(`${page}: hero must be an object.`);
@@ -7049,7 +9331,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (preferred.length) pool = preferred;
         const familyDiverse = pool.filter((s) => !this.lastFamilies.includes(s.family));
         if (familyDiverse.length) pool = familyDiverse;
-        pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
+        const boostSeasonal = preferredFamily === "theme";
+        pool.sort((a, b) => (this.counts.get(a.key) || 0) - (this.counts.get(b.key) || 0) || (boostSeasonal ? (b.seasonal && !this.counts.has(b.key) ? 1 : 0) - (a.seasonal && !this.counts.has(a.key) ? 1 : 0) : 0) || hash(`${this.seed}:${this.index}:${a.key}`) - hash(`${this.seed}:${this.index}:${b.key}`));
         const shelf = pool[0], recentIds = new Set(this.lastItems);
         const orderedAll = shelf.items.slice().sort((a, b) => Number(recentIds.has(a.Id)) - Number(recentIds.has(b.Id)) || hash(`${this.seed}:${this.index}:${a.Id}`) - hash(`${this.seed}:${this.index}:${b.Id}`));
         const selected = orderedAll.slice(0, this.config.cardsPerShelf);
@@ -8129,6 +10412,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           element("p", "fx-editor-help", "Arrange the exact shelves that appear at the top of this page. Mix core sections (Continue Watching, Recently Added), specific custom categories, and rotating pools (e.g. a random Director or Studio shelf). After these opening rows, the endless varied feed continues.")
         );
         const options = () => [
+          ["family:any", "Random category"],
           ...Object.entries(anchors).map(([key, label]) => [`anchor:${key}`, label]),
           ...profile.rules.map((r) => [`rule:${r.Key}`, r.Title]),
           ...Object.entries(families).map(([key, label]) => [`family:${key}`, label])
@@ -8209,7 +10493,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         let next = ((_c = options()[0]) == null ? void 0 : _c[0]) || "family:theme";
         field(addRow, "Add opening row", next, (v) => next = v, options());
         addRow.append(button("Add row", () => {
-          if (next.startsWith("family:")) profile.families = [.../* @__PURE__ */ new Set([...profile.families, next.slice(7)])];
+          if (next.startsWith("family:") && next !== "family:any") profile.families = [.../* @__PURE__ */ new Set([...profile.families, next.slice(7)])];
           opening.push(next);
           updateOpening();
         }));
@@ -8538,7 +10822,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.6.6";
+      const VERSION = "0.6.7";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -8968,13 +11252,13 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             }
           }
           detailPage.querySelectorAll("#similarCollapsible .card[data-id]").forEach((card) => {
-            var _a3, _b3, _c3, _d3, _e3;
+            var _a3, _b3, _c3, _d3;
             const simId = card.dataset.id;
             if (!simId || !/^[a-f0-9-]{32,36}$/i.test(simId)) return;
             const meta = card.querySelector(".sleekfin-details-similar-meta");
             if (!meta) return;
             const simItem = findInventoryItemById(simId) || {};
-            const starSlot = meta.querySelector('[data-sleekfin-accent="true"], .sleekfin-meta-accent, .sleekfin-meta-item:has(.sleekfin-icon), .sleekfin-meta-item:has(svg)') || [...meta.children].find((ch) => !ch.classList.contains("sleekfin-meta-separator") && (ch.querySelector("svg, .sleekfin-icon, .material-icons") || /^\s*\d\.\d\s*$/.test(ch.textContent || "")));
+            const starSlot = meta.querySelector(':scope > [data-sleekfin-accent="true"]:not(.fx-similar-injected-ratings), :scope > .sleekfin-meta-accent:not(.fx-similar-injected-ratings), :scope > .sleekfin-meta-item:not(.fx-similar-injected-ratings):has(.sleekfin-icon), :scope > .sleekfin-meta-item:not(.fx-similar-injected-ratings):has(svg)') || [...meta.children].find((ch) => !ch.classList.contains("sleekfin-meta-separator") && !ch.classList.contains("fx-similar-injected-ratings") && (ch.querySelector("svg, .sleekfin-icon, .material-icons") || /^\s*\d\.\d\s*$/.test(ch.textContent || "")));
             if (starSlot && !starSlot.dataset.fxOrigStar) {
               const m = (starSlot.textContent || "").match(/\d+(?:\.\d+)?/);
               if (m) starSlot.dataset.fxOrigStar = m[0];
@@ -8988,6 +11272,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             if (cfg.tomatometer && (!rt || rt.pending)) batchIds.push(simId);
             const group = wantHero ? buildRatingsGroup(mergedSim, rt, cfg, false) : null;
             if (starSlot) {
+              meta.querySelectorAll('.fx-similar-injected-ratings, [data-fx-similar-sep="true"]').forEach((n) => n.remove());
               const nextSep = ((_d3 = (_c3 = starSlot.nextElementSibling) == null ? void 0 : _c3.classList) == null ? void 0 : _d3.contains("sleekfin-meta-separator")) ? starSlot.nextElementSibling : null;
               if (!wantHero || !group) {
                 starSlot.setAttribute("data-fx-rating-hidden", "true");
@@ -8996,15 +11281,19 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
                 starSlot.removeAttribute("data-fx-rating-hidden");
                 if (nextSep) nextSep.removeAttribute("data-fx-rating-hidden");
                 const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
-                if (starSlot.dataset.fxSig !== sig || !starSlot.querySelector(".fx-ratings-group")) {
+                if (starSlot.dataset.fxSig !== sig || starSlot.querySelectorAll(".fx-ratings-group").length !== 1) {
                   starSlot.dataset.fxSig = sig;
                   starSlot.dataset.fxRatingsMounted = "true";
-                  (_e3 = starSlot.querySelector(".fx-ratings-group")) == null ? void 0 : _e3.remove();
+                  starSlot.querySelectorAll(".fx-ratings-group").forEach((n) => n.remove());
                   starSlot.append(group);
                 }
               }
-            } else if (group) {
-              let wrap = meta.querySelector(".fx-similar-injected-ratings");
+            } else if (wantHero && group) {
+              const existingWraps = [...meta.querySelectorAll(".fx-similar-injected-ratings")];
+              let wrap = existingWraps[0] || null;
+              for (let i = 1; i < existingWraps.length; i++) existingWraps[i].remove();
+              const existingSeps = [...meta.querySelectorAll('[data-fx-similar-sep="true"]')];
+              for (let i = 1; i < existingSeps.length; i++) existingSeps[i].remove();
               const sig = group.textContent + "|" + cfg.tomatometer + "|" + cfg.stars;
               if (!wrap) {
                 wrap = element("span", "fx-similar-injected-ratings");
@@ -9012,10 +11301,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
                 sep.dataset.fxSimilarSep = "true";
                 meta.prepend(wrap, sep);
               }
-              if (wrap.dataset.fxSig !== sig || !wrap.querySelector(".fx-ratings-group")) {
+              if (wrap.dataset.fxSig !== sig || wrap.querySelectorAll(".fx-ratings-group").length !== 1) {
                 wrap.dataset.fxSig = sig;
                 wrap.replaceChildren(group);
               }
+            } else {
+              meta.querySelectorAll('.fx-similar-injected-ratings, [data-fx-similar-sep="true"]').forEach((n) => n.remove());
             }
           });
         }
@@ -9581,6 +11872,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         const osdOpen = isVideoOsdOpen();
         setRootAttr("data-fx-video-osd", osdOpen);
         if (osdOpen) {
+          findActiveOsdVideo();
           const osd = document.getElementById("videoOsdPage");
           const gearBtn = (_a2 = osd == null ? void 0 : osd.querySelector) == null ? void 0 : _a2.call(osd, ".btnVideoOsdSettings");
           if (gearBtn && !((_d2 = (_c2 = (_b2 = document.documentElement) == null ? void 0 : _b2.style) == null ? void 0 : _c2.getPropertyValue) == null ? void 0 : _d2.call(_c2, "--fx-osd-popup-bottom"))) {
@@ -11182,11 +13474,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
       }
       const LEGACY_DUPLICATE_SHOW_KEYS = /* @__PURE__ */ new Set(["tv-drama", "tv-comedy", "tv-anime", "tv-scifi", "tv-crime", "tv-acclaimed"]);
-      const LEGACY_DEFAULT_RULE_COUNTS = { home: 32, movies: 26, shows: 28 };
+      const LEGACY_DEFAULT_RULE_COUNTS = { home: 65, movies: 60, shows: 45 };
       const LEGACY_DEFAULT_ANCHORS = {
         home: "ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests,DiscoverTV,MyMedia",
         movies: "ContinueWatchingNextUp,RecentlyAddedMovies,DiscoverMovies,MyJellyseerrRequests",
         shows: "ContinueWatchingNextUp,RecentlyAddedShows,DiscoverTV,MyJellyseerrRequests"
+      };
+      const LEGACY_V066_OPENING = {
+        home: "anchor:RecentlyAddedMovies,family:theme,anchor:RecentlyAddedShows,anchor:ContinueWatchingNextUp",
+        movies: "anchor:RecentlyAddedMovies,family:theme,anchor:DiscoverMovies,anchor:ContinueWatchingNextUp",
+        shows: "anchor:RecentlyAddedShows,family:theme,anchor:DiscoverTV,anchor:ContinueWatchingNextUp"
       };
       function upgradeLegacyConfig(cfg) {
         if (!cfg || typeof cfg !== "object") return cfg;
@@ -11207,6 +13504,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
               } else if (page === "home" && prof.anchors.includes("MyMedia")) {
                 prof.anchors = prof.anchors.filter((a) => a !== "MyMedia");
               }
+            } else if (Array.isArray(prof.opening) && prof.opening.join(",") === LEGACY_V066_OPENING[page]) {
+              prof.anchors = cloneJson(suppliedPage.anchors);
+              prof.opening = cloneJson(suppliedPage.opening);
             }
             if (page === "shows") {
               const pinned = new Set(Array.isArray(prof.opening) ? prof.opening : []);
@@ -12459,7 +14759,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
       }
       function preparePlanner(s) {
         const items = filterItems(s.inventory.items, s.filters, s.tracking);
-        s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, `${s.scope}:${dayInZone(s.now, s.config.timeZone)}:${s.route.page}:${s.shuffle}`);
+        const seed = `${s.scope}:${dayInZone(s.now, s.config.timeZone)}:${s.route.page}:${s.shuffle}`;
+        s.planner = new FeedPlanner(buildShelves(items, s.profile, s.config, s.route.page, s.now), s.config, seed);
+        const opening = Array.isArray(s.profile.opening) ? s.profile.opening : [];
+        const remainingAnchors = (s.profile.anchors || []).filter((id) => !opening.includes(`anchor:${id}`));
+        s.postAnchors = opening.length ? remainingAnchors.slice().sort((a, b) => hash(`${seed}:post-anchor:${a}`) - hash(`${seed}:post-anchor:${b}`)) : remainingAnchors;
+        s.postAnchorWait = opening.length ? 1 + hash(`${seed}:post-gap:0`) % 2 : 0;
         s.filteredQueue = s.route.view === "genres" ? s.planner.shelves.filter((r) => r.family === "genre" && r.key !== "genre:explore").sort((a, b) => a.title.localeCompare(b.title)) : null;
         const hasActiveFilter = filtersActive(s.filters) || s.filters.sort !== "recommended";
         if (hasActiveFilter) {
@@ -12480,6 +14785,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         s.anchorIndex = 0;
         s.openingIndex = 0;
         s.anchorTurn = true;
+        s.postAnchors = [];
+        s.postAnchorWait = 0;
         s.slots = [];
         s.list.replaceChildren();
         s.more.hidden = false;
@@ -12497,7 +14804,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         var _a2;
         if (!s.inventory || !s.config || !s.planner) return;
         const root = findScrollRoot(s.root);
-        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.filter((slot) => !slot.boot).map((slot) => slot.data), openingIndex: s.openingIndex || 0, anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.filter((slot) => !slot.boot).map((slot) => {
+        savedFeeds.set(s.key, { config: JSON.stringify(s.config), inventory: s.inventory, tracking: s.tracking, filters: cloneJson(s.filters), planner: s.planner, pending: s.pending, filteredQueue: ((_a2 = s.filteredQueue) == null ? void 0 : _a2.slice()) || null, rows: s.slots.filter((slot) => !slot.boot).map((slot) => slot.data), openingIndex: s.openingIndex || 0, anchorIndex: s.anchorIndex, anchorTurn: s.anchorTurn, postAnchors: Array.isArray(s.postAnchors) ? s.postAnchors.slice() : null, postAnchorWait: s.postAnchorWait || 0, finished: s.finished, shuffle: s.shuffle, focus: s.lastFocus, scrollTop: root.scrollTop || 0, tracks: s.slots.filter((slot) => !slot.boot).map((slot) => {
           var _a3;
           return ((_a3 = slot.node.querySelector(".fx-track")) == null ? void 0 : _a3.scrollLeft) || 0;
         }), at: Date.now() });
@@ -12514,6 +14821,8 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         s.openingIndex = saved.openingIndex || 0;
         s.anchorIndex = saved.anchorIndex;
         s.anchorTurn = saved.anchorTurn;
+        s.postAnchors = Array.isArray(saved.postAnchors) ? saved.postAnchors.slice() : null;
+        s.postAnchorWait = saved.postAnchorWait || 0;
         s.finished = saved.finished;
         s.shuffle = saved.shuffle;
         s.lastFocus = saved.focus;
@@ -12624,6 +14933,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         if (!full && !inSubpage) scheduleScroll();
       }
       async function nextRow(s) {
+        var _a2;
         if (s.filteredQueue) return s.filteredQueue.shift() || null;
         const opening = s.profile.opening || [];
         while ((s.openingIndex || 0) < opening.length) {
@@ -12640,6 +14950,12 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             } catch {
               s.client.assertCurrent();
             }
+          } else if (token === "family:any") {
+            const row = s.planner.next(null);
+            if (row) {
+              s.anchorTurn = true;
+              return row;
+            }
           } else {
             const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7)) : null;
             if (row) {
@@ -12648,11 +14964,16 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             }
           }
         }
-        while (s.anchorIndex < s.profile.anchors.length || s.planner.shelves.length) {
-          if (s.anchorTurn && s.anchorIndex < s.profile.anchors.length) {
-            const id = s.profile.anchors[s.anchorIndex++];
-            if (opening.includes(`anchor:${id}`)) continue;
+        const anchorsQueue = Array.isArray(s.postAnchors) ? s.postAnchors : (s.profile.anchors || []).filter((id) => !opening.includes(`anchor:${id}`));
+        while (s.anchorIndex < anchorsQueue.length || s.planner.shelves.length) {
+          const canPlaceAnchor = opening.length ? s.anchorIndex < anchorsQueue.length && (s.postAnchorWait || 0) <= 0 : s.anchorTurn && s.anchorIndex < anchorsQueue.length;
+          if (canPlaceAnchor) {
+            const id = anchorsQueue[s.anchorIndex++];
             s.anchorTurn = false;
+            if (opening.length) {
+              const seed = ((_a2 = s.planner) == null ? void 0 : _a2.seed) || `${s.scope}:${s.route.page}:${s.shuffle}`;
+              s.postAnchorWait = 1 + hash(`${seed}:post-gap:${s.anchorIndex}`) % 3;
+            }
             try {
               const row = await s.client.anchor(id, s.route, s.inventory, s.config);
               if (row.items.length) return row;
@@ -12661,9 +14982,11 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             }
           } else {
             s.anchorTurn = true;
-            const row = s.planner.next(s.anchorIndex <= s.profile.anchors.length && (s.anchorIndex > 0 || opening.some((t) => t.startsWith("anchor:"))) && s.slots.filter((slot) => !slot.boot).length < s.profile.anchors.length * 2 ? "theme" : null);
+            if (opening.length && (s.postAnchorWait || 0) > 0) s.postAnchorWait--;
+            const row = s.planner.next(!opening.length && s.anchorIndex <= anchorsQueue.length && s.anchorIndex > 0 && s.slots.filter((slot) => !slot.boot).length < anchorsQueue.length * 2 ? "theme" : null);
             if (row) return row;
-            if (s.anchorIndex >= s.profile.anchors.length) return null;
+            if (s.anchorIndex >= anchorsQueue.length) return null;
+            if (opening.length) s.postAnchorWait = 0;
           }
         }
         return null;
@@ -14147,7 +16470,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
       }
       function ensureOsdVideoPrepared(video) {
-        var _a2, _b2, _c2, _d2;
+        var _a2, _b2, _c2, _d2, _e2;
         if (!video) return;
         try {
           video.playsInline = true;
@@ -14157,6 +16480,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
         if (video._fxOsdPrepared) return;
         video._fxOsdPrepared = true;
+        video._fxOsdMountedAt = Date.now();
+        video._fxHadPlayEvent = false;
+        video._fxHadPauseEvent = false;
         if (typeof video.webkitEnterFullscreen === "function" && Object.prototype.hasOwnProperty.call(video, "webkitEnterFullscreen")) {
           const orig = video.webkitEnterFullscreen;
           video.webkitEnterFullscreen = function(...args) {
@@ -14182,7 +16508,20 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
               });
             } catch {
             }
+            return;
           }
+          if (!stopped && isVideoOsdOpen() && !video.ended && !video.seeking) {
+            video._fxHadPauseEvent = true;
+            showOsdPlayStateOverlay("pause");
+          }
+        });
+        (_e2 = video.addEventListener) == null ? void 0 : _e2.call(video, "play", () => {
+          if (osdGesture.holdActive && osdGesture.activeVideo === video) return;
+          if (stopped || !isVideoOsdOpen() || video.seeking) return;
+          const isInitialStartup = !video._fxHadPlayEvent && !video._fxHadPauseEvent && Date.now() - (video._fxOsdMountedAt || 0) < 1800 && (Number(video.currentTime) || 0) < 2;
+          video._fxHadPlayEvent = true;
+          if (isInitialStartup) return;
+          showOsdPlayStateOverlay("play");
         });
       }
       function findActiveOsdVideo() {
@@ -14276,6 +16615,31 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           overlay.classList.remove("is-visible", "is-pulse");
         }, 760);
       }
+      const osdPlayState = {
+        timer: 0
+      };
+      const OSD_PLAY_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.8-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14Z"/></svg>';
+      const OSD_PAUSE_SVG = '<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="4.5" width="4.4" height="15" rx="1.4"/><rect x="13.6" y="4.5" width="4.4" height="15" rx="1.4"/></svg>';
+      function showOsdPlayStateOverlay(kind) {
+        let overlay = document.querySelector(".fx-osd-playstate-overlay");
+        if (!overlay) {
+          overlay = element("div", "fx-osd-playstate-overlay");
+          overlay.setAttribute("aria-hidden", "true");
+          document.body.append(overlay);
+        }
+        const stateVal = kind === "pause" ? "pause" : "play";
+        if (overlay.dataset.state !== stateVal || !overlay.firstElementChild) {
+          overlay.dataset.state = stateVal;
+          overlay.innerHTML = stateVal === "pause" ? OSD_PAUSE_SVG : OSD_PLAY_SVG;
+        }
+        clearTimeout(osdPlayState.timer);
+        overlay.classList.remove("is-visible");
+        void overlay.offsetWidth;
+        overlay.classList.add("is-visible");
+        osdPlayState.timer = setTimeout(() => {
+          overlay.classList.remove("is-visible");
+        }, 540);
+      }
       function syncMuteButtonIcon(btn, muted) {
         if (!btn) return;
         const ic = btn.querySelector(".material-icons");
@@ -14337,14 +16701,31 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
         }
       }
       function onOsdMuteClick(event) {
-        var _a2, _b2, _c2;
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n;
         if (stopped || !isVideoOsdOpen()) return;
-        const muteBtn = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .buttonMute");
+        const pauseBtn = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "#videoOsdPage .btnPause");
+        if (pauseBtn && event.detail > 0 && !((_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.classList) == null ? void 0 : _d2.contains("layout-tv")) && !((_f = (_e2 = document.body) == null ? void 0 : _e2.classList) == null ? void 0 : _f.contains("layout-tv"))) {
+          setTimeout(() => {
+            var _a3;
+            try {
+              (_a3 = pauseBtn.blur) == null ? void 0 : _a3.call(pauseBtn);
+            } catch {
+            }
+          }, 0);
+          return;
+        }
+        const muteBtn = (_h = (_g = event.target) == null ? void 0 : _g.closest) == null ? void 0 : _h.call(_g, "#videoOsdPage .buttonMute");
         if (!muteBtn) return;
         event.preventDefault();
-        (_c2 = event.stopImmediatePropagation) == null ? void 0 : _c2.call(event);
+        (_i = event.stopImmediatePropagation) == null ? void 0 : _i.call(event);
         event.stopPropagation();
         toggleOsdMuteWithMemory();
+        if (event.detail > 0 && !((_k = (_j = document.documentElement) == null ? void 0 : _j.classList) == null ? void 0 : _k.contains("layout-tv")) && !((_m = (_l = document.body) == null ? void 0 : _l.classList) == null ? void 0 : _m.contains("layout-tv"))) {
+          try {
+            (_n = muteBtn.blur) == null ? void 0 : _n.call(muteBtn);
+          } catch {
+          }
+        }
       }
       function onOsdVolumeSliderInput(event) {
         var _a2, _b2, _c2, _d2;
@@ -14700,9 +17081,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             if (!needsRatings && (t.id === "itemDetailPage" || ((_b2 = t.matches) == null ? void 0 : _b2.call(t, ".sleekfin-hero,.sleekfin-hero-slide,.sleekfin-details-score,.sleekfin-hero-score")) || ((_c2 = t.closest) == null ? void 0 : _c2.call(t, ".sleekfin-hero,#itemDetailPage")))) {
               const onlyOwnRatings = r.type === "childList" && [...r.addedNodes, ...r.removedNodes].every((n) => {
                 var _a3;
-                return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, ".fx-ratings-group,.fx-detail-injected-ratings"));
+                return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, '.fx-ratings-group,.fx-detail-injected-ratings,.fx-similar-injected-ratings,[data-fx-similar-sep="true"]'));
               });
-              if (!onlyOwnRatings && !((_d2 = t.closest) == null ? void 0 : _d2.call(t, ".fx-ratings-group,.fx-detail-injected-ratings"))) needsRatings = true;
+              if (!onlyOwnRatings && !((_d2 = t.closest) == null ? void 0 : _d2.call(t, ".fx-ratings-group,.fx-detail-injected-ratings,.fx-similar-injected-ratings"))) needsRatings = true;
             }
             if (!needsPopover) {
               if (t === document.body || t.id === "videoOsdPage" || t.id === "app-user-menu" || ((_e2 = t.matches) == null ? void 0 : _e2.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.dialogContainer,.actionSheet,.sleekfin-menu-host,[data-sleekfin-user-settings-link],header.MuiAppBar-root")) || ((_f = t.closest) == null ? void 0 : _f.call(t, ".MuiPopover-root,.sleekfin-popup-layer,.sleekfin-details-dropdown-menu,.sleekfin-details-info-container,.playerStats,.dialog,.actionSheet,.sleekfin-menu-host"))) {
@@ -14728,7 +17109,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
             } else if (!needsSearch && ((_j = t.closest) == null ? void 0 : _j.call(t, "#searchPage")) && !((_k = t.closest) == null ? void 0 : _k.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
             }
           }
@@ -14804,6 +17185,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           clearTimeout(searchUiState.inputTimer);
           clearTimeout(osdKeySkip.timer);
           clearTimeout(osdKeySkip.streakTimer);
+          clearTimeout(osdPlayState.timer);
           if (popoverFrame) {
             try {
               cancelAnimationFrame(popoverFrame);
@@ -14845,7 +17227,7 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
           (_I = (_H = (_G = document.documentElement) == null ? void 0 : _G.style) == null ? void 0 : _H.removeProperty) == null ? void 0 : _I.call(_H, "--fx-header-popup-top");
           (_L = (_K = (_J = document.documentElement) == null ? void 0 : _J.style) == null ? void 0 : _K.removeProperty) == null ? void 0 : _L.call(_K, "--fx-header-popup-right");
           (_N = (_M = document.getElementById("searchPage")) == null ? void 0 : _M.removeAttribute) == null ? void 0 : _N.call(_M, "data-fx-search-active");
-          document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
+          document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
           document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdMuteClick, true);
