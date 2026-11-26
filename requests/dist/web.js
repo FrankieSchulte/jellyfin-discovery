@@ -1143,7 +1143,7 @@
       }
     }
     function ensureNavigation(active) {
-      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
       if (permAllowed !== true) {
         removeNavigation();
         return;
@@ -1189,9 +1189,10 @@
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
       const overflowToggle = (_f = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _f.call(proxy, "[data-sleekfin-header-overflow-toggle]");
-      const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
-      const isPhoneHeader = Boolean((_h = (_g = window.matchMedia) == null ? void 0 : _g.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _h.matches);
-      const isMobileHeader = Boolean(isPhoneHeader || overflowActive && ((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(max-width: 899px)")) == null ? void 0 : _j.matches));
+      const headerManaged = ((_h = (_g = document.documentElement) == null ? void 0 : _g.getAttribute) == null ? void 0 : _h.call(_g, "data-fx-header-managed")) === "true";
+      const overflowActive = !headerManaged && Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
+      const isPhoneHeader = !headerManaged && Boolean((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _j.matches);
+      const isMobileHeader = Boolean(isPhoneHeader || overflowActive && ((_l = (_k = window.matchMedia) == null ? void 0 : _k.call(window, "(max-width: 899px)")) == null ? void 0 : _l.matches));
       const ensureBeforeCollectionsOrLiveTv = (host, discoverNode, itemsSelector) => {
         if (!host || !discoverNode || discoverNode.parentElement !== host) return;
         const siblings = [...host.querySelectorAll(itemsSelector)];
@@ -1271,7 +1272,7 @@
             }
           }
         } else {
-          (_l = (_k = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _k.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _l.forEach((n) => n.remove());
+          (_n = (_m = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _m.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _n.forEach((n) => n.remove());
           if (nativeProxyBtn) {
             proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
             upgradeNativeDiscoverIcon(nativeProxyBtn);
@@ -1284,7 +1285,7 @@
             btn.dataset.rhLink = "true";
             btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
             btn.dataset.sleekfinHeaderZone = "tabs";
-            btn.dataset.sleekfinHeaderDisplay = ((_m = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _m.sleekfinHeaderDisplay) || "both";
+            btn.dataset.sleekfinHeaderDisplay = ((_o = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _o.sleekfinHeaderDisplay) || "both";
             btn.title = "Discover";
             btn.setAttribute("aria-label", "Discover");
             const vis = el("span", "");

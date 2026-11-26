@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.2 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.3 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -8977,22 +8977,23 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  width:18px!important;
-  height:18px!important;
-  flex:0 0 18px!important;
+  width:11px!important;
+  height:17px!important;
+  flex:0 0 11px!important;
   line-height:1!important;
   color:#e5c158!important;
+  transform:translateY(-.5px)!important;
 }
 .fx-oscar-nav-icon svg{
-  width:18px!important;
-  height:18px!important;
+  width:11px!important;
+  height:17px!important;
   display:block!important;
 }
 [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-visual="true"]{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:0.42rem!important;
+  gap:6px!important;
   line-height:1!important;
   vertical-align:middle!important;
 }
@@ -9000,10 +9001,10 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  width:1.15rem!important;
-  height:1.15rem!important;
+  width:11px!important;
+  height:17px!important;
   line-height:1!important;
-  flex-shrink:0!important;
+  flex:0 0 11px!important;
 }
 [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-label="true"]{
   display:inline-block!important;
@@ -9020,8 +9021,8 @@ a.fx-oscars-nav{
   font-weight:600;
 }
 a.fx-oscars-nav[aria-current="page"]{
-  background:rgba(212,175,55,.2);
-  border:1px solid rgba(243,220,143,.45);
+  background:rgba(224,184,68,.3);
+  border:0;
   color:#fff;
 }
 html[data-fx-oscars="true"]{
@@ -9064,9 +9065,15 @@ html[data-fx-oscars="true"] .homePage{
   padding-top:0!important;
   margin-top:0!important;
 }
+html[data-fx-oscars="true"] header.MuiAppBar-root + div[aria-hidden="true"],
+html[data-fx-oscars="true"] #indexPage #homeTab.is-active > .sections::before,
 html[data-fx-oscars="true"] #indexPage [data-fx-oscars-hidden="true"],
 html[data-fx-oscars="true"] #indexPage :is(.sleekfin-hero,.hero,#slides-container,.homeSectionsContainer){
   display:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
 }
 html[data-fx-oscars="true"] [data-sleekfin-header-proxy]{
   border-color:rgba(243,220,143,.22)!important;
@@ -9078,11 +9085,16 @@ html[data-fx-oscars="true"] [data-sleekfin-header-proxy] > button[data-sleekfin-
   border-color:transparent!important;
 }
 html[data-fx-oscars="true"] [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"][data-sleekfin-current="true"],
-html[data-fx-oscars="true"] [data-sleekfin-header-overflow-drawer] button[data-fx-oscars-link="true"][data-sleekfin-current="true"]{
-  background:linear-gradient(180deg,rgba(243,220,143,.26) 0%,rgba(212,175,55,.14) 100%)!important;
-  border-color:rgba(243,220,143,.46)!important;
-  color:#faf8f4!important;
-  box-shadow:inset 0 1px rgba(255,244,196,.26)!important;
+html[data-fx-oscars="true"] [data-sleekfin-header-overflow-drawer] button[data-fx-oscars-link="true"][data-sleekfin-current="true"],
+html[data-fx-oscars="true"] .fx-header-overflow-menu button[data-fx-oscars-link="true"][aria-current="page"]{
+  background:rgba(224,184,68,.30)!important;
+  border:0!important;
+  border-color:transparent!important;
+  color:#ffffff!important;
+  box-shadow:none!important;
+}
+html[data-fx-oscars="true"] [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"][data-sleekfin-current="true"] .fx-oscar-nav-icon{
+  color:#f6dc82!important;
 }
 html[data-fx-oscars="true"] .rh-dialog{
   border-color:rgba(243,220,143,.26)!important;
@@ -9179,18 +9191,13 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   display:flex;
   align-items:center;
   gap:10px;
-  margin-bottom:14px;
+  margin-bottom:6px;
 }
-.fx-oscars-heading-btn{
-  appearance:none;
-  border:0!important;
-  background:transparent!important;
-  padding:0!important;
-  margin:0 auto 0 0!important;
+.fx-oscars-heading{
+  margin:0 auto 0 0;
   display:inline-flex;
   align-items:center;
   gap:10px;
-  cursor:pointer;
   color:var(--fx-oscar-white,#faf8f4);
   text-align:left;
   min-width:0;
@@ -9214,15 +9221,11 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   padding:0!important;
   border:0!important;
   font-family:var(--fx-font-family,Inter,"Noto Sans",sans-serif)!important;
-  font-size:21px!important;
-  line-height:1.25!important;
+  font-size:24px!important;
+  line-height:32px!important;
   font-weight:600!important;
   letter-spacing:-.015em!important;
   color:var(--fx-oscar-white,#faf8f4)!important;
-  transition:color .16s ease;
-}
-.fx-oscars-heading-btn:hover h2{
-  color:var(--fx-oscar-gold-bright,#f3dc8f)!important;
 }
 .fx-oscars-row-controls{
   display:flex;
@@ -9264,7 +9267,7 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   gap:14px;
   overflow-x:auto!important;
   overflow-y:hidden!important;
-  padding:4px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 14px;
+  padding:12px var(--sleekfin-page-gutter,clamp(16px,4vw,80px)) 16px;
   scroll-padding-inline:var(--sleekfin-page-gutter,clamp(16px,4vw,80px));
   box-sizing:border-box;
   scrollbar-width:none;
@@ -9502,12 +9505,13 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
     --fx-oscar-fade:clamp(16px,5vw,32px);
   }
   .fx-oscars-track{
-    padding:4px 14px 12px;
+    padding:10px 14px 14px;
     scroll-padding-inline:14px;
     gap:10px;
   }
   .fx-oscars-row-head h2{
-    font-size:18px!important;
+    font-size:18.5px!important;
+    line-height:25px!important;
   }
   .fx-oscar-card{
     flex:0 0 clamp(102px,29vw,142px);
@@ -9776,6 +9780,90 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
 }
 .fx-oscar-admin-status:empty{
   display:none;
+}
+
+/* 17. Deterministic Priority-Ordered Header Overflow & Dropdown Menu */
+html[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-fx-header-overflowed="false"]:not([data-fx-leaving-hidden="true"]),
+html.sleekfin-header-mounted[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-fx-header-overflowed="false"]:not([data-fx-leaving-hidden="true"]){
+  display:inline-flex!important;
+}
+html[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-fx-header-overflowed="true"],
+html.sleekfin-header-mounted[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-fx-header-overflowed="true"]{
+  display:none!important;
+}
+html[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-sleekfin-header-overflow-toggle][data-fx-overflow-needed="true"],
+html.sleekfin-header-mounted[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-sleekfin-header-overflow-toggle][data-fx-overflow-needed="true"]{
+  display:inline-flex!important;
+}
+html[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-sleekfin-header-overflow-toggle][data-fx-overflow-needed="false"],
+html.sleekfin-header-mounted[data-fx-header-managed="true"] [data-sleekfin-header-proxy] > [data-sleekfin-header-overflow-toggle][data-fx-overflow-needed="false"]{
+  display:none!important;
+}
+.fx-header-overflow-menu{
+  position:fixed;
+  z-index:1120;
+  min-width:196px;
+  max-width:min(280px,calc(100vw - 24px));
+  max-height:min(420px,calc(100vh - 96px));
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:6px;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.015) 100%),rgba(22,22,26,.94);
+  backdrop-filter:blur(22px) saturate(145%);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 18px 44px rgba(0,0,0,.62),inset 0 1px rgba(255,255,255,.1);
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  box-sizing:border-box;
+}
+html[data-fx-oscars="true"] .fx-header-overflow-menu{
+  background:linear-gradient(180deg,rgba(243,220,143,.07) 0%,rgba(212,175,55,.02) 100%),rgba(18,16,12,.96);
+  border-color:rgba(243,220,143,.24);
+}
+.fx-header-overflow-item{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,.88);
+  font:500 14px/1.25 var(--fx-font-family,Inter,"Noto Sans",sans-serif);
+  padding:9px 12px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
+  transition:background-color .14s ease,color .14s ease;
+}
+.fx-header-overflow-item:hover{
+  background:rgba(255,255,255,.1);
+  color:#fff;
+}
+.fx-header-overflow-item[aria-current="page"]{
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  font-weight:600;
+}
+.fx-header-overflow-item-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+}
+.fx-header-overflow-item-icon svg{
+  max-width:18px;
+  max-height:18px;
+  display:block;
+}
+.fx-header-overflow-item-icon .material-icons{
+  font-size:19px!important;
+  line-height:1!important;
 }
 `;
     const normalize = (value) => String(value != null ? value : "").trim().toLowerCase();
@@ -11664,7 +11752,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
       };
     }
     const OSCAR_STATUETTE_SVG = '<svg viewBox="0 0 24 36" width="22" height="30" fill="none" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5.4" rx="2.35" ry="2.8" fill="#e6c155"/><path d="M10.9 3.4c-.7.5-1.1 1.4-1 2.4.1.9.6 1.6 1.2 1.9-.3-.7-.4-1.6-.2-2.6.1-.7.3-1.3.7-1.7h-.7Z" fill="#fff2ba" opacity=".85"/><path d="M10.7 8.4h2.6l3 1.45c.78.38 1.22 1.15 1.1 2l-.55 4.3c-.1.7-.54 1.28-1.18 1.54l-.92.37-.48 9.94h1.35v1.8h-7.24v-1.8h1.35l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l3-1.45Z" fill="#dfb645"/><path d="M10.7 8.4h1.35v19.6h-1.8l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l2.48-1.45Z" fill="#f7e297" opacity=".55"/><path d="M9.6 12.6l2.4 1.35 2.4-1.35" stroke="#8f6816" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/><rect x="6.6" y="30" width="10.8" height="2" rx=".65" fill="#c49526"/><rect x="5" y="32.4" width="14" height="2.6" rx=".8" fill="#9a7219"/><rect x="5.4" y="32.4" width="13.2" height=".9" rx=".4" fill="#f3dc8f" opacity=".65"/></svg>';
-    const OSCAR_NAV_ICON_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" focusable="false"><ellipse cx="12" cy="4.2" rx="1.65" ry="1.95" fill="currentColor"/><path d="M11.1 6.3h1.8l2.1 1c.52.26.82.78.74 1.36l-.38 2.95c-.07.48-.38.88-.82 1.05l-.62.25-.34 6.59h.96v1.25H9.46V19.5h.96l-.34-6.59-.62-.25c-.44-.17-.75-.57-.82-1.05l-.38-2.95c-.08-.58.22-1.1.74-1.36l2.1-1Z" fill="currentColor"/><rect x="7.8" y="20.9" width="8.4" height="1.8" rx=".6" fill="currentColor" opacity=".88"/></svg>';
+    const OSCAR_NAV_ICON_SVG = '<svg viewBox="6.5 1.8 11 21.2" width="11" height="17" fill="none" aria-hidden="true" focusable="false"><ellipse cx="12" cy="4.2" rx="1.65" ry="1.95" fill="currentColor"/><path d="M11.1 6.3h1.8l2.1 1c.52.26.82.78.74 1.36l-.38 2.95c-.07.48-.38.88-.82 1.05l-.62.25-.34 6.59h.96v1.25H9.46V19.5h.96l-.34-6.59-.62-.25c-.44-.17-.75-.57-.82-1.05l-.38-2.95c-.08-.58.22-1.1.74-1.36l2.1-1Z" fill="currentColor"/><rect x="7.8" y="20.9" width="8.4" height="1.8" rx=".6" fill="currentColor" opacity=".88"/></svg>';
     const OSCAR_HERO_LOGO_SVG = '<svg class="fx-oscars-hero-logo-svg" viewBox="0 0 540 176" width="540" height="176" fill="none" role="img" aria-label="The Oscars"><g transform="translate(251, 8) scale(1.62)"><ellipse cx="12" cy="5.4" rx="2.35" ry="2.8" fill="#e8c45a"/><path d="M10.9 3.4c-.7.5-1.1 1.4-1 2.4.1.9.6 1.6 1.2 1.9-.3-.7-.4-1.6-.2-2.6.1-.7.3-1.3.7-1.7h-.7Z" fill="#fff5cc" opacity=".9"/><path d="M10.7 8.4h2.6l3 1.45c.78.38 1.22 1.15 1.1 2l-.55 4.3c-.1.7-.54 1.28-1.18 1.54l-.92.37-.48 9.94h1.35v1.8h-7.24v-1.8h1.35l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l3-1.45Z" fill="#dfb645"/><path d="M10.7 8.4h1.35v19.6h-1.8l-.48-9.94-.92-.37c-.64-.26-1.08-.84-1.18-1.54l-.55-4.3c-.12-.85.32-1.62 1.1-2l2.48-1.45Z" fill="#fae79e" opacity=".6"/><rect x="6.6" y="30" width="10.8" height="2" rx=".65" fill="#c79928"/><rect x="5" y="32.4" width="14" height="2.6" rx=".8" fill="#9a7219"/></g><line x1="74" y1="86" x2="214" y2="86" stroke="#d4af37" stroke-width="1" opacity=".62"/><line x1="326" y1="86" x2="466" y2="86" stroke="#d4af37" stroke-width="1" opacity=".62"/><text x="270" y="92" text-anchor="middle" fill="#f3dc8f" font-family="Georgia, Times New Roman, serif" font-size="14" font-weight="600" letter-spacing="7">THE</text><text x="270" y="150" text-anchor="middle" fill="#faf8f4" font-family="Georgia, Times New Roman, serif" font-size="60" font-weight="400" letter-spacing="14">OSCARS</text><line x1="170" y1="166" x2="370" y2="166" stroke="#d4af37" stroke-width="1.2" opacity=".55"/></svg>';
     const OSCAR_CHECK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
     const OSCAR_BACK_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>';
@@ -11808,7 +11896,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         }
       }
       function ensureOscarsNav(api = window.ApiClient) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+        var _a, _b;
         if (isStopped() || !((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api))) {
           removeOscarsNav();
           return;
@@ -11821,89 +11909,43 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         const labelText = (data.navTitle || "Oscars").trim() || "Oscars";
         const activeRoute = isOscarsHash(location.hash);
         const proxy = document.querySelector("[data-sleekfin-header-proxy]");
-        const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
-        const overflowToggle = (_b = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _b.call(proxy, "[data-sleekfin-header-overflow-toggle]");
-        const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
-        const isPhone = Boolean((_d = (_c = window.matchMedia) == null ? void 0 : _c.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _d.matches);
-        const isMobile = Boolean(isPhone || overflowActive && ((_f = (_e = window.matchMedia) == null ? void 0 : _e.call(window, "(max-width: 899px)")) == null ? void 0 : _f.matches));
         const findInsertAnchor = (host, selector) => {
           const siblings = [...host.querySelectorAll(selector)];
           return siblings.find((b) => {
+            if (b.dataset.fxOscarsLink === "true") return false;
             const k = (b.getAttribute("data-sleekfin-header-proxy-item") || b.getAttribute("data-sleekfin-header-overflow-item") || "").toLowerCase();
             const txt = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
-            return k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
-          }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle],[data-fx-overflow-settings],[data-sleekfin-header-overflow-item="jellyfin:search"],[data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+            return b.dataset.rhLink === "true" || k === "requesthub:discover" || k === "dom:toolbar-discover" || txt === "discover" || k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
+          }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
         };
         if (proxy) {
           document.querySelectorAll("[data-fx-oscars-link]").forEach((n) => {
-            if (!proxy.contains(n) && !(overflowDrawer && overflowDrawer.contains(n))) n.remove();
+            if (!proxy.contains(n)) n.remove();
           });
-          if (isMobile) {
-            proxy.querySelectorAll("[data-fx-oscars-link]").forEach((n) => n.remove());
-            if (overflowDrawer) {
-              const existingItems = [...overflowDrawer.querySelectorAll("button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]")];
-              let btn = overflowDrawer.querySelector('[data-fx-oscars-link="true"]');
-              if (!btn && existingItems.length) {
-                const listHost = existingItems[0].parentElement;
-                if (listHost) {
-                  const sample = existingItems.find((b) => (b.getAttribute("data-sleekfin-header-overflow-item") || "") !== "jellyfin:user-menu") || existingItems[0];
-                  btn = element("button", (sample == null ? void 0 : sample.className) || "fx-oscars-nav");
-                  btn.type = "button";
-                  btn.dataset.fxOscarsLink = "true";
-                  btn.setAttribute("data-sleekfin-header-overflow-item", "fazfort:oscars");
-                  btn.setAttribute("data-sleekfin-header-overflow-full", "true");
-                  btn.onclick = openOscarsRoute;
-                  const vis = element("span");
-                  vis.dataset.sleekfinHeaderOverflowVisual = "true";
-                  vis.append(createOscarNavIconSpan());
-                  const lbl = element("span", "", labelText);
-                  lbl.dataset.sleekfinHeaderSourceLabel = "true";
-                  btn.append(vis, lbl);
-                  const anchor = findInsertAnchor(listHost, "button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]");
-                  if (anchor && anchor.parentElement === listHost) listHost.insertBefore(btn, anchor);
-                  else listHost.append(btn);
-                }
-              }
-              if (btn) {
-                btn.title = labelText;
-                btn.setAttribute("aria-label", labelText);
-                const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-                if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
-              }
-            }
-          } else {
-            (_h = (_g = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _g.call(overflowDrawer, "[data-fx-oscars-link]")) == null ? void 0 : _h.forEach((n) => n.remove());
-            let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
-            if (!btn) {
-              const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
-              btn = element("button", "fx-oscars-nav");
-              btn.type = "button";
-              btn.dataset.fxOscarsLink = "true";
-              btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
-              btn.dataset.sleekfinHeaderZone = "tabs";
-              btn.dataset.sleekfinHeaderDisplay = ((_i = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _i.sleekfinHeaderDisplay) || "both";
-              btn.onclick = openOscarsRoute;
-              const vis = element("span");
-              vis.dataset.sleekfinHeaderSourceVisual = "true";
-              const lbl2 = element("span", "", labelText);
-              lbl2.dataset.sleekfinHeaderSourceLabel = "true";
-              vis.append(createOscarNavIconSpan(), lbl2);
-              btn.append(vis);
-              const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
-              if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
-              else proxy.append(btn);
-              if (typeof Event === "function") {
-                try {
-                  (_j = window.dispatchEvent) == null ? void 0 : _j.call(window, new Event("resize"));
-                } catch {
-                }
-              }
-            }
-            btn.title = labelText;
-            btn.setAttribute("aria-label", labelText);
-            const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-            if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+          let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
+          if (!btn) {
+            const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+            btn = element("button", "fx-oscars-nav");
+            btn.type = "button";
+            btn.dataset.fxOscarsLink = "true";
+            btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
+            btn.dataset.sleekfinHeaderZone = "tabs";
+            btn.dataset.sleekfinHeaderDisplay = ((_b = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _b.sleekfinHeaderDisplay) || "both";
+            btn.onclick = openOscarsRoute;
+            const vis = element("span");
+            vis.dataset.sleekfinHeaderSourceVisual = "true";
+            const lbl2 = element("span", "", labelText);
+            lbl2.dataset.sleekfinHeaderSourceLabel = "true";
+            vis.append(createOscarNavIconSpan(), lbl2);
+            btn.append(vis);
+            const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
+            if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+            else proxy.append(btn);
           }
+          btn.title = labelText;
+          btn.setAttribute("aria-label", labelText);
+          const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+          if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
         } else {
           const nav = document.querySelector(".headerTabs") || document.querySelector(".skinHeader");
           if (nav) {
@@ -12119,36 +12161,6 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         const activeCategories = ((data == null ? void 0 : data.categories) || []).filter((c) => c && c.enabled !== false && Array.isArray(c.nominees) && c.nominees.length > 0);
         const missingLookups = [];
         root.replaceChildren();
-        if (oscarsState.subCategoryKey) {
-          const cat = activeCategories.find((c) => c.key === oscarsState.subCategoryKey);
-          if (cat) {
-            const head = element("div", "fx-oscars-subgrid-head");
-            const backBtn = element("button", "fx-oscars-back-btn");
-            backBtn.type = "button";
-            backBtn.setAttribute("aria-label", "Back to Oscars");
-            backBtn.innerHTML = OSCAR_BACK_SVG;
-            backBtn.onclick = () => {
-              oscarsState.subCategoryKey = "";
-              renderOscarsView(api, root);
-              scrollToTop();
-            };
-            const awardIcon = element("span", "fx-oscar-award-icon");
-            awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
-            const h1 = element("h1", "", cat.title);
-            h1.style.margin = "0";
-            h1.style.fontSize = "24px";
-            h1.style.fontWeight = "600";
-            head.append(backBtn, awardIcon, h1);
-            const grid = element("div", "fx-oscars-grid");
-            for (const nom of cat.nominees) {
-              grid.append(buildOscarNomineeCard(api, nom, matchOscarNominee(nom, movies), serverId, missingLookups));
-            }
-            root.append(head, grid);
-            runOscarMissingEnrichment(api, gen, missingLookups);
-            return;
-          }
-          oscarsState.subCategoryKey = "";
-        }
         const hero = element("section", "fx-oscars-hero");
         hero.setAttribute("aria-label", (data == null ? void 0 : data.navTitle) || "Oscars");
         const heroMedia = element("div", "fx-oscars-hero-media");
@@ -12187,17 +12199,11 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             const shelf = element("section", "fx-oscars-shelf");
             shelf.dataset.oscarCategory = cat.key;
             const head = element("div", "fx-oscars-row-head");
-            const headingBtn = element("button", "fx-oscars-heading-btn");
-            headingBtn.type = "button";
+            const heading = element("div", "fx-oscars-heading");
             const awardIcon = element("span", "fx-oscar-award-icon");
             awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
             const h2 = element("h2", "", cat.title);
-            headingBtn.append(awardIcon, h2);
-            headingBtn.onclick = () => {
-              oscarsState.subCategoryKey = cat.key;
-              renderOscarsView(api, root);
-              scrollToTop();
-            };
+            heading.append(awardIcon, h2);
             const controls = element("div", "fx-oscars-row-controls");
             const prevBtn = element("button", "fx-oscars-arrow", "\u2039");
             prevBtn.type = "button";
@@ -12206,7 +12212,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             nextBtn.type = "button";
             nextBtn.setAttribute("aria-label", `More ${cat.title}`);
             controls.append(prevBtn, nextBtn);
-            head.append(headingBtn, controls);
+            head.append(heading, controls);
             const trackWrap = element("div", "fx-oscars-track-wrap");
             const track = element("div", "fx-oscars-track");
             for (const nom of cat.nominees) {
@@ -12773,7 +12779,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.2";
+      const VERSION = "0.7.3";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -15216,26 +15222,253 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
       }
       const SETTINGS_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
       const MOBILE_SEARCH_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7.5"></circle><line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line></svg>';
-      function syncMobileHeaderControls(api = window.ApiClient) {
+      let headerOverflowMenu = null;
+      function closeHeaderOverflowMenu() {
+        var _a2, _b2;
+        if (headerOverflowMenu) {
+          headerOverflowMenu.remove();
+          headerOverflowMenu = null;
+        }
+        const toggle = document.querySelector("[data-sleekfin-header-overflow-toggle]");
+        if (toggle && ((_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.getAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-header-managed")) === "true") {
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      }
+      function classifyHeaderProxyItem(el) {
+        if (!el || el.nodeType !== 1) return null;
+        if (el.hasAttribute("data-sleekfin-header-overflow-toggle") || el.hasAttribute("data-fx-mobile-search")) return null;
+        if (el.getAttribute("data-fx-leaving-hidden") === "true" || el.style.display === "none") return null;
+        if (el.hasAttribute("data-sleekfin-header-separator")) return { kind: "separator", el };
+        if (!el.hasAttribute("data-sleekfin-header-proxy-item")) return null;
+        const key = (el.getAttribute("data-sleekfin-header-proxy-item") || "").toLowerCase();
+        const lbl = (el.getAttribute("aria-label") || el.getAttribute("title") || el.textContent || "").trim().toLowerCase();
+        if (key === "jellyfin:search" || key === "jellyfin:user-menu" || key === "jellyfin:syncplay" || key === "jellyfin:cast" || key === "jellyfin:back") {
+          const uRank = key === "jellyfin:search" ? 10 : key === "jellyfin:user-menu" ? 20 : 5;
+          return { kind: "utility", rank: uRank, el };
+        }
+        let rank = 7;
+        if (key === "jellyfin:home" || lbl === "home") rank = 0;
+        else if (key === "jellyfin:movies" || lbl === "movies") rank = 1;
+        else if (key === "jellyfin:shows" || lbl === "shows" || lbl === "tv shows") rank = 2;
+        else if (el.dataset.fxOscarsLink === "true" || key === "fazfort:oscars") rank = 3;
+        else if (el.dataset.rhLink === "true" || key === "requesthub:discover" || key === "dom:toolbar-discover" || lbl === "discover") rank = 4;
+        else if (key.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || lbl === "collections") rank = 5;
+        else if (key.includes("164f41b42f7a4221084a13ce51114045") || lbl === "live tv") rank = 6;
+        return { kind: "tab", rank, el };
+      }
+      function openHeaderOverflowMenu(toggle, proxy) {
         var _a2, _b2, _c2, _d2;
+        closeHeaderOverflowMenu();
+        const tabs = Array.isArray(proxy == null ? void 0 : proxy._fxOverflowTabs) ? proxy._fxOverflowTabs : [];
+        const compact = (window.innerWidth || 1200) <= 899;
+        if (!tabs.length && !compact) return;
+        const menu = element("div", "fx-header-overflow-menu");
+        menu.setAttribute("role", "menu");
+        const buildEntry = (origBtn) => {
+          var _a3;
+          const item = element("button", "fx-header-overflow-item");
+          item.type = "button";
+          item.setAttribute("role", "menuitem");
+          if (origBtn.dataset.fxOscarsLink === "true") item.dataset.fxOscarsLink = "true";
+          const isCurrent = origBtn.dataset.sleekfinCurrent === "true" || origBtn.getAttribute("aria-current") === "page";
+          if (isCurrent) item.setAttribute("aria-current", "page");
+          const iconBox = element("span", "fx-header-overflow-item-icon");
+          const srcIcon = origBtn.querySelector("[data-sleekfin-header-source-icon], .fx-oscar-nav-icon, .rh-compass-icon, svg, .material-icons");
+          if (srcIcon) {
+            const clone = srcIcon.cloneNode(true);
+            iconBox.append(clone);
+          }
+          const labelText = (((_a3 = origBtn.querySelector("[data-sleekfin-header-source-label]")) == null ? void 0 : _a3.textContent) || origBtn.getAttribute("aria-label") || origBtn.title || origBtn.textContent || "").trim();
+          item.append(iconBox, element("span", "", labelText));
+          item.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeHeaderOverflowMenu();
+            origBtn.click();
+          });
+          return item;
+        };
+        tabs.forEach((btn) => menu.append(buildEntry(btn)));
+        if (compact && ((_b2 = (_a2 = window.ApiClient) == null ? void 0 : _a2.getCurrentUserId) == null ? void 0 : _b2.call(_a2))) {
+          const settingsItem = element("button", "fx-header-overflow-item");
+          settingsItem.type = "button";
+          settingsItem.setAttribute("role", "menuitem");
+          if (/^#!?\/?mypreferences/i.test(String(location.hash || ""))) settingsItem.setAttribute("aria-current", "page");
+          const iconBox = element("span", "fx-header-overflow-item-icon");
+          iconBox.innerHTML = SETTINGS_GEAR_SVG;
+          settingsItem.append(iconBox, element("span", "", "Settings"));
+          settingsItem.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeHeaderOverflowMenu();
+            scrollToTop();
+            location.hash = "#/mypreferencesmenu";
+            schedule();
+          });
+          menu.append(settingsItem);
+        }
+        const rect = ((_c2 = toggle.getBoundingClientRect) == null ? void 0 : _c2.call(toggle)) || { bottom: 64, right: (window.innerWidth || 800) - 16 };
+        const vw = window.innerWidth || ((_d2 = document.documentElement) == null ? void 0 : _d2.clientWidth) || 800;
+        menu.style.top = `${Math.max(52, Math.round((rect.bottom || 56) + 8))}px`;
+        menu.style.right = `${Math.max(12, Math.round(vw - (rect.right || vw - 16)))}px`;
+        document.body.append(menu);
+        headerOverflowMenu = menu;
+        toggle.setAttribute("aria-expanded", "true");
+      }
+      function onHeaderOverflowClick(event) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g;
+        if (stopped) return;
+        const toggle = (_b2 = (_a2 = event.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, "[data-sleekfin-header-overflow-toggle]");
+        if (toggle && ((_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.getAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-header-managed")) === "true") {
+          event.preventDefault();
+          (_e2 = event.stopImmediatePropagation) == null ? void 0 : _e2.call(event);
+          event.stopPropagation();
+          const proxy = toggle.closest("[data-sleekfin-header-proxy]");
+          if (headerOverflowMenu) closeHeaderOverflowMenu();
+          else if (proxy) openHeaderOverflowMenu(toggle, proxy);
+          return;
+        }
+        if (headerOverflowMenu && !((_g = (_f = event.target) == null ? void 0 : _f.closest) == null ? void 0 : _g.call(_f, ".fx-header-overflow-menu"))) {
+          closeHeaderOverflowMenu();
+        }
+      }
+      function onHeaderOverflowKeyDown(event) {
+        if (event.key === "Escape" && headerOverflowMenu) {
+          closeHeaderOverflowMenu();
+        }
+      }
+      function syncHeaderNavPriority(api = window.ApiClient) {
+        var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+        if (stopped) return;
+        const proxy = document.querySelector("[data-sleekfin-header-proxy]");
+        if (!proxy || !((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
+          closeHeaderOverflowMenu();
+          (_c2 = (_b2 = document.documentElement) == null ? void 0 : _b2.removeAttribute) == null ? void 0 : _c2.call(_b2, "data-fx-header-managed");
+          return;
+        }
+        const vw = window.innerWidth || ((_d2 = document.documentElement) == null ? void 0 : _d2.clientWidth) || 0;
+        if (vw <= 0) return;
+        const navTabs = [];
+        const utilities = [];
+        let separator = null;
+        for (const child of [...proxy.children]) {
+          const info = classifyHeaderProxyItem(child);
+          if (!info) continue;
+          if (info.kind === "tab") navTabs.push(info);
+          else if (info.kind === "utility") utilities.push(info);
+          else if (info.kind === "separator") separator = info.el;
+        }
+        if (!navTabs.length) return;
+        navTabs.sort((a, b) => a.rank - b.rank);
+        const overflowToggle = proxy.querySelector("[data-sleekfin-header-overflow-toggle]");
+        const firstRight = separator || ((_e2 = utilities[0]) == null ? void 0 : _e2.el) || overflowToggle || null;
+        const navSet = new Set(navTabs.map((t) => t.el));
+        const currentSeq = [...proxy.children].filter((c) => navSet.has(c));
+        const needsReorder = currentSeq.length !== navTabs.length || navTabs.some((t, i) => currentSeq[i] !== t.el);
+        if (needsReorder) {
+          for (const t of navTabs) {
+            if (firstRight && firstRight.parentNode === proxy) proxy.insertBefore(t.el, firstRight);
+            else proxy.append(t.el);
+          }
+        }
+        const prevManaged = ((_g = (_f = document.documentElement) == null ? void 0 : _f.getAttribute) == null ? void 0 : _g.call(_f, "data-fx-header-managed")) === "true";
+        const uncached = [...navTabs.map((t) => t.el), ...utilities.map((u) => u.el)].filter((el) => {
+          const txt = (el.textContent || "").trim();
+          return !(el._fxNaturalW > 0 && el._fxNaturalTxt === txt);
+        });
+        if (uncached.length) {
+          (_i = (_h = document.documentElement) == null ? void 0 : _h.setAttribute) == null ? void 0 : _i.call(_h, "data-fx-header-managed", "true");
+          for (const el of uncached) el.setAttribute("data-fx-header-overflowed", "false");
+          for (const el of uncached) {
+            const w = Math.ceil(((_j = el.getBoundingClientRect) == null ? void 0 : _j.call(el).width) || 0 || el.offsetWidth || 0);
+            if (w > 0) {
+              el._fxNaturalW = w;
+              el._fxNaturalTxt = (el.textContent || "").trim();
+            }
+          }
+        }
+        const hasRealWidths = navTabs.some((t) => t.el._fxNaturalW > 0);
+        if (!hasRealWidths) {
+          if (!prevManaged) {
+            (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-header-managed");
+            for (const el of uncached) el.removeAttribute("data-fx-header-overflowed");
+          }
+          return;
+        }
+        (_n = (_m = document.documentElement) == null ? void 0 : _m.setAttribute) == null ? void 0 : _n.call(_m, "data-fx-header-managed", "true");
+        const gutter = vw < 600 ? 28 : Math.min(160, Math.max(32, Math.round(vw * 0.08)));
+        const backBtn = document.querySelector(".sleekfin-details-back:not(.hide), .fx-subpage-back-top");
+        const leftReserve = backBtn && getComputedStyle(backBtn).display !== "none" ? 56 : 0;
+        const brand = document.querySelector("[data-sleekfin-header-brand]");
+        const brandW = brand && getComputedStyle(brand).display !== "none" ? Math.ceil(((_o = brand.getBoundingClientRect) == null ? void 0 : _o.call(brand).width) || 0) : 0;
+        const maxBarWidth = Math.max(120, vw - gutter - Math.max(leftReserve, brandW ? brandW + 20 : 0) - 24);
+        const gap = 4;
+        const barPad = 14;
+        const sepW = separator ? 11 : 0;
+        const utilityWidth = utilities.reduce((acc, u) => acc + (u.el._fxNaturalW || 34) + gap, 0);
+        const allTabsWidth = navTabs.reduce((acc, t) => acc + (t.el._fxNaturalW || 72) + gap, 0);
+        let visibleTabs = navTabs;
+        let overflowTabs = [];
+        if (barPad + allTabsWidth + sepW + utilityWidth > maxBarWidth) {
+          const toggleW = overflowToggle ? 36 + gap : 0;
+          const budget = maxBarWidth - barPad - sepW - utilityWidth - toggleW;
+          visibleTabs = [];
+          overflowTabs = [];
+          let used = 0;
+          let overflowing = false;
+          for (const t of navTabs) {
+            const w = (t.el._fxNaturalW || 72) + gap;
+            if (!overflowing && used + w <= budget) {
+              visibleTabs.push(t);
+              used += w;
+            } else {
+              overflowing = true;
+              overflowTabs.push(t);
+            }
+          }
+        }
+        const visSet = new Set(visibleTabs.map((t) => t.el));
+        for (const t of navTabs) {
+          const want = visSet.has(t.el) ? "false" : "true";
+          if (t.el.getAttribute("data-fx-header-overflowed") !== want) t.el.setAttribute("data-fx-header-overflowed", want);
+        }
+        for (const u of utilities) {
+          if (u.el.getAttribute("data-fx-header-overflowed") !== "false") u.el.setAttribute("data-fx-header-overflowed", "false");
+        }
+        if (separator) {
+          const wantSep = visibleTabs.length > 0 && utilities.length > 0 ? "false" : "true";
+          if (separator.getAttribute("data-fx-header-overflowed") !== wantSep) separator.setAttribute("data-fx-header-overflowed", wantSep);
+        }
+        proxy._fxOverflowTabs = overflowTabs.map((t) => t.el);
+        if (overflowToggle) {
+          const needToggle = overflowTabs.length > 0 || vw <= 899;
+          const wantNeed = needToggle ? "true" : "false";
+          if (overflowToggle.getAttribute("data-fx-overflow-needed") !== wantNeed) {
+            overflowToggle.setAttribute("data-fx-overflow-needed", wantNeed);
+          }
+          if (!needToggle) closeHeaderOverflowMenu();
+        }
+      }
+      function syncMobileHeaderControls(api = window.ApiClient) {
+        var _a2, _b2, _c2, _d2, _e2, _f;
         const proxy = document.querySelector("[data-sleekfin-header-proxy]");
         if (proxy) {
           if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api))) {
             proxy.querySelectorAll("[data-fx-mobile-search]").forEach((n) => n.remove());
           } else {
+            const managed = ((_c2 = (_b2 = document.documentElement) == null ? void 0 : _b2.getAttribute) == null ? void 0 : _c2.call(_b2, "data-fx-header-managed")) === "true";
             const overflowToggle = proxy.querySelector("[data-sleekfin-header-overflow-toggle]");
             const nativeSearch = proxy.querySelector('button[data-sleekfin-header-proxy-item="jellyfin:search"]');
             const nativeSearchVisible = Boolean(
-              nativeSearch && nativeSearch.getAttribute("data-sleekfin-header-overflowed") !== "true" && nativeSearch.style.display !== "none"
+              nativeSearch && (managed ? nativeSearch.getAttribute("data-fx-header-overflowed") !== "true" : nativeSearch.getAttribute("data-sleekfin-header-overflowed") !== "true") && nativeSearch.style.display !== "none"
             );
-            const overflowHidden = !overflowToggle || overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") === "true";
-            const isPhoneHeader = Boolean((_c2 = (_b2 = window.matchMedia) == null ? void 0 : _b2.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _c2.matches);
+            const overflowHidden = !overflowToggle || (managed ? overflowToggle.getAttribute("data-fx-overflow-needed") !== "true" : overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") === "true");
+            const isPhoneHeader = Boolean((_e2 = (_d2 = window.matchMedia) == null ? void 0 : _d2.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _e2.matches);
             const needMobileSearch = Boolean(overflowToggle && !nativeSearchVisible && (!overflowHidden || isPhoneHeader));
             let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
             if (!needMobileSearch) {
               if (mobileSearchBtn) mobileSearchBtn.remove();
             } else {
-              let createdSearch = false;
               if (!mobileSearchBtn) {
                 mobileSearchBtn = element("button", "fx-mobile-search-btn");
                 mobileSearchBtn.type = "button";
@@ -15243,21 +15476,9 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
                 mobileSearchBtn.title = "Search";
                 mobileSearchBtn.setAttribute("aria-label", "Search");
                 mobileSearchBtn.innerHTML = MOBILE_SEARCH_SVG;
-                createdSearch = true;
               }
               if (mobileSearchBtn.nextElementSibling !== overflowToggle) {
                 proxy.insertBefore(mobileSearchBtn, overflowToggle);
-              }
-              if (createdSearch && typeof Event === "function") {
-                const notifyResize = () => {
-                  var _a3;
-                  try {
-                    (_a3 = window.dispatchEvent) == null ? void 0 : _a3.call(window, new Event("resize"));
-                  } catch {
-                  }
-                };
-                if (typeof requestAnimationFrame === "function") requestAnimationFrame(notifyResize);
-                else setTimeout(notifyResize, 0);
               }
               const isSearchRoute = /^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(String(location.hash || ""));
               if (isSearchRoute) {
@@ -15278,7 +15499,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         }
         const drawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
         if (!drawer) return;
-        if (!((_d2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _d2.call(api))) {
+        if (!((_f = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _f.call(api))) {
           drawer.querySelectorAll("[data-fx-overflow-settings]").forEach((n) => n.remove());
           return;
         }
@@ -15328,6 +15549,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         }
       }
       function syncMobileOverflowDrawer(api = window.ApiClient) {
+        syncHeaderNavPriority(api);
         syncMobileHeaderControls(api);
       }
       function syncHomeModeAttr(api = window.ApiClient) {
@@ -18998,24 +19220,38 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
       }
       function onRouteEvent() {
         releaseOsdSpeedHold();
+        closeHeaderOverflowMenu();
         syncLibraryViewMenu();
-        syncMobileOverflowDrawer(window.ApiClient);
         oscars.ensureOscarsNav(window.ApiClient);
+        syncMobileOverflowDrawer(window.ApiClient);
         setTimeout(() => {
-          if (!stopped) oscars.ensureOscarsNav(window.ApiClient);
+          if (!stopped) {
+            oscars.ensureOscarsNav(window.ApiClient);
+            syncMobileOverflowDrawer(window.ApiClient);
+          }
         }, 120);
         setTimeout(() => {
-          if (!stopped) oscars.ensureOscarsNav(window.ApiClient);
+          if (!stopped) {
+            oscars.ensureOscarsNav(window.ApiClient);
+            syncMobileOverflowDrawer(window.ApiClient);
+          }
         }, 400);
         reconcile();
       }
       function onHeaderCatalogChanged() {
         hideLeavingSoonNav();
         oscars.ensureOscarsNav(window.ApiClient);
+        syncMobileOverflowDrawer(window.ApiClient);
+      }
+      function onOscarsUpdated() {
+        oscars.ensureOscarsNav(window.ApiClient);
+        syncMobileOverflowDrawer(window.ApiClient);
       }
       function onWindowResize() {
+        closeHeaderOverflowMenu();
         scheduleScroll();
         oscars.ensureOscarsNav(window.ApiClient);
+        syncMobileOverflowDrawer(window.ApiClient);
       }
       function start() {
         const style = element("style");
@@ -19101,7 +19337,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             } else if (!needsSearch && ((_j = t.closest) == null ? void 0 : _j.call(t, "#searchPage")) && !((_k = t.closest) == null ? void 0 : _k.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-oscars-page,.fx-oscar-admin,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
             }
           }
@@ -19121,8 +19357,8 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           if (needsHeader) {
             hideLeavingSoonNav();
             hideSleekFinUserSettingsMenu();
-            syncMobileOverflowDrawer(window.ApiClient);
             oscars.ensureOscarsNav(window.ApiClient);
+            syncMobileOverflowDrawer(window.ApiClient);
           }
           if (needsSearch) syncSearchPage(window.ApiClient);
           if (needsReconcile) schedule();
@@ -19151,6 +19387,9 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         window.addEventListener("scroll", onOsdScrollGuard, { passive: true });
         window.addEventListener("blur", releaseOsdSpeedHold);
         window.addEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
+        window.addEventListener("fazfort:oscars-updated", onOscarsUpdated);
+        document.addEventListener("click", onHeaderOverflowClick, true);
+        document.addEventListener("keydown", onHeaderOverflowKeyDown, true);
         document.addEventListener("keydown", remoteKey, true);
         document.addEventListener("keyup", remoteKeyUp, true);
         document.addEventListener("focusin", rememberFocus);
@@ -19170,7 +19409,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           return { version: VERSION, page: (state == null ? void 0 : state.route.page) || null, mounted: !!state, items: ((_a2 = state == null ? void 0 : state.inventory) == null ? void 0 : _a2.items.length) || 0, shelves: ((_b2 = state == null ? void 0 : state.planner) == null ? void 0 : _b2.shelves.length) || 0, loadedRows: (state == null ? void 0 : state.slots.length) || 0, liveRows: (state == null ? void 0 : state.slots.filter((s) => s.live).length) || 0, trackingReady: !!(state == null ? void 0 : state.trackingReady), preferencesSync: !!(state == null ? void 0 : state.syncAvailable), controls: state ? controlsMode(state).mode : null, warnings: [...(state == null ? void 0 : state.warnings) || []], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) };
         },
         stop() {
-          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q;
+          var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S;
           stopped = true;
           clearTimeout(timer);
           clearTimeout(headerMenuOpeningTimer);
@@ -19198,6 +19437,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           restoreNativeFullscreenGuard();
           restoreFiltersFetchGuard();
           clearTimeout(osdGesture.streakTimer);
+          closeHeaderOverflowMenu();
           oscars.resetOscarsSession();
           cleanup(false);
           closeDownloadMenu();
@@ -19205,24 +19445,25 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           savedFeeds.clear();
           heroMemoryCache.clear();
           (_b2 = (_a2 = document.documentElement) == null ? void 0 : _a2.removeAttribute) == null ? void 0 : _b2.call(_a2, "data-fx-oscars");
-          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-hide-count-chip");
-          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-curated-tab");
-          (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-home-mode");
-          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-subpage");
-          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-page-hero");
-          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-ambient-bg");
-          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-popover-open");
-          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-video-osd");
-          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-osd-anchor");
-          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-header-menu-opening");
-          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-livetv");
-          (_z = (_y = document.documentElement) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-search-page");
-          (_B = (_A = document.documentElement) == null ? void 0 : _A.removeAttribute) == null ? void 0 : _B.call(_A, "data-fx-has-subheader");
-          (_E = (_D = (_C = document.documentElement) == null ? void 0 : _C.style) == null ? void 0 : _D.removeProperty) == null ? void 0 : _E.call(_D, "--fx-osd-popup-bottom");
-          (_H = (_G = (_F = document.documentElement) == null ? void 0 : _F.style) == null ? void 0 : _G.removeProperty) == null ? void 0 : _H.call(_G, "--fx-osd-popup-right");
-          (_K = (_J = (_I = document.documentElement) == null ? void 0 : _I.style) == null ? void 0 : _J.removeProperty) == null ? void 0 : _K.call(_J, "--fx-header-popup-top");
-          (_N = (_M = (_L = document.documentElement) == null ? void 0 : _L.style) == null ? void 0 : _M.removeProperty) == null ? void 0 : _N.call(_M, "--fx-header-popup-right");
-          (_P = (_O = document.getElementById("searchPage")) == null ? void 0 : _O.removeAttribute) == null ? void 0 : _P.call(_O, "data-fx-search-active");
+          (_d2 = (_c2 = document.documentElement) == null ? void 0 : _c2.removeAttribute) == null ? void 0 : _d2.call(_c2, "data-fx-header-managed");
+          (_f = (_e2 = document.documentElement) == null ? void 0 : _e2.removeAttribute) == null ? void 0 : _f.call(_e2, "data-fx-hide-count-chip");
+          (_h = (_g = document.documentElement) == null ? void 0 : _g.removeAttribute) == null ? void 0 : _h.call(_g, "data-fx-curated-tab");
+          (_j = (_i = document.documentElement) == null ? void 0 : _i.removeAttribute) == null ? void 0 : _j.call(_i, "data-fx-home-mode");
+          (_l = (_k = document.documentElement) == null ? void 0 : _k.removeAttribute) == null ? void 0 : _l.call(_k, "data-fx-subpage");
+          (_n = (_m = document.documentElement) == null ? void 0 : _m.removeAttribute) == null ? void 0 : _n.call(_m, "data-fx-page-hero");
+          (_p = (_o = document.documentElement) == null ? void 0 : _o.removeAttribute) == null ? void 0 : _p.call(_o, "data-fx-ambient-bg");
+          (_r = (_q = document.documentElement) == null ? void 0 : _q.removeAttribute) == null ? void 0 : _r.call(_q, "data-fx-popover-open");
+          (_t = (_s = document.documentElement) == null ? void 0 : _s.removeAttribute) == null ? void 0 : _t.call(_s, "data-fx-video-osd");
+          (_v = (_u = document.documentElement) == null ? void 0 : _u.removeAttribute) == null ? void 0 : _v.call(_u, "data-fx-osd-anchor");
+          (_x = (_w = document.documentElement) == null ? void 0 : _w.removeAttribute) == null ? void 0 : _x.call(_w, "data-fx-header-menu-opening");
+          (_z = (_y = document.documentElement) == null ? void 0 : _y.removeAttribute) == null ? void 0 : _z.call(_y, "data-fx-livetv");
+          (_B = (_A = document.documentElement) == null ? void 0 : _A.removeAttribute) == null ? void 0 : _B.call(_A, "data-fx-search-page");
+          (_D = (_C = document.documentElement) == null ? void 0 : _C.removeAttribute) == null ? void 0 : _D.call(_C, "data-fx-has-subheader");
+          (_G = (_F = (_E = document.documentElement) == null ? void 0 : _E.style) == null ? void 0 : _F.removeProperty) == null ? void 0 : _G.call(_F, "--fx-osd-popup-bottom");
+          (_J = (_I = (_H = document.documentElement) == null ? void 0 : _H.style) == null ? void 0 : _I.removeProperty) == null ? void 0 : _J.call(_I, "--fx-osd-popup-right");
+          (_M = (_L = (_K = document.documentElement) == null ? void 0 : _K.style) == null ? void 0 : _L.removeProperty) == null ? void 0 : _M.call(_L, "--fx-header-popup-top");
+          (_P = (_O = (_N = document.documentElement) == null ? void 0 : _N.style) == null ? void 0 : _O.removeProperty) == null ? void 0 : _P.call(_O, "--fx-header-popup-right");
+          (_R = (_Q = document.getElementById("searchPage")) == null ? void 0 : _Q.removeAttribute) == null ? void 0 : _R.call(_Q, "data-fx-search-active");
           document.querySelectorAll(".fx-search-library,.fx-livetv-bar,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-ambient-bg,.fx-bg-tuner").forEach((n) => n.remove());
           document.removeEventListener("pointerdown", onOsdAnchorPointer, true);
           document.removeEventListener("click", onOsdAnchorPointer, true);
@@ -19249,11 +19490,14 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           window.removeEventListener("scroll", onOsdScrollGuard);
           window.removeEventListener("blur", releaseOsdSpeedHold);
           window.removeEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
+          window.removeEventListener("fazfort:oscars-updated", onOscarsUpdated);
+          document.removeEventListener("click", onHeaderOverflowClick, true);
+          document.removeEventListener("keydown", onHeaderOverflowKeyDown, true);
           document.removeEventListener("keydown", remoteKey, true);
           document.removeEventListener("keyup", remoteKeyUp, true);
           document.removeEventListener("focusin", rememberFocus);
-          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
-          (_Q = document.getElementById("fx-discovery-style")) == null ? void 0 : _Q.remove();
+          document.querySelectorAll("[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-header-overflow-menu,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast").forEach((n) => n.remove());
+          (_S = document.getElementById("fx-discovery-style")) == null ? void 0 : _S.remove();
           delete window.FazFortDiscovery;
         }
       };

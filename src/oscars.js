@@ -14,7 +14,7 @@ const OSCAR_STATUETTE_SVG =
   '</svg>';
 
 const OSCAR_NAV_ICON_SVG =
-  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" focusable="false">' +
+  '<svg viewBox="6.5 1.8 11 21.2" width="11" height="17" fill="none" aria-hidden="true" focusable="false">' +
   '<ellipse cx="12" cy="4.2" rx="1.65" ry="1.95" fill="currentColor"/>' +
   '<path d="M11.1 6.3h1.8l2.1 1c.52.26.82.78.74 1.36l-.38 2.95c-.07.48-.38.88-.82 1.05l-.62.25-.34 6.59h.96v1.25H9.46V19.5h.96l-.34-6.59-.62-.25c-.44-.17-.75-.57-.82-1.05l-.38-2.95c-.08-.58.22-1.1.74-1.36l2.1-1Z" fill="currentColor"/>' +
   '<rect x="7.8" y="20.9" width="8.4" height="1.8" rx=".6" fill="currentColor" opacity=".88"/>' +
@@ -200,88 +200,45 @@ function ensureOscarsNav(api = window.ApiClient) {
   const labelText = (data.navTitle || 'Oscars').trim() || 'Oscars';
   const activeRoute = isOscarsHash(location.hash);
   const proxy = document.querySelector('[data-sleekfin-header-proxy]');
-  const overflowDrawer = document.querySelector('[data-sleekfin-header-overflow-drawer]');
-  const overflowToggle = proxy?.querySelector?.('[data-sleekfin-header-overflow-toggle]');
-  const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden') !== 'true');
-  const isPhone = Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
-  const isMobile = Boolean(isPhone || (overflowActive && window.matchMedia?.('(max-width: 899px)')?.matches));
 
   const findInsertAnchor = (host, selector) => {
     const siblings = [...host.querySelectorAll(selector)];
     return siblings.find(b => {
+      if (b.dataset.fxOscarsLink === 'true') return false;
       const k = (b.getAttribute('data-sleekfin-header-proxy-item') || b.getAttribute('data-sleekfin-header-overflow-item') || '').toLowerCase();
       const txt = (b.getAttribute('aria-label') || b.textContent || '').trim().toLowerCase();
-      return k.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || k.includes('164f41b42f7a4221084a13ce51114045') || txt === 'collections' || txt === 'live tv';
-    }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle],[data-fx-overflow-settings],[data-sleekfin-header-overflow-item="jellyfin:search"],[data-sleekfin-header-overflow-item="jellyfin:user-menu"]');
+      return b.dataset.rhLink === 'true' || k === 'requesthub:discover' || k === 'dom:toolbar-discover' || txt === 'discover' || k.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || k.includes('164f41b42f7a4221084a13ce51114045') || txt === 'collections' || txt === 'live tv';
+    }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
   };
 
   if (proxy) {
     document.querySelectorAll('[data-fx-oscars-link]').forEach(n => {
-      if (!proxy.contains(n) && !(overflowDrawer && overflowDrawer.contains(n))) n.remove();
+      if (!proxy.contains(n)) n.remove();
     });
-    if (isMobile) {
-      proxy.querySelectorAll('[data-fx-oscars-link]').forEach(n => n.remove());
-      if (overflowDrawer) {
-        const existingItems = [...overflowDrawer.querySelectorAll('button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]')];
-        let btn = overflowDrawer.querySelector('[data-fx-oscars-link="true"]');
-        if (!btn && existingItems.length) {
-          const listHost = existingItems[0].parentElement;
-          if (listHost) {
-            const sample = existingItems.find(b => (b.getAttribute('data-sleekfin-header-overflow-item') || '') !== 'jellyfin:user-menu') || existingItems[0];
-            btn = element('button', sample?.className || 'fx-oscars-nav');
-            btn.type = 'button';
-            btn.dataset.fxOscarsLink = 'true';
-            btn.setAttribute('data-sleekfin-header-overflow-item', 'fazfort:oscars');
-            btn.setAttribute('data-sleekfin-header-overflow-full', 'true');
-            btn.onclick = openOscarsRoute;
-            const vis = element('span');
-            vis.dataset.sleekfinHeaderOverflowVisual = 'true';
-            vis.append(createOscarNavIconSpan());
-            const lbl = element('span', '', labelText);
-            lbl.dataset.sleekfinHeaderSourceLabel = 'true';
-            btn.append(vis, lbl);
-            const anchor = findInsertAnchor(listHost, 'button[data-sleekfin-header-overflow-item],a[data-sleekfin-header-overflow-item]');
-            if (anchor && anchor.parentElement === listHost) listHost.insertBefore(btn, anchor);
-            else listHost.append(btn);
-          }
-        }
-        if (btn) {
-          btn.title = labelText;
-          btn.setAttribute('aria-label', labelText);
-          const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-          if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
-        }
-      }
-    } else {
-      overflowDrawer?.querySelectorAll?.('[data-fx-oscars-link]')?.forEach(n => n.remove());
-      let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
-      if (!btn) {
-        const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
-        btn = element('button', 'fx-oscars-nav');
-        btn.type = 'button';
-        btn.dataset.fxOscarsLink = 'true';
-        btn.dataset.sleekfinHeaderProxyItem = 'fazfort:oscars';
-        btn.dataset.sleekfinHeaderZone = 'tabs';
-        btn.dataset.sleekfinHeaderDisplay = sampleTab?.dataset?.sleekfinHeaderDisplay || 'both';
-        btn.onclick = openOscarsRoute;
-        const vis = element('span');
-        vis.dataset.sleekfinHeaderSourceVisual = 'true';
-        const lbl = element('span', '', labelText);
-        lbl.dataset.sleekfinHeaderSourceLabel = 'true';
-        vis.append(createOscarNavIconSpan(), lbl);
-        btn.append(vis);
-        const anchor = findInsertAnchor(proxy, 'button[data-sleekfin-header-proxy-item]');
-        if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
-        else proxy.append(btn);
-        if (typeof Event === 'function') {
-          try { window.dispatchEvent?.(new Event('resize')); } catch {}
-        }
-      }
-      btn.title = labelText;
-      btn.setAttribute('aria-label', labelText);
-      const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-      if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+    let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
+    if (!btn) {
+      const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+      btn = element('button', 'fx-oscars-nav');
+      btn.type = 'button';
+      btn.dataset.fxOscarsLink = 'true';
+      btn.dataset.sleekfinHeaderProxyItem = 'fazfort:oscars';
+      btn.dataset.sleekfinHeaderZone = 'tabs';
+      btn.dataset.sleekfinHeaderDisplay = sampleTab?.dataset?.sleekfinHeaderDisplay || 'both';
+      btn.onclick = openOscarsRoute;
+      const vis = element('span');
+      vis.dataset.sleekfinHeaderSourceVisual = 'true';
+      const lbl = element('span', '', labelText);
+      lbl.dataset.sleekfinHeaderSourceLabel = 'true';
+      vis.append(createOscarNavIconSpan(), lbl);
+      btn.append(vis);
+      const anchor = findInsertAnchor(proxy, 'button[data-sleekfin-header-proxy-item]');
+      if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+      else proxy.append(btn);
     }
+    btn.title = labelText;
+    btn.setAttribute('aria-label', labelText);
+    const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+    if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
   } else {
     const nav = document.querySelector('.headerTabs') || document.querySelector('.skinHeader');
     if (nav) {
@@ -514,39 +471,6 @@ async function renderOscarsView(api, root) {
 
   root.replaceChildren();
 
-  // Category full-grid subview when user clicks an Oscar category title
-  if (oscarsState.subCategoryKey) {
-    const cat = activeCategories.find(c => c.key === oscarsState.subCategoryKey);
-    if (cat) {
-      const head = element('div', 'fx-oscars-subgrid-head');
-      const backBtn = element('button', 'fx-oscars-back-btn');
-      backBtn.type = 'button';
-      backBtn.setAttribute('aria-label', 'Back to Oscars');
-      backBtn.innerHTML = OSCAR_BACK_SVG;
-      backBtn.onclick = () => {
-        oscarsState.subCategoryKey = '';
-        renderOscarsView(api, root);
-        scrollToTop();
-      };
-      const awardIcon = element('span', 'fx-oscar-award-icon');
-      awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
-      const h1 = element('h1', '', cat.title);
-      h1.style.margin = '0';
-      h1.style.fontSize = '24px';
-      h1.style.fontWeight = '600';
-      head.append(backBtn, awardIcon, h1);
-
-      const grid = element('div', 'fx-oscars-grid');
-      for (const nom of cat.nominees) {
-        grid.append(buildOscarNomineeCard(api, nom, matchOscarNominee(nom, movies), serverId, missingLookups));
-      }
-      root.append(head, grid);
-      runOscarMissingEnrichment(api, gen, missingLookups);
-      return;
-    }
-    oscarsState.subCategoryKey = '';
-  }
-
   // 1. Pure Hero Banner (Oscars background image + Oscars logo ONLY — no synopsis, ratings, or buttons)
   const hero = element('section', 'fx-oscars-hero');
   hero.setAttribute('aria-label', data?.navTitle || 'Oscars');
@@ -589,17 +513,11 @@ async function renderOscarsView(api, root) {
       const shelf = element('section', 'fx-oscars-shelf');
       shelf.dataset.oscarCategory = cat.key;
       const head = element('div', 'fx-oscars-row-head');
-      const headingBtn = element('button', 'fx-oscars-heading-btn');
-      headingBtn.type = 'button';
+      const heading = element('div', 'fx-oscars-heading');
       const awardIcon = element('span', 'fx-oscar-award-icon');
       awardIcon.innerHTML = OSCAR_STATUETTE_SVG;
       const h2 = element('h2', '', cat.title);
-      headingBtn.append(awardIcon, h2);
-      headingBtn.onclick = () => {
-        oscarsState.subCategoryKey = cat.key;
-        renderOscarsView(api, root);
-        scrollToTop();
-      };
+      heading.append(awardIcon, h2);
 
       const controls = element('div', 'fx-oscars-row-controls');
       const prevBtn = element('button', 'fx-oscars-arrow', '‹');
@@ -609,7 +527,7 @@ async function renderOscarsView(api, root) {
       nextBtn.type = 'button';
       nextBtn.setAttribute('aria-label', `More ${cat.title}`);
       controls.append(prevBtn, nextBtn);
-      head.append(headingBtn, controls);
+      head.append(heading, controls);
 
       const trackWrap = element('div', 'fx-oscars-track-wrap');
       const track = element('div', 'fx-oscars-track');

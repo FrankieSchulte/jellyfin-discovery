@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.7.2';
+const VERSION = '0.7.3';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -2326,27 +2326,260 @@ function hideLeavingSoonNav() {
 }
 const SETTINGS_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
 const MOBILE_SEARCH_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7.5"></circle><line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line></svg>';
+let headerOverflowMenu = null;
+function closeHeaderOverflowMenu() {
+  if (headerOverflowMenu) {
+    headerOverflowMenu.remove();
+    headerOverflowMenu = null;
+  }
+  const toggle = document.querySelector('[data-sleekfin-header-overflow-toggle]');
+  if (toggle && document.documentElement?.getAttribute?.('data-fx-header-managed') === 'true') {
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+}
+function classifyHeaderProxyItem(el) {
+  if (!el || el.nodeType !== 1) return null;
+  if (el.hasAttribute('data-sleekfin-header-overflow-toggle') || el.hasAttribute('data-fx-mobile-search')) return null;
+  if (el.getAttribute('data-fx-leaving-hidden') === 'true' || el.style.display === 'none') return null;
+  if (el.hasAttribute('data-sleekfin-header-separator')) return { kind: 'separator', el };
+  if (!el.hasAttribute('data-sleekfin-header-proxy-item')) return null;
+  const key = (el.getAttribute('data-sleekfin-header-proxy-item') || '').toLowerCase();
+  const lbl = (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim().toLowerCase();
+  if (key === 'jellyfin:search' || key === 'jellyfin:user-menu' || key === 'jellyfin:syncplay' || key === 'jellyfin:cast' || key === 'jellyfin:back') {
+    const uRank = key === 'jellyfin:search' ? 10 : key === 'jellyfin:user-menu' ? 20 : 5;
+    return { kind: 'utility', rank: uRank, el };
+  }
+  // Priority order (highest to lowest): Home -> Movies -> Shows -> Oscars -> Discover -> Collections -> Live TV
+  // Overflow moves items from right to left (Live TV first, then Collections, Discover, Oscars, Shows, Movies, Home last).
+  let rank = 7;
+  if (key === 'jellyfin:home' || lbl === 'home') rank = 0;
+  else if (key === 'jellyfin:movies' || lbl === 'movies') rank = 1;
+  else if (key === 'jellyfin:shows' || lbl === 'shows' || lbl === 'tv shows') rank = 2;
+  else if (el.dataset.fxOscarsLink === 'true' || key === 'fazfort:oscars') rank = 3;
+  else if (el.dataset.rhLink === 'true' || key === 'requesthub:discover' || key === 'dom:toolbar-discover' || lbl === 'discover') rank = 4;
+  else if (key.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || lbl === 'collections') rank = 5;
+  else if (key.includes('164f41b42f7a4221084a13ce51114045') || lbl === 'live tv') rank = 6;
+  return { kind: 'tab', rank, el };
+}
+function openHeaderOverflowMenu(toggle, proxy) {
+  closeHeaderOverflowMenu();
+  const tabs = Array.isArray(proxy?._fxOverflowTabs) ? proxy._fxOverflowTabs : [];
+  const compact = (window.innerWidth || 1200) <= 899;
+  if (!tabs.length && !compact) return;
+  const menu = element('div', 'fx-header-overflow-menu');
+  menu.setAttribute('role', 'menu');
+  const buildEntry = (origBtn) => {
+    const item = element('button', 'fx-header-overflow-item');
+    item.type = 'button';
+    item.setAttribute('role', 'menuitem');
+    if (origBtn.dataset.fxOscarsLink === 'true') item.dataset.fxOscarsLink = 'true';
+    const isCurrent = origBtn.dataset.sleekfinCurrent === 'true' || origBtn.getAttribute('aria-current') === 'page';
+    if (isCurrent) item.setAttribute('aria-current', 'page');
+    const iconBox = element('span', 'fx-header-overflow-item-icon');
+    const srcIcon = origBtn.querySelector('[data-sleekfin-header-source-icon], .fx-oscar-nav-icon, .rh-compass-icon, svg, .material-icons');
+    if (srcIcon) {
+      const clone = srcIcon.cloneNode(true);
+      iconBox.append(clone);
+    }
+    const labelText = (origBtn.querySelector('[data-sleekfin-header-source-label]')?.textContent || origBtn.getAttribute('aria-label') || origBtn.title || origBtn.textContent || '').trim();
+    item.append(iconBox, element('span', '', labelText));
+    item.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closeHeaderOverflowMenu();
+      origBtn.click();
+    });
+    return item;
+  };
+  tabs.forEach(btn => menu.append(buildEntry(btn)));
+  if (compact && window.ApiClient?.getCurrentUserId?.()) {
+    const settingsItem = element('button', 'fx-header-overflow-item');
+    settingsItem.type = 'button';
+    settingsItem.setAttribute('role', 'menuitem');
+    if (/^#!?\/?mypreferences/i.test(String(location.hash || ''))) settingsItem.setAttribute('aria-current', 'page');
+    const iconBox = element('span', 'fx-header-overflow-item-icon');
+    iconBox.innerHTML = SETTINGS_GEAR_SVG;
+    settingsItem.append(iconBox, element('span', '', 'Settings'));
+    settingsItem.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closeHeaderOverflowMenu();
+      scrollToTop();
+      location.hash = '#/mypreferencesmenu';
+      schedule();
+    });
+    menu.append(settingsItem);
+  }
+  const rect = toggle.getBoundingClientRect?.() || { bottom: 64, right: (window.innerWidth || 800) - 16 };
+  const vw = window.innerWidth || document.documentElement?.clientWidth || 800;
+  menu.style.top = `${Math.max(52, Math.round((rect.bottom || 56) + 8))}px`;
+  menu.style.right = `${Math.max(12, Math.round(vw - (rect.right || vw - 16)))}px`;
+  document.body.append(menu);
+  headerOverflowMenu = menu;
+  toggle.setAttribute('aria-expanded', 'true');
+}
+function onHeaderOverflowClick(event) {
+  if (stopped) return;
+  const toggle = event.target?.closest?.('[data-sleekfin-header-overflow-toggle]');
+  if (toggle && document.documentElement?.getAttribute?.('data-fx-header-managed') === 'true') {
+    event.preventDefault();
+    event.stopImmediatePropagation?.();
+    event.stopPropagation();
+    const proxy = toggle.closest('[data-sleekfin-header-proxy]');
+    if (headerOverflowMenu) closeHeaderOverflowMenu();
+    else if (proxy) openHeaderOverflowMenu(toggle, proxy);
+    return;
+  }
+  if (headerOverflowMenu && !event.target?.closest?.('.fx-header-overflow-menu')) {
+    closeHeaderOverflowMenu();
+  }
+}
+function onHeaderOverflowKeyDown(event) {
+  if (event.key === 'Escape' && headerOverflowMenu) {
+    closeHeaderOverflowMenu();
+  }
+}
+function syncHeaderNavPriority(api = window.ApiClient) {
+  if (stopped) return;
+  const proxy = document.querySelector('[data-sleekfin-header-proxy]');
+  if (!proxy || !api?.getCurrentUserId?.()) {
+    closeHeaderOverflowMenu();
+    document.documentElement?.removeAttribute?.('data-fx-header-managed');
+    return;
+  }
+  const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
+  if (vw <= 0) return;
+
+  const navTabs = [];
+  const utilities = [];
+  let separator = null;
+  for (const child of [...proxy.children]) {
+    const info = classifyHeaderProxyItem(child);
+    if (!info) continue;
+    if (info.kind === 'tab') navTabs.push(info);
+    else if (info.kind === 'utility') utilities.push(info);
+    else if (info.kind === 'separator') separator = info.el;
+  }
+  if (!navTabs.length) return;
+
+  navTabs.sort((a, b) => a.rank - b.rank);
+  const overflowToggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
+  const firstRight = separator || utilities[0]?.el || overflowToggle || null;
+
+  // Enforce deterministic priority order in DOM (Home -> Movies -> Shows -> Oscars -> Discover -> Collections -> Live TV) only when out of order
+  const navSet = new Set(navTabs.map(t => t.el));
+  const currentSeq = [...proxy.children].filter(c => navSet.has(c));
+  const needsReorder = currentSeq.length !== navTabs.length || navTabs.some((t, i) => currentSeq[i] !== t.el);
+  if (needsReorder) {
+    for (const t of navTabs) {
+      if (firstRight && firstRight.parentNode === proxy) proxy.insertBefore(t.el, firstRight);
+      else proxy.append(t.el);
+    }
+  }
+
+  // Measure each button's natural width once (cached to eliminate flicker and resize loops)
+  const prevManaged = document.documentElement?.getAttribute?.('data-fx-header-managed') === 'true';
+  const uncached = [...navTabs.map(t => t.el), ...utilities.map(u => u.el)].filter(el => {
+    const txt = (el.textContent || '').trim();
+    return !(el._fxNaturalW > 0 && el._fxNaturalTxt === txt);
+  });
+  if (uncached.length) {
+    document.documentElement?.setAttribute?.('data-fx-header-managed', 'true');
+    for (const el of uncached) el.setAttribute('data-fx-header-overflowed', 'false');
+    for (const el of uncached) {
+      const w = Math.ceil((el.getBoundingClientRect?.().width || 0) || el.offsetWidth || 0);
+      if (w > 0) {
+        el._fxNaturalW = w;
+        el._fxNaturalTxt = (el.textContent || '').trim();
+      }
+    }
+  }
+  const hasRealWidths = navTabs.some(t => t.el._fxNaturalW > 0);
+  if (!hasRealWidths) {
+    if (!prevManaged) {
+      document.documentElement?.removeAttribute?.('data-fx-header-managed');
+      for (const el of uncached) el.removeAttribute('data-fx-header-overflowed');
+    }
+    return;
+  }
+
+  document.documentElement?.setAttribute?.('data-fx-header-managed', 'true');
+  const gutter = vw < 600 ? 28 : Math.min(160, Math.max(32, Math.round(vw * 0.08)));
+  const backBtn = document.querySelector('.sleekfin-details-back:not(.hide), .fx-subpage-back-top');
+  const leftReserve = (backBtn && getComputedStyle(backBtn).display !== 'none') ? 56 : 0;
+  const brand = document.querySelector('[data-sleekfin-header-brand]');
+  const brandW = (brand && getComputedStyle(brand).display !== 'none') ? Math.ceil(brand.getBoundingClientRect?.().width || 0) : 0;
+  const maxBarWidth = Math.max(120, vw - gutter - Math.max(leftReserve, brandW ? brandW + 20 : 0) - 24);
+  const gap = 4;
+  const barPad = 14;
+  const sepW = separator ? 11 : 0;
+  const utilityWidth = utilities.reduce((acc, u) => acc + (u.el._fxNaturalW || 34) + gap, 0);
+  const allTabsWidth = navTabs.reduce((acc, t) => acc + (t.el._fxNaturalW || 72) + gap, 0);
+
+  let visibleTabs = navTabs;
+  let overflowTabs = [];
+  if (barPad + allTabsWidth + sepW + utilityWidth > maxBarWidth) {
+    const toggleW = overflowToggle ? 36 + gap : 0;
+    const budget = maxBarWidth - barPad - sepW - utilityWidth - toggleW;
+    visibleTabs = [];
+    overflowTabs = [];
+    let used = 0;
+    let overflowing = false;
+    for (const t of navTabs) {
+      const w = (t.el._fxNaturalW || 72) + gap;
+      if (!overflowing && used + w <= budget) {
+        visibleTabs.push(t);
+        used += w;
+      } else {
+        overflowing = true;
+        overflowTabs.push(t);
+      }
+    }
+  }
+
+  const visSet = new Set(visibleTabs.map(t => t.el));
+  for (const t of navTabs) {
+    const want = visSet.has(t.el) ? 'false' : 'true';
+    if (t.el.getAttribute('data-fx-header-overflowed') !== want) t.el.setAttribute('data-fx-header-overflowed', want);
+  }
+  for (const u of utilities) {
+    if (u.el.getAttribute('data-fx-header-overflowed') !== 'false') u.el.setAttribute('data-fx-header-overflowed', 'false');
+  }
+  if (separator) {
+    const wantSep = visibleTabs.length > 0 && utilities.length > 0 ? 'false' : 'true';
+    if (separator.getAttribute('data-fx-header-overflowed') !== wantSep) separator.setAttribute('data-fx-header-overflowed', wantSep);
+  }
+  proxy._fxOverflowTabs = overflowTabs.map(t => t.el);
+  if (overflowToggle) {
+    const needToggle = overflowTabs.length > 0 || vw <= 899;
+    const wantNeed = needToggle ? 'true' : 'false';
+    if (overflowToggle.getAttribute('data-fx-overflow-needed') !== wantNeed) {
+      overflowToggle.setAttribute('data-fx-overflow-needed', wantNeed);
+    }
+    if (!needToggle) closeHeaderOverflowMenu();
+  }
+}
 function syncMobileHeaderControls(api = window.ApiClient) {
   const proxy = document.querySelector('[data-sleekfin-header-proxy]');
   if (proxy) {
     if (!api?.getCurrentUserId?.()) {
       proxy.querySelectorAll('[data-fx-mobile-search]').forEach(n => n.remove());
     } else {
+      const managed = document.documentElement?.getAttribute?.('data-fx-header-managed') === 'true';
       const overflowToggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
       const nativeSearch = proxy.querySelector('button[data-sleekfin-header-proxy-item="jellyfin:search"]');
       const nativeSearchVisible = Boolean(
         nativeSearch &&
-        nativeSearch.getAttribute('data-sleekfin-header-overflowed') !== 'true' &&
+        (managed ? nativeSearch.getAttribute('data-fx-header-overflowed') !== 'true' : nativeSearch.getAttribute('data-sleekfin-header-overflowed') !== 'true') &&
         nativeSearch.style.display !== 'none'
       );
-      const overflowHidden = !overflowToggle || overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden') === 'true';
+      const overflowHidden = !overflowToggle || (managed ? overflowToggle.getAttribute('data-fx-overflow-needed') !== 'true' : overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden') === 'true');
       const isPhoneHeader = Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
       const needMobileSearch = Boolean(overflowToggle && !nativeSearchVisible && (!overflowHidden || isPhoneHeader));
       let mobileSearchBtn = proxy.querySelector('[data-fx-mobile-search="true"]');
       if (!needMobileSearch) {
         if (mobileSearchBtn) mobileSearchBtn.remove();
       } else {
-        let createdSearch = false;
         if (!mobileSearchBtn) {
           mobileSearchBtn = element('button', 'fx-mobile-search-btn');
           mobileSearchBtn.type = 'button';
@@ -2354,15 +2587,9 @@ function syncMobileHeaderControls(api = window.ApiClient) {
           mobileSearchBtn.title = 'Search';
           mobileSearchBtn.setAttribute('aria-label', 'Search');
           mobileSearchBtn.innerHTML = MOBILE_SEARCH_SVG;
-          createdSearch = true;
         }
         if (mobileSearchBtn.nextElementSibling !== overflowToggle) {
           proxy.insertBefore(mobileSearchBtn, overflowToggle);
-        }
-        if (createdSearch && typeof Event === 'function') {
-          const notifyResize = () => { try { window.dispatchEvent?.(new Event('resize')); } catch {} };
-          if (typeof requestAnimationFrame === 'function') requestAnimationFrame(notifyResize);
-          else setTimeout(notifyResize, 0);
         }
         const isSearchRoute = /^#!?\/?search(?:\.html)?(?:[?]|$)/i.test(String(location.hash || ''));
         if (isSearchRoute) {
@@ -2433,6 +2660,7 @@ function syncMobileHeaderControls(api = window.ApiClient) {
   }
 }
 function syncMobileOverflowDrawer(api = window.ApiClient) {
+  syncHeaderNavPriority(api);
   syncMobileHeaderControls(api);
 }
 function syncHomeModeAttr(api = window.ApiClient) {
@@ -5554,20 +5782,28 @@ function onOsdSuppressClick(event) {
 }
 function onRouteEvent() {
   releaseOsdSpeedHold();
+  closeHeaderOverflowMenu();
   syncLibraryViewMenu();
-  syncMobileOverflowDrawer(window.ApiClient);
   oscars.ensureOscarsNav(window.ApiClient);
-  setTimeout(() => { if (!stopped) oscars.ensureOscarsNav(window.ApiClient); }, 120);
-  setTimeout(() => { if (!stopped) oscars.ensureOscarsNav(window.ApiClient); }, 400);
+  syncMobileOverflowDrawer(window.ApiClient);
+  setTimeout(() => { if (!stopped) { oscars.ensureOscarsNav(window.ApiClient); syncMobileOverflowDrawer(window.ApiClient); } }, 120);
+  setTimeout(() => { if (!stopped) { oscars.ensureOscarsNav(window.ApiClient); syncMobileOverflowDrawer(window.ApiClient); } }, 400);
   reconcile();
 }
 function onHeaderCatalogChanged() {
   hideLeavingSoonNav();
   oscars.ensureOscarsNav(window.ApiClient);
+  syncMobileOverflowDrawer(window.ApiClient);
+}
+function onOscarsUpdated() {
+  oscars.ensureOscarsNav(window.ApiClient);
+  syncMobileOverflowDrawer(window.ApiClient);
 }
 function onWindowResize() {
+  closeHeaderOverflowMenu();
   scheduleScroll();
   oscars.ensureOscarsNav(window.ApiClient);
+  syncMobileOverflowDrawer(window.ApiClient);
 }
 function start() {
   const style = element('style'); style.id = 'fx-discovery-style'; style.textContent = DISCOVERY_CSS; document.head.append(style);
@@ -5636,7 +5872,7 @@ function start() {
       } else if (!needsSearch && t.closest?.('#searchPage') && !t.closest?.('.fx-search-library,.searchResults,.searchSuggestions')) {
         needsSearch = true;
       }
-      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-oscars-page,.fx-oscar-admin,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
+      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
         needsReconcile = true;
       }
     }
@@ -5656,8 +5892,8 @@ function start() {
     if (needsHeader) {
       hideLeavingSoonNav();
       hideSleekFinUserSettingsMenu();
-      syncMobileOverflowDrawer(window.ApiClient);
       oscars.ensureOscarsNav(window.ApiClient);
+      syncMobileOverflowDrawer(window.ApiClient);
     }
     if (needsSearch) syncSearchPage(window.ApiClient);
     if (needsReconcile) schedule();
@@ -5683,6 +5919,9 @@ function start() {
   window.addEventListener('scroll', onOsdScrollGuard, { passive: true });
   window.addEventListener('blur', releaseOsdSpeedHold);
   window.addEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
+  window.addEventListener('fazfort:oscars-updated', onOscarsUpdated);
+  document.addEventListener('click', onHeaderOverflowClick, true);
+  document.addEventListener('keydown', onHeaderOverflowKeyDown, true);
   document.addEventListener('keydown',remoteKey,true);document.addEventListener('keyup',remoteKeyUp,true);document.addEventListener('focusin',rememberFocus);
   document.addEventListener('scroll', scheduleScroll, { passive: true, capture: true }); window.addEventListener('resize', onWindowResize);
   // Sign-out / server switch can occur without a hash change.
@@ -5692,8 +5931,9 @@ window.FazFortDiscovery = {
   version: VERSION, restart, openSettings:()=>openUserSettings(window.ApiClient), mountSettings:(host)=>mountInlineSettings(host,window.ApiClient), mountOscarsSettings:(host)=>oscars.mountOscarsSettings(host,window.ApiClient),
   diagnostics: () => ({ version: VERSION, page: state?.route.page || null, mounted: !!state, items: state?.inventory?.items.length || 0, shelves: state?.planner?.shelves.length || 0, loadedRows: state?.slots.length || 0, liveRows: state?.slots.filter(s => s.live).length || 0,trackingReady:!!state?.trackingReady,preferencesSync:!!state?.syncAvailable,controls:state?controlsMode(state).mode:null,warnings: [...(state?.warnings || [])], supportedPageFound: !!(routeInfo(location.hash) && locate(routeInfo(location.hash))) }),
   stop() {
-    stopped = true; clearTimeout(timer); clearTimeout(headerMenuOpeningTimer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); clearTimeout(osdPlayState.timer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); oscars.resetOscarsSession(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
+    stopped = true; clearTimeout(timer); clearTimeout(headerMenuOpeningTimer); clearTimeout(ratingsSyncTimer); clearTimeout(searchUiState.remoteTimer); clearTimeout(searchUiState.inputTimer); clearTimeout(osdKeySkip.timer); clearTimeout(osdKeySkip.streakTimer); clearTimeout(osdPlayState.timer); if (popoverFrame) { try { cancelAnimationFrame(popoverFrame); } catch {} try { clearTimeout(popoverFrame); } catch {} popoverFrame = 0; } disconnectSearchBatchObserver(); clearInterval(heartbeat); observer?.disconnect(); releaseOsdSpeedHold(); restoreNativeFullscreenGuard(); restoreFiltersFetchGuard(); clearTimeout(osdGesture.streakTimer); closeHeaderOverflowMenu(); oscars.resetOscarsSession(); cleanup(false); closeDownloadMenu(); snapshots.clear();savedFeeds.clear();heroMemoryCache.clear();
     document.documentElement?.removeAttribute?.('data-fx-oscars');
+    document.documentElement?.removeAttribute?.('data-fx-header-managed');
     document.documentElement?.removeAttribute?.('data-fx-hide-count-chip');
     document.documentElement?.removeAttribute?.('data-fx-curated-tab');
     document.documentElement?.removeAttribute?.('data-fx-home-mode');
@@ -5733,8 +5973,11 @@ window.FazFortDiscovery = {
     window.removeEventListener('scroll', onOsdScrollGuard);
     window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
+    window.removeEventListener('fazfort:oscars-updated', onOscarsUpdated);
+    document.removeEventListener('click', onHeaderOverflowClick, true);
+    document.removeEventListener('keydown', onHeaderOverflowKeyDown, true);
     document.removeEventListener('keydown',remoteKey,true);document.removeEventListener('keyup',remoteKeyUp,true);document.removeEventListener('focusin',rememberFocus);
-    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast').forEach(n=>n.remove());
+    document.querySelectorAll('[data-fx-settings-link],[data-fx-home-studio],[data-fx-overflow-settings],[data-fx-mobile-search],[data-fx-oscars-link],.fx-oscars-page,.fx-header-overflow-menu,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-toast').forEach(n=>n.remove());
     document.getElementById('fx-discovery-style')?.remove(); delete window.FazFortDiscovery;
   }
 };

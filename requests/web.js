@@ -1016,8 +1016,9 @@ function ensureNavigation(active){
  const proxy=document.querySelector('[data-sleekfin-header-proxy]');
  const overflowDrawer=document.querySelector('[data-sleekfin-header-overflow-drawer]');
  const overflowToggle=proxy?.querySelector?.('[data-sleekfin-header-overflow-toggle]');
- const overflowActive=Boolean(overflowToggle&&overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden')!=='true');
- const isPhoneHeader=Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
+ const headerManaged=document.documentElement?.getAttribute?.('data-fx-header-managed')==='true';
+ const overflowActive=!headerManaged&&Boolean(overflowToggle&&overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden')!=='true');
+ const isPhoneHeader=!headerManaged&&Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
  const isMobileHeader=Boolean(isPhoneHeader||(overflowActive&&window.matchMedia?.('(max-width: 899px)')?.matches));
  const ensureBeforeCollectionsOrLiveTv=(host,discoverNode,itemsSelector)=>{
   if(!host||!discoverNode||discoverNode.parentElement!==host)return;
