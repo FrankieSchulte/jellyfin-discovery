@@ -149,16 +149,20 @@ function openOscarsRoute(ev) {
   ev?.stopPropagation?.();
   closeSleekfinDrawerIfOpen();
   oscarsState.subCategoryKey = '';
+  scrollToTop();
   if (isOscarsHash(location.hash)) {
     syncOscarsPage(window.ApiClient);
   } else {
     location.hash = '#/home?fxOscars=1';
   }
+  setTimeout(() => { if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient); }, 50);
+  setTimeout(() => { if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient); }, 180);
 }
 
 function createOscarNavIconSpan() {
   const icon = element('span', 'fx-oscar-nav-icon');
   icon.setAttribute('aria-hidden', 'true');
+  icon.dataset.sleekfinHeaderSourceIcon = 'true';
   icon.innerHTML = OSCAR_NAV_ICON_SVG;
   return icon;
 }
@@ -197,7 +201,8 @@ function ensureOscarsNav(api = window.ApiClient) {
   const activeRoute = isOscarsHash(location.hash);
   const proxy = document.querySelector('[data-sleekfin-header-proxy]');
   const overflowDrawer = document.querySelector('[data-sleekfin-header-overflow-drawer]');
-  const overflowActive = Boolean(overflowDrawer || document.querySelector('[data-sleekfin-header-overflow-toggle]'));
+  const overflowToggle = proxy?.querySelector?.('[data-sleekfin-header-overflow-toggle]');
+  const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute('data-sleekfin-header-overflow-hidden') !== 'true');
   const isPhone = Boolean(window.matchMedia?.('(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))')?.matches);
   const isMobile = Boolean(isPhone || (overflowActive && window.matchMedia?.('(max-width: 899px)')?.matches));
 
@@ -268,6 +273,9 @@ function ensureOscarsNav(api = window.ApiClient) {
         const anchor = findInsertAnchor(proxy, 'button[data-sleekfin-header-proxy-item]');
         if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
         else proxy.append(btn);
+        if (typeof Event === 'function') {
+          try { window.dispatchEvent?.(new Event('resize')); } catch {}
+        }
       }
       btn.title = labelText;
       btn.setAttribute('aria-label', labelText);
@@ -700,20 +708,40 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     host.replaceChildren(element('p', 'fx-oscar-admin-status', 'Could not load Oscars Season settings. Verify Jellyfin Discovery 0.7.0+ is installed.'));
     return;
   }
-  draft = cloneJson(draft || { enabled: false, startDate: '', endDate: '', navTitle: 'Oscars', ceremonyTitle: '98th Academy Awards', categories: [] });
+  draft = cloneJson(draft || { enabled: false, active: false, startDate: '', endDate: '', navTitle: 'Oscars', ceremonyTitle: '98th Academy Awards', categories: [] });
   if (!Array.isArray(draft.categories)) draft.categories = [];
+  let savedSnapshot = cloneJson(draft);
+  let dirty = false;
+  let saving = false;
   const expanded = new Set(draft.categories[0]?.key ? [draft.categories[0].key] : []);
   let statusText = '';
 
+  const readErrorMessage = async (err, fallback) => {
+    try {
+      if (err?.responseJSON?.error) return String(err.responseJSON.error);
+      if (typeof err?.json === 'function') {
+        const j = await err.json().catch(() => null);
+        if (j?.error) return String(j.error);
+        if (j?.title) return String(j.title);
+      }
+      if (typeof err?.status === 'number' && err.status > 0) return `${fallback} (HTTP ${err.status})`;
+      if (err?.message) return String(err.message);
+    } catch {}
+    return fallback;
+  };
+
   const computeLivePill = () => {
-    if (!draft.enabled) return { live: false, text: 'Disabled — hidden from header' };
+    if (saving) return { live: false, dirty: true, text: 'Saving…' };
+    if (dirty) return { live: false, dirty: true, text: 'Unsaved changes — click Save' };
+    const src = savedSnapshot;
+    if (!src.enabled) return { live: false, dirty: false, text: 'Disabled — hidden from header' };
     const today = new Date().toISOString().slice(0, 10);
-    const s = (draft.startDate || '').trim();
-    const e = (draft.endDate || '').trim();
-    if (s && today < s) return { live: false, text: `Scheduled — starts ${s}` };
-    if (e && today > e) return { live: false, text: `Ended ${e} — hidden from header` };
-    if (s || e) return { live: true, text: `Active now (${s || 'now'} → ${e || 'manual stop'})` };
-    return { live: true, text: 'Active now — visible in header' };
+    const s = (src.startDate || '').trim();
+    const e = (src.endDate || '').trim();
+    if (s && today < s) return { live: false, dirty: false, text: `Scheduled — starts ${s}` };
+    if (e && today > e) return { live: false, dirty: false, text: `Ended ${e} — hidden from header` };
+    if (s || e) return { live: true, dirty: false, text: `Active now (${s || 'now'} → ${e || 'manual stop'})` };
+    return { live: true, dirty: false, text: 'Active now — visible in header' };
   };
 
   const broadcastUpdate = saved => {
@@ -746,10 +774,13 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         draft.assetVersion = res.assetVersion || Date.now();
         draft.hasCustomHero = Boolean(res.hasCustomHero);
         draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+        savedSnapshot.assetVersion = draft.assetVersion;
+        savedSnapshot.hasCustomHero = draft.hasCustomHero;
+        savedSnapshot.hasCustomLogo = draft.hasCustomLogo;
         statusText = `Uploaded custom ${kind}.`;
-        broadcastUpdate({ ...draft, active: computeLivePill().live });
+        broadcastUpdate({ ...savedSnapshot });
       } catch (err) {
-        statusText = err?.responseJSON?.error || `Could not upload custom ${kind}.`;
+        statusText = await readErrorMessage(err, `Could not upload custom ${kind}.`);
       }
       draw();
     };
@@ -761,28 +792,32 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     draw();
     try {
       const res = await api.ajax({
-        url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}`),
-        type: 'DELETE',
+        url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}/Delete`),
+        type: 'POST',
         dataType: 'json'
       });
       draft.assetVersion = res.assetVersion || Date.now();
       draft.hasCustomHero = Boolean(res.hasCustomHero);
       draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+      savedSnapshot.assetVersion = draft.assetVersion;
+      savedSnapshot.hasCustomHero = draft.hasCustomHero;
+      savedSnapshot.hasCustomLogo = draft.hasCustomLogo;
       statusText = `Reverted ${kind} to built-in default.`;
-      broadcastUpdate({ ...draft, active: computeLivePill().live });
-    } catch {
-      statusText = `Could not reset custom ${kind}.`;
+      broadcastUpdate({ ...savedSnapshot });
+    } catch (err) {
+      statusText = await readErrorMessage(err, `Could not reset custom ${kind}.`);
     }
     draw();
   };
 
-  const saveDraft = async () => {
+  const saveDraft = async (revertEnabledOnFail = null) => {
+    saving = true;
     statusText = 'Saving Oscars Season settings…';
     draw();
     try {
       const saved = await api.ajax({
         url: api.getUrl('FazFortDiscovery/Oscars'),
-        type: 'PUT',
+        type: 'POST',
         contentType: 'application/json',
         dataType: 'json',
         data: JSON.stringify({
@@ -795,12 +830,17 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         })
       });
       draft = cloneJson(saved);
+      savedSnapshot = cloneJson(saved);
+      dirty = false;
       statusText = saved.active
         ? 'Saved! The Oscars tab is now live in the top header bar.'
-        : 'Saved! Oscars settings updated.';
+        : (saved.enabled ? 'Saved! Oscars will appear automatically during your scheduled dates.' : 'Saved! Oscars page disabled and hidden from header.');
       broadcastUpdate(saved);
     } catch (err) {
-      statusText = err?.responseJSON?.error || 'Could not save Oscars settings. Check dates and category entries.';
+      if (typeof revertEnabledOnFail === 'boolean') draft.enabled = revertEnabledOnFail;
+      statusText = await readErrorMessage(err, 'Could not save Oscars settings. Check dates and category entries.');
+    } finally {
+      saving = false;
     }
     draw();
   };
@@ -815,20 +855,25 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     titleIcon.innerHTML = OSCAR_STATUETTE_SVG;
     title.append(titleIcon, element('span', '', 'Oscars Season Subpage'));
     const pillInfo = computeLivePill();
-    const pill = element('span', `fx-oscar-admin-pill ${pillInfo.live ? 'is-live' : ''}`, pillInfo.text);
+    const pill = element('span', `fx-oscar-admin-pill ${pillInfo.live ? 'is-live' : ''} ${pillInfo.dirty ? 'is-dirty' : ''}`.trim(), pillInfo.text);
     head.append(title, pill);
     card.append(head);
 
     card.append(element('p', 'ff-cfg-sub', 'Toggle the white-and-gold Oscars tab in the top navigation bar during awards season. Movies already in your library open directly to play; missing nominees appear with a Request badge powered by Request Hub.'));
 
-    // Toggle + date window + nav label
+    // Toggle (auto-saves immediately!) + date window + nav label
     const toggleRow = element('div', 'ff-cfg-toggle-row');
     const toggleLbl = element('label', 'ff-cfg-toggle');
     const toggleChk = element('input');
     toggleChk.type = 'checkbox';
     toggleChk.checked = Boolean(draft.enabled);
+    toggleChk.disabled = saving;
     toggleChk.setAttribute('aria-label', 'Enable Oscars Page');
-    toggleChk.onchange = () => { draft.enabled = toggleChk.checked; draw(); };
+    toggleChk.onchange = () => {
+      const prev = Boolean(draft.enabled);
+      draft.enabled = toggleChk.checked;
+      saveDraft(prev);
+    };
     toggleLbl.append(toggleChk, element('span', '', 'Enable Oscars Page'));
     toggleRow.append(toggleLbl);
     card.append(toggleRow);
@@ -841,13 +886,13 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
       inp.value = val || '';
       if (placeholder) inp.placeholder = placeholder;
       inp.setAttribute('aria-label', label);
-      inp.onchange = () => onChange(inp.value);
+      inp.onchange = () => { dirty = true; onChange(inp.value); };
       f.append(inp);
       grid.append(f);
     };
     addInput('Start Date (optional)', 'date', draft.startDate, v => { draft.startDate = v; draw(); });
     addInput('End Date (optional)', 'date', draft.endDate, v => { draft.endDate = v; draw(); });
-    addInput('Header Tab Title', 'text', draft.navTitle || 'Oscars', v => { draft.navTitle = v; }, 'Oscars');
+    addInput('Header Tab Title', 'text', draft.navTitle || 'Oscars', v => { draft.navTitle = v; draw(); }, 'Oscars');
     card.append(grid);
 
     // Hero Banner & Logo custom asset uploaders
@@ -902,7 +947,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
 
     // Top action bar
     const topBar = element('div', 'fx-oscar-admin-actions');
-    const saveBtn = button('Save Oscars Settings', saveDraft, 'fx-oscar-btn fx-oscar-btn-gold');
+    const saveBtn = button('Save Oscars Settings', () => saveDraft(), 'fx-oscar-btn fx-oscar-btn-gold');
     const exportBtn = button('Export Nominees JSON', () => {
       try {
         const blob = new Blob([JSON.stringify({ ceremonyTitle: draft.ceremonyTitle, categories: draft.categories }, null, 2)], { type: 'application/json' });
@@ -926,6 +971,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         if (!Array.isArray(cats)) throw Error('JSON must contain a categories array.');
         draft.categories = cats;
         if (parsed?.ceremonyTitle) draft.ceremonyTitle = String(parsed.ceremonyTitle);
+        dirty = true;
         statusText = `Imported ${cats.length} categories. Click Save Oscars Settings to apply.`;
       } catch (e) {
         statusText = `Import failed: ${e.message}`;
@@ -935,6 +981,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     const importBtn = button('Import JSON', () => importInput.click(), 'fx-oscar-btn');
     const clearNomsBtn = button('Clear All Nominees', () => {
       draft.categories.forEach(c => { c.nominees = []; });
+      dirty = true;
       statusText = 'Cleared nominees across all categories (categories preserved). Click Save to apply.';
       draw();
     }, 'fx-oscar-btn');
@@ -943,6 +990,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
       const key = `custom-category-${Date.now().toString(36)}-${idx}`;
       draft.categories.push({ key, title: `Custom Category ${idx}`, enabled: true, nominees: [] });
       expanded.add(key);
+      dirty = true;
       draw();
     }, 'fx-oscar-btn');
     topBar.append(saveBtn, importBtn, exportBtn, clearNomsBtn, addCatBtn, importInput);
@@ -962,13 +1010,14 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
       en.type = 'checkbox';
       en.checked = cat.enabled !== false;
       en.onclick = ev => ev.stopPropagation();
-      en.onchange = () => { cat.enabled = en.checked; };
+      en.onchange = () => { cat.enabled = en.checked; dirty = true; draw(); };
       const nameSpan = element('span', 'fx-oscar-cat-name', cat.title || cat.key);
       const countPill = element('span', 'fx-oscar-cat-count', `${(cat.nominees || []).length} nominees`);
       const upBtn = button('↑', ev => {
         ev.stopPropagation();
         if (cIdx > 0) {
           [draft.categories[cIdx - 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx - 1]];
+          dirty = true;
           draw();
         }
       }, 'fx-oscar-btn fx-oscar-btn-xs');
@@ -977,6 +1026,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         ev.stopPropagation();
         if (cIdx < draft.categories.length - 1) {
           [draft.categories[cIdx + 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx + 1]];
+          dirty = true;
           draw();
         }
       }, 'fx-oscar-btn fx-oscar-btn-xs');
@@ -995,10 +1045,11 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         const catTitleInput = element('input', 'fx-oscar-nom-note');
         catTitleInput.value = cat.title || '';
         catTitleInput.placeholder = 'Category title';
-        catTitleInput.onchange = () => { cat.title = catTitleInput.value.trim() || cat.title; nameSpan.textContent = cat.title; };
+        catTitleInput.onchange = () => { cat.title = catTitleInput.value.trim() || cat.title; nameSpan.textContent = cat.title; dirty = true; draw(); };
         const delCatBtn = button('Delete Category', () => {
           draft.categories.splice(cIdx, 1);
           expanded.delete(cat.key);
+          dirty = true;
           draw();
         }, 'fx-oscar-btn fx-oscar-btn-xs');
         titleRow.append(catTitleInput, delCatBtn);
@@ -1011,9 +1062,10 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
           const noteInput = element('input', 'fx-oscar-nom-note');
           noteInput.value = nom.note || '';
           noteInput.placeholder = 'Optional subtitle (actor, director, song…)';
-          noteInput.onchange = () => { nom.note = noteInput.value.trim() || null; };
+          noteInput.onchange = () => { nom.note = noteInput.value.trim() || null; dirty = true; draw(); };
           const remNom = button('Remove', () => {
             cat.nominees.splice(nIdx, 1);
+            dirty = true;
             draw();
           }, 'fx-oscar-btn fx-oscar-btn-xs');
           nRow.append(lbl, noteInput, remNom);
@@ -1064,6 +1116,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
               const b = button(`+ ${hit.title}${hit.year ? ` (${hit.year})` : ''} · ${hit.source}`, () => {
                 cat.nominees = cat.nominees || [];
                 cat.nominees.push({ title: hit.title, year: hit.year, tmdbId: hit.tmdbId, poster: hit.poster, note: null, winner: false });
+                dirty = true;
                 draw();
               }, 'fx-oscar-search-hit');
               resultsWrap.append(b);
@@ -1086,6 +1139,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
           const y = Number(mYear.value.trim());
           cat.nominees = cat.nominees || [];
           cat.nominees.push({ title: t, year: y >= 1888 && y <= 2100 ? y : null, tmdbId: null, poster: null, note: null, winner: false });
+          dirty = true;
           draw();
         }, 'fx-oscar-btn fx-oscar-btn-xs');
         manRow.append(mTitle, mYear, mAdd);

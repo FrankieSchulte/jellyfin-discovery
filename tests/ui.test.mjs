@@ -756,8 +756,8 @@ test('category subpages open all matching items on heading click, unified search
   assert.deepEqual([...mountedRoot.querySelectorAll('.fx-shelf')].map(n=>n.dataset.shelfKey),initialRowKeys);
   assert.equal(lateTab.getAttribute('data-fx-native-hidden'),'true');
 
-  let themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));
-  for(let tries=0;!themeShelf&&tries<6;tries++){f.intersection();await f.settle();themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:'));}
+  let themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:')&&n.querySelectorAll('.fx-card').length>=20);
+  for(let tries=0;!themeShelf&&tries<10;tries++){f.intersection();await f.settle();themeShelf=[...mountedRoot.querySelectorAll('.fx-shelf')].find(n=>(n.dataset.shelfKey||'').startsWith('rule:')&&n.querySelectorAll('.fx-card').length>=20);}
   assert.ok(themeShelf);
   const shelfKey=themeShelf.dataset.shelfKey;
   const heading=themeShelf.querySelector('.fx-row-head h2.fx-clickable-heading');
@@ -2354,7 +2354,7 @@ test('v0.7.0 Oscars Season subpage: seasonal header tab, pure hero banner, gold 
     },
     ajax: async options => {
       const s = String(options.url || '');
-      if (s.includes('FazFortDiscovery/Oscars') && options.type === 'PUT') {
+      if (s.includes('FazFortDiscovery/Oscars') && (options.type === 'PUT' || options.type === 'POST')) {
         const body = JSON.parse(options.data);
         putCalls.push(body);
         oscarsPayload = { ...oscarsPayload, ...body, active: Boolean(body.enabled) };
@@ -2398,32 +2398,36 @@ test('v0.7.0 Oscars Season subpage: seasonal header tab, pure hero banner, gold 
   // 1. Disabled by default -> no Oscars button in header
   assert.equal(document.querySelector('[data-fx-oscars-link="true"]'), null, 'Oscars nav tab is hidden when disabled');
 
-  // 2. Mount Admin Settings -> enable Oscars + set dates + save -> immediately inserts Oscars tab in header
+  // 2. Mount Admin Settings -> toggling Enable Oscars Page auto-saves immediately & activates header tab; editing dates marks unsaved until Save
   const adminHost = document.getElementById('adminHost');
   await fakeWindow.FazFortDiscovery.mountOscarsSettings(adminHost);
   await settle();
   const enableChk = adminHost.querySelector('input[aria-label="Enable Oscars Page"]');
-  const startInp = adminHost.querySelector('input[aria-label="Start Date (optional)"]');
-  const endInp = adminHost.querySelector('input[aria-label="End Date (optional)"]');
-  assert.ok(enableChk && startInp && endInp, 'Admin settings renders enable toggle and start/end date inputs');
+  assert.ok(enableChk, 'Admin settings renders enable toggle');
   enableChk.checked = true;
   enableChk.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await settle();
+  assert.equal(putCalls.length, 1, 'Toggling Enable Oscars Page persists immediately without needing a second Save click');
+  assert.equal(putCalls[0].enabled, true);
+
+  const navBtn = document.querySelector('[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"]');
+  assert.ok(navBtn, 'Oscars tab appears in SleekFin top header proxy immediately after toggling on');
+  assert.ok(navBtn.querySelector('.fx-oscar-nav-icon[data-sleekfin-header-source-icon="true"] svg'), 'Header tab includes Oscar statuette SVG icon with SleekFin icon attribute');
+
+  const startInp = adminHost.querySelector('input[aria-label="Start Date (optional)"]');
+  const endInp = adminHost.querySelector('input[aria-label="End Date (optional)"]');
   startInp.value = '2026-01-22';
   startInp.dispatchEvent(new window.Event('change', { bubbles: true }));
-  endInp.value = '2026-03-31';
-  endInp.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert.ok(adminHost.querySelector('.fx-oscar-admin-pill.is-dirty')?.textContent.includes('Unsaved'), 'Date edits show Unsaved indicator before Save');
+  adminHost.querySelector('input[aria-label="End Date (optional)"]').value = '2026-03-31';
+  adminHost.querySelector('input[aria-label="End Date (optional)"]').dispatchEvent(new window.Event('change', { bubbles: true }));
   const saveBtn = [...adminHost.querySelectorAll('button')].find(b => b.textContent.includes('Save Oscars Settings'));
   assert.ok(saveBtn, 'Admin settings renders gold Save Oscars Settings button');
   saveBtn.click();
   await settle();
-  assert.equal(putCalls.length, 1);
-  assert.equal(putCalls[0].enabled, true);
-  assert.equal(putCalls[0].startDate, '2026-01-22');
-  assert.equal(putCalls[0].endDate, '2026-03-31');
-
-  const navBtn = document.querySelector('[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"]');
-  assert.ok(navBtn, 'Oscars tab appears in SleekFin top header proxy immediately after enabling');
-  assert.ok(navBtn.querySelector('.fx-oscar-nav-icon svg'), 'Header tab includes Oscar statuette SVG icon');
+  assert.equal(putCalls.length, 2);
+  assert.equal(putCalls[1].startDate, '2026-01-22');
+  assert.equal(putCalls[1].endDate, '2026-03-31');
 
   // 3. Click Oscars tab -> navigates to #/home?fxOscars=1, mounts pure hero & gold statuette category shelves
   navBtn.click();

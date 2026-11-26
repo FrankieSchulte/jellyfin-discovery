@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.7.0';
+const VERSION = '0.7.1';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -5557,6 +5557,8 @@ function onRouteEvent() {
   syncLibraryViewMenu();
   syncMobileOverflowDrawer(window.ApiClient);
   oscars.ensureOscarsNav(window.ApiClient);
+  setTimeout(() => { if (!stopped) oscars.ensureOscarsNav(window.ApiClient); }, 120);
+  setTimeout(() => { if (!stopped) oscars.ensureOscarsNav(window.ApiClient); }, 400);
   reconcile();
 }
 function onHeaderCatalogChanged() {
@@ -5619,9 +5621,15 @@ function start() {
           }
         }
       }
-      if (!needsHeader && r.type === 'childList' && t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage')) {
-        const onlyOscarsLink = [...r.addedNodes, ...r.removedNodes].every(n => n.nodeType === 1 && n.matches?.('[data-fx-oscars-link]'));
-        if (!onlyOscarsLink) needsHeader = true;
+      if (!needsHeader && r.type === 'childList') {
+        const added = r.addedNodes ? [...r.addedNodes] : [];
+        const removed = r.removedNodes ? [...r.removedNodes] : [];
+        const addedHeaderNode = added.some(n => n.nodeType === 1 && (n.matches?.('header,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]') || n.querySelector?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]')));
+        if (addedHeaderNode || t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage')) {
+          const allNodes = [...added, ...removed];
+          const onlyOscarsLink = allNodes.length > 0 && allNodes.every(n => n.nodeType === 1 && n.matches?.('[data-fx-oscars-link]'));
+          if (!onlyOscarsLink) needsHeader = true;
+        }
       }
       if (!needsSearch && t.id === 'searchPage') {
         needsSearch = true;

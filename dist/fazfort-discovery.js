@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.0 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.1 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -8991,8 +8991,19 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
 [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-visual="true"]{
   display:inline-flex!important;
   align-items:center!important;
-  gap:6px!important;
+  justify-content:center!important;
+  gap:0.42rem!important;
   line-height:1!important;
+  vertical-align:middle!important;
+}
+[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-icon="true"]{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:1.15rem!important;
+  height:1.15rem!important;
+  line-height:1!important;
+  flex-shrink:0!important;
 }
 [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-label="true"]{
   display:inline-block!important;
@@ -9059,6 +9070,12 @@ html[data-fx-oscars="true"] #indexPage :is(.sleekfin-hero,.hero,#slides-containe
 }
 html[data-fx-oscars="true"] [data-sleekfin-header-proxy]{
   border-color:rgba(243,220,143,.22)!important;
+}
+html[data-fx-oscars="true"] [data-sleekfin-header-proxy] > button[data-sleekfin-header-proxy-item="jellyfin:home"]{
+  background:transparent!important;
+  color:var(--sleekfin-header-item-text,rgba(255,255,255,.7))!important;
+  box-shadow:none!important;
+  border-color:transparent!important;
 }
 html[data-fx-oscars="true"] [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"][data-sleekfin-current="true"],
 html[data-fx-oscars="true"] [data-sleekfin-header-overflow-drawer] button[data-fx-oscars-link="true"][data-sleekfin-current="true"]{
@@ -9546,6 +9563,11 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
   background:rgba(212,175,55,.2);
   border-color:rgba(243,220,143,.52);
   color:#fdf6dc;
+}
+.fx-oscar-admin-pill.is-dirty{
+  background:rgba(245,158,11,.16);
+  border-color:rgba(251,191,36,.5);
+  color:#fde68a;
 }
 .fx-oscar-admin-grid{
   display:grid;
@@ -11746,15 +11768,23 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         (_b = ev == null ? void 0 : ev.stopPropagation) == null ? void 0 : _b.call(ev);
         closeSleekfinDrawerIfOpen();
         oscarsState.subCategoryKey = "";
+        scrollToTop();
         if (isOscarsHash(location.hash)) {
           syncOscarsPage(window.ApiClient);
         } else {
           location.hash = "#/home?fxOscars=1";
         }
+        setTimeout(() => {
+          if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient);
+        }, 50);
+        setTimeout(() => {
+          if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient);
+        }, 180);
       }
       function createOscarNavIconSpan() {
         const icon = element("span", "fx-oscar-nav-icon");
         icon.setAttribute("aria-hidden", "true");
+        icon.dataset.sleekfinHeaderSourceIcon = "true";
         icon.innerHTML = OSCAR_NAV_ICON_SVG;
         return icon;
       }
@@ -11778,7 +11808,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         }
       }
       function ensureOscarsNav(api = window.ApiClient) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
         if (isStopped() || !((_a = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a.call(api))) {
           removeOscarsNav();
           return;
@@ -11792,9 +11822,10 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         const activeRoute = isOscarsHash(location.hash);
         const proxy = document.querySelector("[data-sleekfin-header-proxy]");
         const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
-        const overflowActive = Boolean(overflowDrawer || document.querySelector("[data-sleekfin-header-overflow-toggle]"));
-        const isPhone = Boolean((_c = (_b = window.matchMedia) == null ? void 0 : _b.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _c.matches);
-        const isMobile = Boolean(isPhone || overflowActive && ((_e = (_d = window.matchMedia) == null ? void 0 : _d.call(window, "(max-width: 899px)")) == null ? void 0 : _e.matches));
+        const overflowToggle = (_b = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _b.call(proxy, "[data-sleekfin-header-overflow-toggle]");
+        const overflowActive = Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
+        const isPhone = Boolean((_d = (_c = window.matchMedia) == null ? void 0 : _c.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _d.matches);
+        const isMobile = Boolean(isPhone || overflowActive && ((_f = (_e = window.matchMedia) == null ? void 0 : _e.call(window, "(max-width: 899px)")) == null ? void 0 : _f.matches));
         const findInsertAnchor = (host, selector) => {
           const siblings = [...host.querySelectorAll(selector)];
           return siblings.find((b) => {
@@ -11841,7 +11872,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               }
             }
           } else {
-            (_g = (_f = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _f.call(overflowDrawer, "[data-fx-oscars-link]")) == null ? void 0 : _g.forEach((n) => n.remove());
+            (_h = (_g = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _g.call(overflowDrawer, "[data-fx-oscars-link]")) == null ? void 0 : _h.forEach((n) => n.remove());
             let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
             if (!btn) {
               const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
@@ -11850,7 +11881,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               btn.dataset.fxOscarsLink = "true";
               btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
               btn.dataset.sleekfinHeaderZone = "tabs";
-              btn.dataset.sleekfinHeaderDisplay = ((_h = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _h.sleekfinHeaderDisplay) || "both";
+              btn.dataset.sleekfinHeaderDisplay = ((_i = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _i.sleekfinHeaderDisplay) || "both";
               btn.onclick = openOscarsRoute;
               const vis = element("span");
               vis.dataset.sleekfinHeaderSourceVisual = "true";
@@ -11861,6 +11892,12 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
               if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
               else proxy.append(btn);
+              if (typeof Event === "function") {
+                try {
+                  (_j = window.dispatchEvent) == null ? void 0 : _j.call(window, new Event("resize"));
+                } catch {
+                }
+              }
             }
             btn.title = labelText;
             btn.setAttribute("aria-label", labelText);
@@ -12265,19 +12302,40 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           host.replaceChildren(element("p", "fx-oscar-admin-status", "Could not load Oscars Season settings. Verify Jellyfin Discovery 0.7.0+ is installed."));
           return;
         }
-        draft = cloneJson(draft || { enabled: false, startDate: "", endDate: "", navTitle: "Oscars", ceremonyTitle: "98th Academy Awards", categories: [] });
+        draft = cloneJson(draft || { enabled: false, active: false, startDate: "", endDate: "", navTitle: "Oscars", ceremonyTitle: "98th Academy Awards", categories: [] });
         if (!Array.isArray(draft.categories)) draft.categories = [];
+        let savedSnapshot = cloneJson(draft);
+        let dirty = false;
+        let saving = false;
         const expanded = new Set(((_b = draft.categories[0]) == null ? void 0 : _b.key) ? [draft.categories[0].key] : []);
         let statusText = "";
+        const readErrorMessage = async (err, fallback) => {
+          var _a2;
+          try {
+            if ((_a2 = err == null ? void 0 : err.responseJSON) == null ? void 0 : _a2.error) return String(err.responseJSON.error);
+            if (typeof (err == null ? void 0 : err.json) === "function") {
+              const j = await err.json().catch(() => null);
+              if (j == null ? void 0 : j.error) return String(j.error);
+              if (j == null ? void 0 : j.title) return String(j.title);
+            }
+            if (typeof (err == null ? void 0 : err.status) === "number" && err.status > 0) return `${fallback} (HTTP ${err.status})`;
+            if (err == null ? void 0 : err.message) return String(err.message);
+          } catch {
+          }
+          return fallback;
+        };
         const computeLivePill = () => {
-          if (!draft.enabled) return { live: false, text: "Disabled \u2014 hidden from header" };
+          if (saving) return { live: false, dirty: true, text: "Saving\u2026" };
+          if (dirty) return { live: false, dirty: true, text: "Unsaved changes \u2014 click Save" };
+          const src = savedSnapshot;
+          if (!src.enabled) return { live: false, dirty: false, text: "Disabled \u2014 hidden from header" };
           const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-          const s = (draft.startDate || "").trim();
-          const e = (draft.endDate || "").trim();
-          if (s && today < s) return { live: false, text: `Scheduled \u2014 starts ${s}` };
-          if (e && today > e) return { live: false, text: `Ended ${e} \u2014 hidden from header` };
-          if (s || e) return { live: true, text: `Active now (${s || "now"} \u2192 ${e || "manual stop"})` };
-          return { live: true, text: "Active now \u2014 visible in header" };
+          const s = (src.startDate || "").trim();
+          const e = (src.endDate || "").trim();
+          if (s && today < s) return { live: false, dirty: false, text: `Scheduled \u2014 starts ${s}` };
+          if (e && today > e) return { live: false, dirty: false, text: `Ended ${e} \u2014 hidden from header` };
+          if (s || e) return { live: true, dirty: false, text: `Active now (${s || "now"} \u2192 ${e || "manual stop"})` };
+          return { live: true, dirty: false, text: "Active now \u2014 visible in header" };
         };
         const broadcastUpdate = (saved) => {
           oscarsState.data = saved;
@@ -12298,7 +12356,6 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           }
           const reader = new FileReader();
           reader.onload = async () => {
-            var _a2;
             statusText = `Uploading custom ${kind}\u2026`;
             draw();
             try {
@@ -12312,10 +12369,13 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               draft.assetVersion = res.assetVersion || Date.now();
               draft.hasCustomHero = Boolean(res.hasCustomHero);
               draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+              savedSnapshot.assetVersion = draft.assetVersion;
+              savedSnapshot.hasCustomHero = draft.hasCustomHero;
+              savedSnapshot.hasCustomLogo = draft.hasCustomLogo;
               statusText = `Uploaded custom ${kind}.`;
-              broadcastUpdate({ ...draft, active: computeLivePill().live });
+              broadcastUpdate({ ...savedSnapshot });
             } catch (err) {
-              statusText = ((_a2 = err == null ? void 0 : err.responseJSON) == null ? void 0 : _a2.error) || `Could not upload custom ${kind}.`;
+              statusText = await readErrorMessage(err, `Could not upload custom ${kind}.`);
             }
             draw();
           };
@@ -12326,28 +12386,31 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           draw();
           try {
             const res = await api.ajax({
-              url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}`),
-              type: "DELETE",
+              url: api.getUrl(`FazFortDiscovery/Oscars/Asset/${kind}/Delete`),
+              type: "POST",
               dataType: "json"
             });
             draft.assetVersion = res.assetVersion || Date.now();
             draft.hasCustomHero = Boolean(res.hasCustomHero);
             draft.hasCustomLogo = Boolean(res.hasCustomLogo);
+            savedSnapshot.assetVersion = draft.assetVersion;
+            savedSnapshot.hasCustomHero = draft.hasCustomHero;
+            savedSnapshot.hasCustomLogo = draft.hasCustomLogo;
             statusText = `Reverted ${kind} to built-in default.`;
-            broadcastUpdate({ ...draft, active: computeLivePill().live });
-          } catch {
-            statusText = `Could not reset custom ${kind}.`;
+            broadcastUpdate({ ...savedSnapshot });
+          } catch (err) {
+            statusText = await readErrorMessage(err, `Could not reset custom ${kind}.`);
           }
           draw();
         };
-        const saveDraft = async () => {
-          var _a2;
+        const saveDraft = async (revertEnabledOnFail = null) => {
+          saving = true;
           statusText = "Saving Oscars Season settings\u2026";
           draw();
           try {
             const saved = await api.ajax({
               url: api.getUrl("FazFortDiscovery/Oscars"),
-              type: "PUT",
+              type: "POST",
               contentType: "application/json",
               dataType: "json",
               data: JSON.stringify({
@@ -12360,10 +12423,15 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               })
             });
             draft = cloneJson(saved);
-            statusText = saved.active ? "Saved! The Oscars tab is now live in the top header bar." : "Saved! Oscars settings updated.";
+            savedSnapshot = cloneJson(saved);
+            dirty = false;
+            statusText = saved.active ? "Saved! The Oscars tab is now live in the top header bar." : saved.enabled ? "Saved! Oscars will appear automatically during your scheduled dates." : "Saved! Oscars page disabled and hidden from header.";
             broadcastUpdate(saved);
           } catch (err) {
-            statusText = ((_a2 = err == null ? void 0 : err.responseJSON) == null ? void 0 : _a2.error) || "Could not save Oscars settings. Check dates and category entries.";
+            if (typeof revertEnabledOnFail === "boolean") draft.enabled = revertEnabledOnFail;
+            statusText = await readErrorMessage(err, "Could not save Oscars settings. Check dates and category entries.");
+          } finally {
+            saving = false;
           }
           draw();
         };
@@ -12376,7 +12444,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           titleIcon.innerHTML = OSCAR_STATUETTE_SVG;
           title.append(titleIcon, element("span", "", "Oscars Season Subpage"));
           const pillInfo = computeLivePill();
-          const pill = element("span", `fx-oscar-admin-pill ${pillInfo.live ? "is-live" : ""}`, pillInfo.text);
+          const pill = element("span", `fx-oscar-admin-pill ${pillInfo.live ? "is-live" : ""} ${pillInfo.dirty ? "is-dirty" : ""}`.trim(), pillInfo.text);
           head.append(title, pill);
           card.append(head);
           card.append(element("p", "ff-cfg-sub", "Toggle the white-and-gold Oscars tab in the top navigation bar during awards season. Movies already in your library open directly to play; missing nominees appear with a Request badge powered by Request Hub."));
@@ -12385,10 +12453,12 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           const toggleChk = element("input");
           toggleChk.type = "checkbox";
           toggleChk.checked = Boolean(draft.enabled);
+          toggleChk.disabled = saving;
           toggleChk.setAttribute("aria-label", "Enable Oscars Page");
           toggleChk.onchange = () => {
+            const prev = Boolean(draft.enabled);
             draft.enabled = toggleChk.checked;
-            draw();
+            saveDraft(prev);
           };
           toggleLbl.append(toggleChk, element("span", "", "Enable Oscars Page"));
           toggleRow.append(toggleLbl);
@@ -12401,7 +12471,10 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             inp.value = val || "";
             if (placeholder) inp.placeholder = placeholder;
             inp.setAttribute("aria-label", label);
-            inp.onchange = () => onChange(inp.value);
+            inp.onchange = () => {
+              dirty = true;
+              onChange(inp.value);
+            };
             f.append(inp);
             grid.append(f);
           };
@@ -12415,6 +12488,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           });
           addInput("Header Tab Title", "text", draft.navTitle || "Oscars", (v) => {
             draft.navTitle = v;
+            draw();
           }, "Oscars");
           card.append(grid);
           const assetsGrid = element("div", "fx-oscar-admin-assets");
@@ -12469,7 +12543,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
           assetsGrid.append(heroBox, logoBox);
           card.append(assetsGrid);
           const topBar = element("div", "fx-oscar-admin-actions");
-          const saveBtn = button("Save Oscars Settings", saveDraft, "fx-oscar-btn fx-oscar-btn-gold");
+          const saveBtn = button("Save Oscars Settings", () => saveDraft(), "fx-oscar-btn fx-oscar-btn-gold");
           const exportBtn = button("Export Nominees JSON", () => {
             try {
               const blob = new Blob([JSON.stringify({ ceremonyTitle: draft.ceremonyTitle, categories: draft.categories }, null, 2)], { type: "application/json" });
@@ -12495,6 +12569,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               if (!Array.isArray(cats)) throw Error("JSON must contain a categories array.");
               draft.categories = cats;
               if (parsed == null ? void 0 : parsed.ceremonyTitle) draft.ceremonyTitle = String(parsed.ceremonyTitle);
+              dirty = true;
               statusText = `Imported ${cats.length} categories. Click Save Oscars Settings to apply.`;
             } catch (e) {
               statusText = `Import failed: ${e.message}`;
@@ -12506,6 +12581,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             draft.categories.forEach((c) => {
               c.nominees = [];
             });
+            dirty = true;
             statusText = "Cleared nominees across all categories (categories preserved). Click Save to apply.";
             draw();
           }, "fx-oscar-btn");
@@ -12514,6 +12590,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             const key = `custom-category-${Date.now().toString(36)}-${idx}`;
             draft.categories.push({ key, title: `Custom Category ${idx}`, enabled: true, nominees: [] });
             expanded.add(key);
+            dirty = true;
             draw();
           }, "fx-oscar-btn");
           topBar.append(saveBtn, importBtn, exportBtn, clearNomsBtn, addCatBtn, importInput);
@@ -12532,6 +12609,8 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
             en.onclick = (ev) => ev.stopPropagation();
             en.onchange = () => {
               cat.enabled = en.checked;
+              dirty = true;
+              draw();
             };
             const nameSpan = element("span", "fx-oscar-cat-name", cat.title || cat.key);
             const countPill = element("span", "fx-oscar-cat-count", `${(cat.nominees || []).length} nominees`);
@@ -12539,6 +12618,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               ev.stopPropagation();
               if (cIdx > 0) {
                 [draft.categories[cIdx - 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx - 1]];
+                dirty = true;
                 draw();
               }
             }, "fx-oscar-btn fx-oscar-btn-xs");
@@ -12547,6 +12627,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               ev.stopPropagation();
               if (cIdx < draft.categories.length - 1) {
                 [draft.categories[cIdx + 1], draft.categories[cIdx]] = [draft.categories[cIdx], draft.categories[cIdx + 1]];
+                dirty = true;
                 draw();
               }
             }, "fx-oscar-btn fx-oscar-btn-xs");
@@ -12567,10 +12648,13 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
               catTitleInput.onchange = () => {
                 cat.title = catTitleInput.value.trim() || cat.title;
                 nameSpan.textContent = cat.title;
+                dirty = true;
+                draw();
               };
               const delCatBtn = button("Delete Category", () => {
                 draft.categories.splice(cIdx, 1);
                 expanded.delete(cat.key);
+                dirty = true;
                 draw();
               }, "fx-oscar-btn fx-oscar-btn-xs");
               titleRow.append(catTitleInput, delCatBtn);
@@ -12583,9 +12667,12 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
                 noteInput.placeholder = "Optional subtitle (actor, director, song\u2026)";
                 noteInput.onchange = () => {
                   nom.note = noteInput.value.trim() || null;
+                  dirty = true;
+                  draw();
                 };
                 const remNom = button("Remove", () => {
                   cat.nominees.splice(nIdx, 1);
+                  dirty = true;
                   draw();
                 }, "fx-oscar-btn fx-oscar-btn-xs");
                 nRow.append(lbl, noteInput, remNom);
@@ -12640,6 +12727,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
                     const b = button(`+ ${hit.title}${hit.year ? ` (${hit.year})` : ""} \xB7 ${hit.source}`, () => {
                       cat.nominees = cat.nominees || [];
                       cat.nominees.push({ title: hit.title, year: hit.year, tmdbId: hit.tmdbId, poster: hit.poster, note: null, winner: false });
+                      dirty = true;
                       draw();
                     }, "fx-oscar-search-hit");
                     resultsWrap.append(b);
@@ -12660,6 +12748,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
                 const y = Number(mYear.value.trim());
                 cat.nominees = cat.nominees || [];
                 cat.nominees.push({ title: t, year: y >= 1888 && y <= 2100 ? y : null, tmdbId: null, poster: null, note: null, winner: false });
+                dirty = true;
                 draw();
               }, "fx-oscar-btn fx-oscar-btn-xs");
               manRow.append(mTitle, mYear, mAdd);
@@ -12684,7 +12773,7 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.0";
+      const VERSION = "0.7.1";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -18912,6 +19001,12 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
         syncLibraryViewMenu();
         syncMobileOverflowDrawer(window.ApiClient);
         oscars.ensureOscarsNav(window.ApiClient);
+        setTimeout(() => {
+          if (!stopped) oscars.ensureOscarsNav(window.ApiClient);
+        }, 120);
+        setTimeout(() => {
+          if (!stopped) oscars.ensureOscarsNav(window.ApiClient);
+        }, 400);
         reconcile();
       }
       function onHeaderCatalogChanged() {
@@ -18985,12 +19080,21 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
                 }
               }
             }
-            if (!needsHeader && r.type === "childList" && ((_i = t.closest) == null ? void 0 : _i.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
-              const onlyOscarsLink = [...r.addedNodes, ...r.removedNodes].every((n) => {
-                var _a3;
-                return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, "[data-fx-oscars-link]"));
+            if (!needsHeader && r.type === "childList") {
+              const added = r.addedNodes ? [...r.addedNodes] : [];
+              const removed = r.removedNodes ? [...r.removedNodes] : [];
+              const addedHeaderNode = added.some((n) => {
+                var _a3, _b3;
+                return n.nodeType === 1 && (((_a3 = n.matches) == null ? void 0 : _a3.call(n, "header,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]")) || ((_b3 = n.querySelector) == null ? void 0 : _b3.call(n, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]")));
               });
-              if (!onlyOscarsLink) needsHeader = true;
+              if (addedHeaderNode || ((_i = t.closest) == null ? void 0 : _i.call(t, "[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage"))) {
+                const allNodes = [...added, ...removed];
+                const onlyOscarsLink = allNodes.length > 0 && allNodes.every((n) => {
+                  var _a3;
+                  return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, "[data-fx-oscars-link]"));
+                });
+                if (!onlyOscarsLink) needsHeader = true;
+              }
             }
             if (!needsSearch && t.id === "searchPage") {
               needsSearch = true;

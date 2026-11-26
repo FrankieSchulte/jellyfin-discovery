@@ -79,6 +79,7 @@ public sealed class DiscoveryController(DiscoveryStore store, OscarsStore oscars
         return Ok(oscars.GetPublicState(tz, DateTimeOffset.UtcNow));
     }
     [HttpPut("Oscars")]
+    [HttpPost("Oscars")]
     [Authorize(Policy = "RequiresElevation")]
     [RequestSizeLimit(300000)]
     public ActionResult SaveOscars([FromBody] OscarsConfig body)
@@ -107,6 +108,7 @@ public sealed class DiscoveryController(DiscoveryStore store, OscarsStore oscars
         catch (IOException) { return StatusCode(503, new { error = "Could not save uploaded Oscars asset." }); }
     }
     [HttpDelete("Oscars/Asset/{kind}")]
+    [HttpPost("Oscars/Asset/{kind}/Delete")]
     [Authorize(Policy = "RequiresElevation")]
     public ActionResult DeleteOscarsAsset(string kind)
     {
