@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.5 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.6 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -12574,6 +12574,13 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           }
           draw();
         };
+        let pillNode = null;
+        const syncPill = () => {
+          if (!pillNode) return;
+          const pillInfo = computeLivePill();
+          pillNode.className = `fx-oscar-admin-pill ${pillInfo.live ? "is-live" : ""} ${pillInfo.dirty ? "is-dirty" : ""}`.trim();
+          pillNode.textContent = pillInfo.text;
+        };
         const draw = () => {
           host.replaceChildren();
           const card = element("section", "fx-oscar-admin");
@@ -12584,6 +12591,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           title.append(titleIcon, element("span", "", "Oscars Season Subpage"));
           const pillInfo = computeLivePill();
           const pill = element("span", `fx-oscar-admin-pill ${pillInfo.live ? "is-live" : ""} ${pillInfo.dirty ? "is-dirty" : ""}`.trim(), pillInfo.text);
+          pillNode = pill;
           head.append(title, pill);
           card.append(head);
           card.append(element("p", "ff-cfg-sub", "Toggle the white-and-gold Oscars tab in the top navigation bar during awards season. Movies already in your library open directly to play; missing nominees appear with a Request badge powered by Request Hub."));
@@ -12603,31 +12611,32 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           toggleRow.append(toggleLbl);
           card.append(toggleRow);
           const grid = element("div", "fx-oscar-admin-grid");
-          const addInput = (label, type, val, onChange, placeholder = "") => {
+          const addInput = (label, type, val, onUpdate, placeholder = "") => {
             const f = element("label", "fx-oscar-admin-field", label);
             const inp = element("input");
             inp.type = type;
             inp.value = val || "";
+            if (type === "date") inp.max = "9999-12-31";
             if (placeholder) inp.placeholder = placeholder;
             inp.setAttribute("aria-label", label);
-            inp.onchange = () => {
+            const handleUpdate = () => {
+              onUpdate(inp.value);
               dirty = true;
-              onChange(inp.value);
+              syncPill();
             };
+            inp.oninput = handleUpdate;
+            inp.onchange = handleUpdate;
             f.append(inp);
             grid.append(f);
           };
           addInput("Start Date (optional)", "date", draft.startDate, (v) => {
             draft.startDate = v;
-            draw();
           });
           addInput("End Date (optional)", "date", draft.endDate, (v) => {
             draft.endDate = v;
-            draw();
           });
           addInput("Header Tab Title", "text", draft.navTitle || "Oscars", (v) => {
             draft.navTitle = v;
-            draw();
           }, "Oscars");
           card.append(grid);
           const assetsGrid = element("div", "fx-oscar-admin-assets");
@@ -12784,12 +12793,14 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
               const catTitleInput = element("input", "fx-oscar-nom-note");
               catTitleInput.value = cat.title || "";
               catTitleInput.placeholder = "Category title";
-              catTitleInput.onchange = () => {
+              const handleCatTitle = () => {
                 cat.title = catTitleInput.value.trim() || cat.title;
                 nameSpan.textContent = cat.title;
                 dirty = true;
-                draw();
+                syncPill();
               };
+              catTitleInput.oninput = handleCatTitle;
+              catTitleInput.onchange = handleCatTitle;
               const delCatBtn = button("Delete Category", () => {
                 draft.categories.splice(cIdx, 1);
                 expanded.delete(cat.key);
@@ -12804,11 +12815,13 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
                 const noteInput = element("input", "fx-oscar-nom-note");
                 noteInput.value = nom.note || "";
                 noteInput.placeholder = "Optional subtitle (actor, director, song\u2026)";
-                noteInput.onchange = () => {
+                const handleNote = () => {
                   nom.note = noteInput.value.trim() || null;
                   dirty = true;
-                  draw();
+                  syncPill();
                 };
+                noteInput.oninput = handleNote;
+                noteInput.onchange = handleNote;
                 const remNom = button("Remove", () => {
                   cat.nominees.splice(nIdx, 1);
                   dirty = true;
@@ -12913,7 +12926,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.5";
+      const VERSION = "0.7.6";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);

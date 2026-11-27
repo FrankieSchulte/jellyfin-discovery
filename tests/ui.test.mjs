@@ -2417,11 +2417,18 @@ test('v0.7.0 Oscars Season subpage: seasonal header tab, pure hero banner, gold 
 
   const startInp = adminHost.querySelector('input[aria-label="Start Date (optional)"]');
   const endInp = adminHost.querySelector('input[aria-label="End Date (optional)"]');
-  startInp.value = '2026-01-22';
+  // Simulate Chromium firing change on the first digit of a 4-digit year (0002-01-22 -> 2026-01-22):
+  // the input MUST stay mounted in place (never replaced by draw()) so keyboard focus stays in the year field.
+  startInp.value = '0002-01-22';
   startInp.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert.equal(adminHost.querySelector('input[aria-label="Start Date (optional)"]'), startInp, 'Date input stays mounted in place on change without losing focus mid-year');
+  assert.equal(adminHost.querySelector('input[aria-label="End Date (optional)"]'), endInp, 'Sibling date input is not rebuilt while typing');
   assert.ok(adminHost.querySelector('.fx-oscar-admin-pill.is-dirty')?.textContent.includes('Unsaved'), 'Date edits show Unsaved indicator before Save');
-  adminHost.querySelector('input[aria-label="End Date (optional)"]').value = '2026-03-31';
-  adminHost.querySelector('input[aria-label="End Date (optional)"]').dispatchEvent(new window.Event('change', { bubbles: true }));
+  startInp.value = '2026-01-22';
+  startInp.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.equal(adminHost.querySelector('input[aria-label="Start Date (optional)"]'), startInp, 'Completing 4-digit year keeps the same date input mounted');
+  endInp.value = '2026-03-31';
+  endInp.dispatchEvent(new window.Event('input', { bubbles: true }));
   const saveBtn = [...adminHost.querySelectorAll('button')].find(b => b.textContent.includes('Save Oscars Settings'));
   assert.ok(saveBtn, 'Admin settings renders gold Save Oscars Settings button');
   saveBtn.click();

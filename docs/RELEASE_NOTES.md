@@ -1,7 +1,7 @@
-Jellyfin Discovery 0.7.5 and the independently installable Jellyfin Request Hub:
+Jellyfin Discovery 0.7.6 and the independently installable Jellyfin Request Hub:
 
-Discovery (0.7.5):
-- Centered All Oscars Category Titles: every Oscars category heading — including scrollable shelves like **Best Picture** — is now geometrically centered above its shelf with symmetric horizontal padding, while `< >` scroll arrows stay pinned cleanly to the right edge on scrollable rows and remain hidden on non-scrollable centered rows.
+Discovery (0.7.6):
+- Fixed Oscars Admin Date & Text Input Focus Loss: Start Date, End Date, Header Tab Title, Category Title, and Nominee Note fields now update the draft and `Unsaved changes` pill in place instead of rebuilding the settings DOM on `change`. Typing a full 4-digit year (e.g. `01/21/2027`) no longer exits the field after the first digit (`0002`).
 
-Request Hub (0.7.5):
-- Release parity bump with Jellyfin Discovery 0.7.5.
+Request Hub (0.7.6):
+- Release parity bump with Jellyfin Discovery 0.7.6.

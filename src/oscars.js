@@ -847,6 +847,14 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     draw();
   };
 
+  let pillNode = null;
+  const syncPill = () => {
+    if (!pillNode) return;
+    const pillInfo = computeLivePill();
+    pillNode.className = `fx-oscar-admin-pill ${pillInfo.live ? 'is-live' : ''} ${pillInfo.dirty ? 'is-dirty' : ''}`.trim();
+    pillNode.textContent = pillInfo.text;
+  };
+
   const draw = () => {
     host.replaceChildren();
     const card = element('section', 'fx-oscar-admin');
@@ -858,6 +866,7 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     title.append(titleIcon, element('span', '', 'Oscars Season Subpage'));
     const pillInfo = computeLivePill();
     const pill = element('span', `fx-oscar-admin-pill ${pillInfo.live ? 'is-live' : ''} ${pillInfo.dirty ? 'is-dirty' : ''}`.trim(), pillInfo.text);
+    pillNode = pill;
     head.append(title, pill);
     card.append(head);
 
@@ -881,20 +890,29 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
     card.append(toggleRow);
 
     const grid = element('div', 'fx-oscar-admin-grid');
-    const addInput = (label, type, val, onChange, placeholder = '') => {
+    const addInput = (label, type, val, onUpdate, placeholder = '') => {
       const f = element('label', 'fx-oscar-admin-field', label);
       const inp = element('input');
       inp.type = type;
       inp.value = val || '';
+      if (type === 'date') inp.max = '9999-12-31';
       if (placeholder) inp.placeholder = placeholder;
       inp.setAttribute('aria-label', label);
-      inp.onchange = () => { dirty = true; onChange(inp.value); };
+      // Update draft & status pill in place without calling draw() so native date/text inputs
+      // never lose focus or truncate a 4-digit year (e.g. 2027 -> 0002) mid-typing.
+      const handleUpdate = () => {
+        onUpdate(inp.value);
+        dirty = true;
+        syncPill();
+      };
+      inp.oninput = handleUpdate;
+      inp.onchange = handleUpdate;
       f.append(inp);
       grid.append(f);
     };
-    addInput('Start Date (optional)', 'date', draft.startDate, v => { draft.startDate = v; draw(); });
-    addInput('End Date (optional)', 'date', draft.endDate, v => { draft.endDate = v; draw(); });
-    addInput('Header Tab Title', 'text', draft.navTitle || 'Oscars', v => { draft.navTitle = v; draw(); }, 'Oscars');
+    addInput('Start Date (optional)', 'date', draft.startDate, v => { draft.startDate = v; });
+    addInput('End Date (optional)', 'date', draft.endDate, v => { draft.endDate = v; });
+    addInput('Header Tab Title', 'text', draft.navTitle || 'Oscars', v => { draft.navTitle = v; }, 'Oscars');
     card.append(grid);
 
     // Hero Banner & Logo custom asset uploaders
@@ -1047,7 +1065,14 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
         const catTitleInput = element('input', 'fx-oscar-nom-note');
         catTitleInput.value = cat.title || '';
         catTitleInput.placeholder = 'Category title';
-        catTitleInput.onchange = () => { cat.title = catTitleInput.value.trim() || cat.title; nameSpan.textContent = cat.title; dirty = true; draw(); };
+        const handleCatTitle = () => {
+          cat.title = catTitleInput.value.trim() || cat.title;
+          nameSpan.textContent = cat.title;
+          dirty = true;
+          syncPill();
+        };
+        catTitleInput.oninput = handleCatTitle;
+        catTitleInput.onchange = handleCatTitle;
         const delCatBtn = button('Delete Category', () => {
           draft.categories.splice(cIdx, 1);
           expanded.delete(cat.key);
@@ -1064,7 +1089,13 @@ async function mountOscarsSettings(host, api = window.ApiClient) {
           const noteInput = element('input', 'fx-oscar-nom-note');
           noteInput.value = nom.note || '';
           noteInput.placeholder = 'Optional subtitle (actor, director, song…)';
-          noteInput.onchange = () => { nom.note = noteInput.value.trim() || null; dirty = true; draw(); };
+          const handleNote = () => {
+            nom.note = noteInput.value.trim() || null;
+            dirty = true;
+            syncPill();
+          };
+          noteInput.oninput = handleNote;
+          noteInput.onchange = handleNote;
           const remNom = button('Remove', () => {
             cat.nominees.splice(nIdx, 1);
             dirty = true;
