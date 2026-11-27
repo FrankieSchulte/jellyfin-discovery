@@ -70,6 +70,8 @@ function oscarsAssetUrl(api, path, params) {
   return `../${path}${qs ? `?${qs}` : ''}`;
 }
 
+const OSCARS_SLEEKFIN_KEY = 'source:v1:440bcf1663dbfc236b411c747194f7b1';
+
 const oscarsState = {
   scope: '',
   data: null,
@@ -77,7 +79,7 @@ const oscarsState = {
   pending: null,
   root: null,
   hidden: [],
-  subCategoryKey: '',
+  resizeObserver: null,
   renderGen: 0,
   tmdbCache: new Map(),
   tmdbInflight: new Map()
@@ -90,13 +92,34 @@ function resetOscarsSession() {
   oscarsState.data = null;
   oscarsState.fetchedAt = 0;
   oscarsState.pending = null;
-  oscarsState.subCategoryKey = '';
   oscarsState.tmdbCache.clear();
   oscarsState.tmdbInflight.clear();
 }
 
 function removeOscarsNav() {
-  document.querySelectorAll('[data-fx-oscars-link]').forEach(n => n.remove());
+  document.querySelectorAll('[data-fx-oscars-link],[data-fx-oscars-source]').forEach(n => n.remove());
+}
+
+function findSleekfinHeaderSourceHost() {
+  const modern = document.querySelector('header.MuiAppBar-root');
+  if (modern && !modern.classList.contains('hide') && !modern.hidden) {
+    let vis = true;
+    try { vis = getComputedStyle(modern).display !== 'none'; } catch {}
+    if (vis) {
+      const stack = modern.querySelector('.MuiToolbar-root .MuiStack-root');
+      if (stack) return stack;
+    }
+  }
+  const legacy = document.querySelector('.skinHeader:not(.hide)');
+  if (legacy && !legacy.hidden) {
+    let vis = true;
+    try { vis = getComputedStyle(legacy).display !== 'none'; } catch {}
+    if (vis) {
+      const left = legacy.querySelector('.headerLeft');
+      if (left) return left;
+    }
+  }
+  return document.querySelector('header.MuiAppBar-root .MuiToolbar-root .MuiStack-root') || document.querySelector('.skinHeader .headerLeft');
 }
 
 function fetchOscarsConfig(api = window.ApiClient, force = false) {
@@ -159,8 +182,8 @@ function openOscarsRoute(ev) {
   setTimeout(() => { if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient); }, 180);
 }
 
-function createOscarNavIconSpan() {
-  const icon = element('span', 'fx-oscar-nav-icon');
+function createOscarNavIconSpan(asSourceIcon = false) {
+  const icon = element('span', asSourceIcon ? 'MuiButton-startIcon fx-oscar-nav-icon' : 'fx-oscar-nav-icon');
   icon.setAttribute('aria-hidden', 'true');
   icon.dataset.sleekfinHeaderSourceIcon = 'true';
   icon.innerHTML = OSCAR_NAV_ICON_SVG;
@@ -199,6 +222,31 @@ function ensureOscarsNav(api = window.ApiClient) {
   }
   const labelText = (data.navTitle || 'Oscars').trim() || 'Oscars';
   const activeRoute = isOscarsHash(location.hash);
+
+  // Register a native source button inside Jellyfin's visible header stack so SleekFin's
+  // UI Builder catalogs "Oscars" (source:v1:440bcf1663dbfc236b411c747194f7b1) with icon & label!
+  const sourceHost = findSleekfinHeaderSourceHost();
+  if (sourceHost) {
+    document.querySelectorAll('[data-fx-oscars-source]').forEach(n => {
+      if (!sourceHost.contains(n)) n.remove();
+    });
+    let src = sourceHost.querySelector('[data-fx-oscars-source="true"]');
+    if (!src) {
+      src = element('button', 'headerButton headerButtonLeft fx-oscar-source-btn');
+      src.id = 'fazfort-oscars-tab';
+      src.type = 'button';
+      src.dataset.fxOscarsSource = 'true';
+      src.onclick = openOscarsRoute;
+      src.append(createOscarNavIconSpan(true), element('span', 'emby-button-foreground', labelText));
+      sourceHost.append(src);
+    }
+    src.dataset.headerLabel = labelText;
+    src.title = labelText;
+    src.setAttribute('aria-label', labelText);
+    const srcLbl = src.querySelector('.emby-button-foreground');
+    if (srcLbl && srcLbl.textContent !== labelText) srcLbl.textContent = labelText;
+  }
+
   const proxy = document.querySelector('[data-sleekfin-header-proxy]');
 
   const findInsertAnchor = (host, selector) => {
@@ -206,8 +254,8 @@ function ensureOscarsNav(api = window.ApiClient) {
     return siblings.find(b => {
       if (b.dataset.fxOscarsLink === 'true') return false;
       const k = (b.getAttribute('data-sleekfin-header-proxy-item') || b.getAttribute('data-sleekfin-header-overflow-item') || '').toLowerCase();
-      const txt = (b.getAttribute('aria-label') || b.textContent || '').trim().toLowerCase();
-      return b.dataset.rhLink === 'true' || k === 'requesthub:discover' || k === 'dom:toolbar-discover' || txt === 'discover' || k.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || k.includes('164f41b42f7a4221084a13ce51114045') || txt === 'collections' || txt === 'live tv';
+      const txt = (b.querySelector?.('[data-sleekfin-header-source-label]')?.textContent || b.getAttribute('aria-label') || b.textContent || '').trim().toLowerCase();
+      return b.dataset.rhLink === 'true' || k === 'requesthub:discover' || k === 'dom:toolbar-discover' || k === 'source:v1:96dd680085f8e0120c78fac6efbf540c' || txt === 'discover' || k.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || k.includes('164f41b42f7a4221084a13ce51114045') || txt === 'collections' || txt === 'live tv';
     }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
   };
 
@@ -215,30 +263,42 @@ function ensureOscarsNav(api = window.ApiClient) {
     document.querySelectorAll('[data-fx-oscars-link]').forEach(n => {
       if (!proxy.contains(n)) n.remove();
     });
-    let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
-    if (!btn) {
-      const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
-      btn = element('button', 'fx-oscars-nav');
-      btn.type = 'button';
-      btn.dataset.fxOscarsLink = 'true';
-      btn.dataset.sleekfinHeaderProxyItem = 'fazfort:oscars';
-      btn.dataset.sleekfinHeaderZone = 'tabs';
-      btn.dataset.sleekfinHeaderDisplay = sampleTab?.dataset?.sleekfinHeaderDisplay || 'both';
-      btn.onclick = openOscarsRoute;
-      const vis = element('span');
-      vis.dataset.sleekfinHeaderSourceVisual = 'true';
-      const lbl = element('span', '', labelText);
-      lbl.dataset.sleekfinHeaderSourceLabel = 'true';
-      vis.append(createOscarNavIconSpan(), lbl);
-      btn.append(vis);
-      const anchor = findInsertAnchor(proxy, 'button[data-sleekfin-header-proxy-item]');
-      if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
-      else proxy.append(btn);
+    const nativeProxyBtn = proxy.querySelector(`button[data-sleekfin-header-proxy-item="${OSCARS_SLEEKFIN_KEY}"]`);
+    if (nativeProxyBtn) {
+      proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="fazfort:oscars"]').forEach(n => n.remove());
+      nativeProxyBtn.dataset.fxOscarsLink = 'true';
+      nativeProxyBtn.classList.add('fx-oscars-nav');
+      nativeProxyBtn.onclick = openOscarsRoute;
+      nativeProxyBtn.title = labelText;
+      nativeProxyBtn.setAttribute('aria-label', labelText);
+      const lbl = nativeProxyBtn.querySelector('[data-sleekfin-header-source-label="true"]');
+      if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+    } else {
+      let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
+      if (!btn) {
+        const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+        btn = element('button', 'fx-oscars-nav');
+        btn.type = 'button';
+        btn.dataset.fxOscarsLink = 'true';
+        btn.dataset.sleekfinHeaderProxyItem = 'fazfort:oscars';
+        btn.dataset.sleekfinHeaderZone = 'tabs';
+        btn.dataset.sleekfinHeaderDisplay = sampleTab?.dataset?.sleekfinHeaderDisplay || 'both';
+        btn.onclick = openOscarsRoute;
+        const vis = element('span');
+        vis.dataset.sleekfinHeaderSourceVisual = 'true';
+        const lbl = element('span', '', labelText);
+        lbl.dataset.sleekfinHeaderSourceLabel = 'true';
+        vis.append(createOscarNavIconSpan(false), lbl);
+        btn.append(vis);
+        const anchor = findInsertAnchor(proxy, 'button[data-sleekfin-header-proxy-item]');
+        if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+        else proxy.append(btn);
+      }
+      btn.title = labelText;
+      btn.setAttribute('aria-label', labelText);
+      const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+      if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
     }
-    btn.title = labelText;
-    btn.setAttribute('aria-label', labelText);
-    const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-    if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
   } else {
     const nav = document.querySelector('.headerTabs') || document.querySelector('.skinHeader');
     if (nav) {
@@ -248,7 +308,7 @@ function ensureOscarsNav(api = window.ApiClient) {
         link.href = '#/home?fxOscars=1';
         link.dataset.fxOscarsLink = 'true';
         link.onclick = openOscarsRoute;
-        link.append(createOscarNavIconSpan(), element('span', '', labelText));
+        link.append(createOscarNavIconSpan(false), element('span', '', labelText));
         nav.append(link);
       }
     }
@@ -258,6 +318,8 @@ function ensureOscarsNav(api = window.ApiClient) {
 
 function unmountOscarsPage() {
   oscarsState.renderGen++;
+  oscarsState.resizeObserver?.disconnect?.();
+  oscarsState.resizeObserver = null;
   oscarsState.root?.remove();
   oscarsState.root = null;
   oscarsState.hidden.forEach(n => n.removeAttribute('data-fx-oscars-hidden'));
@@ -311,11 +373,26 @@ async function resolveOscarTmdb(api, nominee) {
   return task;
 }
 
-function updateOscarTrackFade(wrap, track) {
+function updateOscarTrackFade(wrap, track, shelf = null) {
   if (!wrap || !track) return;
+  const targetShelf = shelf || wrap.closest?.('.fx-oscars-shelf');
   const max = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
-  wrap.dataset.fxScrollStart = track.scrollLeft <= 6 ? 'true' : 'false';
-  wrap.dataset.fxScrollEnd = max <= 6 || track.scrollLeft >= max - 6 ? 'true' : 'false';
+  const scrollable = max > 6;
+  if (targetShelf) {
+    const wantCentered = !scrollable && (track.clientWidth || 0) > 0 ? 'true' : 'false';
+    if (targetShelf.dataset.fxCentered !== wantCentered) targetShelf.dataset.fxCentered = wantCentered;
+  }
+  wrap.dataset.fxScrollStart = !scrollable || track.scrollLeft <= 6 ? 'true' : 'false';
+  wrap.dataset.fxScrollEnd = !scrollable || track.scrollLeft >= max - 6 ? 'true' : 'false';
+}
+
+function syncOscarsLayout() {
+  if (!oscarsState.root?.isConnected) return;
+  oscarsState.root.querySelectorAll('.fx-oscars-shelf').forEach(shelf => {
+    const wrap = shelf.querySelector('.fx-oscars-track-wrap');
+    const track = shelf.querySelector('.fx-oscars-track');
+    updateOscarTrackFade(wrap, track, shelf);
+  });
 }
 
 function buildOscarNomineeCard(api, nominee, ownedMovie, serverId, missingLookups) {
@@ -540,14 +617,21 @@ async function renderOscarsView(api, root) {
       };
       prevBtn.onclick = () => scrollShelf(-1);
       nextBtn.onclick = () => scrollShelf(1);
-      track.addEventListener('scroll', () => updateOscarTrackFade(trackWrap, track), { passive: true });
+      track.addEventListener('scroll', () => updateOscarTrackFade(trackWrap, track, shelf), { passive: true });
       trackWrap.append(track);
       shelf.append(head, trackWrap);
       shelvesWrap.append(shelf);
-      requestAnimationFrame(() => updateOscarTrackFade(trackWrap, track));
+      requestAnimationFrame(() => updateOscarTrackFade(trackWrap, track, shelf));
     }
   }
   root.append(shelvesWrap);
+  oscarsState.resizeObserver?.disconnect?.();
+  if (typeof ResizeObserver === 'function') {
+    oscarsState.resizeObserver = new ResizeObserver(() => syncOscarsLayout());
+    oscarsState.resizeObserver.observe(shelvesWrap);
+  }
+  requestAnimationFrame(syncOscarsLayout);
+  setTimeout(syncOscarsLayout, 120);
   runOscarMissingEnrichment(api, gen, missingLookups);
 }
 
@@ -1079,6 +1163,7 @@ return {
   fetchOscarsConfig,
   ensureOscarsNav,
   syncOscarsPage,
+  syncOscarsLayout,
   unmountOscarsPage,
   resetOscarsSession,
   mountOscarsSettings

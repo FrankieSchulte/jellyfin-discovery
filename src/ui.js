@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.7.3';
+const VERSION = '0.7.4';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -2337,6 +2337,38 @@ function closeHeaderOverflowMenu() {
     toggle.setAttribute('aria-expanded', 'false');
   }
 }
+const OSCARS_SLEEKFIN_HEADER_KEY = 'source:v1:440bcf1663dbfc236b411c747194f7b1';
+const DISCOVER_SLEEKFIN_HEADER_KEY = 'source:v1:96dd680085f8e0120c78fac6efbf540c';
+const sleekfinHeaderOrderState = { scope: '', itemOrder: null, fetchedAt: 0, pending: null };
+function fetchSleekfinHeaderOrder(api = window.ApiClient, force = false) {
+  if (!api?.getCurrentUserId?.() || typeof api.getJSON !== 'function' || typeof api.getUrl !== 'function') return;
+  const own = scopeKey(api);
+  if (sleekfinHeaderOrderState.scope !== own) {
+    sleekfinHeaderOrderState.scope = own;
+    sleekfinHeaderOrderState.itemOrder = null;
+    sleekfinHeaderOrderState.fetchedAt = 0;
+    sleekfinHeaderOrderState.pending = null;
+  }
+  if (!force && sleekfinHeaderOrderState.itemOrder && (Date.now() - sleekfinHeaderOrderState.fetchedAt) < 60000) return;
+  if (!force && sleekfinHeaderOrderState.pending) return;
+  const req = Promise.resolve(api.getJSON(api.getUrl('SleekFin/Header')))
+    .then(res => {
+      if (sleekfinHeaderOrderState.scope !== own) return;
+      sleekfinHeaderOrderState.pending = null;
+      const raw = res?.itemOrder ?? res?.ItemOrder ?? null;
+      sleekfinHeaderOrderState.itemOrder = Array.isArray(raw) ? raw.map(x => String(x || '').trim().toLowerCase()).filter(Boolean) : [];
+      sleekfinHeaderOrderState.fetchedAt = Date.now();
+      if (!stopped) syncMobileOverflowDrawer(api);
+    })
+    .catch(() => {
+      if (sleekfinHeaderOrderState.scope === own) {
+        sleekfinHeaderOrderState.pending = null;
+        if (!sleekfinHeaderOrderState.itemOrder) sleekfinHeaderOrderState.itemOrder = [];
+        sleekfinHeaderOrderState.fetchedAt = Date.now();
+      }
+    });
+  sleekfinHeaderOrderState.pending = req;
+}
 function classifyHeaderProxyItem(el) {
   if (!el || el.nodeType !== 1) return null;
   if (el.hasAttribute('data-sleekfin-header-overflow-toggle') || el.hasAttribute('data-fx-mobile-search')) return null;
@@ -2344,22 +2376,24 @@ function classifyHeaderProxyItem(el) {
   if (el.hasAttribute('data-sleekfin-header-separator')) return { kind: 'separator', el };
   if (!el.hasAttribute('data-sleekfin-header-proxy-item')) return null;
   const key = (el.getAttribute('data-sleekfin-header-proxy-item') || '').toLowerCase();
-  const lbl = (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim().toLowerCase();
+  const labelNode = el.querySelector?.('[data-sleekfin-header-source-label]');
+  const lbl = (labelNode?.textContent || el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim().toLowerCase();
   if (key === 'jellyfin:search' || key === 'jellyfin:user-menu' || key === 'jellyfin:syncplay' || key === 'jellyfin:cast' || key === 'jellyfin:back') {
     const uRank = key === 'jellyfin:search' ? 10 : key === 'jellyfin:user-menu' ? 20 : 5;
-    return { kind: 'utility', rank: uRank, el };
+    return { kind: 'utility', key, rank: uRank, el };
   }
-  // Priority order (highest to lowest): Home -> Movies -> Shows -> Oscars -> Discover -> Collections -> Live TV
-  // Overflow moves items from right to left (Live TV first, then Collections, Discover, Oscars, Shows, Movies, Home last).
+  // Default priority order (left-to-right; shrunk right-to-left):
+  // Home -> Movies -> Shows -> Oscars -> Discover -> Collections -> Live TV
   let rank = 7;
   if (key === 'jellyfin:home' || lbl === 'home') rank = 0;
   else if (key === 'jellyfin:movies' || lbl === 'movies') rank = 1;
   else if (key === 'jellyfin:shows' || lbl === 'shows' || lbl === 'tv shows') rank = 2;
-  else if (el.dataset.fxOscarsLink === 'true' || key === 'fazfort:oscars') rank = 3;
-  else if (el.dataset.rhLink === 'true' || key === 'requesthub:discover' || key === 'dom:toolbar-discover' || lbl === 'discover') rank = 4;
+  else if (el.dataset.fxOscarsLink === 'true' || key === 'fazfort:oscars' || key === OSCARS_SLEEKFIN_HEADER_KEY || lbl === 'oscars') rank = 3;
+  else if (el.dataset.rhLink === 'true' || key === 'requesthub:discover' || key === 'dom:toolbar-discover' || key === DISCOVER_SLEEKFIN_HEADER_KEY || lbl === 'discover') rank = 4;
   else if (key.includes('9d7ad6afe9afa2dab1a2f6e00ad28fa6') || lbl === 'collections') rank = 5;
   else if (key.includes('164f41b42f7a4221084a13ce51114045') || lbl === 'live tv') rank = 6;
-  return { kind: 'tab', rank, el };
+  const canonicalKey = key === 'fazfort:oscars' ? OSCARS_SLEEKFIN_HEADER_KEY : (key === 'requesthub:discover' ? DISCOVER_SLEEKFIN_HEADER_KEY : key);
+  return { kind: 'tab', key, canonicalKey, rank, el };
 }
 function openHeaderOverflowMenu(toggle, proxy) {
   closeHeaderOverflowMenu();
@@ -2450,6 +2484,8 @@ function syncHeaderNavPriority(api = window.ApiClient) {
   const vw = window.innerWidth || document.documentElement?.clientWidth || 0;
   if (vw <= 0) return;
 
+  fetchSleekfinHeaderOrder(api);
+
   const navTabs = [];
   const utilities = [];
   let separator = null;
@@ -2462,7 +2498,19 @@ function syncHeaderNavPriority(api = window.ApiClient) {
   }
   if (!navTabs.length) return;
 
-  navTabs.sort((a, b) => a.rank - b.rank);
+  const customOrder = Array.isArray(sleekfinHeaderOrderState.itemOrder) ? sleekfinHeaderOrderState.itemOrder : [];
+  const userOrderedOscars = customOrder.includes(OSCARS_SLEEKFIN_HEADER_KEY);
+  if (userOrderedOscars) {
+    navTabs.sort((a, b) => {
+      const ia = customOrder.indexOf(a.canonicalKey);
+      const ib = customOrder.indexOf(b.canonicalKey);
+      const ra = ia >= 0 ? ia : 1000 + a.rank;
+      const rb = ib >= 0 ? ib : 1000 + b.rank;
+      return ra - rb;
+    });
+  } else {
+    navTabs.sort((a, b) => a.rank - b.rank);
+  }
   const overflowToggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
   const firstRight = separator || utilities[0]?.el || overflowToggle || null;
 
@@ -5799,10 +5847,16 @@ function onOscarsUpdated() {
   oscars.ensureOscarsNav(window.ApiClient);
   syncMobileOverflowDrawer(window.ApiClient);
 }
+function onSleekfinHeaderSettingsChanged() {
+  fetchSleekfinHeaderOrder(window.ApiClient, true);
+  oscars.ensureOscarsNav(window.ApiClient);
+  syncMobileOverflowDrawer(window.ApiClient);
+}
 function onWindowResize() {
   closeHeaderOverflowMenu();
   scheduleScroll();
   oscars.ensureOscarsNav(window.ApiClient);
+  oscars.syncOscarsLayout?.();
   syncMobileOverflowDrawer(window.ApiClient);
 }
 function start() {
@@ -5863,7 +5917,7 @@ function start() {
         const addedHeaderNode = added.some(n => n.nodeType === 1 && (n.matches?.('header,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]') || n.querySelector?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer]')));
         if (addedHeaderNode || t.closest?.('[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],header,.skinHeader,.MuiDrawer-root,#user-view-overflow-menu,#itemDetailPage,#myPreferencesMenuPage')) {
           const allNodes = [...added, ...removed];
-          const onlyOscarsLink = allNodes.length > 0 && allNodes.every(n => n.nodeType === 1 && n.matches?.('[data-fx-oscars-link]'));
+          const onlyOscarsLink = allNodes.length > 0 && allNodes.every(n => n.nodeType === 1 && n.matches?.('[data-fx-oscars-link],[data-fx-oscars-source]'));
           if (!onlyOscarsLink) needsHeader = true;
         }
       }
@@ -5872,7 +5926,7 @@ function start() {
       } else if (!needsSearch && t.closest?.('#searchPage') && !t.closest?.('.fx-search-library,.searchResults,.searchSuggestions')) {
         needsSearch = true;
       }
-      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
+      if (!needsReconcile && (r.type === 'childList' || r.attributeName === 'class') && !t.closest?.('.fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],[data-fx-oscars-source],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions')) {
         needsReconcile = true;
       }
     }
@@ -5919,6 +5973,7 @@ function start() {
   window.addEventListener('scroll', onOsdScrollGuard, { passive: true });
   window.addEventListener('blur', releaseOsdSpeedHold);
   window.addEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
+  window.addEventListener('sleekfin:header-settings-changed', onSleekfinHeaderSettingsChanged);
   window.addEventListener('fazfort:oscars-updated', onOscarsUpdated);
   document.addEventListener('click', onHeaderOverflowClick, true);
   document.addEventListener('keydown', onHeaderOverflowKeyDown, true);
@@ -5973,6 +6028,7 @@ window.FazFortDiscovery = {
     window.removeEventListener('scroll', onOsdScrollGuard);
     window.removeEventListener('blur', releaseOsdSpeedHold);
     window.removeEventListener('sleekfin:header-catalog-changed', onHeaderCatalogChanged);
+    window.removeEventListener('sleekfin:header-settings-changed', onSleekfinHeaderSettingsChanged);
     window.removeEventListener('fazfort:oscars-updated', onOscarsUpdated);
     document.removeEventListener('click', onHeaderOverflowClick, true);
     document.removeEventListener('keydown', onHeaderOverflowKeyDown, true);

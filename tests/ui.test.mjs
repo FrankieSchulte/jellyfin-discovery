@@ -2499,11 +2499,13 @@ test('v0.7.0 Oscars Season subpage: seasonal header tab, pure hero banner, gold 
 test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections -> Discover -> Oscars -> Shows -> Movies -> Home with zero jitter', async () => {
   const { window, document } = parseHTML(
     '<html><head></head><body>' +
+    '<div class="skinHeader hide"><div class="headerLeft"></div></div>' +
+    '<header class="MuiAppBar-root"><div class="MuiToolbar-root"><div class="MuiStack-root"></div></div></header>' +
     '<div data-sleekfin-header-proxy="true">' +
-      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:home"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Home</span></span></button>' +
-      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:movies"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Movies</span></span></button>' +
-      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:shows"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Shows</span></span></button>' +
-      '<button type="button" data-sleekfin-header-proxy-item="requesthub:discover" data-rh-link="true"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Discover</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:home"><span data-sleekfin-header-source-visual="true"><span class="material-icons">home</span><span data-sleekfin-header-source-label="true">Home</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:view:f137a2dd21bbc1b99aa5c0f6bf02a805"><span data-sleekfin-header-source-visual="true"><span class="material-icons">theaters</span><span data-sleekfin-header-source-label="true">Movies</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="jellyfin:view:a656b907eb3a73532e40e44b968d0225"><span data-sleekfin-header-source-visual="true"><span class="material-icons">tv</span><span data-sleekfin-header-source-label="true">Shows</span></span></button>' +
+      '<button type="button" data-sleekfin-header-proxy-item="source:v1:96dd680085f8e0120c78fac6efbf540c" data-rh-link="true"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Discover</span></span></button>' +
       '<button type="button" data-sleekfin-header-proxy-item="jellyfin:view:9d7ad6afe9afa2dab1a2f6e00ad28fa6"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Collections</span></span></button>' +
       '<button type="button" data-sleekfin-header-proxy-item="jellyfin:view:164f41b42f7a4221084a13ce51114045"><span data-sleekfin-header-source-visual="true"><span data-sleekfin-header-source-label="true">Live TV</span></span></button>' +
       '<span data-sleekfin-header-separator="true"></span>' +
@@ -2523,6 +2525,7 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
   const listeners = new Map();
   let syntheticResizeCount = 0;
   let liveTvClicks = 0;
+  let sleekfinItemOrder = ['jellyfin:home', 'jellyfin:view:f137a2dd21bbc1b99aa5c0f6bf02a805', 'jellyfin:view:a656b907eb3a73532e40e44b968d0225', 'source:v1:96dd680085f8e0120c78fac6efbf540c', 'jellyfin:view:9d7ad6afe9afa2dab1a2f6e00ad28fa6', 'jellyfin:view:164f41b42f7a4221084a13ce51114045'];
   document.querySelector('[data-sleekfin-header-proxy-item="jellyfin:view:164f41b42f7a4221084a13ce51114045"]').addEventListener('click', () => { liveTvClicks++; });
 
   const api = {
@@ -2532,7 +2535,14 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
     getUrl: (p, q) => `https://example.test/${p}${q ? '?' + new URLSearchParams(q).toString() : ''}`,
     getJSON: async url => {
       const s = String(url);
-      if (s.includes('FazFortDiscovery/Oscars')) return { enabled: true, active: true, navTitle: 'Oscars', categories: [] };
+      if (s.includes('SleekFin/Header')) return { itemOrder: sleekfinItemOrder };
+      if (s.includes('FazFortDiscovery/Oscars')) return {
+        enabled: true, active: true, navTitle: 'Oscars',
+        categories: [
+          { key: 'best-picture', title: 'Best Picture', enabled: true, nominees: Array.from({ length: 10 }, (_, i) => ({ title: `Film ${i}`, year: 2025 })) },
+          { key: 'best-director', title: 'Best Director', enabled: true, nominees: Array.from({ length: 3 }, (_, i) => ({ title: `Dir ${i}`, year: 2025 })) }
+        ]
+      };
       if (s.includes('FazFortDiscovery/Preferences')) return { Version: 0, Config: null };
       if (s.includes('FazFortDiscovery/Tracking')) return { Ready: true, Records: {} };
       if (s.includes('/Views')) return { Items: [] };
@@ -2569,10 +2579,19 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
     fakeWindow.innerWidth = w;
     (listeners.get('resize') || []).forEach(fn => fn());
   };
-  const overflowedLabels = () => [...proxy.querySelectorAll('button[data-fx-header-overflowed="true"]')].map(b => b.textContent.trim());
-  const visibleLabels = () => [...proxy.querySelectorAll('button[data-fx-header-overflowed="false"]')].filter(b => !['jellyfin:search', 'jellyfin:user-menu'].includes(b.getAttribute('data-sleekfin-header-proxy-item'))).map(b => b.textContent.trim());
+  const tabLabel = b => (b.querySelector('[data-sleekfin-header-source-label]')?.textContent || b.textContent || '').trim();
+  const overflowedLabels = () => [...proxy.querySelectorAll('button[data-fx-header-overflowed="true"]')].map(tabLabel);
+  const visibleLabels = () => [...proxy.querySelectorAll('button[data-fx-header-overflowed="false"]')].filter(b => !['jellyfin:search', 'jellyfin:user-menu'].includes(b.getAttribute('data-sleekfin-header-proxy-item'))).map(tabLabel);
+
+  // Verify #fazfort-oscars-tab is registered in the VISIBLE modern header stack (for SleekFin UI Builder), NOT hidden .skinHeader
+  const oscarsSource = document.querySelector('header.MuiAppBar-root .MuiStack-root #fazfort-oscars-tab');
+  assert.ok(oscarsSource, 'Registers #fazfort-oscars-tab inside visible modern MuiStack-root for SleekFin UI Builder');
+  assert.equal(document.querySelector('.skinHeader #fazfort-oscars-tab'), null, 'Does not inject into hidden legacy .skinHeader');
+  assert.ok(oscarsSource.querySelector('.MuiButton-startIcon.fx-oscar-nav-icon svg'), 'Source button includes MuiButton-startIcon gold trophy SVG');
+  assert.equal(oscarsSource.querySelector('.emby-button-foreground')?.textContent, 'Oscars');
 
   // Full desktop: all 7 categories visible in exact order Home -> Movies -> Shows -> Oscars -> Discover -> Collections -> Live TV
+  // even when Movies & Shows use jellyfin:view:<guid> keys with Material icon ligature text
   triggerResize(1200);
   assert.equal(document.documentElement.getAttribute('data-fx-header-managed'), 'true');
   assert.deepEqual(visibleLabels(), ['Home', 'Movies', 'Shows', 'Oscars', 'Discover', 'Collections', 'Live TV']);
@@ -2591,6 +2610,13 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
   assert.deepEqual(observedDrops, ['Live TV', 'Collections', 'Discover', 'Oscars', 'Shows', 'Movies', 'Home']);
   assert.equal(syntheticResizeCount, 0, 'Zero synthetic resize events across all viewport widths');
 
+  // Respect custom SleekFin UI Builder itemOrder once user drags Oscars into a custom spot
+  sleekfinItemOrder = ['jellyfin:home', 'source:v1:96dd680085f8e0120c78fac6efbf540c', 'source:v1:440bcf1663dbfc236b411c747194f7b1', 'jellyfin:view:f137a2dd21bbc1b99aa5c0f6bf02a805', 'jellyfin:view:a656b907eb3a73532e40e44b968d0225', 'jellyfin:view:9d7ad6afe9afa2dab1a2f6e00ad28fa6', 'jellyfin:view:164f41b42f7a4221084a13ce51114045'];
+  (listeners.get('sleekfin:header-settings-changed') || []).forEach(fn => fn());
+  await settle();
+  triggerResize(1200);
+  assert.deepEqual(visibleLabels(), ['Home', 'Discover', 'Oscars', 'Movies', 'Shows', 'Collections', 'Live TV'], 'Respects custom SleekFin UI Builder drag order');
+
   // Clicking overflow toggle at 560px opens .fx-header-overflow-menu containing overflowed items in order, and clicking Live TV activates it
   triggerResize(560);
   const toggle = proxy.querySelector('[data-sleekfin-header-overflow-toggle]');
@@ -2604,6 +2630,20 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
   liveTvMenuItem.click();
   assert.equal(liveTvClicks, 1, 'Clicking dropdown item activates underlying Live TV tab');
   assert.equal(document.querySelector('.fx-header-overflow-menu'), null, 'Menu closes after item selection');
+
+  // Non-scrollable Oscars category centers & hides arrows; scrollable Oscars category stays left-aligned with arrows
+  location.hash = '#/home?fxOscars=1';
+  (listeners.get('hashchange') || []).forEach(fn => fn());
+  await settle();
+  const bpTrack = document.querySelector('.fx-oscars-shelf[data-oscar-category="best-picture"] .fx-oscars-track');
+  const dirTrack = document.querySelector('.fx-oscars-shelf[data-oscar-category="best-director"] .fx-oscars-track');
+  Object.defineProperty(bpTrack, 'clientWidth', { configurable: true, get: () => 1200 });
+  Object.defineProperty(bpTrack, 'scrollWidth', { configurable: true, get: () => 2100 });
+  Object.defineProperty(dirTrack, 'clientWidth', { configurable: true, get: () => 1200 });
+  Object.defineProperty(dirTrack, 'scrollWidth', { configurable: true, get: () => 720 });
+  triggerResize(1200);
+  assert.equal(document.querySelector('.fx-oscars-shelf[data-oscar-category="best-picture"]').dataset.fxCentered, 'false', 'Scrollable 10-nominee shelf stays left-aligned with arrows');
+  assert.equal(document.querySelector('.fx-oscars-shelf[data-oscar-category="best-director"]').dataset.fxCentered, 'true', 'Non-scrollable 3-nominee shelf centers and hides arrows');
 
   fakeWindow.FazFortDiscovery.stop();
 });

@@ -963,11 +963,32 @@ function openDiscoverRoute(e){
 }
 const DISCOVER_COMPASS_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>';
 function createDiscoverIconSpan(asSourceIcon=false){
- const icon=el('span','','rh-compass-icon');
+ const icon=el('span','',asSourceIcon?'MuiButton-startIcon rh-compass-icon':'rh-compass-icon');
  icon.setAttribute('aria-hidden','true');
  if(asSourceIcon)icon.dataset.sleekfinHeaderSourceIcon='true';
  icon.innerHTML=DISCOVER_COMPASS_SVG;
  return icon;
+}
+function findVisibleHeaderSourceHost(){
+ const modern=document.querySelector('header.MuiAppBar-root');
+ if(modern&&!modern.classList.contains('hide')&&!modern.hidden){
+  let vis=true;
+  try{vis=getComputedStyle(modern).display!=='none';}catch{}
+  if(vis){
+   const stack=modern.querySelector('.MuiToolbar-root .MuiStack-root');
+   if(stack)return stack;
+  }
+ }
+ const legacy=document.querySelector('.skinHeader:not(.hide)');
+ if(legacy&&!legacy.hidden){
+  let vis=true;
+  try{vis=getComputedStyle(legacy).display!=='none';}catch{}
+  if(vis){
+   const left=legacy.querySelector('.headerLeft');
+   if(left)return left;
+  }
+ }
+ return document.querySelector('header.MuiAppBar-root .MuiToolbar-root .MuiStack-root')||document.querySelector('.skinHeader .headerLeft');
 }
 function upgradeNativeDiscoverIcon(btn){
  if(!btn)return;
@@ -988,28 +1009,33 @@ function ensureNavigation(active){
    window.sessionStorage.removeItem('sleekfin:header-sources:v2');
   }
  }catch{}
- const sourceHost=document.querySelector('.skinHeader .headerLeft')||document.querySelector('header.MuiAppBar-root .MuiToolbar-root .MuiStack-root');
+ const sourceHost=findVisibleHeaderSourceHost();
  let addedSource=false;
- if(sourceHost&&!sourceHost.querySelector('[data-rh-source]')){
-  const src=el('button','','headerButton headerButtonLeft rh-source-btn');
-  src.id='requesthub-discover-tab';
-  src.type='button';
-  src.dataset.rhSource='true';
-  src.dataset.headerLabel='Discover';
-  src.title='Discover';
-  src.setAttribute('aria-label','Discover');
-  const icon=createDiscoverIconSpan(true);
-  const label=el('span','Discover','emby-button-foreground');
-  src.append(icon,label);
-  src.onclick=openDiscoverRoute;
-  sourceHost.append(src);
-  addedSource=true;
+ if(sourceHost){
+  document.querySelectorAll('[data-rh-source]').forEach(n=>{
+   if(!sourceHost.contains(n))n.remove();
+  });
+  if(!sourceHost.querySelector('[data-rh-source]')){
+   const src=el('button','','headerButton headerButtonLeft rh-source-btn');
+   src.id='requesthub-discover-tab';
+   src.type='button';
+   src.dataset.rhSource='true';
+   src.dataset.headerLabel='Discover';
+   src.title='Discover';
+   src.setAttribute('aria-label','Discover');
+   const icon=createDiscoverIconSpan(true);
+   const label=el('span','Discover','emby-button-foreground');
+   src.append(icon,label);
+   src.onclick=openDiscoverRoute;
+   sourceHost.append(src);
+   addedSource=true;
+  }
  }
  if(addedSource){
   if(window.SleekFinFeatures?.header?.refresh){
    try{window.SleekFinFeatures.header.refresh();}catch{}
   }
-  if(typeof Event==='function'){
+  if(typeof Event==='function'&&document.documentElement?.getAttribute?.('data-fx-header-managed')!=='true'){
    try{window.dispatchEvent?.(new Event('resize'));}catch{}
   }
  }

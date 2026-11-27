@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.3 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.4 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -8997,7 +8997,9 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   line-height:1!important;
   vertical-align:middle!important;
 }
-[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-icon="true"]{
+[data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-icon="true"],
+.sleekfin-builder-preview .fx-oscar-nav-icon,
+.fx-oscar-nav-icon.MuiButton-startIcon{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -9005,10 +9007,30 @@ html:root :is(.sleekfin-menu-item,.sleekfin-select-option,.sleekfin-details-drop
   height:17px!important;
   line-height:1!important;
   flex:0 0 11px!important;
+  margin:0!important;
+}
+[data-sleekfin-header-proxy] button[data-rh-link="true"] .MuiButton-startIcon,
+.rh-compass-icon.MuiButton-startIcon{
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
 }
 [data-sleekfin-header-proxy] button[data-fx-oscars-link="true"] [data-sleekfin-header-source-label="true"]{
   display:inline-block!important;
   line-height:1!important;
+}
+button.fx-oscar-source-btn{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:inherit;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  font:inherit;
+  cursor:pointer;
 }
 a.fx-oscars-nav{
   color:#f5ebd0;
@@ -9186,6 +9208,18 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
 }
 .fx-oscars-shelf{
   min-width:0;
+}
+.fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-row-head{
+  justify-content:center;
+}
+.fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-heading{
+  margin:0;
+}
+.fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-row-controls{
+  display:none!important;
+}
+.fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-track{
+  justify-content:center;
 }
 .fx-oscars-row-head{
   display:flex;
@@ -11781,6 +11815,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         const qs = params ? new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== "")).toString() : "";
         return `../${path}${qs ? `?${qs}` : ""}`;
       }
+      const OSCARS_SLEEKFIN_KEY = "source:v1:440bcf1663dbfc236b411c747194f7b1";
       const oscarsState = {
         scope: "",
         data: null,
@@ -11788,7 +11823,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         pending: null,
         root: null,
         hidden: [],
-        subCategoryKey: "",
+        resizeObserver: null,
         renderGen: 0,
         tmdbCache: /* @__PURE__ */ new Map(),
         tmdbInflight: /* @__PURE__ */ new Map()
@@ -11800,12 +11835,38 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         oscarsState.data = null;
         oscarsState.fetchedAt = 0;
         oscarsState.pending = null;
-        oscarsState.subCategoryKey = "";
         oscarsState.tmdbCache.clear();
         oscarsState.tmdbInflight.clear();
       }
       function removeOscarsNav() {
-        document.querySelectorAll("[data-fx-oscars-link]").forEach((n) => n.remove());
+        document.querySelectorAll("[data-fx-oscars-link],[data-fx-oscars-source]").forEach((n) => n.remove());
+      }
+      function findSleekfinHeaderSourceHost() {
+        const modern = document.querySelector("header.MuiAppBar-root");
+        if (modern && !modern.classList.contains("hide") && !modern.hidden) {
+          let vis = true;
+          try {
+            vis = getComputedStyle(modern).display !== "none";
+          } catch {
+          }
+          if (vis) {
+            const stack = modern.querySelector(".MuiToolbar-root .MuiStack-root");
+            if (stack) return stack;
+          }
+        }
+        const legacy = document.querySelector(".skinHeader:not(.hide)");
+        if (legacy && !legacy.hidden) {
+          let vis = true;
+          try {
+            vis = getComputedStyle(legacy).display !== "none";
+          } catch {
+          }
+          if (vis) {
+            const left = legacy.querySelector(".headerLeft");
+            if (left) return left;
+          }
+        }
+        return document.querySelector("header.MuiAppBar-root .MuiToolbar-root .MuiStack-root") || document.querySelector(".skinHeader .headerLeft");
       }
       function fetchOscarsConfig(api = window.ApiClient, force = false) {
         var _a;
@@ -11869,8 +11930,8 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           if (!isStopped() && isOscarsHash(location.hash)) syncOscarsPage(window.ApiClient);
         }, 180);
       }
-      function createOscarNavIconSpan() {
-        const icon = element("span", "fx-oscar-nav-icon");
+      function createOscarNavIconSpan(asSourceIcon = false) {
+        const icon = element("span", asSourceIcon ? "MuiButton-startIcon fx-oscar-nav-icon" : "fx-oscar-nav-icon");
         icon.setAttribute("aria-hidden", "true");
         icon.dataset.sleekfinHeaderSourceIcon = "true";
         icon.innerHTML = OSCAR_NAV_ICON_SVG;
@@ -11908,44 +11969,78 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         }
         const labelText = (data.navTitle || "Oscars").trim() || "Oscars";
         const activeRoute = isOscarsHash(location.hash);
+        const sourceHost = findSleekfinHeaderSourceHost();
+        if (sourceHost) {
+          document.querySelectorAll("[data-fx-oscars-source]").forEach((n) => {
+            if (!sourceHost.contains(n)) n.remove();
+          });
+          let src = sourceHost.querySelector('[data-fx-oscars-source="true"]');
+          if (!src) {
+            src = element("button", "headerButton headerButtonLeft fx-oscar-source-btn");
+            src.id = "fazfort-oscars-tab";
+            src.type = "button";
+            src.dataset.fxOscarsSource = "true";
+            src.onclick = openOscarsRoute;
+            src.append(createOscarNavIconSpan(true), element("span", "emby-button-foreground", labelText));
+            sourceHost.append(src);
+          }
+          src.dataset.headerLabel = labelText;
+          src.title = labelText;
+          src.setAttribute("aria-label", labelText);
+          const srcLbl = src.querySelector(".emby-button-foreground");
+          if (srcLbl && srcLbl.textContent !== labelText) srcLbl.textContent = labelText;
+        }
         const proxy = document.querySelector("[data-sleekfin-header-proxy]");
         const findInsertAnchor = (host, selector) => {
           const siblings = [...host.querySelectorAll(selector)];
           return siblings.find((b) => {
+            var _a2, _b2;
             if (b.dataset.fxOscarsLink === "true") return false;
             const k = (b.getAttribute("data-sleekfin-header-proxy-item") || b.getAttribute("data-sleekfin-header-overflow-item") || "").toLowerCase();
-            const txt = (b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
-            return b.dataset.rhLink === "true" || k === "requesthub:discover" || k === "dom:toolbar-discover" || txt === "discover" || k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
+            const txt = (((_b2 = (_a2 = b.querySelector) == null ? void 0 : _a2.call(b, "[data-sleekfin-header-source-label]")) == null ? void 0 : _b2.textContent) || b.getAttribute("aria-label") || b.textContent || "").trim().toLowerCase();
+            return b.dataset.rhLink === "true" || k === "requesthub:discover" || k === "dom:toolbar-discover" || k === "source:v1:96dd680085f8e0120c78fac6efbf540c" || txt === "discover" || k.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || k.includes("164f41b42f7a4221084a13ce51114045") || txt === "collections" || txt === "live tv";
           }) || host.querySelector('[data-sleekfin-header-separator],[data-sleekfin-header-proxy-item="jellyfin:search"],[data-sleekfin-header-proxy-item="jellyfin:user-menu"],[data-sleekfin-header-overflow-toggle]');
         };
         if (proxy) {
           document.querySelectorAll("[data-fx-oscars-link]").forEach((n) => {
             if (!proxy.contains(n)) n.remove();
           });
-          let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
-          if (!btn) {
-            const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
-            btn = element("button", "fx-oscars-nav");
-            btn.type = "button";
-            btn.dataset.fxOscarsLink = "true";
-            btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
-            btn.dataset.sleekfinHeaderZone = "tabs";
-            btn.dataset.sleekfinHeaderDisplay = ((_b = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _b.sleekfinHeaderDisplay) || "both";
-            btn.onclick = openOscarsRoute;
-            const vis = element("span");
-            vis.dataset.sleekfinHeaderSourceVisual = "true";
-            const lbl2 = element("span", "", labelText);
-            lbl2.dataset.sleekfinHeaderSourceLabel = "true";
-            vis.append(createOscarNavIconSpan(), lbl2);
-            btn.append(vis);
-            const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
-            if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
-            else proxy.append(btn);
+          const nativeProxyBtn = proxy.querySelector(`button[data-sleekfin-header-proxy-item="${OSCARS_SLEEKFIN_KEY}"]`);
+          if (nativeProxyBtn) {
+            proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="fazfort:oscars"]').forEach((n) => n.remove());
+            nativeProxyBtn.dataset.fxOscarsLink = "true";
+            nativeProxyBtn.classList.add("fx-oscars-nav");
+            nativeProxyBtn.onclick = openOscarsRoute;
+            nativeProxyBtn.title = labelText;
+            nativeProxyBtn.setAttribute("aria-label", labelText);
+            const lbl = nativeProxyBtn.querySelector('[data-sleekfin-header-source-label="true"]');
+            if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
+          } else {
+            let btn = proxy.querySelector('[data-fx-oscars-link="true"]');
+            if (!btn) {
+              const sampleTab = proxy.querySelector('[data-sleekfin-header-proxy-item="jellyfin:home"],[data-sleekfin-header-proxy-item="jellyfin:movies"]');
+              btn = element("button", "fx-oscars-nav");
+              btn.type = "button";
+              btn.dataset.fxOscarsLink = "true";
+              btn.dataset.sleekfinHeaderProxyItem = "fazfort:oscars";
+              btn.dataset.sleekfinHeaderZone = "tabs";
+              btn.dataset.sleekfinHeaderDisplay = ((_b = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _b.sleekfinHeaderDisplay) || "both";
+              btn.onclick = openOscarsRoute;
+              const vis = element("span");
+              vis.dataset.sleekfinHeaderSourceVisual = "true";
+              const lbl2 = element("span", "", labelText);
+              lbl2.dataset.sleekfinHeaderSourceLabel = "true";
+              vis.append(createOscarNavIconSpan(false), lbl2);
+              btn.append(vis);
+              const anchor = findInsertAnchor(proxy, "button[data-sleekfin-header-proxy-item]");
+              if (anchor && anchor.parentNode === proxy) proxy.insertBefore(btn, anchor);
+              else proxy.append(btn);
+            }
+            btn.title = labelText;
+            btn.setAttribute("aria-label", labelText);
+            const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
+            if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
           }
-          btn.title = labelText;
-          btn.setAttribute("aria-label", labelText);
-          const lbl = btn.querySelector('[data-sleekfin-header-source-label="true"]');
-          if (lbl && lbl.textContent !== labelText) lbl.textContent = labelText;
         } else {
           const nav = document.querySelector(".headerTabs") || document.querySelector(".skinHeader");
           if (nav) {
@@ -11955,7 +12050,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
               link.href = "#/home?fxOscars=1";
               link.dataset.fxOscarsLink = "true";
               link.onclick = openOscarsRoute;
-              link.append(createOscarNavIconSpan(), element("span", "", labelText));
+              link.append(createOscarNavIconSpan(false), element("span", "", labelText));
               nav.append(link);
             }
           }
@@ -11963,14 +12058,16 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         syncOscarsHeaderCurrent(activeRoute);
       }
       function unmountOscarsPage() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         oscarsState.renderGen++;
-        (_a = oscarsState.root) == null ? void 0 : _a.remove();
+        (_b = (_a = oscarsState.resizeObserver) == null ? void 0 : _a.disconnect) == null ? void 0 : _b.call(_a);
+        oscarsState.resizeObserver = null;
+        (_c = oscarsState.root) == null ? void 0 : _c.remove();
         oscarsState.root = null;
         oscarsState.hidden.forEach((n) => n.removeAttribute("data-fx-oscars-hidden"));
         oscarsState.hidden = [];
         document.querySelectorAll("[data-fx-oscars-hidden]").forEach((n) => n.removeAttribute("data-fx-oscars-hidden"));
-        (_c = (_b = document.documentElement) == null ? void 0 : _b.removeAttribute) == null ? void 0 : _c.call(_b, "data-fx-oscars");
+        (_e = (_d = document.documentElement) == null ? void 0 : _d.removeAttribute) == null ? void 0 : _e.call(_d, "data-fx-oscars");
         syncOscarsHeaderCurrent(false);
       }
       function oscarsTmdbCacheKey(nominee) {
@@ -12010,11 +12107,27 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         oscarsState.tmdbInflight.set(key, task);
         return task;
       }
-      function updateOscarTrackFade(wrap, track) {
+      function updateOscarTrackFade(wrap, track, shelf = null) {
+        var _a;
         if (!wrap || !track) return;
+        const targetShelf = shelf || ((_a = wrap.closest) == null ? void 0 : _a.call(wrap, ".fx-oscars-shelf"));
         const max = Math.max(0, (track.scrollWidth || 0) - (track.clientWidth || 0));
-        wrap.dataset.fxScrollStart = track.scrollLeft <= 6 ? "true" : "false";
-        wrap.dataset.fxScrollEnd = max <= 6 || track.scrollLeft >= max - 6 ? "true" : "false";
+        const scrollable = max > 6;
+        if (targetShelf) {
+          const wantCentered = !scrollable && (track.clientWidth || 0) > 0 ? "true" : "false";
+          if (targetShelf.dataset.fxCentered !== wantCentered) targetShelf.dataset.fxCentered = wantCentered;
+        }
+        wrap.dataset.fxScrollStart = !scrollable || track.scrollLeft <= 6 ? "true" : "false";
+        wrap.dataset.fxScrollEnd = !scrollable || track.scrollLeft >= max - 6 ? "true" : "false";
+      }
+      function syncOscarsLayout() {
+        var _a;
+        if (!((_a = oscarsState.root) == null ? void 0 : _a.isConnected)) return;
+        oscarsState.root.querySelectorAll(".fx-oscars-shelf").forEach((shelf) => {
+          const wrap = shelf.querySelector(".fx-oscars-track-wrap");
+          const track = shelf.querySelector(".fx-oscars-track");
+          updateOscarTrackFade(wrap, track, shelf);
+        });
       }
       function buildOscarNomineeCard(api, nominee, ownedMovie, serverId, missingLookups) {
         var _a, _b;
@@ -12151,7 +12264,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         }
       }
       async function renderOscarsView(api, root) {
-        var _a;
+        var _a, _b, _c;
         const gen = ++oscarsState.renderGen;
         const data = oscarsState.data || await fetchOscarsConfig(api);
         if (gen !== oscarsState.renderGen || !(root == null ? void 0 : root.isConnected)) return;
@@ -12225,14 +12338,21 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
             };
             prevBtn.onclick = () => scrollShelf(-1);
             nextBtn.onclick = () => scrollShelf(1);
-            track.addEventListener("scroll", () => updateOscarTrackFade(trackWrap, track), { passive: true });
+            track.addEventListener("scroll", () => updateOscarTrackFade(trackWrap, track, shelf), { passive: true });
             trackWrap.append(track);
             shelf.append(head, trackWrap);
             shelvesWrap.append(shelf);
-            requestAnimationFrame(() => updateOscarTrackFade(trackWrap, track));
+            requestAnimationFrame(() => updateOscarTrackFade(trackWrap, track, shelf));
           }
         }
         root.append(shelvesWrap);
+        (_c = (_b = oscarsState.resizeObserver) == null ? void 0 : _b.disconnect) == null ? void 0 : _c.call(_b);
+        if (typeof ResizeObserver === "function") {
+          oscarsState.resizeObserver = new ResizeObserver(() => syncOscarsLayout());
+          oscarsState.resizeObserver.observe(shelvesWrap);
+        }
+        requestAnimationFrame(syncOscarsLayout);
+        setTimeout(syncOscarsLayout, 120);
         runOscarMissingEnrichment(api, gen, missingLookups);
       }
       async function runOscarMissingEnrichment(api, gen, missingLookups) {
@@ -12772,6 +12892,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         fetchOscarsConfig,
         ensureOscarsNav,
         syncOscarsPage,
+        syncOscarsLayout,
         unmountOscarsPage,
         resetOscarsSession,
         mountOscarsSettings
@@ -12779,7 +12900,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.3";
+      const VERSION = "0.7.4";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -15234,27 +15355,62 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           toggle.setAttribute("aria-expanded", "false");
         }
       }
+      const OSCARS_SLEEKFIN_HEADER_KEY = "source:v1:440bcf1663dbfc236b411c747194f7b1";
+      const DISCOVER_SLEEKFIN_HEADER_KEY = "source:v1:96dd680085f8e0120c78fac6efbf540c";
+      const sleekfinHeaderOrderState = { scope: "", itemOrder: null, fetchedAt: 0, pending: null };
+      function fetchSleekfinHeaderOrder(api = window.ApiClient, force = false) {
+        var _a2;
+        if (!((_a2 = api == null ? void 0 : api.getCurrentUserId) == null ? void 0 : _a2.call(api)) || typeof api.getJSON !== "function" || typeof api.getUrl !== "function") return;
+        const own = scopeKey(api);
+        if (sleekfinHeaderOrderState.scope !== own) {
+          sleekfinHeaderOrderState.scope = own;
+          sleekfinHeaderOrderState.itemOrder = null;
+          sleekfinHeaderOrderState.fetchedAt = 0;
+          sleekfinHeaderOrderState.pending = null;
+        }
+        if (!force && sleekfinHeaderOrderState.itemOrder && Date.now() - sleekfinHeaderOrderState.fetchedAt < 6e4) return;
+        if (!force && sleekfinHeaderOrderState.pending) return;
+        const req = Promise.resolve(api.getJSON(api.getUrl("SleekFin/Header"))).then((res) => {
+          var _a3, _b2;
+          if (sleekfinHeaderOrderState.scope !== own) return;
+          sleekfinHeaderOrderState.pending = null;
+          const raw = (_b2 = (_a3 = res == null ? void 0 : res.itemOrder) != null ? _a3 : res == null ? void 0 : res.ItemOrder) != null ? _b2 : null;
+          sleekfinHeaderOrderState.itemOrder = Array.isArray(raw) ? raw.map((x) => String(x || "").trim().toLowerCase()).filter(Boolean) : [];
+          sleekfinHeaderOrderState.fetchedAt = Date.now();
+          if (!stopped) syncMobileOverflowDrawer(api);
+        }).catch(() => {
+          if (sleekfinHeaderOrderState.scope === own) {
+            sleekfinHeaderOrderState.pending = null;
+            if (!sleekfinHeaderOrderState.itemOrder) sleekfinHeaderOrderState.itemOrder = [];
+            sleekfinHeaderOrderState.fetchedAt = Date.now();
+          }
+        });
+        sleekfinHeaderOrderState.pending = req;
+      }
       function classifyHeaderProxyItem(el) {
+        var _a2;
         if (!el || el.nodeType !== 1) return null;
         if (el.hasAttribute("data-sleekfin-header-overflow-toggle") || el.hasAttribute("data-fx-mobile-search")) return null;
         if (el.getAttribute("data-fx-leaving-hidden") === "true" || el.style.display === "none") return null;
         if (el.hasAttribute("data-sleekfin-header-separator")) return { kind: "separator", el };
         if (!el.hasAttribute("data-sleekfin-header-proxy-item")) return null;
         const key = (el.getAttribute("data-sleekfin-header-proxy-item") || "").toLowerCase();
-        const lbl = (el.getAttribute("aria-label") || el.getAttribute("title") || el.textContent || "").trim().toLowerCase();
+        const labelNode = (_a2 = el.querySelector) == null ? void 0 : _a2.call(el, "[data-sleekfin-header-source-label]");
+        const lbl = ((labelNode == null ? void 0 : labelNode.textContent) || el.getAttribute("aria-label") || el.getAttribute("title") || el.textContent || "").trim().toLowerCase();
         if (key === "jellyfin:search" || key === "jellyfin:user-menu" || key === "jellyfin:syncplay" || key === "jellyfin:cast" || key === "jellyfin:back") {
           const uRank = key === "jellyfin:search" ? 10 : key === "jellyfin:user-menu" ? 20 : 5;
-          return { kind: "utility", rank: uRank, el };
+          return { kind: "utility", key, rank: uRank, el };
         }
         let rank = 7;
         if (key === "jellyfin:home" || lbl === "home") rank = 0;
         else if (key === "jellyfin:movies" || lbl === "movies") rank = 1;
         else if (key === "jellyfin:shows" || lbl === "shows" || lbl === "tv shows") rank = 2;
-        else if (el.dataset.fxOscarsLink === "true" || key === "fazfort:oscars") rank = 3;
-        else if (el.dataset.rhLink === "true" || key === "requesthub:discover" || key === "dom:toolbar-discover" || lbl === "discover") rank = 4;
+        else if (el.dataset.fxOscarsLink === "true" || key === "fazfort:oscars" || key === OSCARS_SLEEKFIN_HEADER_KEY || lbl === "oscars") rank = 3;
+        else if (el.dataset.rhLink === "true" || key === "requesthub:discover" || key === "dom:toolbar-discover" || key === DISCOVER_SLEEKFIN_HEADER_KEY || lbl === "discover") rank = 4;
         else if (key.includes("9d7ad6afe9afa2dab1a2f6e00ad28fa6") || lbl === "collections") rank = 5;
         else if (key.includes("164f41b42f7a4221084a13ce51114045") || lbl === "live tv") rank = 6;
-        return { kind: "tab", rank, el };
+        const canonicalKey = key === "fazfort:oscars" ? OSCARS_SLEEKFIN_HEADER_KEY : key === "requesthub:discover" ? DISCOVER_SLEEKFIN_HEADER_KEY : key;
+        return { kind: "tab", key, canonicalKey, rank, el };
       }
       function openHeaderOverflowMenu(toggle, proxy) {
         var _a2, _b2, _c2, _d2;
@@ -15348,6 +15504,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         }
         const vw = window.innerWidth || ((_d2 = document.documentElement) == null ? void 0 : _d2.clientWidth) || 0;
         if (vw <= 0) return;
+        fetchSleekfinHeaderOrder(api);
         const navTabs = [];
         const utilities = [];
         let separator = null;
@@ -15359,7 +15516,19 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           else if (info.kind === "separator") separator = info.el;
         }
         if (!navTabs.length) return;
-        navTabs.sort((a, b) => a.rank - b.rank);
+        const customOrder = Array.isArray(sleekfinHeaderOrderState.itemOrder) ? sleekfinHeaderOrderState.itemOrder : [];
+        const userOrderedOscars = customOrder.includes(OSCARS_SLEEKFIN_HEADER_KEY);
+        if (userOrderedOscars) {
+          navTabs.sort((a, b) => {
+            const ia = customOrder.indexOf(a.canonicalKey);
+            const ib = customOrder.indexOf(b.canonicalKey);
+            const ra = ia >= 0 ? ia : 1e3 + a.rank;
+            const rb = ib >= 0 ? ib : 1e3 + b.rank;
+            return ra - rb;
+          });
+        } else {
+          navTabs.sort((a, b) => a.rank - b.rank);
+        }
         const overflowToggle = proxy.querySelector("[data-sleekfin-header-overflow-toggle]");
         const firstRight = separator || ((_e2 = utilities[0]) == null ? void 0 : _e2.el) || overflowToggle || null;
         const navSet = new Set(navTabs.map((t) => t.el));
@@ -19247,10 +19416,17 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         oscars.ensureOscarsNav(window.ApiClient);
         syncMobileOverflowDrawer(window.ApiClient);
       }
+      function onSleekfinHeaderSettingsChanged() {
+        fetchSleekfinHeaderOrder(window.ApiClient, true);
+        oscars.ensureOscarsNav(window.ApiClient);
+        syncMobileOverflowDrawer(window.ApiClient);
+      }
       function onWindowResize() {
+        var _a2;
         closeHeaderOverflowMenu();
         scheduleScroll();
         oscars.ensureOscarsNav(window.ApiClient);
+        (_a2 = oscars.syncOscarsLayout) == null ? void 0 : _a2.call(oscars);
         syncMobileOverflowDrawer(window.ApiClient);
       }
       function start() {
@@ -19327,7 +19503,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
                 const allNodes = [...added, ...removed];
                 const onlyOscarsLink = allNodes.length > 0 && allNodes.every((n) => {
                   var _a3;
-                  return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, "[data-fx-oscars-link]"));
+                  return n.nodeType === 1 && ((_a3 = n.matches) == null ? void 0 : _a3.call(n, "[data-fx-oscars-link],[data-fx-oscars-source]"));
                 });
                 if (!onlyOscarsLink) needsHeader = true;
               }
@@ -19337,7 +19513,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
             } else if (!needsSearch && ((_j = t.closest) == null ? void 0 : _j.call(t, "#searchPage")) && !((_k = t.closest) == null ? void 0 : _k.call(t, ".fx-search-library,.searchResults,.searchSuggestions"))) {
               needsSearch = true;
             }
-            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
+            if (!needsReconcile && (r.type === "childList" || r.attributeName === "class") && !((_l = t.closest) == null ? void 0 : _l.call(t, ".fx-discovery,.fx-oscars-page,.fx-oscar-admin,.fx-header-overflow-menu,[data-fx-oscars-link],[data-fx-oscars-source],.fx-dialog,.fx-inline-studio,.fx-download-menu,.fx-search-library,.fx-year-picker,.fx-year-range,.fx-filter-footer,.fx-livetv-bar,.fx-osd-gesture-pill,.fx-osd-skip-overlay,.fx-osd-playstate-overlay,.fx-toast,.fx-ambient-bg,.fx-bg-tuner,.fx-ratings-group,.rh-root,[data-sleekfin-header-proxy],[data-sleekfin-header-overflow-drawer],.skinHeader,.MuiPopover-root,.sleekfin-popup-layer,.sleekfin-menu-popup,.sleekfin-details-dropdown-menu,#searchPage .searchResults,#searchPage .searchSuggestions"))) {
               needsReconcile = true;
             }
           }
@@ -19387,6 +19563,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         window.addEventListener("scroll", onOsdScrollGuard, { passive: true });
         window.addEventListener("blur", releaseOsdSpeedHold);
         window.addEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
+        window.addEventListener("sleekfin:header-settings-changed", onSleekfinHeaderSettingsChanged);
         window.addEventListener("fazfort:oscars-updated", onOscarsUpdated);
         document.addEventListener("click", onHeaderOverflowClick, true);
         document.addEventListener("keydown", onHeaderOverflowKeyDown, true);
@@ -19490,6 +19667,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           window.removeEventListener("scroll", onOsdScrollGuard);
           window.removeEventListener("blur", releaseOsdSpeedHold);
           window.removeEventListener("sleekfin:header-catalog-changed", onHeaderCatalogChanged);
+          window.removeEventListener("sleekfin:header-settings-changed", onSleekfinHeaderSettingsChanged);
           window.removeEventListener("fazfort:oscars-updated", onOscarsUpdated);
           document.removeEventListener("click", onHeaderOverflowClick, true);
           document.removeEventListener("keydown", onHeaderOverflowKeyDown, true);

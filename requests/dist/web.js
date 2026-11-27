@@ -1128,11 +1128,38 @@
     }
     const DISCOVER_COMPASS_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>';
     function createDiscoverIconSpan(asSourceIcon = false) {
-      const icon = el("span", "", "rh-compass-icon");
+      const icon = el("span", "", asSourceIcon ? "MuiButton-startIcon rh-compass-icon" : "rh-compass-icon");
       icon.setAttribute("aria-hidden", "true");
       if (asSourceIcon) icon.dataset.sleekfinHeaderSourceIcon = "true";
       icon.innerHTML = DISCOVER_COMPASS_SVG;
       return icon;
+    }
+    function findVisibleHeaderSourceHost() {
+      const modern = document.querySelector("header.MuiAppBar-root");
+      if (modern && !modern.classList.contains("hide") && !modern.hidden) {
+        let vis = true;
+        try {
+          vis = getComputedStyle(modern).display !== "none";
+        } catch {
+        }
+        if (vis) {
+          const stack = modern.querySelector(".MuiToolbar-root .MuiStack-root");
+          if (stack) return stack;
+        }
+      }
+      const legacy = document.querySelector(".skinHeader:not(.hide)");
+      if (legacy && !legacy.hidden) {
+        let vis = true;
+        try {
+          vis = getComputedStyle(legacy).display !== "none";
+        } catch {
+        }
+        if (vis) {
+          const left = legacy.querySelector(".headerLeft");
+          if (left) return left;
+        }
+      }
+      return document.querySelector("header.MuiAppBar-root .MuiToolbar-root .MuiStack-root") || document.querySelector(".skinHeader .headerLeft");
     }
     function upgradeNativeDiscoverIcon(btn) {
       if (!btn) return;
@@ -1143,7 +1170,7 @@
       }
     }
     function ensureNavigation(active) {
-      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+      var _a2, _b2, _c2, _d2, _e2, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
       if (permAllowed !== true) {
         removeNavigation();
         return;
@@ -1155,22 +1182,27 @@
         }
       } catch {
       }
-      const sourceHost = document.querySelector(".skinHeader .headerLeft") || document.querySelector("header.MuiAppBar-root .MuiToolbar-root .MuiStack-root");
+      const sourceHost = findVisibleHeaderSourceHost();
       let addedSource = false;
-      if (sourceHost && !sourceHost.querySelector("[data-rh-source]")) {
-        const src = el("button", "", "headerButton headerButtonLeft rh-source-btn");
-        src.id = "requesthub-discover-tab";
-        src.type = "button";
-        src.dataset.rhSource = "true";
-        src.dataset.headerLabel = "Discover";
-        src.title = "Discover";
-        src.setAttribute("aria-label", "Discover");
-        const icon = createDiscoverIconSpan(true);
-        const label = el("span", "Discover", "emby-button-foreground");
-        src.append(icon, label);
-        src.onclick = openDiscoverRoute;
-        sourceHost.append(src);
-        addedSource = true;
+      if (sourceHost) {
+        document.querySelectorAll("[data-rh-source]").forEach((n) => {
+          if (!sourceHost.contains(n)) n.remove();
+        });
+        if (!sourceHost.querySelector("[data-rh-source]")) {
+          const src = el("button", "", "headerButton headerButtonLeft rh-source-btn");
+          src.id = "requesthub-discover-tab";
+          src.type = "button";
+          src.dataset.rhSource = "true";
+          src.dataset.headerLabel = "Discover";
+          src.title = "Discover";
+          src.setAttribute("aria-label", "Discover");
+          const icon = createDiscoverIconSpan(true);
+          const label = el("span", "Discover", "emby-button-foreground");
+          src.append(icon, label);
+          src.onclick = openDiscoverRoute;
+          sourceHost.append(src);
+          addedSource = true;
+        }
       }
       if (addedSource) {
         if ((_d2 = (_c2 = window.SleekFinFeatures) == null ? void 0 : _c2.header) == null ? void 0 : _d2.refresh) {
@@ -1179,20 +1211,20 @@
           } catch {
           }
         }
-        if (typeof Event === "function") {
+        if (typeof Event === "function" && ((_f = (_e2 = document.documentElement) == null ? void 0 : _e2.getAttribute) == null ? void 0 : _f.call(_e2, "data-fx-header-managed")) !== "true") {
           try {
-            (_e2 = window.dispatchEvent) == null ? void 0 : _e2.call(window, new Event("resize"));
+            (_g = window.dispatchEvent) == null ? void 0 : _g.call(window, new Event("resize"));
           } catch {
           }
         }
       }
       const proxy = document.querySelector("[data-sleekfin-header-proxy]");
       const overflowDrawer = document.querySelector("[data-sleekfin-header-overflow-drawer]");
-      const overflowToggle = (_f = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _f.call(proxy, "[data-sleekfin-header-overflow-toggle]");
-      const headerManaged = ((_h = (_g = document.documentElement) == null ? void 0 : _g.getAttribute) == null ? void 0 : _h.call(_g, "data-fx-header-managed")) === "true";
+      const overflowToggle = (_h = proxy == null ? void 0 : proxy.querySelector) == null ? void 0 : _h.call(proxy, "[data-sleekfin-header-overflow-toggle]");
+      const headerManaged = ((_j = (_i = document.documentElement) == null ? void 0 : _i.getAttribute) == null ? void 0 : _j.call(_i, "data-fx-header-managed")) === "true";
       const overflowActive = !headerManaged && Boolean(overflowToggle && overflowToggle.getAttribute("data-sleekfin-header-overflow-hidden") !== "true");
-      const isPhoneHeader = !headerManaged && Boolean((_j = (_i = window.matchMedia) == null ? void 0 : _i.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _j.matches);
-      const isMobileHeader = Boolean(isPhoneHeader || overflowActive && ((_l = (_k = window.matchMedia) == null ? void 0 : _k.call(window, "(max-width: 899px)")) == null ? void 0 : _l.matches));
+      const isPhoneHeader = !headerManaged && Boolean((_l = (_k = window.matchMedia) == null ? void 0 : _k.call(window, "(max-width: 599px), ((max-width: 899px) and (hover: none) and (pointer: coarse))")) == null ? void 0 : _l.matches);
+      const isMobileHeader = Boolean(isPhoneHeader || overflowActive && ((_n = (_m = window.matchMedia) == null ? void 0 : _m.call(window, "(max-width: 899px)")) == null ? void 0 : _n.matches));
       const ensureBeforeCollectionsOrLiveTv = (host, discoverNode, itemsSelector) => {
         if (!host || !discoverNode || discoverNode.parentElement !== host) return;
         const siblings = [...host.querySelectorAll(itemsSelector)];
@@ -1272,7 +1304,7 @@
             }
           }
         } else {
-          (_n = (_m = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _m.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _n.forEach((n) => n.remove());
+          (_p = (_o = overflowDrawer == null ? void 0 : overflowDrawer.querySelectorAll) == null ? void 0 : _o.call(overflowDrawer, '[data-sleekfin-header-overflow-item="requesthub:discover"]')) == null ? void 0 : _p.forEach((n) => n.remove());
           if (nativeProxyBtn) {
             proxy.querySelectorAll('button[data-sleekfin-header-proxy-item="requesthub:discover"]').forEach((n) => n.remove());
             upgradeNativeDiscoverIcon(nativeProxyBtn);
@@ -1285,7 +1317,7 @@
             btn.dataset.rhLink = "true";
             btn.dataset.sleekfinHeaderProxyItem = "requesthub:discover";
             btn.dataset.sleekfinHeaderZone = "tabs";
-            btn.dataset.sleekfinHeaderDisplay = ((_o = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _o.sleekfinHeaderDisplay) || "both";
+            btn.dataset.sleekfinHeaderDisplay = ((_q = sampleTab == null ? void 0 : sampleTab.dataset) == null ? void 0 : _q.sleekfinHeaderDisplay) || "both";
             btn.title = "Discover";
             btn.setAttribute("aria-label", "Discover");
             const vis = el("span", "");
