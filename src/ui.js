@@ -1,5 +1,5 @@
 export function bootDiscovery(DEFAULT_CONFIG, DISCOVERY_CSS) {
-const VERSION = '0.7.6';
+const VERSION = '0.7.7';
 if (window.FazFortDiscovery?.version === VERSION) return;
 window.FazFortDiscovery?.stop?.();
 // The older helper can otherwise reorder native rows while this feed is mounted.
@@ -4094,6 +4094,7 @@ function setMode(s, full, remember = true) {
 async function nextRow(s) {
   if(s.filteredQueue)return s.filteredQueue.shift()||null;
   const opening=s.profile.opening || [];
+  const openingMin=()=>s.planner&&s.planner.index<OPENING_RICH_ROW_COUNT?OPENING_MIN_ITEMS:0;
   while((s.openingIndex||0)<opening.length){
     const token=opening[s.openingIndex||0];s.openingIndex=(s.openingIndex||0)+1;
     if(token.startsWith('anchor:')){
@@ -4101,10 +4102,10 @@ async function nextRow(s) {
       try{const row=await s.client.anchor(id,s.route,s.inventory,s.config);if(row.items.length){s.anchorTurn=false;return row;}}
       catch{s.client.assertCurrent();}
     }else if(token==='family:any'){
-      const row=s.planner.next(null);
+      const row=s.planner.next(null,null,openingMin());
       if(row){s.anchorTurn=true;return row;}
     }else{
-      const row=token.startsWith('rule:')?s.planner.take(token):s.planner.shelves.some(r=>r.family===token.slice(7))?s.planner.next(token.slice(7)):null;
+      const row=token.startsWith('rule:')?s.planner.take(token):s.planner.shelves.some(r=>r.family===token.slice(7))?s.planner.next(token.slice(7),null,openingMin()):null;
       if(row){s.anchorTurn=true;return row;}
     }
   }
@@ -4127,7 +4128,7 @@ async function nextRow(s) {
     } else {
       s.anchorTurn = true;
       if (opening.length && (s.postAnchorWait || 0) > 0) s.postAnchorWait--;
-      const row = s.planner.next(!opening.length && s.anchorIndex <= anchorsQueue.length && s.anchorIndex > 0 && s.slots.filter(slot => !slot.boot).length < anchorsQueue.length * 2 ? 'theme' : null);
+      const row = s.planner.next(!opening.length && s.anchorIndex <= anchorsQueue.length && s.anchorIndex > 0 && s.slots.filter(slot => !slot.boot).length < anchorsQueue.length * 2 ? 'theme' : null, null, openingMin());
       if (row) return row;
       if (s.anchorIndex >= anchorsQueue.length) return null;
       if (opening.length) s.postAnchorWait = 0;

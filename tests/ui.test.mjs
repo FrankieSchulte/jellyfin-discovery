@@ -6,7 +6,7 @@ import { parseHTML } from 'linkedom';
 const source = await readFile(new URL('../dist/fazfort-discovery.js', import.meta.url), 'utf8');
 const id=n=>n.toString(16).padStart(32,'0');
 const fixtureItems=Array.from({length:45},(_,n)=>({Id:id(n+1),Name:`Movie ${n}`,Type:n%3?'Movie':'Series',DateCreated:new Date().toISOString(),ProductionYear:2000+n%20,Genres:['Action','Adventure','Comedy'],Tags:['space','superhero','anime','based on video game'],CommunityRating:8,ImageTags:{Primary:'primary'},BackdropImageTags:['bg'],People:[{Name:'Director '+n%3,Type:'Director'},{Name:'Actor '+n%4,Type:'Actor'}],UserData:{}}));
-function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
+function fixture({hash='#/home',failure=false,delay=false,config=null,items=fixtureItems}={}){
   const saves=[];
   const {window,document}=parseHTML('<html><head></head><body><div id="indexPage" class="page"><div class="hero">Keep hero</div><div class="homeSectionsContainer"><div class="card" data-id="'+id(2)+'"><div class="cardScalable"></div></div></div></div><div id="moviesPage" class="page hide"><div class="pageTabContent" data-index="0"><p>Original movie list</p></div></div><div id="tvshowsPage" class="page hide"><div class="pageTabContent" data-index="0">Original shows</div></div></body></html>');
   let timeouts=[],nextTimerId=1,frames=[],mutation,intersect,requests=0,resolver,focused=document.body;
@@ -17,20 +17,20 @@ function fixture({hash='#/home',failure=false,delay=false,config=null}={}){
   const storage=new Map();
   const api={ajax:async options=>{const body=JSON.parse(options.data);saves.push(body);config=body.Config;return {Version:saves.length};},getCurrentUserId:()=> 'u',serverId:()=> 's',getImageUrl:(i,o)=>`https://example.test/Items/${i}/Images/${o.type}`,getUrl:(p,q)=>({p,q}),getJSON:async ({p,q})=>{
     if(p==='FazFortDiscovery/Preferences')return {Version:saves.length,Config:config};
-    if(p==='FazFortDiscovery/Tracking')return {Ready:true,Records:Object.fromEntries(fixtureItems.map(i=>[i.Id,{AddedAt:new Date().toISOString()}]))};
+    if(p==='FazFortDiscovery/Tracking')return {Ready:true,Records:Object.fromEntries(items.map(i=>[i.Id,{AddedAt:new Date().toISOString()}]))};
     if(p==='FazFortDiscovery/Ratings'){
       const ids=String(q?.Ids||'').split(',').filter(Boolean);
       return {Ratings:Object.fromEntries(ids.map((itemId)=>{const norm=itemId.replace(/-/g,'').toLowerCase();const even=parseInt(norm.slice(-4),16)%2===0;return [norm,{criticScore:even?94:42,criticState:even?'certified':'rotten',audienceScore:even?91:48,audienceState:even?'hot':'spilled',source:'rt',pending:false}];}))};
     }
     if(p.endsWith('/Views'))return {Items:[{Id:'m',Name:'Movies',CollectionType:'movies'},{Id:'t',Name:'Shows',CollectionType:'tvshows'}]};
-    return {Items:fixtureItems.slice(0,3)};
+    return {Items:items.slice(0,3)};
   },getItems:async(u,p)=>{
     requests++;
     if(failure)throw Error('fixture failure');
     if(delay)await new Promise(r=>{resolver=r;});
-    if(p.Ids)return {Items:fixtureItems.filter(i=>p.Ids.split(',').includes(i.Id))};
+    if(p.Ids)return {Items:items.filter(i=>p.Ids.split(',').includes(i.Id))};
     if(p.IncludeItemTypes==='Season')return {Items:[]};
-    return {Items:fixtureItems.filter(i=>p.IncludeItemTypes.split(',').includes(i.Type))};
+    return {Items:items.filter(i=>p.IncludeItemTypes.split(',').includes(i.Type))};
   }};
   const location={hash,origin:'https://example.test',href:'https://example.test/web/'+hash};
   const fakeWindow={ApiClient:api,addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
@@ -2656,4 +2656,56 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
   assert.match(injectedStyle, /\.fx-oscars-row-controls\{[^}]*position:\s*absolute[^}]*right:\s*0/, 'Pins Oscars scroll arrows cleanly to the right edge without offsetting the centered title');
 
   fakeWindow.FazFortDiscovery.stop();
+});
+
+test('v0.7.7 Home, Movies, and Shows opening categories only pick 10+ item categories before smaller niche shelves', async () => {
+  // Build a library with 15+ small 3-item director/actor/studio categories AND rich 14-item categories across genres, themes, decades, and studios
+  const mixedItems = [];
+  for (let i = 0; i < 36; i++) {
+    const isMovie = i % 2 === 0;
+    const localIdx = Math.floor(i / 2);
+    mixedItems.push({
+      Id: id(500 + i),
+      Name: `${isMovie ? 'Film' : 'Show'} ${localIdx}`,
+      Type: isMovie ? 'Movie' : 'Series',
+      DateCreated: new Date().toISOString(),
+      ProductionYear: localIdx < 12 ? 2021 : 1995,
+      Genres: localIdx < 14 ? ['Action', 'Drama'] : ['Western'],
+      Tags: localIdx < 12 ? ['space', 'superhero'] : ['niche-tag-' + Math.floor(localIdx / 3)],
+      CommunityRating: localIdx < 12 ? 8.4 : 6.2,
+      RunTimeTicks: isMovie ? 95 * 600000000 : 45 * 600000000,
+      ImageTags: { Primary: 'primary' },
+      BackdropImageTags: ['bg'],
+      // Many small 3-item directors & actors that would otherwise frequently land in slots 1-3
+      People: [
+        { Name: `Niche Director ${Math.floor(localIdx / 3)}`, Type: 'Director' },
+        { Name: `Niche Actor ${Math.floor(localIdx / 3)}`, Type: 'Actor' }
+      ],
+      Studios: [{ Name: localIdx < 12 ? 'Big Studio' : `Tiny Studio ${Math.floor(localIdx / 3)}` }],
+      UserData: {}
+    });
+  }
+
+  for (const [hash, pageSel] of [['#/home', '#indexPage'], ['#/movies', '#moviesPage'], ['#/tv', '#tvshowsPage']]) {
+    const f = fixture({ hash, items: mixedItems });
+    if (pageSel !== '#indexPage') {
+      f.document.getElementById('indexPage').classList.add('hide');
+      f.document.querySelector(pageSel).classList.remove('hide');
+      f.navigate(hash);
+    }
+    await f.settle();
+    const shelves = [...f.document.querySelectorAll(`${pageSel} .fx-shelf`)];
+    assert.ok(shelves.length >= 4, `${hash} mounts opening shelves + Continue Watching`);
+    for (let idx = 0; idx < 3; idx++) {
+      const uniqueIds = new Set([...shelves[idx].querySelectorAll('.fx-card[data-item-id]')].map(c => c.dataset.itemId));
+      assert.ok(uniqueIds.size >= 10, `${hash} opening shelf #${idx + 1} (${shelves[idx].dataset.shelfKey}) has >= 10 unique items (got ${uniqueIds.size})`);
+      assert.notEqual(shelves[idx].dataset.shelfKey, 'genre:explore', `${hash} opening shelf #${idx + 1} skips catch-all genre:explore`);
+    }
+    // Note: on #/tv, resume items must be Series/Episode; verify slot 4 is either ContinueWatchingNextUp or a 10+ discovery shelf
+    if (shelves[3].dataset.shelfKey !== 'ContinueWatchingNextUp') {
+      const uniqueIds4 = new Set([...shelves[3].querySelectorAll('.fx-card[data-item-id]')].map(c => c.dataset.itemId));
+      assert.ok(uniqueIds4.size >= 10, `${hash} slot 4 discovery shelf (${shelves[3].dataset.shelfKey}) also has >= 10 unique items`);
+    }
+    f.ctx.window.FazFortDiscovery.stop();
+  }
 });

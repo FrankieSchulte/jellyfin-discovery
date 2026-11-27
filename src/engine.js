@@ -321,13 +321,15 @@ export function buildShelves(items, profile, config, page, now) {
   add('genre:explore', `Explore More ${label}`, 'genre', eligible);
   return shelves;
 }
+export const OPENING_RICH_ROW_COUNT = 4;
+export const OPENING_MIN_ITEMS = 10;
 export class FeedPlanner {
   constructor(shelves, config, seed) {
     this.shelves = shelves; this.config = config; this.seed = seed;
     this.counts = new Map(); this.lastFamilies = []; this.lastKeys = []; this.lastItems = []; this.index = 0;
   }
-  take(key) { return this.next(null,key); }
-  next(preferredFamily = null, exactKey = null) {
+  take(key) { return this.next(null, key); }
+  next(preferredFamily = null, exactKey = null, minItems = 0) {
     if (!this.shelves.length) return null;
     let pool = this.shelves.filter(s => (!exactKey || s.key===exactKey) && (this.config.endless || !this.counts.has(s.key)));
     if (!pool.length) return null;
@@ -335,6 +337,21 @@ export class FeedPlanner {
     if (fresh.length) pool = fresh;
     const preferred = pool.filter(s => s.family === preferredFamily);
     if (preferred.length) pool = preferred;
+    if (!exactKey && minItems > 0) {
+      const targetMin = Math.max(this.config.minimumItems || 3, Math.min(minItems, this.config.cardsPerShelf || minItems));
+      const rich = pool.filter(s => (s.items?.length || 0) >= targetMin);
+      if (rich.length) {
+        const nonExplore = rich.filter(s => s.key !== 'genre:explore');
+        pool = nonExplore.length ? nonExplore : rich;
+      } else {
+        const candidates = pool.filter(s => s.key !== 'genre:explore');
+        const basis = candidates.length ? candidates : pool;
+        const maxLen = Math.max(...basis.map(s => s.items?.length || 0));
+        const floor = Math.max(this.config.minimumItems || 3, Math.ceil(maxLen * 0.7));
+        const fullest = basis.filter(s => (s.items?.length || 0) >= floor);
+        if (fullest.length) pool = fullest;
+      }
+    }
     const familyDiverse = pool.filter(s => !this.lastFamilies.includes(s.family));
     if (familyDiverse.length) pool = familyDiverse;
     const boostSeasonal = preferredFamily === 'theme';

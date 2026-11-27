@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.6 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.7 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -10245,6 +10245,8 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
       add("genre:explore", `Explore More ${label}`, "genre", eligible);
       return shelves;
     }
+    const OPENING_RICH_ROW_COUNT = 4;
+    const OPENING_MIN_ITEMS = 10;
     class FeedPlanner {
       constructor(shelves, config, seed) {
         this.shelves = shelves;
@@ -10259,7 +10261,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
       take(key) {
         return this.next(null, key);
       }
-      next(preferredFamily = null, exactKey = null) {
+      next(preferredFamily = null, exactKey = null, minItems = 0) {
         if (!this.shelves.length) return null;
         let pool = this.shelves.filter((s) => (!exactKey || s.key === exactKey) && (this.config.endless || !this.counts.has(s.key)));
         if (!pool.length) return null;
@@ -10267,6 +10269,30 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         if (fresh.length) pool = fresh;
         const preferred = pool.filter((s) => s.family === preferredFamily);
         if (preferred.length) pool = preferred;
+        if (!exactKey && minItems > 0) {
+          const targetMin = Math.max(this.config.minimumItems || 3, Math.min(minItems, this.config.cardsPerShelf || minItems));
+          const rich = pool.filter((s) => {
+            var _a;
+            return (((_a = s.items) == null ? void 0 : _a.length) || 0) >= targetMin;
+          });
+          if (rich.length) {
+            const nonExplore = rich.filter((s) => s.key !== "genre:explore");
+            pool = nonExplore.length ? nonExplore : rich;
+          } else {
+            const candidates = pool.filter((s) => s.key !== "genre:explore");
+            const basis = candidates.length ? candidates : pool;
+            const maxLen = Math.max(...basis.map((s) => {
+              var _a;
+              return ((_a = s.items) == null ? void 0 : _a.length) || 0;
+            }));
+            const floor = Math.max(this.config.minimumItems || 3, Math.ceil(maxLen * 0.7));
+            const fullest = basis.filter((s) => {
+              var _a;
+              return (((_a = s.items) == null ? void 0 : _a.length) || 0) >= floor;
+            });
+            if (fullest.length) pool = fullest;
+          }
+        }
         const familyDiverse = pool.filter((s) => !this.lastFamilies.includes(s.family));
         if (familyDiverse.length) pool = familyDiverse;
         const boostSeasonal = preferredFamily === "theme";
@@ -12926,7 +12952,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.6";
+      const VERSION = "0.7.7";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
@@ -17315,6 +17341,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
         var _a2;
         if (s.filteredQueue) return s.filteredQueue.shift() || null;
         const opening = s.profile.opening || [];
+        const openingMin = () => s.planner && s.planner.index < OPENING_RICH_ROW_COUNT ? OPENING_MIN_ITEMS : 0;
         while ((s.openingIndex || 0) < opening.length) {
           const token = opening[s.openingIndex || 0];
           s.openingIndex = (s.openingIndex || 0) + 1;
@@ -17330,13 +17357,13 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
               s.client.assertCurrent();
             }
           } else if (token === "family:any") {
-            const row = s.planner.next(null);
+            const row = s.planner.next(null, null, openingMin());
             if (row) {
               s.anchorTurn = true;
               return row;
             }
           } else {
-            const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7)) : null;
+            const row = token.startsWith("rule:") ? s.planner.take(token) : s.planner.shelves.some((r) => r.family === token.slice(7)) ? s.planner.next(token.slice(7), null, openingMin()) : null;
             if (row) {
               s.anchorTurn = true;
               return row;
@@ -17362,7 +17389,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
           } else {
             s.anchorTurn = true;
             if (opening.length && (s.postAnchorWait || 0) > 0) s.postAnchorWait--;
-            const row = s.planner.next(!opening.length && s.anchorIndex <= anchorsQueue.length && s.anchorIndex > 0 && s.slots.filter((slot) => !slot.boot).length < anchorsQueue.length * 2 ? "theme" : null);
+            const row = s.planner.next(!opening.length && s.anchorIndex <= anchorsQueue.length && s.anchorIndex > 0 && s.slots.filter((slot) => !slot.boot).length < anchorsQueue.length * 2 ? "theme" : null, null, openingMin());
             if (row) return row;
             if (s.anchorIndex >= anchorsQueue.length) return null;
             if (opening.length) s.postAnchorWait = 0;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { badgeFor, buildShelves, FeedPlanner, isOscarsHash, matchOscarNominee, matches, monthAgo, normalizeOscarTitle, recent, resolveHeroConfig, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, selectHeroItems, validateConfig } from '../src/engine.js';
+import { badgeFor, buildShelves, FeedPlanner, isOscarsHash, matchOscarNominee, matches, monthAgo, normalizeOscarTitle, OPENING_MIN_ITEMS, OPENING_RICH_ROW_COUNT, recent, resolveHeroConfig, resolveRatingsConfig, routeInfo, searchAndRankInventory, seasonBadges, selectHeroItems, validateConfig } from '../src/engine.js';
 const config = JSON.parse(await readFile(new URL('../config/default.json', import.meta.url)));
 const now = new Date('2026-11-04T12:00:00Z');
 const items = Array.from({length: 48}, (_, n) => ({ Id: n.toString(16).padStart(32,'0'), Name: 'Item '+n, Type: n % 3 ? 'Movie' : 'Series', Genres: ['Action', 'Comedy'], Tags: ['space', 'superhero'], CommunityRating: n % 2 ? 8 : 6, RunTimeTicks: 90*600000000, ProductionYear: 2000 + n % 20, People: [{ Name: 'Director '+(n % 4), Type: 'Director' }, { Name: 'Actor '+(n % 3), Type: 'Actor' }], Studios:[{Name:'Studio'}], UserData:{ Played: n % 5 === 0 } }));
@@ -200,4 +200,42 @@ test('v0.7.0 Oscars route detection and nominee-to-library matching (TMDb ID, ti
   assert.equal(matchOscarNominee({ title: 'O Agente Secreto', year: 2025 }, movies)?.Id, 'm-secret');
   assert.equal(matchOscarNominee({ title: 'Marty Supreme', year: 2025 }, movies)?.Id, 'm-marty', 'allows ±1 year festival release offset');
   assert.equal(matchOscarNominee({ title: 'Frankenstein', year: 2025 }, movies), null, 'does not mismatch 1931 remake against 2025 nominee');
+});
+test('v0.7.7 FeedPlanner restricts opening rows to 10+ item categories with progressive small-library fallback', () => {
+  const mkItems = (prefix, count) => Array.from({ length: count }, (_, i) => ({ Id: `${prefix}-${i}`, Name: `${prefix} ${i}`, Type: 'Movie' }));
+  const mixedShelves = [
+    { key: 'rule:tiny-a', title: 'Tiny A', family: 'theme', items: mkItems('ta', 3) },
+    { key: 'rule:tiny-b', title: 'Tiny B', family: 'director', items: mkItems('tb', 4) },
+    { key: 'actor:small', title: 'Small Actor', family: 'actor', items: mkItems('sa', 5) },
+    { key: 'studio:small', title: 'Small Studio', family: 'studio', items: mkItems('ss', 6) },
+    { key: 'rule:big-theme', title: 'Big Theme', family: 'theme', items: mkItems('bt', 12) },
+    { key: 'genre:action', title: 'Action Movies', family: 'genre', items: mkItems('ga', 15) },
+    { key: 'decade:2010', title: '2010s', family: 'decade', items: mkItems('d1', 11) },
+    { key: 'studio:big', title: 'Big Studio', family: 'studio', items: mkItems('bs', 10) },
+    { key: 'genre:explore', title: 'Explore More Movies', family: 'genre', items: mkItems('ex', 40) }
+  ];
+  for (let s = 0; s < 12; s++) {
+    const planner = new FeedPlanner(mixedShelves, config, `rich-seed-${s}`);
+    const opening = Array.from({ length: OPENING_RICH_ROW_COUNT }, () => planner.next(null, null, OPENING_MIN_ITEMS));
+    assert.equal(opening.length, OPENING_RICH_ROW_COUNT);
+    for (const row of opening) {
+      assert.ok(row.allItems.length >= OPENING_MIN_ITEMS, `Opening row ${row.key} has >= ${OPENING_MIN_ITEMS} items (got ${row.allItems.length})`);
+      assert.notEqual(row.key, 'genre:explore', 'Skips generic Explore More when real 10+ categories exist');
+    }
+    assert.equal(new Set(opening.map(r => r.key)).size, OPENING_RICH_ROW_COUNT, 'Opening rows are all distinct');
+  }
+  // Explicit pinned rule via take() still works even if under 10 items
+  const pinPlanner = new FeedPlanner(mixedShelves, config, 'pin-seed');
+  assert.equal(pinPlanner.take('rule:tiny-a')?.key, 'rule:tiny-a');
+
+  // Smaller libraries with zero 10+ categories fall back gracefully to the fullest available categories
+  const smallShelves = [
+    { key: 'rule:s1', title: 'Three', family: 'theme', items: mkItems('s1', 3) },
+    { key: 'director:s2', title: 'Three Dir', family: 'director', items: mkItems('s2', 3) },
+    { key: 'genre:s3', title: 'Seven', family: 'genre', items: mkItems('s3', 7) },
+    { key: 'decade:s4', title: 'Six', family: 'decade', items: mkItems('s4', 6) }
+  ];
+  const smallPlanner = new FeedPlanner(smallShelves, config, 'small-lib');
+  const firstTwo = [smallPlanner.next(null, null, OPENING_MIN_ITEMS), smallPlanner.next(null, null, OPENING_MIN_ITEMS)];
+  assert.deepEqual(firstTwo.map(r => r.key).sort(), ['decade:s4', 'genre:s3'], 'Falls back to fullest shelves (6-7 items) over 3-item shelves');
 });
