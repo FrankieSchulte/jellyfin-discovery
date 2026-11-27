@@ -2642,8 +2642,11 @@ test('v0.7.3 deterministic priority header overflow drops Live TV -> Collections
   Object.defineProperty(dirTrack, 'clientWidth', { configurable: true, get: () => 1200 });
   Object.defineProperty(dirTrack, 'scrollWidth', { configurable: true, get: () => 720 });
   triggerResize(1200);
-  assert.equal(document.querySelector('.fx-oscars-shelf[data-oscar-category="best-picture"]').dataset.fxCentered, 'false', 'Scrollable 10-nominee shelf stays left-aligned with arrows');
+  assert.equal(document.querySelector('.fx-oscars-shelf[data-oscar-category="best-picture"]').dataset.fxCentered, 'false', 'Scrollable 10-nominee shelf keeps scrollable track & arrows');
   assert.equal(document.querySelector('.fx-oscars-shelf[data-oscar-category="best-director"]').dataset.fxCentered, 'true', 'Non-scrollable 3-nominee shelf centers and hides arrows');
+  const injectedStyle = document.querySelector('#fx-discovery-style')?.textContent || '';
+  assert.match(injectedStyle, /\.fx-oscars-row-head\{[^}]*justify-content:\s*center[^}]*padding-inline:\s*84px/, 'Centers all Oscars category titles (including Best Picture) with symmetric arrow clearance');
+  assert.match(injectedStyle, /\.fx-oscars-row-controls\{[^}]*position:\s*absolute[^}]*right:\s*0/, 'Pins Oscars scroll arrows cleanly to the right edge without offsetting the centered title');
 
   fakeWindow.FazFortDiscovery.stop();
 });

@@ -1,4 +1,4 @@
-/* FazFort Discovery 0.7.4 — paste this entire file into one non-module JS Injector script. */
+/* FazFort Discovery 0.7.5 — paste this entire file into one non-module JS Injector script. */
 (() => {
   (() => {
     "use strict";
@@ -9210,10 +9210,7 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   min-width:0;
 }
 .fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-row-head{
-  justify-content:center;
-}
-.fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-heading{
-  margin:0;
+  padding-inline:0;
 }
 .fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-row-controls{
   display:none!important;
@@ -9222,18 +9219,24 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   justify-content:center;
 }
 .fx-oscars-row-head{
+  position:relative;
   display:flex;
   align-items:center;
+  justify-content:center;
   gap:10px;
+  min-height:36px;
   margin-bottom:6px;
+  padding-inline:84px;
+  box-sizing:border-box;
 }
 .fx-oscars-heading{
-  margin:0 auto 0 0;
+  margin:0;
   display:inline-flex;
   align-items:center;
+  justify-content:center;
   gap:10px;
   color:var(--fx-oscar-white,#faf8f4);
-  text-align:left;
+  text-align:center;
   min-width:0;
 }
 .fx-oscar-award-icon{
@@ -9262,6 +9265,10 @@ html[data-fx-oscars="true"] .rh-btn-primary:not(:disabled){
   color:var(--fx-oscar-white,#faf8f4)!important;
 }
 .fx-oscars-row-controls{
+  position:absolute;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
   display:flex;
   align-items:center;
   gap:6px;
@@ -9542,6 +9549,12 @@ html.layout-tv .fx-oscars-heading-btn:focus-visible{
     padding:10px 14px 14px;
     scroll-padding-inline:14px;
     gap:10px;
+  }
+  .fx-oscars-row-head{
+    padding-inline:76px;
+  }
+  .fx-oscars-shelf[data-fx-centered="true"] .fx-oscars-row-head{
+    padding-inline:0;
   }
   .fx-oscars-row-head h2{
     font-size:18.5px!important;
@@ -12900,7 +12913,7 @@ html[data-fx-oscars="true"] .fx-header-overflow-menu{
     }
     function bootDiscovery(DEFAULT_CONFIG2, DISCOVERY_CSS2) {
       var _a, _b, _c, _d, _e;
-      const VERSION = "0.7.4";
+      const VERSION = "0.7.5";
       if (((_a = window.FazFortDiscovery) == null ? void 0 : _a.version) === VERSION) return;
       (_c = (_b = window.FazFortDiscovery) == null ? void 0 : _b.stop) == null ? void 0 : _c.call(_b);
       (_e = (_d = window.FazFortHomeFeed) == null ? void 0 : _d.stop) == null ? void 0 : _e.call(_d);
